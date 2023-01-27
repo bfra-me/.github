@@ -1,0 +1,6 @@
+{
+  "name": "Sync Settings",
+  "description": "Sync repository settings with the default settings in @bfra-me/.github",
+  "iconName": "sync-settings-icon",
+  "categories": ["C", "Docker", "Go", "JavaScript", "Python", "Rust", "Shell", "TypeScript"]
+}

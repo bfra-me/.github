@@ -1,0 +1,6 @@
+{
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "**/workflow-templates/*.yml": "github-actions-workflow"
+  }
+}

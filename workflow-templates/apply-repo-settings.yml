@@ -6,8 +6,8 @@ on:
   push:
     branches: [$default-branch]
     paths:
-      - ".github/settings.yml"
-      - ".github/workflows/apply-repo-settings.yaml"
+      - '.github/settings.yml'
+      - '.github/workflows/apply-repo-settings.yaml'
   schedule:
     - cron: $cron-daily
   workflow_dispatch:
@@ -25,9 +25,9 @@ jobs:
           application_id: ${{ secrets.APPLICATION_ID }}
           application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           organization: ${{ github.repository_owner }}
-          permissions: "administration:write, contents:read, issues:write, members:write"
+          permissions: 'administration:write, contents:read, issues:write, members:write'
 
       - name: Apply Repository Settings And ${{ github.repository_owner }}/.github Defaults
-        uses: exivity/actions/sync-defaults@main
+        uses: exivity/actions/sync-defaults@b2942d30d80c07b3c1c9d379a4f970fdc8e4fece # main
         with:
           gh-token: ${{ steps.get-workflow-access-token.outputs.token }}

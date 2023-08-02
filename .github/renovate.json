@@ -6,6 +6,6 @@
   "postUpgradeTasks": {
     "commands": ["npx prettier --no-color --write ."],
     "executionMode": "branch",
-    "fileFilter": ['**/*']
+    "fileFilter": ["**/*"]
   }
 }

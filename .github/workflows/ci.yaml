@@ -31,4 +31,3 @@ jobs:
         with:
           prettier_options: --check .
           prettier_version: ${{ env.PRETTIER_VERSION }}
-  

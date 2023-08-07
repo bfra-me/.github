@@ -1,9 +1,0 @@
-{
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>bfra-me/renovate-config#v1.17.2"],
-  "postUpgradeTasks": {
-    "commands": ["npx prettier --no-color --write ."],
-    "executionMode": "branch",
-    "fileFilters": ["**/*"]
-  }
-}

@@ -28,6 +28,6 @@ jobs:
           permissions: 'administration:write, contents:read, issues:write, members:write'
 
       - name: Apply Repository Settings And ${{ github.repository_owner }}/.github Defaults
-        uses: exivity/actions/sync-defaults@da1e96a01e91c5620e3fab6415aad98bcee2436a # main
+        uses: exivity/actions/sync-defaults@d18ea4c8b4511d6cb6b4165db0e78fdf1063b387 # main
         with:
           gh-token: ${{ steps.get-workflow-access-token.outputs.token }}

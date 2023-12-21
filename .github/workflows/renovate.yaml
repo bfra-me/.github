@@ -49,7 +49,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: create-output
-        run: echo "renovate=true" >> $GITHUB_OUTPUT
+        run: |
+          echo "renovate=true" >> $GITHUB_OUTPUT
+          echo "dry-run=${{ !contains('["main", "renovate/reconfigure"]', github.ref_name) }}" >> $GITHUB_OUTPUT
 
   renovate:
     if: needs.should-renovate.outputs.renovate == 'true'
@@ -60,7 +62,9 @@ jobs:
       - name: Renovate
         uses: bfra-me/renovate-action@d6d1f148f765ad783ef29005e44b1917ce76db42 # v2.2.4
         with:
-          autodiscover: true
+          autodiscover: ${{ github.ref != 'refs/heads/main' && 'false' || 'true' }}
+          branch: ${{ github.ref != 'refs/heads/main' && github.ref_name || '' }}
+          dry_run: ${{ needs.should-renovate.outputs.dry-run }}
           print_config: ${{ inputs.print_config || 'false' }}
           renovate_app_id: ${{ secrets.APPLICATION_ID }}
           renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}

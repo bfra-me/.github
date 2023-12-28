@@ -16,6 +16,7 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@changesets/cli": "2.27.1",
     "prettier": "3.1.1"
   }
 }

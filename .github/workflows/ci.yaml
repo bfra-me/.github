@@ -3,6 +3,7 @@ name: CI
 
 'on':
   pull_request:
+    types: [opened, synchronize]
   push:
     branches: ['**']
   workflow_dispatch:
@@ -24,10 +25,14 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - name: 💅🏽 Run Prettier
-        uses: creyD/prettier_action@31355f8eef017f8aeba2e0bc09d8502b13dbbad1 # v4.3
-        env:
-          PRETTIER_VERSION: 3.1.1 # renovate: datasource=npm depName=prettier
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v3.8.2
         with:
-          prettier_options: --check .
-          prettier_version: ${{ env.PRETTIER_VERSION }}
+          cache: pnpm
+          node-version-file: '.node-version'
+
+      - name: 💅🏽 Run Prettier
+        run: pnpm check-format

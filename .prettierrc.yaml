@@ -5,6 +5,10 @@ singleQuote: true
 tabWidth: 2
 overrides:
   - files:
+      - '.changeset/*.md'
+    options:
+      singleQuote: false
+  - files:
       - '.vscode/*.json'
     options:
       tabWidth: 4

@@ -34,12 +34,16 @@ jobs:
           cache: pnpm
           node-version-file: '.node-version'
 
+      - name: 🧰 Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
       - name: 💅🏽 Run Prettier
         run: pnpm check-format
 
   release:
     if: github.repository == 'bfra-me/.github' &&  github.event_name == 'push' && github.ref =='refs/heads/main'
     name: Release
+    needs: [lint]
     runs-on: ubuntu-latest
     steps:
       - id: get-workflow-access-token

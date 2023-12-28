@@ -7,6 +7,14 @@ name: Update Repository Settings
     branches: [main]
   schedule:
     - cron: '55 2 * * *' # Every day at 02:55 UTC
+  workflow_call:
+    secrets:
+      APPLICATION_ID:
+        description: GitHub App ID
+        required: true
+      APPLICATION_PRIVATE_KEY:
+        description: GitHub App private key
+        required: true
   workflow_dispatch:
 
 concurrency:
@@ -47,5 +55,5 @@ jobs:
       - env:
           GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
-        name: Update Repository Settings (${{ github.repository_owner }}/.github)
+        name: Update Repository Settings (${{ github.repository }})
         uses: elstudio/actions-settings@v3-beta

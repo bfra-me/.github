@@ -18,7 +18,6 @@
   "scripts": {
     "check-format": "prettier --check .",
     "format": "prettier --write .",
-    "publish": "changesets publish",
     "version": "changesets version"
   },
   "devDependencies": {

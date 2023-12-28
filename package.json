@@ -5,6 +5,10 @@
   "author": "Marcus R. Brown <git@mrbro.dev> (https://mrbro.dev/)",
   "license": "MIT",
   "packageManager": "pnpm@8.13.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bfra-me/.github.git"
+  },
   "keywords": [
     "template",
     "github",
@@ -13,7 +17,9 @@
   ],
   "scripts": {
     "check-format": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "publish": "changesets publish",
+    "version": "changesets version"
   },
   "devDependencies": {
     "@changesets/cli": "2.27.1",

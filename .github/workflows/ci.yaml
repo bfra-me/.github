@@ -36,3 +36,40 @@ jobs:
 
       - name: 💅🏽 Run Prettier
         run: pnpm check-format
+
+  release:
+    if: github.repository == 'bfra-me/.github' &&  github.event_name == 'push' && github.ref =='refs/heads/main'
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - id: get-workflow-access-token
+        name: Get Workflow Access Token
+        uses: peter-murray/workflow-application-token-action@8e1ba3bf1619726336414f1014e37f17fbadf1db # v2.1.0
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          permissions: 'contents:write, issues:write, pull_requests:write'
+      - name: Setup Git user
+        run: |
+          git config --global user.email '118100583+bfra-me[bot]@users.noreply.github.com'
+          git config --global user.name 'bfra-me[bot]'
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          fetch-depth: 0
+          token: ${{ steps.get-workflow-access-token.outputs.token }}
+      - run: corepack enable
+      - name: Setup Node.js
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # v4.0.1
+        with:
+          cache: pnpm
+          node-version-file: '.node-version'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Create Release Pull Request or Publish to npm
+        uses: changesets/action@v1
+        with:
+          publish: pnpm publish
+          version: pnpm version
+        env:
+          GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}

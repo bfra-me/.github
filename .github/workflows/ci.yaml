@@ -73,7 +73,9 @@ jobs:
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@v1
         with:
+          commit: 'chore: release'
           setupGitUser: false
+          title: 'chore: release'
           version: pnpm version
         env:
           GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}

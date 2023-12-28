@@ -1,8 +1,13 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [':prImmediately', 'github>bfra-me/renovate-config#v2.3.7'],
+  extends: [':prImmediately', 'github>bfra-me/renovate-config#v2.4.0'],
   postUpgradeTasks: {
-    commands: ['npx prettier --no-color --write .'],
+    commands: [
+      'corepack enable',
+      'pnpm install --frozen-lockfile --ignore-scripts',
+      'git checkout -- .npmrc',
+      'pnpm run format',
+    ],
     executionMode: 'branch',
   },
 }

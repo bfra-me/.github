@@ -19,7 +19,7 @@
   "scripts": {
     "check-format": "prettier --check .",
     "format": "prettier --write .",
-    "bump": "changesets version",
+    "bump": "changeset version",
     "release": "tsx ./scripts/release.ts"
   },
   "devDependencies": {

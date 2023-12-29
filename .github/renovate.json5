@@ -1,9 +1,9 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: [':prImmediately', 'github>bfra-me/renovate-config#v2.4.1'],
+  extends: ['github>bfra-me/renovate-config#v2.4.1'],
   postUpgradeTasks: {
     commands: [
-      'corepack enable',
+      'npm install -g pnpm@8',
       'pnpm install --frozen-lockfile --ignore-scripts',
       'git checkout -- .npmrc',
       'pnpm run format',

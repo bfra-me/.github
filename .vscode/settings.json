@@ -2,6 +2,13 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
 
+    "files.associations": {
+        "workflow-templates/**/*.yaml": "github-actions-workflow",
+        "workflow-templates/**/*.yml": "github-actions-workflow"
+    },
+
+    "github-actions.workflows.pinned.workflows": [".github/workflows/ci.yaml"],
+
     "typescript.enablePromptUseWorkspaceTsdk": true,
     "typescript.tsdk": "node_modules/typescript/lib"
 }

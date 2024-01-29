@@ -4,7 +4,7 @@
   "description": "Defaults for the @bfra-me GitHub Organization",
   "author": "Marcus R. Brown <git@mrbro.dev> (https://mrbro.dev/)",
   "license": "MIT",
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "pnpm@8.15.1",
   "type": "module",
   "repository": {
     "type": "git",

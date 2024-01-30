@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.1.1
+
+### Patch Changes
+
+- [#135](https://github.com/bfra-me/.github/pull/135) [`58366ec`](https://github.com/bfra-me/.github/commit/58366ec020f2165855d12ef0cf218d0e05ca289c) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Update dependencies
+
 ## 1.1.0
 
 ### Minor Changes

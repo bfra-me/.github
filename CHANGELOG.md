@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.2.0
+
+### Minor Changes
+
+- [#139](https://github.com/bfra-me/.github/pull/139) [`61b7f3a`](https://github.com/bfra-me/.github/commit/61b7f3a9ca453fb9f3cf3593888937230cc66139) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Make the `renovate` workflow reusable
+
 ## 1.1.1
 
 ### Patch Changes

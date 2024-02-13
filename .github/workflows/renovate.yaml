@@ -11,11 +11,26 @@ name: Renovate
     branches: ['**']
   schedule:
     - cron: '0 * * * *' # Run every hour
+  workflow_call:
+    inputs:
+      print_config:
+        description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
+        type: boolean
+        default: false
+      renovate_app_slug:
+        description: GitHub App slug
+        type: string
+    secrets:
+      APPLICATION_ID:
+        description: GitHub App ID
+        required: true
+      APPLICATION_PRIVATE_KEY:
+        description: GitHub App private key
+        required: true
   workflow_dispatch:
     inputs:
       print_config:
         description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
-        required: false
         type: boolean
         default: false
 
@@ -59,17 +74,19 @@ jobs:
               - '.github/workflows/renovate.yaml'
               - '.github/renovate.json5'
       - env:
+          autodiscover: >-
+            ${{ github.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
           cache: >-
-            ${{ contains('["push", "schedule", "workflow_dispatch"]', github.event_name) && github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'renovate/') }}
+            ${{ !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'renovate/') }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Renovate
         uses: bfra-me/renovate-action@ae00850ee9ef26508d981df1334d5fc3402418a0 # v2.7.25
         with:
-          autodiscover: ${{ !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
+          autodiscover: ${{ env.autodiscover }}
           branch: ${{ github.ref != 'refs/heads/main' && github.ref_name || '' }}
           cache: ${{ env.cache }}
           dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
           print_config: ${{ inputs.print_config }}
           renovate_app_id: ${{ secrets.APPLICATION_ID }}
           renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          renovate_app_slug: ${{ github.repository_owner }}
+          renovate_app_slug: ${{ inputs.renovate_app_slug || github.repository_owner }}

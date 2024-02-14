@@ -80,7 +80,7 @@ jobs:
             ${{ !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'renovate/') }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Renovate
-        uses: bfra-me/renovate-action@b072bdd746bd35c33159fca07bd2ba59771a0499 # v2.7.27
+        uses: bfra-me/renovate-action@433da0928380032ddb82c2cba06d0886be9fb31e # v2.7.28
         with:
           autodiscover: ${{ env.autodiscover }}
           branch: ${{ github.ref != 'refs/heads/main' && github.ref_name || '' }}

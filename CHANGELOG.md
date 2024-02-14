@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.2.2
+
+### Patch Changes
+
+- [#143](https://github.com/bfra-me/.github/pull/143) [`ff7cec4`](https://github.com/bfra-me/.github/commit/ff7cec4568e6ac180af05bfbe4fd0cd82e8eac6f) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Update concurrency groups in workflows to use `head_ref` or `ref`
+
 ## 1.2.1
 
 ### Patch Changes

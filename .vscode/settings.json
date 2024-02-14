@@ -7,7 +7,7 @@
         "workflow-templates/**/*.yml": "github-actions-workflow"
     },
 
-    "github-actions.workflows.pinned.workflows": [".github/workflows/ci.yaml"],
+    "github-actions.workflows.pinned.workflows": [".github/workflows/ci.yaml", ".github/workflows/renovate.yaml"],
 
     "typescript.enablePromptUseWorkspaceTsdk": true,
     "typescript.tsdk": "node_modules/typescript/lib"

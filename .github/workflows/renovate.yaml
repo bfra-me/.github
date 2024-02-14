@@ -75,7 +75,7 @@ jobs:
               - '.github/renovate.json5'
       - env:
           autodiscover: >-
-            ${{ github.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
+            ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
           cache: >-
             ${{ !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' || startsWith(github.ref_name, 'renovate/') }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'

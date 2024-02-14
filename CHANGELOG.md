@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.2.1
+
+### Patch Changes
+
+- [#141](https://github.com/bfra-me/.github/pull/141) [`80be368`](https://github.com/bfra-me/.github/commit/80be368da2663430d1f894bfcaf07f16d5aa1601) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Fix `autodiscover` input passed to @bfra-me/renovate-action in the Renovate workflow
+
 ## 1.2.0
 
 ### Minor Changes

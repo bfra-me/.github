@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.2.4
+
+### Patch Changes
+
+- [#147](https://github.com/bfra-me/.github/pull/147) [`08b89bd`](https://github.com/bfra-me/.github/commit/08b89bdd09def6e7fc3a1951972a71d69c13c5d2) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Disable branch action input for edited Renovate PRs and use correct ref for dry runs.
+
 ## 1.2.3
 
 ### Patch Changes

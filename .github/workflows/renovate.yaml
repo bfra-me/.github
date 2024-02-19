@@ -84,7 +84,7 @@ jobs:
         uses: bfra-me/renovate-action@fd83a3b0834fcc397d6f79086edd9e30e7eabc24 # v2.8.1
         with:
           autodiscover: ${{ env.autodiscover }}
-          branch: ${{ env.dry_run && github.ref || '' }}
+          branch: ${{ env.dry_run == 'true' && github.ref_name || '' }}
           cache: ${{ env.cache }}
           dry_run: ${{ env.dry_run }}
           print_config: ${{ inputs.print_config }}

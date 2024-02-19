@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.2.3
+
+### Patch Changes
+
+- [#145](https://github.com/bfra-me/.github/pull/145) [`d0ede1f`](https://github.com/bfra-me/.github/commit/d0ede1f991976d843539d594c8e5cf9b17329725) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Bump @bfra-me/renovate-action to 2.8.0
+
 ## 1.2.2
 
 ### Patch Changes

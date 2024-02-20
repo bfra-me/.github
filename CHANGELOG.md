@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.3.0
+
+### Minor Changes
+
+- [#151](https://github.com/bfra-me/.github/pull/151) [`570186a`](https://github.com/bfra-me/.github/commit/570186a4391955ed930e1e0906e6f3f4f16cf1b3) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Update to `bfra-me/renovate-action` v3
+
 ## 1.2.4
 
 ### Patch Changes

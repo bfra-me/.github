@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.4.0
+
+### Minor Changes
+
+- [#156](https://github.com/bfra-me/.github/pull/156) [`3ea539b`](https://github.com/bfra-me/.github/commit/3ea539b7237d2b4baafb5ccda151b8c52de7e1b0) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Rollup several fixes and updates
+
 ## 1.3.0
 
 ### Minor Changes

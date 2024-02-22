@@ -81,7 +81,7 @@ jobs:
           dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Renovate
-        uses: bfra-me/renovate-action@d2ac427fa77b37a58411a7952fc786a15c61d72a # v3.1.2
+        uses: bfra-me/renovate-action@2d3fbee93d2a090b183b2b432999b2262a3d4d4e # v3.1.4
         with:
           autodiscover: ${{ env.autodiscover }}
           branch: ${{ env.dry_run == 'true' && github.ref_name || '' }}

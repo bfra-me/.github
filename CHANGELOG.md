@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.5.1
+
+### Patch Changes
+
+- [#164](https://github.com/bfra-me/.github/pull/164) [`d97d4a8`](https://github.com/bfra-me/.github/commit/d97d4a8db9ceec8ed1e22d20912dc33db78e62ee) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Scope concurrency group to the GitHub repository
+
 ## 1.5.0
 
 ### Minor Changes

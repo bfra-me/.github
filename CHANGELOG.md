@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.4.1
+
+### Patch Changes
+
+- [#160](https://github.com/bfra-me/.github/pull/160) [`145b8cb`](https://github.com/bfra-me/.github/commit/145b8cb6ed6ca65d80151b0dbad72f8aa54e2f2f) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Do not cancel Renovate jobs that push to `main`
+
 ## 1.4.0
 
 ### Minor Changes

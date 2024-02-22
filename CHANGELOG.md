@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.5.0
+
+### Minor Changes
+
+- [#162](https://github.com/bfra-me/.github/pull/162) [`18cdb57`](https://github.com/bfra-me/.github/commit/18cdb57ba457f2065286234a17559445c8f27c50) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Add `log_level` input to Renovate reusable workflow
+
 ## 1.4.1
 
 ### Patch Changes

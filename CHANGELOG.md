@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.5.2
+
+### Patch Changes
+
+- [#166](https://github.com/bfra-me/.github/pull/166) [`3fa804d`](https://github.com/bfra-me/.github/commit/3fa804d89f526a06c8daa40fad7af507cff378c9) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Update the bfra-me/renovate-config version to 3.0.2
+
 ## 1.5.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.6.0
+
+### Minor Changes
+
+- [#175](https://github.com/bfra-me/.github/pull/175) [`3cc974c`](https://github.com/bfra-me/.github/commit/3cc974c72f413c9211230d74f149d3b0dd37c2bb) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Set the default Renovate log level to debug.
+
 ## 1.5.3
 
 ### Patch Changes

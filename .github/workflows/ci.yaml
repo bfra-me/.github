@@ -2,15 +2,15 @@
 name: CI
 
 'on':
+  merge_group:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, ready_for_review, reopened]
   push:
-    branches: ['**']
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
@@ -22,8 +22,6 @@ jobs:
     steps:
       - name: ⤵️ Checkout Branch
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          ref: ${{ github.head_ref }}
 
       - name: 📦 Enable Corepack
         run: corepack enable

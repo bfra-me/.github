@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.5.3
+
+### Patch Changes
+
+- [#172](https://github.com/bfra-me/.github/pull/172) [`3fa10b8`](https://github.com/bfra-me/.github/commit/3fa10b8fdcfbc9217637bca782d99fbe12b4a255) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Roll-up recent `renovate-action` and `renovate-config` updates
+
 ## 1.5.2
 
 ### Patch Changes

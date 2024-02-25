@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.6.1
+
+### Patch Changes
+
+- [#180](https://github.com/bfra-me/.github/pull/180) [`c8383d2`](https://github.com/bfra-me/.github/commit/c8383d284d194da2c37d3e5d7405ee629be625fe) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Update Renovate dependencies and modify CI concurrency to avoid cancellations
+
 ## 1.6.0
 
 ### Minor Changes

@@ -16,7 +16,7 @@ name: Renovate
       log_level:
         description: Log level
         type: string
-        default: info
+        default: debug
       print_config:
         description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
         type: boolean
@@ -36,7 +36,7 @@ name: Renovate
       log_level:
         description: Log level
         type: string
-        default: info
+        default: debug
       print_config:
         description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
         type: boolean
@@ -51,6 +51,7 @@ permissions:
 
 jobs:
   renovate:
+    name: Renovate
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request') ||
       (
@@ -68,7 +69,8 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- unlimit-branch=') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
       )
-    name: Renovate
+    env:
+      WORKFLOW_LOG_LEVEL: debug
     runs-on: ubuntu-latest
     steps:
       - if: github.event_name == 'push'
@@ -95,7 +97,7 @@ jobs:
           branch: ${{ env.dry_run == 'true' && github.ref_name || '' }}
           cache: ${{ env.cache }}
           dry_run: ${{ env.dry_run }}
-          log_level: ${{ inputs.log_level || 'info' }}
+          log_level: ${{ inputs.log_level || env.WORKFLOW_LOG_LEVEL }}
           print_config: ${{ inputs.print_config }}
           renovate_app_id: ${{ secrets.APPLICATION_ID }}
           renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}

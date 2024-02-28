@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.6.2
+
+### Patch Changes
+
+- [#192](https://github.com/bfra-me/.github/pull/192) [`f5766ab`](https://github.com/bfra-me/.github/commit/f5766ab77bef37e336bbfb52ab40f18b0ece35ef) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Renovate: Roll up recent `bfra-me/renovate-action` updates
+
 ## 1.6.1
 
 ### Patch Changes

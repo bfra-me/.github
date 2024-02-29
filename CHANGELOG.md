@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.6.4
+
+### Patch Changes
+
+- [#204](https://github.com/bfra-me/.github/pull/204) [`5ceacad`](https://github.com/bfra-me/.github/commit/5ceacad87f1bcba7f6e428ae21919691f358e7a9) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Renovate: Release latest `bfra-me/renovate-action` updates
+
 ## 1.6.3
 
 ### Patch Changes

@@ -43,8 +43,8 @@ name: Renovate
         default: false
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.event.number || github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.run_number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -87,18 +87,16 @@ jobs:
         env:
           autodiscover: >-
             ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
-          cache: >-
-            ${{ !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' || contains(github.ref_name, 'renovate/') }}
           dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         uses: bfra-me/renovate-action@d70f30baeea066ac74bf1cc65e4d43214af3de51 # v3.7.3
         with:
           autodiscover: ${{ env.autodiscover }}
           branch: ${{ env.dry_run == 'true' && github.ref_name || '' }}
-          cache: ${{ env.cache }}
+          cache: true
           dry_run: ${{ env.dry_run }}
           log_level: ${{ inputs.log_level || env.WORKFLOW_LOG_LEVEL }}
-          print_config: ${{ inputs.print_config }}
+          print_config: ${{ inputs.print_config || github.event_name == 'push' }}
           renovate_app_id: ${{ secrets.APPLICATION_ID }}
           renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           renovate_app_slug: ${{ inputs.renovate_app_slug || github.repository_owner }}

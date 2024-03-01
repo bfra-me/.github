@@ -1,5 +1,15 @@
 # @bfra.me/.github
 
+## 1.7.0
+
+### Minor Changes
+
+- [#210](https://github.com/bfra-me/.github/pull/210) [`47d1804`](https://github.com/bfra-me/.github/commit/47d180433db0ff1f6c883655a871ba56337fad4f) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Renovate: Always enable the Renovate cache
+
+### Patch Changes
+
+- [#207](https://github.com/bfra-me/.github/pull/207) [`c9fdedd`](https://github.com/bfra-me/.github/commit/c9fdedd7b1c9281372e4f26ae0f42fed8c1f3e1f) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Renovate: Roll up recent `bfra-me/renovate-action` releases
+
 ## 1.6.4
 
 ### Patch Changes

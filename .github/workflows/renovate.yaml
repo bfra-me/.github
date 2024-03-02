@@ -89,7 +89,7 @@ jobs:
             ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
           dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
-        uses: bfra-me/renovate-action@aab4f11f159cbbe6282beaeda1f1ba8167b8dcd5 # v3.10.1
+        uses: bfra-me/renovate-action@d11463b6040756116574a0fa9b11168a9dcb12cb # v3.11.0
         with:
           autodiscover: ${{ env.autodiscover }}
           branch: ${{ env.dry_run == 'true' && github.ref_name || '' }}

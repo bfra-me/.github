@@ -77,4 +77,5 @@ jobs:
           title: 'chore: release'
           version: pnpm bump
         env:
+          GH_REPO: ${{ github.repository }}
           GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}

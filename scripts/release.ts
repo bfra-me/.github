@@ -25,7 +25,27 @@ async function main() {
 
   // https://github.com/changesets/changesets/blob/main/docs/command-line-options.md#tag
   await exec('changeset', ['tag']);
-  await exec('git', ['push', '--force', '--follow-tags', 'origin', `HEAD:refs/heads/v${major}`]);
+
+  // Get the release SHA
+  const {stdout} = await getExecOutput('git', ['rev-parse', 'HEAD']);
+  const sha = Buffer.from(stdout.trim());
+  const ref = `refs/heads/v${major}`;
+
+  // Push to a floating major branch, e.g., version 2.1.3 is pushed to `refs/heads/v2`
+  const {exitCode: branchExitCode} = await getExecOutput('gh', ['api', `repos/${process.env.GH_REPO}/git/${ref}`], {
+    ignoreReturnCode: true,
+  });
+  if (branchExitCode !== 0) {
+    // Create a new floating major branch
+    await exec('gh', ['api', `repos/${process.env.GH_REPO}/git/refs`, '--input', '-'], {
+      input: Buffer.from(JSON.stringify({ref, sha})),
+    });
+  } else {
+    // Update existing branch
+    await exec('gh', ['api', `-XPATCH`, `repos/${process.env.GH_REPO}/git/${ref}`, '--input', '-'], {
+      input: Buffer.from(JSON.stringify({sha})),
+    });
+  }
 }
 
 await main();

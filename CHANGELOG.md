@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.8.1
+
+### Patch Changes
+
+- [#223](https://github.com/bfra-me/.github/pull/223) [`0ec0fdf`](https://github.com/bfra-me/.github/commit/0ec0fdfa3d6090f5069e9ce05d20151329f73bac) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Build: Update `release` script to remove `stdin` input
+
 ## 1.8.0
 
 ### Minor Changes

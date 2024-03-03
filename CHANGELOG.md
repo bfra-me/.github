@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.8.0
+
+### Minor Changes
+
+- [#220](https://github.com/bfra-me/.github/pull/220) [`75ebe89`](https://github.com/bfra-me/.github/commit/75ebe89e1851c181fbaf7b52f20fd8748fc96921) Thanks [@marcusrbrown](https://github.com/marcusrbrown)! - Build: Push releases to a floating major branch (e.g., `v1`)
+
 ## 1.7.0
 
 ### Minor Changes

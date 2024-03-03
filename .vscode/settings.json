@@ -1,6 +1,7 @@
 {
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
+    "editor.formatOnType": false,
 
     "files.associations": {
         "workflow-templates/**/*.yaml": "github-actions-workflow",

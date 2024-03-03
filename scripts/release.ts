@@ -37,14 +37,18 @@ async function main() {
   });
   if (branchExitCode !== 0) {
     // Create a new floating major branch
-    await exec('gh', ['api', `repos/${process.env.GH_REPO}/git/refs`, '--input', '-'], {
-      input: Buffer.from(JSON.stringify({ref, sha})),
-    });
+    await exec('gh', ['api', `repos/${process.env.GH_REPO}/git/refs`, '-f', `ref=${ref}`, '-f', `sha=${sha}`]);
   } else {
     // Update existing branch
-    await exec('gh', ['api', `-XPATCH`, `repos/${process.env.GH_REPO}/git/${ref}`, '--input', '-'], {
-      input: Buffer.from(JSON.stringify({sha})),
-    });
+    await exec('gh', [
+      'api',
+      `repos/${process.env.GH_REPO}/git/${ref}`,
+      '-XPATCH',
+      '-f',
+      `sha=${sha}`,
+      '-F',
+      'force=true',
+    ]);
   }
 }
 

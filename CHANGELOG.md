@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.8.2
+
+### Patch Changes
+
+- Set bfra-me/renovate-action ref to v3 floating major branch (by [@marcusrbrown](https://github.com/marcusrbrown) with [#229](https://github.com/bfra-me/.github/pull/229))
+
 ## 1.8.1
 
 ### Patch Changes

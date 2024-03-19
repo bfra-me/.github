@@ -1,4 +1,6 @@
 {
+    "cSpell.words": ["bfra"],
+
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.formatOnType": false,
@@ -8,7 +10,10 @@
         "workflow-templates/**/*.yml": "github-actions-workflow"
     },
 
-    "github-actions.workflows.pinned.workflows": [".github/workflows/ci.yaml", ".github/workflows/renovate.yaml"],
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/ci.yaml",
+        ".github/workflows/renovate.yaml"
+    ],
 
     "typescript.enablePromptUseWorkspaceTsdk": true,
     "typescript.tsdk": "node_modules/typescript/lib"

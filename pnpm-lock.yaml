@@ -9,8 +9,8 @@ devDependencies:
     specifier: 1.1.1
     version: 1.1.1
   '@bfra.me/prettier-config':
-    specifier: 0.3.0
-    version: 0.3.0(prettier@3.2.5)
+    specifier: 0.3.1
+    version: 0.3.1(prettier@3.2.5)
   '@changesets/changelog-github':
     specifier: 0.5.0
     version: 0.5.0
@@ -75,17 +75,17 @@ packages:
       regenerator-runtime: 0.14.1
     dev: true
 
-  /@bfra.me/prettier-config@0.3.0(prettier@3.2.5):
-    resolution: {integrity: sha512-H78+FPyh+waLwMGfyTyAkNMUekn8LT77FN0uaW+JHX4HfowknPzrQ+8y4qGwQgSTzSkw3wRje1CqupLPWnpBHg==}
+  /@bfra.me/prettier-config@0.3.1(prettier@3.2.5):
+    resolution: {integrity: sha512-W2V+ZqotN02IgTpNVnWOgZBB9nGyJANACvlROLhRUTOUUMLVh+ITyAWRDBMt9opx7Ime+LmNOp61JbMKC9CcLA==}
     peerDependencies:
       prettier: ^3.0.0
     dependencies:
-      '@bfra.me/prettier-plugins': 0.1.0(prettier@3.2.5)
+      '@bfra.me/prettier-plugins': 0.1.1(prettier@3.2.5)
       prettier: 3.2.5
     dev: true
 
-  /@bfra.me/prettier-plugins@0.1.0(prettier@3.2.5):
-    resolution: {integrity: sha512-P+m31mWNzVy3wUi3Da39rp9iMjcoq45m8DNPL4XSyAJrPpI1eAY7yi756FUc+izihxNBDWN9NqYDbPiqJIXsUQ==}
+  /@bfra.me/prettier-plugins@0.1.1(prettier@3.2.5):
+    resolution: {integrity: sha512-UugQG5QgSMdHRUcdpl7yvjbtjqdXmlsqUtzJu/Q+NB+yb66ZvZgwQwy2/0I7BUgVDQlL/N33EFV9JyUSKcUYIw==}
     peerDependencies:
       prettier: ^3.0.0
     dependencies:

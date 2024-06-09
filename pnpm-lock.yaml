@@ -30,8 +30,8 @@ importers:
         specifier: 3.3.1
         version: 3.3.1
       tsx:
-        specifier: 4.15.0
-        version: 4.15.0
+        specifier: 4.15.1
+        version: 4.15.1
       typescript:
         specifier: 5.4.5
         version: 5.4.5
@@ -1184,8 +1184,8 @@ packages:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
     engines: {node: '>=8'}
 
-  tsx@4.15.0:
-    resolution: {integrity: sha512-yPThHvkUdsyi3pUb+2a6JM0y0shxxLlIEfms2ZztL/rHqK+4dFYdVxh2X/0bcieo16Kvjq77VU/ML/nVICK/0g==}
+  tsx@4.15.1:
+    resolution: {integrity: sha512-k/6h17jA1KfUR7SpcteOa880zGmF56s8gMIcSqUR5avyNFi9nlCEKpMiHLrzrqyARGr52A/JablmGey1DEWbCA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -2587,7 +2587,7 @@ snapshots:
 
   trim-newlines@3.0.1: {}
 
-  tsx@4.15.0:
+  tsx@4.15.1:
     dependencies:
       esbuild: 0.21.4
       get-tsconfig: 4.7.5

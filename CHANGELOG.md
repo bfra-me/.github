@@ -1,5 +1,12 @@
 # @bfra.me/.github
 
+## 1.9.0
+### Minor Changes
+
+
+
+- Release all changes since current (by [@marcusrbrown](https://github.com/marcusrbrown) with [#245](https://github.com/bfra-me/.github/pull/245))
+
 ## 1.8.2
 
 ### Patch Changes

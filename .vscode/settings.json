@@ -1,5 +1,13 @@
 {
-    "cSpell.words": ["bfra"],
+    "cSpell.customDictionaries": {
+        "custom": true,
+        "project-words": {
+            "addWords": true,
+            "description": "Project Specific Words",
+            "name": "project-words",
+            "path": "${workspaceFolder}/.vscode/spellright.dict"
+        }
+    },
 
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,

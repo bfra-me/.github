@@ -12,8 +12,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1
       '@bfra.me/prettier-config':
-        specifier: 0.3.3
-        version: 0.3.3(prettier@3.3.3)
+        specifier: 0.4.0
+        version: 0.4.0(prettier@3.3.3)
       '@changesets/changelog-github':
         specifier: 0.5.0
         version: 0.5.0
@@ -48,8 +48,8 @@ packages:
     resolution: {integrity: sha512-5F7SDGs1T72ZczbRwbGO9lQi0NLjQxzl6i4lJxLxfW9U5UluCSyEJeniWvnhl3/euNiqQVbo8zruhsDfid0esA==}
     engines: {node: '>=6.9.0'}
 
-  '@bfra.me/prettier-config@0.3.3':
-    resolution: {integrity: sha512-gLiZ7D1B5DYBh5u/Wfo1lmXctF2VBsDdymj92ffSZgoAkq2KCPazkzsOedQ3CxrqpaZPXFjaJoP5AcghrByGeg==}
+  '@bfra.me/prettier-config@0.4.0':
+    resolution: {integrity: sha512-qXuokIMjLX0cilk0kiZ2snrnYmlCJJkLsidKEMGHF1PhwDLcxE6F8jXH8Ce44vBLzwou4Qn0Fxpi/QKTHtBIlw==}
     peerDependencies:
       prettier: ^3.0.0
 
@@ -753,7 +753,7 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
-  '@bfra.me/prettier-config@0.3.3(prettier@3.3.3)':
+  '@bfra.me/prettier-config@0.4.0(prettier@3.3.3)':
     dependencies:
       '@bfra.me/prettier-plugins': 0.2.1(prettier@3.3.3)
       prettier: 3.3.3

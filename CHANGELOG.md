@@ -1,5 +1,12 @@
 # @bfra.me/.github
 
+## 1.9.1
+### Patch Changes
+
+
+
+- Add labels and keep @bfra-me/renovate-action pinned to major version (by [@marcusrbrown](https://github.com/marcusrbrown) with [#253](https://github.com/bfra-me/.github/pull/253))
+
 ## 1.9.0
 ### Minor Changes
 

@@ -8,8 +8,7 @@
     {
       description: 'Disable digest pinning for @bfra-me GitHub actions and reusable workflows.',
       matchDepTypes: ['action'],
-      matchPackagePrefixes: ['@bfra.me/', 'bfra-me/'],
-      matchUpdateTypes: ['minor', 'patch', 'digest'],
+      matchPackageNames: ['@bfra.me/**', 'bfra-me/**'],
       pinDigests: false,
       rangeStrategy: 'replace',
       updatePinnedDependencies: false,

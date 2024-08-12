@@ -4,11 +4,21 @@
     'github>bfra-me/renovate-config#v3',
     'github>bfra-me/renovate-config:internal.json5#v3',
   ],
+  packageRules: [
+    {
+      description: 'Disable digest pinning for @bfra-me GitHub actions and reusable workflows.',
+      matchDepTypes: ['action'],
+      matchPackagePrefixes: ['@bfra.me/', 'bfra-me/'],
+      matchUpdateTypes: ['minor', 'patch', 'digest'],
+      pinDigests: false,
+      rangeStrategy: 'replace',
+      updatePinnedDependencies: false,
+    },
+  ],
   postUpgradeTasks: {
     commands: [
       'npm install -g pnpm@9.7.0',
       'pnpm install --frozen-lockfile --ignore-scripts',
-      'git checkout -- .npmrc',
       'pnpm run format',
     ],
     executionMode: 'branch',

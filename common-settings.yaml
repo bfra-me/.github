@@ -134,6 +134,10 @@ repository:
 
 # Labels: define labels for Issues and Pull Requests
 labels:
+  - name: automerge
+    color: '#8f4fbc'
+    description: ''
+
   - name: bug
     color: '#d73a4a'
     description: Something isn't working
@@ -166,9 +170,25 @@ labels:
     color: '#e4e669'
     description: This doesn't seem right
 
+  - name: major
+    color: '#b60205'
+    description: ''
+
+  - name: minor
+    color: '#2729A8'
+    description: ''
+
+  - name: patch
+    color: '#27A89F'
+    description: ''
+
   - name: question
     color: '#d876e3'
     description: Further information is requested
+
+  - name: renovate
+    color: '#dd42f5'
+    description: Universal dependency update tool <https://mend.io/renovate>
 
   - name: security
     color: '#ff0000'

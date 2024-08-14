@@ -9,8 +9,14 @@
       description: 'Enable SemVer digest pinning of @bfra-me GitHub actions, reusable workflows, and Renovate config presets.',
       matchDatasources: ['github-tags'],
       matchPackageNames: ['@bfra.me/**', 'bfra-me/**'],
-      rangeStrategy: 'replace',
       updatePinnedDependencies: false,
+    },
+    {
+      description: 'Enable SemVer digest pinning of @bfra-me GitHub actions, reusable workflows, and Renovate config presets.',
+      matchDatasources: ['github-tags'],
+      matchPackageNames: ['@bfra.me/**', 'bfra-me/**'],
+      matchUpdateTypes: ['major'],
+      updatePinnedDependencies: true,
     },
   ],
   postUpgradeTasks: {

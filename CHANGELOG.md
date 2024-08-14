@@ -1,5 +1,21 @@
 # @bfra.me/.github
 
+## 1.10.0
+### Minor Changes
+
+
+
+- Manually bump Renovate preset versions for updated `packageRules` (by [@marcusrbrown](https://github.com/marcusrbrown) with [#260](https://github.com/bfra-me/.github/pull/260))
+
+### Patch Changes
+
+
+
+- Remove `rangeStrategy` from Renovate config (by [@marcusrbrown](https://github.com/marcusrbrown) with [#259](https://github.com/bfra-me/.github/pull/259))
+
+
+- Pin default `@bfra-me/renovate-config` config preset with actions and workflows (by [@marcusrbrown](https://github.com/marcusrbrown) with [#257](https://github.com/bfra-me/.github/pull/257))
+
 ## 1.9.1
 ### Patch Changes
 

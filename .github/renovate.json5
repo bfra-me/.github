@@ -1,25 +1,20 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    'github>bfra-me/renovate-config#v3.7.7',
+    'github>bfra-me/renovate-config#v3',
     'github>bfra-me/renovate-config:internal.json5#v3.7.7',
   ],
   packageRules: [
     {
-      description: 'Disable digest pinning for @bfra-me GitHub actions and reusable workflows.',
-      matchDepTypes: ['action'],
+      description: 'Enable SemVer digest pinning of @bfra-me GitHub actions, reusable workflows, and Renovate config presets.',
+      matchDatasources: ['github-tags'],
       matchPackageNames: ['@bfra.me/**', 'bfra-me/**'],
-      pinDigests: false,
       rangeStrategy: 'replace',
       updatePinnedDependencies: false,
     },
   ],
   postUpgradeTasks: {
-    commands: [
-      'npm install -g pnpm@9.7.0',
-      'pnpm install --frozen-lockfile --ignore-scripts',
-      'pnpm run format',
-    ],
+    commands: ['pnpm install --frozen-lockfile --ignore-scripts', 'pnpm run format'],
     executionMode: 'branch',
   },
 }

@@ -89,15 +89,14 @@ jobs:
             ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
           dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
-        uses: bfra-me/renovate-action@v3
+        uses: bfra-me/renovate-action@v4
         with:
           autodiscover: ${{ env.autodiscover }}
           branch: ${{ env.dry_run == 'true' && github.ref_name || '' }}
           cache: true
-          dry_run: ${{ env.dry_run }}
-          log_level: ${{ inputs.log_level || env.WORKFLOW_LOG_LEVEL }}
-          print_config: ${{ inputs.print_config || github.event_name == 'push' }}
-          renovate_app_id: ${{ secrets.APPLICATION_ID }}
-          renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          renovate_app_slug: ${{ inputs.renovate_app_slug || github.repository_owner }}
-    timeout-minutes: 15
+          dry-run: ${{ env.dry_run }}
+          log-level: ${{ inputs.log_level || env.WORKFLOW_LOG_LEVEL }}
+          print-config: ${{ inputs.print_config || github.event_name == 'push' }}
+          renovate-app-id: ${{ secrets.APPLICATION_ID }}
+          renovate-app-private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+    timeout-minutes: 30

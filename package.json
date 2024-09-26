@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@actions/exec": "1.1.1",
-    "@bfra.me/prettier-config": "0.7.2",
+    "@bfra.me/prettier-config": "0.7.3",
     "@changesets/cli": "2.27.7",
     "@swisspost/design-system-changelog-github": "1.0.2",
     "@types/node": "20.16.0",

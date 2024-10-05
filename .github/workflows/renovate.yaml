@@ -88,12 +88,12 @@ jobs:
         env:
           autodiscover: >-
             ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
-          dry_run: ${{ !env.has_renovate_label && github.event_name == 'push' && github.ref != 'refs/heads/main' }}
-        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true' || env.has_renovate_label
+          dry_run: ${{ env.has_renovate_label == 'false' && github.event_name == 'push' && github.ref != 'refs/heads/main' }}
+        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true' || env.has_renovate_label == 'true'
         uses: bfra-me/renovate-action@v4
         with:
           autodiscover: ${{ env.autodiscover }}
-          branch: ${{ (( env.has_renovate_label && github.ref_name != github.event.repository.default_branch ) || env.dry_run == 'true' ) && github.ref_name || '' }}
+          branch: ${{ (( env.has_renovate_label == 'true' && github.ref_name != github.event.repository.default_branch ) || env.dry_run == 'true' ) && github.ref_name || '' }}
           cache: true
           dry-run: ${{ env.dry_run }}
           log-level: ${{ inputs.log_level || env.WORKFLOW_LOG_LEVEL }}

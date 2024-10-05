@@ -54,6 +54,7 @@ jobs:
     name: Renovate
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request') ||
+      (startsWith(github.event.*.labels.name, 'renovate')) ||
       (
         contains(join(github.event.*.body, ''), '- [x] <!-- approve-all-pending-prs -->') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- approve-branch=') ||

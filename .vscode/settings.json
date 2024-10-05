@@ -9,9 +9,19 @@
         }
     },
 
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.organizeImports": "never"
+    },
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
     "editor.formatOnType": false,
+
+    "eslint.options": {
+        "flags": ["unstable_ts_config"]
+    },
+
+    "explorer.fileNesting.enabled": false,
 
     "files.associations": {
         "workflow-templates/**/*.yaml": "github-actions-workflow",
@@ -24,5 +34,9 @@
     ],
 
     "typescript.enablePromptUseWorkspaceTsdk": true,
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

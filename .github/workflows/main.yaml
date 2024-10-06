@@ -1,11 +1,14 @@
+# Continuous Integration jobs for changes headed to main.
 ---
-name: CI
+name: Main
 
 'on':
   merge_group:
   pull_request:
+    branches: [main]
     types: [opened, synchronize, ready_for_review, reopened]
   push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:

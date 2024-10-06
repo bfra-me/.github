@@ -54,7 +54,7 @@ jobs:
     name: Renovate
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request') ||
-      (startsWith(github.event.*.labels.*.name, 'renovate')) ||
+      (contains(github.event.*.labels.*.name, 'renovate')) ||
       (
         contains(join(github.event.*.body, ''), '- [x] <!-- approve-all-pending-prs -->') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- approve-branch=') ||
@@ -71,9 +71,7 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
       )
     env:
-      has_renovate_label: ${{ startsWith(github.event.*.labels.*.name, 'renovate') }}
-      _debug_labels: ${{ toJson(github.event.*.labels.*.name) }}
-      _debug_event_star: ${{ toJson(github.event.*) }}
+      has_renovate_label: ${{ contains(github.event.*.labels.*.name, 'renovate') }}
       WORKFLOW_LOG_LEVEL: debug
     runs-on: ubuntu-latest
     steps:

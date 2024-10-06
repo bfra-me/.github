@@ -1,11 +1,14 @@
+# Continuous Integration jobs for changes headed to main.
 ---
-name: CI
+name: Main
 
 'on':
   merge_group:
   pull_request:
+    branches: [main]
     types: [opened, synchronize, ready_for_review, reopened]
   push:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -74,10 +77,10 @@ jobs:
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@aba318e9165b45b7948c60273e0b72fce0a64eb9 # v1.4.7
         with:
-          commit: 'chore: release'
+          commit: 'chore(changesets): publish release'
           publish: pnpm release
           setupGitUser: false
-          title: 'chore: release'
+          title: 'chore(🦋📦): publish release'
           version: pnpm bump
         env:
           GH_REPO: ${{ github.repository }}

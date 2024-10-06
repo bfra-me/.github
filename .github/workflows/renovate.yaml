@@ -17,6 +17,9 @@ name: Renovate
         description: Log level
         type: string
         default: debug
+      path_filters:
+        description: List of paths to filter for checking for changes
+        type: string
       print_config:
         description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
         type: boolean
@@ -37,6 +40,9 @@ name: Renovate
         description: Log level
         type: string
         default: debug
+      path_filters:
+        description: List of paths to filter for checking for changes
+        type: string
       print_config:
         description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
         type: boolean
@@ -72,6 +78,7 @@ jobs:
       )
     env:
       has_renovate_label: ${{ contains(github.event.*.labels.*.name, 'renovate') }}
+      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
       WORKFLOW_LOG_LEVEL: debug
     runs-on: ubuntu-latest
     steps:
@@ -82,9 +89,7 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         with:
           filters: |
-            changes:
-              - '.github/workflows/renovate.yaml'
-              - '.github/renovate.json5'
+            changes: ${{ inputs.path_filters != '' && inputs.path_filters || env.default_path_filters }}
       - name: Renovate
         env:
           autodiscover: >-

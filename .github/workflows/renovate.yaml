@@ -73,8 +73,7 @@ jobs:
     env:
       has_renovate_label: ${{ startsWith(github.event.*.labels.*.name, 'renovate') }}
       _debug_labels: ${{ toJson(github.event.*.labels.*.name) }}
-      _debug_event: ${{ toJson(github.event) }}
-      _debug_repository: ${{ toJson(github.repository) }}
+      _debug_event_star: ${{ toJson(github.event.*) }}
       WORKFLOW_LOG_LEVEL: debug
     runs-on: ubuntu-latest
     steps:

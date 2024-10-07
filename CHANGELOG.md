@@ -1,5 +1,13 @@
 # @bfra.me/.github
 
+## 1.11.0
+### Minor Changes
+
+
+
+- * Add support for Renovating any PR that uses the `renovate` label  
+  * Add a `path_filter` input for configuring the paths to filter for changes (by [@marcusrbrown](https://github.com/marcusrbrown) with [#264](https://github.com/bfra-me/.github/pull/264))
+
 ## 1.10.0
 ### Minor Changes
 

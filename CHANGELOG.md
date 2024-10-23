@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 1.11.1
+### Patch Changes
+
+
+- Add `create-config-migration-pr` to detected Renovate Dependency Dashboard checkboxes. ([#287](https://github.com/bfra-me/.github/pull/287))
+
+
+- Switch to `actions/create-github-app-token` to generate workflow access tokens. ([#285](https://github.com/bfra-me/.github/pull/285))
+
 ## 1.11.0
 ### Minor Changes
 

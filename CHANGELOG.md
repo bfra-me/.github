@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.11.2
+### Patch Changes
+
+
+- Revert the feature that ran the Renovate reusable workflow if a PR has a `renovate` label; introduced in 747e3b5f4afe41b15bc0cf1a64d30de4a337c816. ([#291](https://github.com/bfra-me/.github/pull/291))
+
 ## 1.11.1
 ### Patch Changes
 

@@ -66,6 +66,7 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- approve-branch=') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- approvePr-branch=') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- create-all-rate-limited-prs -->') ||
+        contains(join(github.event.*.body, ''), '- [x] <!-- create-config-migration-pr -->') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- manual job -->') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- other-branch=') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- rebase-all-open-prs -->') ||

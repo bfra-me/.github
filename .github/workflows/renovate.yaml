@@ -78,9 +78,8 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
       )
     env:
-      has_renovate_label: ${{ github.event_name != 'issues' && contains(github.event.*.labels.*.name, 'renovate') }}
-      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
       WORKFLOW_LOG_LEVEL: debug
+      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
     runs-on: ubuntu-latest
     steps:
       - if: github.event_name == 'push'
@@ -95,8 +94,8 @@ jobs:
         env:
           autodiscover: >-
             ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
-          dry_run: ${{ env.has_renovate_label == 'false' && github.event_name == 'push' && github.ref != 'refs/heads/main' }}
-        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true' || env.has_renovate_label == 'true'
+          dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
+        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         uses: bfra-me/renovate-action@v4
         with:
           autodiscover: ${{ env.autodiscover }}

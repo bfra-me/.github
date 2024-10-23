@@ -27,7 +27,7 @@
     "@bfra.me/eslint-config": "0.3.1",
     "@bfra.me/prettier-config": "0.7.4",
     "@changesets/cli": "2.27.9",
-    "@swisspost/design-system-changelog-github": "1.0.2",
+    "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/node": "20.16.14",
     "eslint": "9.13.0",
     "jiti": "2.3.3",

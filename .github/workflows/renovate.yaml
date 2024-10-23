@@ -78,8 +78,6 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
       )
     env:
-      has_renovate_label: ${{ github.event_name != 'issues' && contains(github.event.*.labels.*.name, 'renovate') }}
-      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
       WORKFLOW_LOG_LEVEL: debug
       default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
     runs-on: ubuntu-latest

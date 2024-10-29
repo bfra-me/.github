@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.12.0
+### Minor Changes
+
+
+- Add a trigger for `workflow_run` events with the 'success' status. ([#299](https://github.com/bfra-me/.github/pull/299))
+
 ## 1.11.2
 ### Patch Changes
 

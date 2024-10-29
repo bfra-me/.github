@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 1.12.1
+### Patch Changes
+
+
+- Remove `labeled` trigger on pull request events. ([#301](https://github.com/bfra-me/.github/pull/301))
+
 ## 1.12.0
 ### Minor Changes
 

@@ -104,7 +104,7 @@ jobs:
         uses: bfra-me/renovate-action@v4
         with:
           autodiscover: ${{ env.autodiscover }}
-          branch: ${{ (github.ref_name != github.event.repository.default_branch || env.dry_run == 'true') && github.ref_name || '' }}
+          branch: ${{ (github.ref_name != github.event.repository.default_branch || env.dry_run == 'true') && ( github.head_ref || github.ref_name ) || '' }}
           cache: true
           dry-run: ${{ env.dry_run }}
           log-level: ${{ inputs.log_level || env.autodiscover == 'true' && 'info' || env.WORKFLOW_LOG_LEVEL }}

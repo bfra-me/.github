@@ -29,7 +29,7 @@
     },
 
     "github-actions.workflows.pinned.workflows": [
-        ".github/workflows/ci.yaml",
+        ".github/workflows/main.yaml",
         ".github/workflows/renovate.yaml"
     ],
 

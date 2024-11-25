@@ -7,6 +7,7 @@
 <p align="center">
   <a href="https://github.com/bfra-me/.github/releases/latest" title="Latest Release on GitHub"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/bfra-me/.github?sort=semver&style=for-the-badge&logo=github&label=release"></a>
   <a href="https://github.com/bfra-me/.github/actions?query=workflow%3Amain" title="Search GitHub Actions for Main workflow runs" ><img alt="GitHub Workflow Main Status" src="https://img.shields.io/github/actions/workflow/status/bfra-me/.github/main.yaml?branch=main&style=for-the-badge&logo=github%20actions&logoColor=white&label=main"></a>
+  <a href="https://securityscorecards.dev/viewer/?uri=github.com/bfra-me/.github" title="View OpenSSF Scorecard"><img alt="OpenSSF Scorecard" src="https://api.securityscorecards.dev/projects/github.com/bfra-me/.github/badge?style=for-the-badge"></a>
 </p>
 
 <p align="center">

@@ -34,14 +34,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - id: get-workflow-access-token
-        name: Get Workflow Access Token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1.11.0
-        with:
-          app-id: ${{ secrets.APPLICATION_ID }}
-          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - name: Run analysis
         uses: ossf/scorecard-action@62b2cac7ed8198b15735ed49ab1e5cf35480ba46 # v2.4.0
         with:
@@ -51,7 +43,7 @@ jobs:
           # - you want to enable the Branch-Protection check on a *public* repository, or
           # - you are installing Scorecards on a *private* repository
           # To create the PAT, follow the steps in https://github.com/ossf/scorecard-action#authentication-with-pat.
-          repo_token: ${{ steps.get-workflow-access-token.outputs.token }}
+          repo_token: ${{ secrets.SCORECARD_TOKEN }}
 
           # Public repositories:
           #   - Publish results to OpenSSF REST API for easy access by consumers

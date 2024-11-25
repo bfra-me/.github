@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 1.13.0
+### Minor Changes
+
+
+- Tidy and release latest dependency updates, etc. ([#334](https://github.com/bfra-me/.github/pull/334))
+
+
+### Patch Changes
+
+
+- Updated dependency `typescript` to `5.7.2`. ([#338](https://github.com/bfra-me/.github/pull/338))
+
 ## 1.12.1
 ### Patch Changes
 

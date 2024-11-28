@@ -1,5 +1,35 @@
 # @bfra.me/.github
 
+## 2.0.0
+### Major Changes
+
+
+- Update to @bfra-me/renovate-action v5 ([#350](https://github.com/bfra-me/.github/pull/350))
+
+
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/prettier-config` to `0.10.0`. ([#348](https://github.com/bfra-me/.github/pull/348))
+
+
+- Updated dependency `@types/node` to `22.9.4`. ([#343](https://github.com/bfra-me/.github/pull/343))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.4.9`. ([#347](https://github.com/bfra-me/.github/pull/347))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.4.8`. ([#340](https://github.com/bfra-me/.github/pull/340))
+
+
+- Updated dependency `prettier` to `3.4.0`. ([#345](https://github.com/bfra-me/.github/pull/345))
+
+
+- Updated dependency `prettier` to `3.4.1`. ([#346](https://github.com/bfra-me/.github/pull/346))
+
+
+- Updated dependency `@types/node` to `22.10.0`. ([#344](https://github.com/bfra-me/.github/pull/344))
+
 ## 1.13.0
 ### Minor Changes
 

@@ -12,8 +12,8 @@ importers:
         specifier: 1.1.1
         version: 1.1.1
       '@bfra.me/eslint-config':
-        specifier: 0.4.8
-        version: 0.4.8(@typescript-eslint/eslint-plugin@8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2)
+        specifier: 0.4.9
+        version: 0.4.9(@typescript-eslint/eslint-plugin@8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2)
       '@bfra.me/prettier-config':
         specifier: 0.10.0
         version: 0.10.0(prettier@3.4.1)
@@ -54,8 +54,8 @@ packages:
     resolution: {integrity: sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==}
     engines: {node: '>=6.9.0'}
 
-  '@bfra.me/eslint-config@0.4.8':
-    resolution: {integrity: sha512-4t0qEJyk0ZuMan1j7z0OiCK5xIfqMy/PJT93gtgDe3+ZNx/Yt4eu29ng028oQeyrMff4Nw5ITnPvvK7dLlKWSA==}
+  '@bfra.me/eslint-config@0.4.9':
+    resolution: {integrity: sha512-3STjQ2OqlfsoAedf1LXacNTPRTyhq4+tgB+f0CIWl1yL3yUbNuOx9BZbL9iFNO8+0k75F3SIuAGjiYVe0ED1Ew==}
     peerDependencies:
       '@vitest/eslint-plugin': ^1.1.4
       eslint: ^9.10.0
@@ -1275,7 +1275,7 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.14.1
 
-  '@bfra.me/eslint-config@0.4.8(@typescript-eslint/eslint-plugin@8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2)':
+  '@bfra.me/eslint-config@0.4.9(@typescript-eslint/eslint-plugin@8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2)':
     dependencies:
       '@eslint-community/eslint-plugin-eslint-comments': 4.4.1(eslint@9.15.0(jiti@2.4.0))
       eslint: 9.15.0(jiti@2.4.0)

@@ -56,7 +56,6 @@ jobs:
         with:
           app-id: ${{ secrets.APPLICATION_ID }}
           private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
       - name: Setup Git user
         run: |
           git config --global user.email '118100583+bfra-me[bot]@users.noreply.github.com'

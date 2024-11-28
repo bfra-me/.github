@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 2.0.1
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/prettier-config` to `0.12.0`. ([#349](https://github.com/bfra-me/.github/pull/349))
+
 ## 2.0.0
 ### Major Changes
 

@@ -15,8 +15,8 @@ importers:
         specifier: 0.4.9
         version: 0.4.9(@typescript-eslint/eslint-plugin@8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2))(eslint@9.15.0(jiti@2.4.0))(typescript@5.7.2)
       '@bfra.me/prettier-config':
-        specifier: 0.10.0
-        version: 0.10.0(prettier@3.4.1)
+        specifier: 0.12.0
+        version: 0.12.0(prettier@3.4.1)
       '@changesets/cli':
         specifier: 2.27.10
         version: 2.27.10
@@ -66,8 +66,8 @@ packages:
       eslint-plugin-no-only-tests:
         optional: true
 
-  '@bfra.me/prettier-config@0.10.0':
-    resolution: {integrity: sha512-rK1g2MS5zaS2NapLxKIglBuahSOLSgaBgpg5QlfJ325NjHWUPvldG0rQxBwzimR9KLpdp1YQMjkdLMH7dfIe4Q==}
+  '@bfra.me/prettier-config@0.12.0':
+    resolution: {integrity: sha512-R91nmYhDSxLz1a/aOo8hHj7bdOMM9hiCcD6R4KCt/OCOtAv/96KW/30DJSRg45FUsN43efoVTujJNJkaZXpAlQ==}
     peerDependencies:
       prettier: ^3.0.0
 
@@ -1295,7 +1295,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@bfra.me/prettier-config@0.10.0(prettier@3.4.1)':
+  '@bfra.me/prettier-config@0.12.0(prettier@3.4.1)':
     dependencies:
       '@bfra.me/prettier-plugins': 0.5.3(prettier@3.4.1)
       prettier: 3.4.1

@@ -1,6 +1,6 @@
-import {fileURLToPath} from 'url'
 import {dirname, join} from 'path'
 import process from 'process'
+import {fileURLToPath} from 'url'
 import {exec, getExecOutput} from '@actions/exec'
 import {version} from '../package.json'
 

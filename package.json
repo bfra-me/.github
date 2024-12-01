@@ -22,7 +22,7 @@
     "fix": "pnpm run lint --fix",
     "format": "prettier --write .",
     "lint": "eslint --flag unstable_ts_config .",
-    "release": "tsx ./scripts/release.ts"
+    "release": "jiti ./scripts/release.ts"
   },
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
@@ -37,7 +37,6 @@
     "eslint-plugin-prettier": "5.2.1",
     "jiti": "2.4.1",
     "prettier": "3.4.1",
-    "tsx": "4.19.2",
     "typescript": "5.7.2"
   },
   "packageManager": "pnpm@9.14.4"

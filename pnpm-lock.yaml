@@ -15,8 +15,8 @@ importers:
         specifier: 0.7.1
         version: 0.7.1(@typescript-eslint/eslint-plugin@8.16.0(@typescript-eslint/parser@8.16.0(eslint@9.16.0(jiti@2.4.1))(typescript@5.7.2))(eslint@9.16.0(jiti@2.4.1))(typescript@5.7.2))(eslint-config-prettier@9.1.0(eslint@9.16.0(jiti@2.4.1)))(eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0(eslint@9.16.0(jiti@2.4.1)))(eslint@9.16.0(jiti@2.4.1))(prettier@3.4.1))(eslint@9.16.0(jiti@2.4.1))(typescript@5.7.2)
       '@bfra.me/prettier-config':
-        specifier: 0.13.2
-        version: 0.13.2(prettier@3.4.1)
+        specifier: 0.13.3
+        version: 0.13.3(prettier@3.4.1)
       '@changesets/cli':
         specifier: 2.27.10
         version: 2.27.10
@@ -75,13 +75,13 @@ packages:
       eslint-plugin-prettier:
         optional: true
 
-  '@bfra.me/prettier-config@0.13.2':
-    resolution: {integrity: sha512-ODImy4lSaPqzPMm8EFMnANZnedyTmEV0DYvVNgvqKowuKWcj6LGtECN3wFuuQQVm4WYtsTmw+Gg5qu2cAvmxmw==}
+  '@bfra.me/prettier-config@0.13.3':
+    resolution: {integrity: sha512-oqSjIwcGUsbDJAkqK2vF02QmYWIve+QJNeUpfMOoFLQIQCjNpcVnVsEeOFAiBEWP4mCLMB2XNNbiuVF8bkhK5w==}
     peerDependencies:
       prettier: ^3.0.0
 
-  '@bfra.me/prettier-plugins@0.5.4':
-    resolution: {integrity: sha512-Ie0ohKCKKdTaB+NV4LQO28224ec75+w7KsMxDUykAEtwnSNDnANqydMkc9+GbkxFy+ks1Q8t428x1HUq4upYXg==}
+  '@bfra.me/prettier-plugins@0.5.5':
+    resolution: {integrity: sha512-dftdTrvKjQ7NpGHrHuGG2/YAI4QYv4AHBZqPofEh5lXmjD3kCvP+fc+TArFUVeLwpLEP9KnF0N1jfk/9rGhvQg==}
     peerDependencies:
       prettier: ^3.0.0
 
@@ -1175,12 +1175,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@bfra.me/prettier-config@0.13.2(prettier@3.4.1)':
+  '@bfra.me/prettier-config@0.13.3(prettier@3.4.1)':
     dependencies:
-      '@bfra.me/prettier-plugins': 0.5.4(prettier@3.4.1)
+      '@bfra.me/prettier-plugins': 0.5.5(prettier@3.4.1)
       prettier: 3.4.1
 
-  '@bfra.me/prettier-plugins@0.5.4(prettier@3.4.1)':
+  '@bfra.me/prettier-plugins@0.5.5(prettier@3.4.1)':
     dependencies:
       prettier: 3.4.1
       sort-package-json: 2.12.0

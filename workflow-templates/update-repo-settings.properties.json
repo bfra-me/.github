@@ -1,6 +1,6 @@
 {
   "name": "Update Repo Settings",
-  "description": "Apply GitHub srepository settings from YAML configuration files.",
+  "description": "Apply GitHub repository settings from YAML configuration files.",
   "iconName": "update-repo-settings",
   "categories": ["Automation"]
 }

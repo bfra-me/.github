@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 2.0.4
+### Patch Changes
+
+
+- Restore tsx to support sourcemaps while debugging; adjust bootstrap and version scripts. ([#386](https://github.com/bfra-me/.github/pull/386))
+
+
+- Add code scanning and dependency review workflow templates. ([#387](https://github.com/bfra-me/.github/pull/387))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.7.1`. ([#382](https://github.com/bfra-me/.github/pull/382))
+
+
+- Updated dependency `@bfra.me/prettier-config` to `0.13.3`. ([#383](https://github.com/bfra-me/.github/pull/383))
+
 ## 2.0.3
 ### Patch Changes
 

@@ -2,7 +2,7 @@
 ---
 name: Main
 
-'on':
+on:
   merge_group:
   pull_request:
     branches: [main]
@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: pnpm
-          node-version-file: '.node-version'
+          node-version-file: .node-version
 
       - name: 🧰 Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
@@ -70,7 +70,7 @@ jobs:
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
         with:
           cache: pnpm
-          node-version-file: '.node-version'
+          node-version-file: .node-version
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
       - name: Create Release Pull Request or Publish to npm

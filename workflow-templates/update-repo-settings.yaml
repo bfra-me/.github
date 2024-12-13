@@ -2,7 +2,7 @@
 ---
 name: Update Repo Settings
 
-'on':
+on:
   push:
     branches: [$default-branch]
   schedule:

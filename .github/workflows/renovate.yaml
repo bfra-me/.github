@@ -2,7 +2,7 @@
 # Renovate this repository if Renovate-specific tasks are checked or if dispatched.
 name: Renovate
 
-'on':
+on:
   issues:
     types: [edited]
   pull_request:

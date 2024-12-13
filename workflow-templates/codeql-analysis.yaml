@@ -1,7 +1,7 @@
 ---
 name: CodeQL
 
-'on':
+on:
   pull_request:
     branches: [$default-branch, $protected-branches]
   push:

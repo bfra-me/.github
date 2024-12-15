@@ -27,8 +27,8 @@
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
     "@actions/exec": "1.1.1",
-    "@bfra.me/eslint-config": "0.10.0",
-    "@bfra.me/prettier-config": "0.13.5",
+    "@bfra.me/eslint-config": "0.11.0",
+    "@bfra.me/prettier-config": "0.13.6",
     "@changesets/cli": "2.27.10",
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/node": "22.10.2",

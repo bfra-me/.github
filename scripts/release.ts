@@ -1,6 +1,6 @@
-import {dirname, join} from 'path'
-import process from 'process'
-import {fileURLToPath} from 'url'
+import {dirname, join} from 'node:path'
+import process from 'node:process'
+import {fileURLToPath} from 'node:url'
 import {exec, getExecOutput} from '@actions/exec'
 import {version} from '../package.json'
 
@@ -39,17 +39,7 @@ async function main() {
       ignoreReturnCode: true,
     },
   )
-  if (branchExitCode !== 0) {
-    // Create a new floating major branch
-    await exec('gh', [
-      'api',
-      `repos/${process.env.GH_REPO}/git/refs`,
-      '-f',
-      `ref=${ref}`,
-      '-f',
-      `sha=${sha}`,
-    ])
-  } else {
+  if (branchExitCode === 0) {
     // Update existing branch
     await exec('gh', [
       'api',
@@ -59,6 +49,16 @@ async function main() {
       `sha=${sha}`,
       '-F',
       'force=true',
+    ])
+  } else {
+    // Create a new floating major branch
+    await exec('gh', [
+      'api',
+      `repos/${process.env.GH_REPO}/git/refs`,
+      '-f',
+      `ref=${ref}`,
+      '-f',
+      `sha=${sha}`,
     ])
   }
 }

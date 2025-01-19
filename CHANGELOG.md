@@ -1,5 +1,47 @@
 # @bfra.me/.github
 
+## 2.0.7
+### Patch Changes
+
+
+- Updated dependency `eslint-plugin-prettier` to `5.2.2`. ([#446](https://github.com/bfra-me/.github/pull/446))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.15.0`. ([#431](https://github.com/bfra-me/.github/pull/431))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.13.0`. ([#426](https://github.com/bfra-me/.github/pull/426))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.14.0`. ([#428](https://github.com/bfra-me/.github/pull/428))
+
+
+- Updated dependency `typescript` to `5.7.3`. ([#440](https://github.com/bfra-me/.github/pull/440))
+
+
+- Updated dependency `@types/node` to `22.10.6`. ([#447](https://github.com/bfra-me/.github/pull/447))
+
+
+- Updated dependency `@types/node` to `22.10.3`. ([#433](https://github.com/bfra-me/.github/pull/433))
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.3`. ([#436](https://github.com/bfra-me/.github/pull/436))
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.2`. ([#430](https://github.com/bfra-me/.github/pull/430))
+
+
+- Updated dependency `eslint` to `9.18.0`. ([#443](https://github.com/bfra-me/.github/pull/443))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.16.0`. ([#439](https://github.com/bfra-me/.github/pull/439))
+  Updated dependency `@bfra.me/prettier-config` to `0.14.0`.
+
+- Updated dependency `eslint-plugin-prettier` to `5.2.3`. ([#448](https://github.com/bfra-me/.github/pull/448))
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.4`. ([#445](https://github.com/bfra-me/.github/pull/445))
+
 ## 2.0.6
 ### Patch Changes
 

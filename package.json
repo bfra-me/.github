@@ -33,7 +33,7 @@
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/node": "22.10.6",
     "eslint": "9.19.0",
-    "eslint-config-prettier": "9.1.0",
+    "eslint-config-prettier": "10.0.1",
     "eslint-plugin-prettier": "5.2.3",
     "jiti": "2.4.2",
     "prettier": "3.4.2",

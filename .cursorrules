@@ -1,0 +1,81 @@
+# @bfra.me/.github Cursor Rules
+
+This is a GitHub organization template repository that defines defaults and settings for the @bfra-me GitHub Organization. The project uses TypeScript with strict ESLint and Prettier configurations.
+
+## Project Context
+
+- This is a template repository for GitHub organization settings and workflows
+- Uses TypeScript with ESM modules
+- Follows strict ESLint and Prettier configurations from @bfra.me
+- Uses pnpm as the package manager
+- Implements changesets for versioning and releases
+
+## Coding Standards
+
+Please follow these coding standards when generating code:
+
+- Use ESM modules with TypeScript (`"type": "module"` in package.json)
+- Follow the @bfra.me/eslint-config and @bfra.me/prettier-config rules
+- Use strict TypeScript configurations
+- Prefer `const` over `let` for variable declarations
+- Use camelCase for variable and function names
+- Follow EditorConfig settings for different file types
+
+## File Structure
+
+- `.github/workflows/`: GitHub Actions workflow definitions
+- `.github/settings.yml`: Repository-specific settings
+- `workflow-templates/`: Reusable workflow templates
+- `scripts/`: Utility scripts (TypeScript)
+- `.changeset/`: Changeset configurations and files
+
+## Dependencies and Tools
+
+When suggesting code, use these tools and versions:
+
+- Node.js: Use version specified in .node-version
+- Package Manager: pnpm@9.15.4
+- TypeScript: ^5.7.3
+- ESLint: ^9.19.0
+- Prettier: ^3.4.2
+- Changesets for versioning
+- GitHub Actions for CI/CD
+
+## Development Workflow
+
+- All changes must pass linting and formatting checks
+- Changes should be documented using changesets
+- Pull requests must pass required status checks
+- Main branch requires linear history
+- Renovate handles dependency updates automatically
+- Release process is automated through GitHub Actions
+
+## Testing and Validation
+
+- Run `pnpm lint` for ESLint checks
+- Run `pnpm check-format` for Prettier checks
+- Run `pnpm fix` to automatically fix linting issues
+- Run `pnpm format` to automatically format code
+- Ensure all GitHub Actions workflows pass
+
+## Error Handling and Logging
+
+- Use TypeScript's strict type checking
+- Implement proper error boundaries in workflows
+- Log errors appropriately in GitHub Actions
+- Handle async operations with proper error catching
+
+## Documentation
+
+- Maintain clear README files
+- Use JSDoc comments for TypeScript functions
+- Keep workflow YAML files well-documented
+- Update changelogs through changesets
+
+## Security Considerations
+
+- Follow security best practices for GitHub Actions
+- Use proper token permissions
+- Implement dependency scanning
+- Follow OpenSSF Scorecard recommendations
+- Use Renovate for automated security updates

@@ -25,3 +25,5 @@
 *.out -text
 *.pdb -text
 *.so -text
+
+.cursorrules text linguist-language=Markdown

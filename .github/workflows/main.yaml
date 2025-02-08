@@ -26,8 +26,10 @@ jobs:
       - name: ⤵️ Checkout Branch
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: 📦 Enable Corepack
-        run: corepack enable
+      - name: 📦 Setup PNPM
+        uses: pnpm/action-setup@v4.1.0
+        with:
+          run_install: false
 
       - name: 🏆 Setup Node.js
         uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
@@ -36,7 +38,7 @@ jobs:
           node-version-file: .node-version
 
       - name: 🧰 Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
+        run: pnpm bootstrap --frozen-lockfile
 
       - name: 💅🏽 Run Prettier
         run: pnpm check-format
@@ -65,7 +67,10 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ steps.get-workflow-access-token.outputs.token }}
-      - run: corepack enable
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4.1.0
+        with:
+          run_install: false
       - name: Setup Node.js
         uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:

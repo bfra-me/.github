@@ -31,7 +31,7 @@
     "@bfra.me/prettier-config": "0.15.1",
     "@changesets/cli": "2.27.12",
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
-    "@types/node": "22.13.0",
+    "@types/node": "22.13.4",
     "eslint": "9.20.1",
     "eslint-config-prettier": "10.0.1",
     "eslint-plugin-prettier": "5.2.3",

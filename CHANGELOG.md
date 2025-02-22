@@ -1,5 +1,56 @@
 # @bfra.me/.github
 
+## 2.0.8
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.16.3`. ([#456](https://github.com/bfra-me/.github/pull/456))
+  Updated dependency `@bfra.me/prettier-config` to `0.15.0`.
+
+- Updated dependency `eslint` to `9.20.0`. ([#477](https://github.com/bfra-me/.github/pull/477))
+
+
+- Updated dependency `@changesets/cli` to `2.28.0`. ([#488](https://github.com/bfra-me/.github/pull/488))
+
+
+- Updated dependency `@types/node` to `22.13.4`. ([#485](https://github.com/bfra-me/.github/pull/485))
+
+
+- Updated dependency `prettier` to `3.5.1`. ([#483](https://github.com/bfra-me/.github/pull/483))
+
+
+- Updated dependency `eslint` to `9.20.1`. ([#482](https://github.com/bfra-me/.github/pull/482))
+
+
+- Updated dependency `eslint` to `9.19.0`. ([#461](https://github.com/bfra-me/.github/pull/461))
+
+
+- Updated dependency `@changesets/cli` to `2.27.12`. ([#458](https://github.com/bfra-me/.github/pull/458))
+
+
+- Updated dependency `prettier` to `3.5.0`. ([#478](https://github.com/bfra-me/.github/pull/478))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.16.4`. ([#460](https://github.com/bfra-me/.github/pull/460))
+  Updated dependency `@bfra.me/prettier-config` to `0.15.1`.
+
+- Updated dependency `eslint-config-prettier` to `10.0.1`. ([#462](https://github.com/bfra-me/.github/pull/462))
+
+
+- Updated dependency `tsx` to `4.19.3`. ([#489](https://github.com/bfra-me/.github/pull/489))
+
+
+- Updated dependency `@changesets/cli` to `2.28.1`. ([#490](https://github.com/bfra-me/.github/pull/490))
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.5`. ([#470](https://github.com/bfra-me/.github/pull/470))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.16.1`. ([#450](https://github.com/bfra-me/.github/pull/450))
+  Updated dependency `@bfra.me/prettier-config` to `0.14.1`.
+
+- Updated dependency `@types/node` to `22.13.0`. ([#469](https://github.com/bfra-me/.github/pull/469))
+
 ## 2.0.7
 ### Patch Changes
 

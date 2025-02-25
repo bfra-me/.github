@@ -98,7 +98,7 @@ jobs:
 
       - id: get-repo-list
         name: Get repository list
-        if: env.autodiscover == 'true' && github.event_name == 'push'
+        if: env.autodiscover == 'true'
         run: |
           # Check if yq is already installed
           if ! command -v yq &> /dev/null; then
@@ -126,7 +126,7 @@ jobs:
         uses: bfra-me/renovate-action@v5
         with:
           autodiscover: ${{ env.autodiscover }}
-          autodiscover-filter: ${{ env.autodiscover == 'true' && steps.get-repo-list.outputs.repos || '' }}
+          autodiscover-filter: ${{ env.autodiscover == 'true' && steps.get-repo-list.outputs.repos || '[]' }}
           branch: ${{ (github.ref_name != github.event.repository.default_branch || env.dry_run == 'true') && ( github.head_ref || github.ref_name ) || '' }}
           cache: true
           dry-run: ${{ env.dry_run }}

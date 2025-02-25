@@ -1,4 +1,4 @@
-import {writeFile} from 'node:fs/promises'
+import {mkdir, writeFile} from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import {Octokit} from '@octokit/rest'
@@ -6,7 +6,7 @@ import {dump} from 'js-yaml'
 
 interface MetadataConfig {
   repositories: {
-    with_renovate: string[]
+    'with-renovate': string[]
   }
 }
 
@@ -27,7 +27,7 @@ async function generateMetadata() {
 
     const metadata: MetadataConfig = {
       repositories: {
-        with_renovate: [],
+        'with-renovate': [],
       },
     }
 
@@ -41,16 +41,20 @@ async function generateMetadata() {
         })
 
         // If we get here, the file exists
-        metadata.repositories.with_renovate.push(repo.name)
+        metadata.repositories['with-renovate'].push(repo.name)
       } catch {
         // File doesn't exist, skip
         continue
       }
     }
 
+    // Ensure metadata directory exists
+    const metadataDir = path.join(process.cwd(), 'metadata')
+    await mkdir(metadataDir, {recursive: true})
+
     // Write metadata to YAML file
     const yamlContent = dump(metadata)
-    await writeFile(path.join(process.cwd(), 'metadata', 'renovate.yaml'), yamlContent)
+    await writeFile(path.join(metadataDir, 'renovate.yaml'), yamlContent)
 
     console.log('Successfully generated renovate metadata')
   } catch (error) {

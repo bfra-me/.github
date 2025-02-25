@@ -16,7 +16,7 @@
   "author": "Marcus R. Brown <git@mrbro.dev> (https://mrbro.dev/)",
   "type": "module",
   "scripts": {
-    "bootstrap": "pnpm install --no-frozen-lockfile --prefer-offline --loglevel error",
+    "bootstrap": "pnpm install --prefer-offline --loglevel error",
     "bump": "changeset version && pnpm bootstrap && pnpm run fix ",
     "check-format": "prettier --check .",
     "fix": "pnpm run lint --fix",

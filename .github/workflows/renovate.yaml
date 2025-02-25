@@ -115,7 +115,7 @@ jobs:
           # 4. Create the negation pattern with org prefix
           ORG="${{ github.repository_owner }}"
           REPOS=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml | \
-            jq -R -s --arg org "$ORG" 'split("\n") | map(select(length > 0 and . != ".github")) | join("|") | ["!/" + $org + "/(" + . + ")"]' | tr -d '\n')
+            jq -R -s --arg org "$ORG" 'split("\n") | map(select(length > 0 and . != ".github")) | join("|") | ["!/" + $org + "\\/(" + . + ")/"]' | tr -d '\n')
           echo "repos=$REPOS" >> $GITHUB_OUTPUT
 
       - name: Renovate

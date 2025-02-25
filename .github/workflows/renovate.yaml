@@ -84,6 +84,7 @@ jobs:
     env:
       WORKFLOW_LOG_LEVEL: debug
       default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
+      autodiscover: ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - if: github.event_name == 'push'
@@ -94,16 +95,35 @@ jobs:
         with:
           filters: |
             changes: ${{ inputs.path_filters != '' && inputs.path_filters || env.default_path_filters }}
+
+      - id: get-repo-list
+        name: Get repository list
+        if: env.autodiscover == 'true' && github.event_name == 'push'
+        run: |
+          # Check if yq is already installed
+          if ! command -v yq &> /dev/null; then
+            echo "Installing yq..."
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+            sudo chmod +x /usr/local/bin/yq
+          fi
+
+          # Extract repository list and convert newline-separated output to JSON array
+          # Use jq to:
+          # 1. Split input into lines (-R raw input, -s slurp all lines)
+          # 2. Filter out empty lines and .github repo
+          # 3. Create a compact JSON array
+          REPOS=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml | jq -R -s 'split("\n") | map(select(length > 0 and . != ".github")) | tojson')
+          echo "repos=$REPOS" >> $GITHUB_OUTPUT
+
       - name: Renovate
         env:
-          autodiscover: >-
-            ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
           dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         if: >-
           ${{ !contains('["push", "workflow_run"]', github.event_name) || github.event.workflow_run.conclusion == 'success' || steps.filter.outputs.changes == 'true' }}
         uses: bfra-me/renovate-action@v5
         with:
           autodiscover: ${{ env.autodiscover }}
+          autodiscover-filter: ${{ env.autodiscover == 'true' && steps.get-repo-list.outputs.repos || '' }}
           branch: ${{ (github.ref_name != github.event.repository.default_branch || env.dry_run == 'true') && ( github.head_ref || github.ref_name ) || '' }}
           cache: true
           dry-run: ${{ env.dry_run }}

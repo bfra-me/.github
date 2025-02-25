@@ -1,0 +1,10 @@
+---
+description: Guidelines for using Changesets for versioning and releases
+globs: **/.changeset/*
+alwaysApply: false
+---
+
+- Document all changes using changesets for clear versioning
+- Use `pnpm changeset` to create new changesets
+- Implement automated releases through GitHub Actions
+- Keep changelogs up-to-date through the changeset process

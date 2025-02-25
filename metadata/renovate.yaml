@@ -1,0 +1,9 @@
+repositories:
+  with-renovate:
+    - works
+    - renovate-config
+    - .github
+    - ha-addon-repository
+    - github-action
+    - github-app
+    - renovate-action

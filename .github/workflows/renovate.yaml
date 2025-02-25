@@ -111,8 +111,11 @@ jobs:
           # Use jq to:
           # 1. Split input into lines (-R raw input, -s slurp all lines)
           # 2. Filter out empty lines and .github repo
-          # 3. Create a compact JSON array
-          REPOS=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml | jq -R -s 'split("\n") | map(select(length > 0 and . != ".github"))' | tr -d '\n')
+          # 3. Add organization prefix to each repo
+          # 4. Create a compact JSON array
+          ORG="${{ github.repository_owner }}"
+          REPOS=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml | \
+            jq -R -s --arg org "$ORG" 'split("\n") | map(select(length > 0 and . != ".github") | $org + "/" + .)' | tr -d '\n')
           echo "repos=$REPOS" >> $GITHUB_OUTPUT
 
       - name: Renovate

@@ -13,16 +13,31 @@
         "source.fixAll.eslint": "explicit",
         "source.organizeImports": "never"
     },
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
     "editor.formatOnType": false,
 
-    "eslint.options": {
-        "flags": ["unstable_ts_config"]
-    },
     // Silent the stylistic rules in you IDE, but still auto fix them
     "eslint.rules.customizations": [
-        {"rule": "prettier/prettier", "severity": "off", "fixable": true}
+        {
+            "rule": "prettier/prettier",
+            "severity": "off",
+            "fixable": true
+        }
+    ],
+    "eslint.useFlatConfig": true,
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "html",
+        "markdown",
+        "json",
+        "json5",
+        "jsonc",
+        "yaml",
+        "toml",
+        "xml"
     ],
 
     "explorer.fileNesting.enabled": false,
@@ -34,15 +49,10 @@
 
     "github-actions.workflows.pinned.workflows": [
         ".github/workflows/main.yaml",
-        ".github/workflows/renovate.yaml"
+        ".github/workflows/renovate.yaml",
+        ".github/workflows/update-metadata.yaml"
     ],
 
-    "prettier.enable": false,
-
     "typescript.enablePromptUseWorkspaceTsdk": true,
-    "typescript.tsdk": "node_modules/typescript/lib",
-
-    "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

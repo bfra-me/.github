@@ -114,8 +114,17 @@ jobs:
           # 3. Join with | to create alternation pattern
           # 4. Create the negation pattern with org prefix
           ORG="${{ github.repository_owner }}"
-          REPOS=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml | \
-            jq -R -s --arg org "$ORG" 'split("\n") | map(select(length > 0 and . != ".github")) | join("|") | ["!/" + $org + "\\/(" + . + ")/"]' | tr -d '\n')
+          REPOS="[]"
+          if [ -f "metadata/renovate.yaml" ]; then
+            REPOS_LIST=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml 2>/dev/null || echo "")
+            if [ -n "$REPOS_LIST" ]; then
+              PATTERN=$(echo "$REPOS_LIST" | \
+                jq -R -s --arg org "$ORG" 'split("\n") | map(select(length > 0 and . != ".github")) | join("|")' | tr -d '\n')
+              if [ "$PATTERN" != '""' ]; then
+                REPOS="[\"/!$ORG\\/($PATTERN)/\"]"
+              fi
+            fi
+          fi
           echo "repos=$REPOS" >> $GITHUB_OUTPUT
 
       - name: Renovate

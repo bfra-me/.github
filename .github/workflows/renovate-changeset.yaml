@@ -42,7 +42,10 @@ jobs:
         with:
           filters: |
             changes:
-              - '.github/workflows/renovate-changeset.yaml'
+              - '.github/workflows/**'
+              - '.github/renovate.json5'
+              - 'workflow-templates/*'
+              - '**/mise.toml'
               - '**/package.json'
               - '**/pnpm-lock.yaml'
 

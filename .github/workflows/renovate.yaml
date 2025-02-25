@@ -107,12 +107,15 @@ jobs:
             sudo chmod +x /usr/local/bin/yq
           fi
 
-          # Extract repository list and convert newline-separated output to JSON array
+          # Extract repository list and create a minimatch negation pattern
           # Use jq to:
           # 1. Split input into lines (-R raw input, -s slurp all lines)
           # 2. Filter out empty lines and .github repo
-          # 3. Create a compact JSON array
-          REPOS=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml | jq -R -s 'split("\n") | map(select(length > 0 and . != ".github"))' | tr -d '\n')
+          # 3. Join with | to create alternation pattern
+          # 4. Create the negation pattern with org prefix
+          ORG="${{ github.repository_owner }}"
+          REPOS=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml | \
+            jq -R -s --arg org "$ORG" 'split("\n") | map(select(length > 0 and . != ".github")) | join("|") | ["!/" + $org + "/(" + . + ")"]' | tr -d '\n')
           echo "repos=$REPOS" >> $GITHUB_OUTPUT
 
       - name: Renovate

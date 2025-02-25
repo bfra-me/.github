@@ -119,9 +119,9 @@ jobs:
             REPOS_LIST=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml 2>/dev/null || echo "")
             if [ -n "$REPOS_LIST" ]; then
               PATTERN=$(echo "$REPOS_LIST" | \
-                jq -R -s --arg org "$ORG" 'split("\n") | map(select(length > 0 and . != ".github")) | join("|")' | tr -d '\n')
-              if [ "$PATTERN" != '""' ]; then
-                REPOS="[\"/!$ORG\\/($PATTERN)/\"]"
+                jq -R -s 'split("\n") | map(select(length > 0 and . != ".github")) | join("|")' | sed s/\"//g)
+              if [ -n "$PATTERN" ]; then
+                REPOS="[\"!/$ORG\\/($PATTERN)/\"]"
               fi
             fi
           fi

@@ -1,0 +1,11 @@
+---
+description: Best practices for GitHub Actions workflows
+globs: .github/workflows/**/*
+alwaysApply: false
+---
+
+- Use GitHub Actions for CI/CD processes
+- Implement proper error handling and logging in workflows
+- Use appropriate token permissions for security
+- Follow OpenSSF Scorecard recommendations for workflow security
+- Keep workflow YAML files well-documented and maintainable

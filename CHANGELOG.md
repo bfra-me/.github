@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 2.1.1
+### Patch Changes
+
+
+- Update ESLint and TypeScript config and scripts. ([#534](https://github.com/bfra-me/.github/pull/534))
+
 ## 2.1.0
 ### Minor Changes
 

@@ -68,7 +68,7 @@ jobs:
             echo "pr-number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
             # Check PR status
-            STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[]..conclusion' | sort -u | grep 'SUCCESS')
+            STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[].conclusion' | sort -u | grep 'SUCCESS')
             if [ "$STATUS" = "SUCCESS" ]; then
               echo "checks_status=success" >> $GITHUB_OUTPUT
             elif [ "$STATUS" = "PENDING" ]; then

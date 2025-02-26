@@ -17,7 +17,7 @@ async function generateMetadata() {
   })
 
   // Get organization name from environment or config
-  const orgName = process.env.GITHUB_REPOSITORY?.split('/')[0] || '@bfra-me'
+  const orgName = process.env.GITHUB_REPOSITORY?.split('/')[0] || 'bfra-me'
 
   try {
     const repos = await octokit.paginate(octokit.repos.listForOrg, {

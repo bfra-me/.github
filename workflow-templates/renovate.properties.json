@@ -1,0 +1,6 @@
+{
+  "name": "Renovate",
+  "description": "Renovate is a tool that helps you manage your dependencies.",
+  "iconName": "octicon paintbrush",
+  "categories": ["Automation", "Dependency updates"]
+}

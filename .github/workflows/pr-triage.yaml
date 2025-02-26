@@ -10,13 +10,19 @@ permissions:
 
 jobs:
   triage:
+    name: Triage
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/labeler@v5
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Label PRs
+        uses: actions/labeler@v5
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
           configuration-path: .github/labeler.yaml
 
-      - uses: kentaro-m/auto-assign-action@v2.0.0
+      - name: Assign PRs
+        uses: kentaro-m/auto-assign-action@v2.0.0
         with:
           configuration-path: .github/auto-assign.yaml

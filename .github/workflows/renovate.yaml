@@ -106,7 +106,7 @@ jobs:
           ORG="${{ github.repository_owner }}"
           REPOS="[]"
           REPO_LIST="[]"
-          if [ -f "metadata/renovate.yaml" ]; then
+          if [ "${{ env.AUTODISCOVER }}" == "true" ] && [ -f "metadata/renovate.yaml" ]; then
             REPOS_LIST=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml 2>/dev/null || echo "")
             if [ -n "$REPOS_LIST" ]; then
               # Create pattern for autodiscover filter
@@ -118,7 +118,7 @@ jobs:
 
               # Create JSON array of repositories for dispatch
               REPO_LIST="[$(echo "$REPOS_LIST" | \
-                jq -R -s 'split("\n") | map(select(length > 0 and . != ".github")) | join(",")')]"
+                jq -R -s 'split("\n") | map(select(length > 0 and . != ".github")) | join(",")' | sed s/\"//g)]"
               echo "REPO_LIST=$REPO_LIST"
             fi
           fi

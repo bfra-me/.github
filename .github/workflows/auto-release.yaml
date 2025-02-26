@@ -69,7 +69,10 @@ jobs:
 
             # Check PR status
             STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[].conclusion' | sort -u | grep 'SUCCESS')
-            echo "PR $PR_NUMBER checks status: $STATUS"
+            MERGEABLE=$(gh pr view $PR_NUMBER --json mergeStateStatus --jq '.mergeStateStatus')
+            echo "PR $PR_NUMBER:"
+            echo "- checks status: $STATUS"
+            echo "- mergeable status: $MERGEABLE"
             if [ "$STATUS" = "SUCCESS" ]; then
               echo "checks-status=success" >> $GITHUB_OUTPUT
             elif [ "$STATUS" = "PENDING" ]; then
@@ -77,8 +80,7 @@ jobs:
             else
               echo "checks-status=failed" >> $GITHUB_OUTPUT
             fi
-            MERGEABLE=$(gh pr view $PR_NUMBER --json mergeStateStatus --jq '.mergeStateStatus')
-            if [ "$MERGEABLE" = "BEHIND" ]; then
+            if [ "$MERGEABLE" = "BEHIND" ] || [ "$MERGEABLE" = "UNKNOWN" ]; then
               echo "mergeable=false" >> $GITHUB_OUTPUT
             else
               echo "mergeable=true" >> $GITHUB_OUTPUT
@@ -88,7 +90,7 @@ jobs:
           fi
 
       - name: Create Release PR
-        if: steps.check-pr.outputs.pr-exists == 'false' || steps.check-pr.outputs.mergeable != 'true'
+        if: steps.check-pr.outputs.pr-exists == 'false' || steps.check-pr.outputs.mergeable == 'false'
         uses: changesets/action@v1
         with:
           commit: 'chore: version bump'

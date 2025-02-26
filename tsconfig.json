@@ -1,0 +1,7 @@
+{
+  "extends": "@bfra.me/tsconfig",
+  "compilerOptions": {
+    "noEmit": true,
+    "noPropertyAccessFromIndexSignature": false
+  }
+}

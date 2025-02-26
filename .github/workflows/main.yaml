@@ -42,11 +42,8 @@ jobs:
           HUSKY: '0'
         run: pnpm bootstrap
 
-      - name: 💅🏽 Run Prettier
-        run: pnpm check-format
-
-      - name: 🧹 Run ESLint
-        run: pnpm lint
+      - name: 💅🏽 Run Quality Checks
+        run: pnpm quality-check
 
   release:
     if: github.repository == 'bfra-me/.github' &&  github.event_name == 'push' && github.ref =='refs/heads/main'

@@ -69,6 +69,7 @@ jobs:
 
             # Check PR status
             STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[].conclusion' | sort -u | grep 'SUCCESS')
+            echo "status=$STATUS"
             if [ "$STATUS" = "SUCCESS" ]; then
               echo "checks_status=success" >> $GITHUB_OUTPUT
             elif [ "$STATUS" = "PENDING" ]; then
@@ -78,6 +79,7 @@ jobs:
             fi
           else
             echo "pr-exists=false" >> $GITHUB_OUTPUT
+            echo "pr-number=$PR_NUMBER"
           fi
 
       - name: Create Release PR

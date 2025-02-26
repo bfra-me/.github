@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 2.2.0
+### Minor Changes
+
+
+- Trigger repository dispatches for all org repos that have a `renovate` workflow. ([#535](https://github.com/bfra-me/.github/pull/535))
+
+
+### Patch Changes
+
+
+- Updated dependency `eslint-config-prettier` to `10.0.2`. ([#539](https://github.com/bfra-me/.github/pull/539))
+
 ## 2.1.1
 ### Patch Changes
 

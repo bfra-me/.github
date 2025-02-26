@@ -69,21 +69,26 @@ jobs:
 
             # Check PR status
             STATUS=$(gh pr view $PR_NUMBER --json statusCheckRollup --jq '.statusCheckRollup[].conclusion' | sort -u | grep 'SUCCESS')
-            echo "status=$STATUS"
+            echo "PR $PR_NUMBER checks status: $STATUS"
             if [ "$STATUS" = "SUCCESS" ]; then
-              echo "checks_status=success" >> $GITHUB_OUTPUT
+              echo "checks-status=success" >> $GITHUB_OUTPUT
             elif [ "$STATUS" = "PENDING" ]; then
-              echo "checks_status=pending" >> $GITHUB_OUTPUT
+              echo "checks-status=pending" >> $GITHUB_OUTPUT
             else
-              echo "checks_status=failed" >> $GITHUB_OUTPUT
+              echo "checks-status=failed" >> $GITHUB_OUTPUT
+            fi
+            MERGEABLE=$(gh pr view $PR_NUMBER --json mergeStateStatus --jq '.mergeStateStatus')
+            if [ "$MERGEABLE" = "BEHIND" ]; then
+              echo "mergeable=false" >> $GITHUB_OUTPUT
+            else
+              echo "mergeable=true" >> $GITHUB_OUTPUT
             fi
           else
             echo "pr-exists=false" >> $GITHUB_OUTPUT
-            echo "pr-number=$PR_NUMBER"
           fi
 
       - name: Create Release PR
-        if: steps.check-pr.outputs.pr-exists == 'false'
+        if: steps.check-pr.outputs.pr-exists == 'false' || steps.check-pr.outputs.mergeable != 'true'
         uses: changesets/action@v1
         with:
           commit: 'chore: version bump'
@@ -99,8 +104,8 @@ jobs:
         if: >-
           steps.check-pr.outputs.pr-exists == 'true' &&
           (
-            steps.check-pr.outputs.checks_status == 'pending' ||
-            steps.check-pr.outputs.checks_status == 'success' ||
+            steps.check-pr.outputs.checks-status == 'pending' ||
+            steps.check-pr.outputs.checks-status == 'success' ||
             inputs.force-release == true
           )
         env:
@@ -108,13 +113,3 @@ jobs:
           PR_NUMBER: ${{ steps.check-pr.outputs.pr-number }}
         run: |
           gh pr merge $PR_NUMBER --squash --auto
-
-      - name: Merge Release PR
-        if: |
-          steps.check-pr.outputs.pr-exists == 'true' &&
-          steps.check-pr.outputs.checks_status == 'success'
-        env:
-          GH_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
-          PR_NUMBER: ${{ steps.check-pr.outputs.pr-number }}
-        run: |
-          gh pr merge $PR_NUMBER --squash

@@ -10,6 +10,10 @@ on:
     types: [edited]
   push:
     branches: ['**']
+  repository_dispatch:
+    types: [renovate-trigger]
+  schedule:
+    - cron: '0 * * * *' # Run every hour
   workflow_dispatch:
     inputs:
       log-level:
@@ -42,16 +46,10 @@ jobs:
     uses: bfra-me/.github/.github/workflows/renovate.yaml@v2
     with:
       log_level: ${{ inputs.log-level || 'debug' }}
-      path_filters: >-
-        [
-          '.github/workflows/renovate.yaml',
-          '.github/renovate.json5',
-          'automerge.json5?',
-          'default.json',
-          'group.json',
-          'internal.json5',
-          'maintenance.json',
-          'replacements.json5?',
-          'vendors.json',
-        ]
+      # Use path filters to specify which files trigger Renovate.
+      # path_filters: >-
+      #   [
+      #     '.github/workflows/renovate.yaml',
+      #     '.github/renovate.json5'
+      #   ]
       print_config: ${{ inputs.print-config || false }}

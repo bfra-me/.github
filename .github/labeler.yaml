@@ -1,36 +1,50 @@
 workflows:
-  - .github/workflows/**/*
+  - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**/*'
 
 dependencies:
-  - package.json
-  - pnpm-lock.yaml
-  - .npmrc
+  - changed-files:
+      - any-glob-to-any-file:
+          - package.json
+          - pnpm-lock.yaml
+          - .npmrc
 
 documentation:
-  - '**/*.md'
-  - '**/*.mdx'
-  - '**/docs/**/*'
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.md'
+          - '**/*.mdx'
+          - '**/docs/**/*'
 
 github-settings:
-  - .github/settings.yml
-  - common-settings.yaml
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/settings.yml
+          - common-settings.yaml
 
 templates:
-  - workflow-templates/**/*
-  - .github/PULL_REQUEST_TEMPLATE/**/*
-  - .github/ISSUE_TEMPLATE/**/*
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'workflow-templates/**/*'
+          - '.github/PULL_REQUEST_TEMPLATE/**/*'
+          - '.github/ISSUE_TEMPLATE/**/*'
 
 scripts:
-  - scripts/**/*
+  - changed-files:
+      - any-glob-to-any-file: 'scripts/**/*'
 
 security:
-  - SECURITY.md
-  - .github/workflows/codeql-analysis.yaml
-  - .github/workflows/dependency-review.yaml
-  - .github/workflows/scorecard.yaml
+  - changed-files:
+      - any-glob-to-any-file:
+          - SECURITY.md
+          - .github/workflows/codeql-analysis.yaml
+          - .github/workflows/dependency-review.yaml
+          - .github/workflows/scorecard.yaml
 
 typescript:
-  - '**/*.ts'
-  - '**/*.tsx'
-  - tsconfig.json
-  - eslint.config.ts
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.ts'
+          - '**/*.tsx'
+          - tsconfig.json
+          - eslint.config.ts

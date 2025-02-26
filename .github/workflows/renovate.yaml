@@ -119,6 +119,7 @@ jobs:
               # Create JSON array of repositories for dispatch
               REPO_LIST=$(echo "$REPOS_LIST" | \
                 jq -R -s 'split("\n") | map(select(length > 0 and . != ".github"))')
+              echo "REPO_LIST=$REPO_LIST"
             fi
           fi
           echo "repos=$REPOS" >> $GITHUB_OUTPUT

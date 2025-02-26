@@ -135,68 +135,88 @@ repository:
 # Labels: define labels for Issues and Pull Requests
 labels:
   - name: automerge
-    color: '#8f4fbc'
-    description: ''
+    color: 8f4fbc
+    description: Pull request approved for automatic merging
 
   - name: bug
-    color: '#d73a4a'
-    description: Something isn't working
+    color: d73a4a
+    description: "Something isn't working"
 
   - name: dependencies
-    color: '#A0BB41'
-    description: Dependency updates or security alerts
+    color: A0BB41
+    description: Changes to dependencies or package management
 
   - name: documentation
-    color: '#0075ca'
+    color: 0075ca
     description: Improvements or additions to documentation
 
   - name: duplicate
-    color: '#cfd3d7'
+    color: cfd3d7
     description: This issue or pull request already exists
 
   - name: enhancement
-    color: '#a2eeef'
+    color: a2eeef
     description: New feature or request
 
   - name: good first issue
-    color: '#7057ff'
+    color: 7057ff
     description: Good for newcomers
 
   - name: help wanted
-    color: '#008672'
+    color: '008672'
     description: Extra attention is needed
 
   - name: invalid
-    color: '#e4e669'
-    description: This doesn't seem right
+    color: e4e669
+    description: "This doesn't seem right"
 
   - name: major
-    color: '#b60205'
-    description: ''
+    color: b60205
+    description: Major version bump
 
   - name: minor
-    color: '#2729A8'
-    description: ''
+    color: 2729A8
+    description: Minor version bump
 
   - name: patch
-    color: '#27A89F'
-    description: ''
+    color: 27A89F
+    description: Patch version bump
 
   - name: question
-    color: '#d876e3'
+    color: d876e3
     description: Further information is requested
 
   - name: renovate
-    color: '#dd42f5'
-    description: Universal dependency update tool <https://mend.io/renovate>
+    color: dd42f5
+    description: 'Universal dependency update tool <https://mend.io/renovate>'
 
   - name: security
-    color: '#ff0000'
-    description: Security vulnerability
+    color: ff0000
+    description: Security-related changes or fixes
 
   - name: wontfix
-    color: '#ffffff'
+    color: ffffff
     description: This will not be worked on
+
+  - name: workflows
+    color: 4a94dc
+    description: Changes to GitHub Actions workflows
+
+  - name: github-settings
+    color: 006b75
+    description: Changes to repository settings and configuration
+
+  - name: templates
+    color: fbca04
+    description: 'Changes to issue, PR, or workflow templates'
+
+  - name: scripts
+    color: '5319e7'
+    description: Changes to automation scripts
+
+  - name: typescript
+    color: 3178c6
+    description: Changes to TypeScript code and configuration
 
 # Milestones: define milestones for Issues and Pull Requests
 # milestones:

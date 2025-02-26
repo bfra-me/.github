@@ -1,0 +1,36 @@
+workflows:
+  - .github/workflows/**/*
+
+dependencies:
+  - package.json
+  - pnpm-lock.yaml
+  - .npmrc
+
+documentation:
+  - '**/*.md'
+  - '**/*.mdx'
+  - '**/docs/**/*'
+
+github-settings:
+  - .github/settings.yml
+  - common-settings.yaml
+
+templates:
+  - workflow-templates/**/*
+  - .github/PULL_REQUEST_TEMPLATE/**/*
+  - .github/ISSUE_TEMPLATE/**/*
+
+scripts:
+  - scripts/**/*
+
+security:
+  - SECURITY.md
+  - .github/workflows/codeql-analysis.yaml
+  - .github/workflows/dependency-review.yaml
+  - .github/workflows/scorecard.yaml
+
+typescript:
+  - '**/*.ts'
+  - '**/*.tsx'
+  - tsconfig.json
+  - eslint.config.ts

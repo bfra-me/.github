@@ -1,0 +1,25 @@
+# Set to true to add reviewers to PRs
+addReviewers: true
+
+# Set to true to add assignees to PRs
+addAssignees: author
+
+# A list of reviewers to be added to PRs (GitHub user name)
+reviewers:
+  - bfra-me/owners
+
+# A number of reviewers added to the PR
+# Set 0 to add all the reviewers (default: 0)
+numberOfReviewers: 1
+# A list of assignees, overrides reviewers if set
+# assignees:
+#   - assigneeA
+
+# A number of assignees to add to the PRs
+# Set to 0 to add all of the assignees.
+# Uses numberOfReviewers if unset.
+# numberOfAssignees: 2
+
+# A list of keywords to be skipped the process that add reviewers if pull requests include it
+# skipKeywords:
+#   - wip

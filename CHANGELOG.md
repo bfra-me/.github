@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 2.1.0
+### Minor Changes
+
+
+- Add workflow automation ([#522](https://github.com/bfra-me/.github/pull/522))
+
 ## 2.0.9
 ### Patch Changes
 

@@ -53,6 +53,8 @@ jobs:
           node-version-file: .node-version
 
       - name: Install dependencies
+        env:
+          HUSKY: '0'
         run: pnpm bootstrap
 
       - name: Check for existing release PR

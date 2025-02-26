@@ -42,6 +42,20 @@ To install the dependencies, run:
 pnpm bootstrap
 ```
 
+### Pre-commit Hooks
+
+This repository uses [husky](https://github.com/typicode/husky) and [lint-staged](https://github.com/okonet/lint-staged) to run pre-commit hooks. The hooks will:
+
+- Run ESLint on staged TypeScript/JavaScript files
+- Format staged files with Prettier
+- Run type checking
+
+The hooks are automatically installed when you run `pnpm install`. If you need to bypass the hooks for any reason, you can use the `--no-verify` flag with your git commit:
+
+```bash
+git commit -m "your message" --no-verify
+```
+
 ### Releases
 
 Releases are managed using [changesets](https://github.com/changesets/changesets). Renovate dependency updates are captured in changesets by the `renovate-changeset` workflow.

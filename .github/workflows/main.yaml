@@ -38,6 +38,8 @@ jobs:
           node-version-file: .node-version
 
       - name: 🧰 Install dependencies
+        env:
+          HUSKY: '0'
         run: pnpm bootstrap
 
       - name: 💅🏽 Run Prettier
@@ -77,6 +79,8 @@ jobs:
           cache: pnpm
           node-version-file: .node-version
       - name: Install dependencies
+        env:
+          HUSKY: '0'
         run: pnpm bootstrap
       - name: Create Release Pull Request or Publish to npm
         uses: changesets/action@c8bada60c408975afd1a20b3db81d6eee6789308 # v1.4.9

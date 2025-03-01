@@ -127,6 +127,8 @@ jobs:
     if: >-
       needs.prepare.result == 'success' &&
       fromJSON(needs.prepare.outputs.repo_list)[0] != null
+    permissions:
+      actions: write
     runs-on: ubuntu-latest
     steps:
       - id: get-workflow-access-token

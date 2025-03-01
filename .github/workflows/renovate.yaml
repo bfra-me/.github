@@ -129,6 +129,7 @@ jobs:
       fromJSON(needs.prepare.outputs.repo_list)[0] != null
     permissions:
       actions: write
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - id: get-workflow-access-token
@@ -149,7 +150,6 @@ jobs:
             echo "Triggering workflow_dispatch for $ORG/$repo"
             gh workflow run renovate.yaml \
               --repo $ORG/$repo \
-              --ref main \
               -f log_level=debug
           done
 

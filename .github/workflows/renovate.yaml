@@ -139,17 +139,16 @@ jobs:
       - name: Dispatch Repository Updates
         env:
           GH_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
+          ORG: ${{ github.repository_owner }}
           REPO_LIST: ${{ needs.prepare.outputs.repo_list }}
         run: |
-          # Trigger repository_dispatch for each repository
+          # Trigger workflow_dispatch for each repository
           echo "$REPO_LIST" | jq -r '.[]' | while read -r repo; do
-            echo "Triggering repository_dispatch for ${{ github.repository_owner }}/$repo"
-            gh api \
-              --method POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              /repos/${{ github.repository_owner }}/$repo/dispatches \
-              -f event_type='renovate-trigger' \
-              -f client_payload='{}'
+            echo "Triggering workflow_dispatch for $ORG/$repo"
+            gh workflow run renovate.yaml \
+              --repo $ORG/$repo \
+              --ref main \
+              -f log_level=debug
           done
 
   renovate:

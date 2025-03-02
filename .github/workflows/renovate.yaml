@@ -129,7 +129,9 @@ jobs:
       fromJSON(needs.prepare.outputs.repo_list)[0] != null
     permissions:
       actions: write
+      checks: write
       contents: write
+      statuses: write
     runs-on: ubuntu-latest
     steps:
       - id: get-workflow-access-token

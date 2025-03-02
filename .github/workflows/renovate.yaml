@@ -148,7 +148,12 @@ jobs:
           # Trigger workflow_dispatch for each repository
           echo "$REPO_LIST" | jq -r '.[]' | while read -r repo; do
             echo "Triggering workflow_dispatch for $ORG/$repo"
-            gh workflow run renovate.yaml --repo $ORG/$repo
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/$ORG/$repo/actions/workflows/renovate.yaml/dispatches \
+              -f "ref=main"
           done
 
   renovate:

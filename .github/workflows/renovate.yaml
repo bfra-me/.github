@@ -111,7 +111,8 @@ jobs:
             if [ -n "$REPO_LIST" ]; then
               # Create pattern for autodiscover filter
               PATTERN=$(echo "$REPO_LIST" | \
-                jq -R -s 'split("\n") | map(select(length > 0 and . != ".github")) | join("|")' | sed s/\"//g)
+                jq -c 'map(select(. != ".github")) | join("|")' | \
+                sed s/\"//g)
               if [ -n "$PATTERN" ]; then
                 REPOS="[\"!/$ORG\\/($PATTERN)/\"]"
               fi

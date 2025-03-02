@@ -148,9 +148,7 @@ jobs:
           # Trigger workflow_dispatch for each repository
           echo "$REPO_LIST" | jq -r '.[]' | while read -r repo; do
             echo "Triggering workflow_dispatch for $ORG/$repo"
-            gh workflow run renovate.yaml \
-              --repo $ORG/$repo \
-              -f log_level=debug
+            gh workflow run renovate.yaml --repo $ORG/$repo
           done
 
   renovate:

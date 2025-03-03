@@ -1,5 +1,5 @@
 ---
-name: CodeQL
+name: CodeQL Advanced Security Analysis
 
 on:
   pull_request:
@@ -19,8 +19,8 @@ permissions:
 jobs:
   analyze:
     env:
-      language: javascript
-    name: Analyze
+      language: typescript
+    name: Advanced Security Analysis
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -33,6 +33,8 @@ jobs:
         uses: github/codeql-action/init@b56ba49b26e50535fa1e7f7db0f4f7b4bf65d80d # v3.28.10
         with:
           languages: ${{ env.language }}
+          queries: security-extended,security-and-quality
+          config-file: .github/codeql/codeql-config.yml
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@b56ba49b26e50535fa1e7f7db0f4f7b4bf65d80d # v3.28.10

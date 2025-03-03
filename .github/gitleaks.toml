@@ -1,0 +1,85 @@
+# Title for the configuration file
+title = "Gitleaks Configuration"
+
+[allowlist]
+description = "Global allowlist rules"
+paths = [
+  '''node_modules''',
+  '''dist''',
+  '''build''',
+  '''.yarn''',
+  '''package-lock.json''',
+  '''yarn.lock''',
+  '''pnpm-lock.yaml''',
+]
+regexes = ['''example\.com''', '''localhost''']
+
+# Common secret patterns
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)(?:key|api[^a-zA-Z0-9]|token|secret|password|auth)(?:[^a-zA-Z0-9])*['\"`=:]+[ ]*['\"`]?([a-zA-Z0-9=_\-]{32,})['"`]?'''
+entropy = 3.7
+secretGroup = 1
+keywords = ["key", "api", "token", "secret", "password", "auth"]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Token"
+regex = '''(?i)(?:github[^a-zA-Z0-9]|gh[^a-zA-Z0-9])(?:token|key|secret)['\"`=:]+[ ]*['\"`]?([a-zA-Z0-9_]{40})['\"`]?'''
+secretGroup = 1
+keywords = ["github", "gh", "token"]
+
+[[rules]]
+id = "npm-token"
+description = "NPM Token"
+regex = '''(?i)(?:npm[^a-zA-Z0-9]|npm_token)['\"`=:]+[ ]*['\"`]?([a-zA-Z0-9]{64})['\"`]?'''
+secretGroup = 1
+keywords = ["npm", "token"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key"
+regex = '''(?i)(?:aws[^a-zA-Z0-9]|amazon[^a-zA-Z0-9])?(?:access[^a-zA-Z0-9])?key[^a-zA-Z0-9]+(?:id[^a-zA-Z0-9]+)?['\"`=:]+[ ]*['\"`]?([A-Z0-9]{20})['\"`]?'''
+secretGroup = 1
+keywords = ["aws", "amazon", "access", "key"]
+
+[[rules]]
+id = "aws-secret-key"
+description = "AWS Secret Key"
+regex = '''(?i)(?:aws[^a-zA-Z0-9]|amazon[^a-zA-Z0-9])?secret[^a-zA-Z0-9]+(?:access[^a-zA-Z0-9]+)?key[^a-zA-Z0-9]+['\"`=:]+[ ]*['\"`]?([A-Za-z0-9/+=]{40})['\"`]?'''
+secretGroup = 1
+keywords = ["aws", "amazon", "secret", "key"]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''(?i)-----BEGIN[ A-Z0-9_-]{0,100}PRIVATE[ A-Z0-9_-]{0,100}KEY-----'''
+keywords = ["BEGIN", "PRIVATE", "KEY"]
+
+[[rules]]
+id = "typescript-secret"
+description = "TypeScript/JavaScript Secret Pattern"
+regex = '''(?i)(?:secret|token|key|password|credential)['\"`=:]+[ ]*['\"`]([a-zA-Z0-9-._+=]{8,})['"`]'''
+secretGroup = 1
+keywords = ["secret", "token", "key", "password", "credential"]
+
+[[rules]]
+id = "env-var"
+description = "Environment Variable containing secrets"
+regex = '''(?i)(?:^|[^a-zA-Z0-9])(?:api_token|api_key|auth_token|client_secret|secret_key|access_token)=['\"`]?([a-zA-Z0-9-._+=]{8,})['\"`]?'''
+secretGroup = 1
+keywords = [
+  "api_token",
+  "api_key",
+  "auth_token",
+  "client_secret",
+  "secret_key",
+  "access_token",
+]
+
+[allowlist.commits]
+description = "Commits to be ignored"
+commits = [
+  # Add any commit hashes to ignore here
+]

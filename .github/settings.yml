@@ -15,12 +15,17 @@ branches:
         contexts:
           - Advanced Security Analysis
           - CodeQL
+          - Container Scan
           - Create Renovate Changeset
-          - Lint
+          - GitGuardian Scan
+          - License Scan
+          - Prepare Repository List
+          - Quality Check
           - Release
           - Renovate
           - Review Dependencies
           - Triage
+          - Trigger Repository Updates
 
       enforce_admins: true
       required_pull_request_reviews:

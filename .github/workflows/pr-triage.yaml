@@ -6,11 +6,12 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   triage:
     name: Triage
+    permissions:
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

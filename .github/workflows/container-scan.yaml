@@ -18,11 +18,12 @@ on:
 
 permissions:
   contents: read
-  security-events: write
 
 jobs:
   scan:
     name: Container Scan
+    permissions:
+      security-events: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

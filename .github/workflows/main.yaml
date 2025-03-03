@@ -19,8 +19,8 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    name: Lint
+  quality-check:
+    name: Quality Check
     runs-on: ubuntu-latest
     steps:
       - name: ⤵️ Checkout Branch
@@ -48,7 +48,7 @@ jobs:
   release:
     if: github.repository == 'bfra-me/.github' &&  github.event_name == 'push' && github.ref =='refs/heads/main'
     name: Release
-    needs: [lint]
+    needs: [quality-check]
     runs-on: ubuntu-latest
     steps:
       - id: get-workflow-access-token

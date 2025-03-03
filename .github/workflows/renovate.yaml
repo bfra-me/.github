@@ -60,8 +60,8 @@ permissions:
   contents: read
 
 jobs:
-  renovate:
-    name: Renovate
+  prepare:
+    name: Prepare Repository List
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request') ||
       (github.event_name != 'issues' && contains(github.event.*.labels.*.name, 'renovate')) ||
@@ -81,24 +81,19 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- unlimit-branch=') ||
         contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
       )
-    env:
-      WORKFLOW_LOG_LEVEL: debug
-      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
-      autodiscover: ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    outputs:
+      autodiscover: ${{ steps.get-repo-list.outputs.autodiscover }}
+      repos: ${{ steps.get-repo-list.outputs.repos }}
+      repo_list: ${{ steps.get-repo-list.outputs.repo_list }}
     steps:
-      - if: github.event_name == 'push' || env.autodiscover == 'true'
+      - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - id: filter
-        if: github.event_name == 'push'
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
-        with:
-          filters: |
-            changes: ${{ inputs.path_filters != '' && inputs.path_filters || env.default_path_filters }}
 
       - id: get-repo-list
         name: Get repository list
-        if: env.autodiscover == 'true'
+        env:
+          AUTODISCOVER: ${{ github.event.repository.name == '.github' && !contains('["issues", "pull_request"]', github.event_name) && github.ref == 'refs/heads/main' }}
         run: |
           # Check if yq is already installed
           if ! command -v yq &> /dev/null; then
@@ -107,25 +102,74 @@ jobs:
             sudo chmod +x /usr/local/bin/yq
           fi
 
-          # Extract repository list and create a minimatch negation pattern
-          # Use jq to:
-          # 1. Split input into lines (-R raw input, -s slurp all lines)
-          # 2. Filter out empty lines and .github repo
-          # 3. Join with | to create alternation pattern
-          # 4. Create the negation pattern with org prefix
+          # Extract repository list and create outputs
           ORG="${{ github.repository_owner }}"
           REPOS="[]"
-          if [ -f "metadata/renovate.yaml" ]; then
-            REPOS_LIST=$(yq '.repositories.with-renovate[]' metadata/renovate.yaml 2>/dev/null || echo "")
-            if [ -n "$REPOS_LIST" ]; then
-              PATTERN=$(echo "$REPOS_LIST" | \
-                jq -R -s 'split("\n") | map(select(length > 0 and . != ".github")) | join("|")' | sed s/\"//g)
+          REPO_LIST="[]"
+          if [ "${{ env.AUTODISCOVER }}" == "true" ] && [ -f "metadata/renovate.yaml" ]; then
+            REPO_LIST=$(yq -I0 -o=json '.repositories.with-renovate' metadata/renovate.yaml 2>/dev/null || echo "")
+            if [ -n "$REPO_LIST" ]; then
+              # Create pattern for autodiscover filter
+              PATTERN=$(echo "$REPO_LIST" | \
+                jq -c 'map(select(. != ".github")) | join("|")' | \
+                sed s/\"//g)
               if [ -n "$PATTERN" ]; then
                 REPOS="[\"!/$ORG\\/($PATTERN)/\"]"
               fi
             fi
           fi
           echo "repos=$REPOS" >> $GITHUB_OUTPUT
+          echo "repo_list=$REPO_LIST" >> $GITHUB_OUTPUT
+          echo "autodiscover=$AUTODISCOVER" >> $GITHUB_OUTPUT
+
+  trigger-updates:
+    name: Trigger Repository Updates
+    needs: prepare
+    if: >-
+      needs.prepare.result == 'success' &&
+      fromJSON(needs.prepare.outputs.repo_list)[0] != null
+    runs-on: ubuntu-latest
+    steps:
+      - id: get-workflow-access-token
+        name: Get Workflow Access Token
+        uses: actions/create-github-app-token@21cfef2b496dd8ef5b904c159339626a10ad380e # v1.11.6
+        with:
+          app-id: ${{ secrets.APPLICATION_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Dispatch Repository Updates
+        env:
+          GH_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
+          ORG: ${{ github.repository_owner }}
+          REPO_LIST: ${{ needs.prepare.outputs.repo_list }}
+        run: |
+          # Trigger workflow_dispatch for each repository
+          echo "$REPO_LIST" | jq -r '.[]' | while read -r repo; do
+            if [ "$repo" != ".github" ]; then
+              echo "Triggering workflow_dispatch for $ORG/$repo"
+              gh workflow run renovate.yaml --repo $ORG/$repo
+            fi
+          done
+
+  renovate:
+    name: Renovate
+    needs: prepare
+    if: needs.prepare.result == 'success'
+    env:
+      WORKFLOW_LOG_LEVEL: debug
+      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
+    runs-on: ubuntu-latest
+    steps:
+      - if: github.event_name == 'push' || needs.prepare.outputs.autodiscover == 'true'
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - id: filter
+        if: github.event_name == 'push'
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          filters: |
+            changes: ${{ inputs.path_filters != '' && inputs.path_filters || env.default_path_filters }}
 
       - name: Renovate
         env:
@@ -134,12 +178,12 @@ jobs:
           ${{ !contains('["push", "workflow_run"]', github.event_name) || github.event.workflow_run.conclusion == 'success' || steps.filter.outputs.changes == 'true' }}
         uses: bfra-me/renovate-action@v5
         with:
-          autodiscover: ${{ env.autodiscover }}
-          autodiscover-filter: ${{ env.autodiscover == 'true' && steps.get-repo-list.outputs.repos || '[]' }}
+          autodiscover: ${{ needs.prepare.outputs.autodiscover }}
+          autodiscover-filter: ${{ needs.prepare.outputs.autodiscover == 'true' && needs.prepare.outputs.repos || '[]' }}
           branch: ${{ (github.ref_name != github.event.repository.default_branch || env.dry_run == 'true') && ( github.head_ref || github.ref_name ) || '' }}
           cache: true
           dry-run: ${{ env.dry_run }}
-          log-level: ${{ inputs.log_level || env.autodiscover == 'true' && 'debug' || env.WORKFLOW_LOG_LEVEL }}
+          log-level: ${{ inputs.log_level || needs.prepare.outputs.autodiscover == 'true' && 'info' || env.WORKFLOW_LOG_LEVEL }}
           print-config: ${{ inputs.print_config }}
           renovate-app-id: ${{ secrets.APPLICATION_ID }}
           renovate-app-private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}

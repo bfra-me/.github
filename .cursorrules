@@ -52,9 +52,8 @@ When suggesting code, use these tools and versions:
 
 ## Testing and Validation
 
-- Run `pnpm lint` for ESLint checks
-- Run `pnpm check-format` for Prettier checks
-- Run `pnpm fix` to automatically fix linting issues
+- Run `pnpm lint` for ESLint and Prettier checks
+- Run `pnpm fix` to automatically fix linting issues and format code
 - Run `pnpm format` to automatically format code
 - Ensure all GitHub Actions workflows pass
 

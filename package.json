@@ -1,6 +1,6 @@
 {
   "name": "@bfra.me/.github",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Defaults for the @bfra-me GitHub Organization",
   "keywords": [
     "github",
@@ -18,41 +18,40 @@
   "scripts": {
     "bootstrap": "pnpm install --prefer-offline --loglevel error",
     "bump": "changeset version && pnpm bootstrap && pnpm run fix ",
-    "check-format": "prettier --check .",
     "fix": "pnpm run lint --fix",
     "format": "prettier --write .",
     "lint": "eslint .",
     "update-metadata": "pnpm tsx ./scripts/generate-metadata.ts",
     "release": "tsx ./scripts/release.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "type-check": "tsc --noEmit",
+    "quality-check": "pnpm run type-check && pnpm run lint"
   },
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
     "@actions/exec": "1.1.1",
     "@bfra.me/eslint-config": "0.16.5",
     "@bfra.me/prettier-config": "0.15.2",
+    "@bfra.me/tsconfig": "0.9.7",
     "@changesets/cli": "2.28.1",
     "@octokit/rest": "21.1.1",
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
+    "@types/js-yaml": "4.0.9",
     "@types/node": "22.13.4",
     "eslint": "9.21.0",
-    "eslint-config-prettier": "10.0.1",
+    "eslint-config-prettier": "10.0.2",
     "eslint-plugin-prettier": "5.2.3",
     "husky": "9.1.7",
     "js-yaml": "4.1.0",
     "lint-staged": "15.4.3",
-    "prettier": "3.5.2",
+    "prettier": "3.5.3",
     "tsx": "4.19.3",
     "typescript": "5.7.3"
   },
   "packageManager": "pnpm@9.15.6",
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "tsc --noEmit"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "eslint --fix"
+    "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [
+      "pnpm run fix"
     ]
   }
 }

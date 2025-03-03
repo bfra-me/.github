@@ -15,7 +15,7 @@ jobs:
     steps:
       - id: get-workflow-access-token
         name: Get Workflow Access Token
-        uses: actions/create-github-app-token@0d564482f06ca65fa9e77e2510873638c82206f2 # v1.11.5
+        uses: actions/create-github-app-token@21cfef2b496dd8ef5b904c159339626a10ad380e # v1.11.6
         with:
           app-id: ${{ secrets.APPLICATION_ID }}
           private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
@@ -28,6 +28,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          persist-credentials: false
           token: ${{ steps.get-workflow-access-token.outputs.token }}
 
       - name: Install pnpm
@@ -46,15 +47,20 @@ jobs:
           HUSKY: '0'
         run: pnpm bootstrap
 
-      - name: Generate metadata
+      - id: generate-metadata
+        name: Generate metadata
         env:
           GH_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
-        run: pnpm update-metadata
+        run: |
+          pnpm update-metadata
+          # Set an output to indicate whether there are unstaged changes
+          echo "unstaged-changes=$(git status --porcelain)" >> $GITHUB_OUTPUT
 
       - name: Autofix linting errors
         run: pnpm fix
 
       - name: Create changeset
+        if: steps.generate-metadata.outputs.unstaged-changes != ''
         run: |
           # Create a changeset with a unique filename in the correct format
           cat > .changeset/update-metadata-$(date +%s).md <<EOF

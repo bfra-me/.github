@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 2.3.0
+### Minor Changes
+
+
+- Add security workflows. ([#533](https://github.com/bfra-me/.github/pull/533))
+
+
+### Patch Changes
+
+
+- Updated dependency `prettier` to `3.5.3`. ([#552](https://github.com/bfra-me/.github/pull/552))
+
 ## 2.2.0
 ### Minor Changes
 

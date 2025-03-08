@@ -1,5 +1,26 @@
 # @bfra.me/.github
 
+## 2.3.0
+### Minor Changes
+
+
+- Add security workflows. ([#533](https://github.com/bfra-me/.github/pull/533))
+
+
+### Patch Changes
+
+
+- Updated dependency `eslint` to `9.22.0`. ([#563](https://github.com/bfra-me/.github/pull/563))
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.7`. ([#559](https://github.com/bfra-me/.github/pull/559))
+
+
+- Updated dependency `prettier` to `3.5.3`. ([#552](https://github.com/bfra-me/.github/pull/552))
+
+
+- Updated dependency `eslint-config-prettier` to `10.1.1`. ([#560](https://github.com/bfra-me/.github/pull/560))
+
 ## 2.2.0
 ### Minor Changes
 

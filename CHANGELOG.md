@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 2.3.1
+### Patch Changes
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.9`. ([#567](https://github.com/bfra-me/.github/pull/567))
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.8`. ([#564](https://github.com/bfra-me/.github/pull/564))
+
 ## 2.3.0
 ### Minor Changes
 

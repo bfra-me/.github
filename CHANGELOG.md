@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 2.3.1
+### Patch Changes
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.9`. ([#567](https://github.com/bfra-me/.github/pull/567))
+
+
+- Updated dependency `@types/node` to `22.13.10`. ([#571](https://github.com/bfra-me/.github/pull/571))
+
+
+- Updated dependency `packageManager` to `pnpm@9.15.8`. ([#564](https://github.com/bfra-me/.github/pull/564))
+
+
+- Updated dependency `lint-staged` to `15.5.0`. ([#570](https://github.com/bfra-me/.github/pull/570))
+
 ## 2.3.0
 ### Minor Changes
 

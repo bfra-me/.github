@@ -1,6 +1,6 @@
 ---
 description: Guidelines for using Renovate for dependency management
-globs: .github/renovate.json5, .github/workflows/renovate.yaml
+globs: .github/renovate.json5,**/workflows/renovate.y?ml
 alwaysApply: false
 ---
 

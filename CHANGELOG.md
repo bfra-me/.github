@@ -1,5 +1,35 @@
 # @bfra.me/.github
 
+## 2.3.3
+### Patch Changes
+
+
+- Increase the Renovate workflow timeout to 30 minutes. ([#597](https://github.com/bfra-me/.github/pull/597))
+
+
+- Updated dependency `packageManager` to `pnpm@10.4.1`. ([#590](https://github.com/bfra-me/.github/pull/590))
+
+
+- Updated dependency `typescript` to `5.8.2`. ([#589](https://github.com/bfra-me/.github/pull/589))
+
+
+- Updated dependency `eslint-plugin-prettier` to `5.2.4`. ([#582](https://github.com/bfra-me/.github/pull/582))
+
+
+- Updated dependency `eslint-plugin-prettier` to `5.2.5`. ([#591](https://github.com/bfra-me/.github/pull/591))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.18.0`. ([#594](https://github.com/bfra-me/.github/pull/594))
+
+
+- Updated dependency `packageManager` to `pnpm@10.7.0`. ([#593](https://github.com/bfra-me/.github/pull/593))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.17.0`. ([#584](https://github.com/bfra-me/.github/pull/584))
+  Updated dependency `@bfra.me/prettier-config` to `0.15.3`.
+
+- Updated dependency `packageManager` to `pnpm@10.6.5`. ([#590](https://github.com/bfra-me/.github/pull/590))
+
 ## 2.3.2
 ### Patch Changes
 

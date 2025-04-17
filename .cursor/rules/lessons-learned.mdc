@@ -1,0 +1,121 @@
+---
+description: Stores important patterns, preferences, and project intelligence, living document that grows smarter as progress happens
+globs:
+alwaysApply: true
+---
+
+# Lessons Learned
+
+## Development Patterns
+
+### Workflow Structure
+- Always use reusable workflows over repository-specific ones
+- Implement proper error handling in each workflow with clear failure messages
+- Document all inputs, outputs, and permissions for each workflow
+- Use standardized naming conventions for workflow files and jobs
+- Separate configuration from logic in workflow files
+
+### Repository Structure
+- Organize files into logical directories (workflows/, scripts/, metadata/)
+- Keep configuration files in the root directory
+- Maintain consistent naming conventions across files
+- Use dedicated documentation directories (docs/) for comprehensive documentation
+
+### Code Quality
+- Use TypeScript with strict type checking for all scripts
+- Implement ESLint and Prettier for consistent code style
+- Enforce pre-commit hooks for code quality checks
+- Run type checking as part of CI process
+- Use JSDoc comments for better documentation
+
+## User Preferences
+
+### Configuration Preferences
+- Use YAML for configuration files over JSON when possible
+- Prefer explicit configuration over implicit defaults
+- Document all configuration options with examples
+- Use environment variables for sensitive information
+- Implement validation for all configuration files
+
+### Documentation Preferences
+- Maintain comprehensive documentation for all workflows
+- Use mermaid diagrams for visual representation of processes
+- Include troubleshooting guides for common issues
+- Provide examples for all configuration options
+- Keep documentation updated with each release
+
+### Workflow Preferences
+- Prioritize security in all workflows
+- Optimize performance for large repositories
+- Implement extensive logging for debugging
+- Use minimal permissions principle for all GitHub tokens
+- Ensure cross-platform compatibility
+
+## Project Intelligence
+
+### GitHub Actions Best Practices
+- Use composite actions for reusable steps
+- Implement proper error handling and reporting
+- Set explicit permissions for GitHub tokens
+- Cache dependencies for faster execution
+- Use checkout@v4 for repository access
+
+### TypeScript Best Practices
+- Use strict type checking
+- Implement interfaces for all data structures
+- Use generics for reusable functions
+- Avoid any type when possible
+- Follow ESM module standards
+
+### Security Best Practices
+- Implement OpenSSF Scorecard for security compliance
+- Use dependency scanning for vulnerability detection
+- Implement branch protection rules for all repositories
+- Regularly update dependencies for security patches
+- Use least privilege principle for all access tokens
+
+### Release Management
+- Use Changesets for versioning and changelog generation
+- Implement automated release workflows
+- Use semantic versioning for all releases
+- Document breaking changes in release notes
+- Test releases in staging environments before production
+
+## Problem-Solving Strategies
+
+### Troubleshooting Workflow Issues
+- Check workflow logs for detailed error messages
+- Verify GitHub token permissions
+- Test workflows with minimal configuration
+- Add debug logging for complex workflows
+- Use GitHub Actions local testing tools for development
+
+### Dependency Management
+- Use Renovate for automated dependency updates
+- Implement proper peer dependency resolution
+- Test compatibility before updating dependencies
+- Use lockfiles for reproducible builds
+- Implement dependency pinning for critical packages
+
+### Performance Optimization
+- Optimize workflow execution time
+- Implement caching strategies
+- Use parallel jobs when possible
+- Minimize external dependencies
+- Use efficient algorithms and data structures
+
+## Success Patterns
+
+### Project Organization
+- Clear directory structure
+- Comprehensive documentation
+- Consistent naming conventions
+- Modular and reusable components
+- Well-defined interfaces
+
+### Automation
+- Automated dependency updates
+- Continuous integration and testing
+- Automated releases
+- Security scanning
+- Documentation generation

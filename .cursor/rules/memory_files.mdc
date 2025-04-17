@@ -1,0 +1,305 @@
+---
+description: Guidelines for creating and maintaining project Memory Files for comprehensive project documentation
+globs: docs/*, tasks/*
+alwaysApply: true
+---
+
+# Memory Files Management
+
+## File Hierarchy
+```mermaid
+flowchart TD
+    PB[product_requirement_docs.md] --> PC[technical.md]
+    PB --> SP[architecture.md]
+
+    SP --> TC[tasks_plan.md]
+    PC --> TC
+    PB --> TC
+
+    TC --> AC[active_context.md]
+
+    AC --> ER[error-documentation.mdc]
+    AC --> LL[lessons-learned.mdc]
+
+    subgraph LIT[docs/literature]
+        L1[...]
+        L2[...]
+    end
+
+    subgraph RFC[tasks/rfc]
+        R1[...]
+        R2[...]
+    end
+
+    PC -.-> LIT
+    TC -.-> RFC
+```
+
+## Core Files Structure
+
+- **Required Core Files:**
+  - [product_requirement_docs.md](mdc:docs/product_requirement_docs.md): Product requirements, problems solved, scope
+  - [architecture.md](mdc:docs/architecture.md): System architecture, component relationships
+  - [technical.md](mdc:docs/technical.md): Development environment, tech stack, technical decisions
+  - [tasks_plan.md](mdc:tasks/tasks_plan.md): Task backlog, project progress, known issues
+  - [active_context.md](mdc:tasks/active_context.md): Current work focus, recent changes, next steps
+  - [error-documentation.mdc](mdc:.cursor/rules/error-documentation.mdc): Known issues and their resolution
+  - [lessons-learned.mdc](mdc:.cursor/rules/lessons-learned.mdc): Project patterns, preferences, intelligence
+
+- **Optional Context Files:**
+  - `docs/literature/`: Research and literature survey
+  - `tasks/rfc/`: Request for comments for individual tasks
+
+## Working Modes
+
+### PLAN/Architect MODE
+- **When to use:**
+  - Developing project architecture
+  - Planning new features
+  - Designing system components
+  - Creating implementation strategies
+
+- **Process Flow:**
+  ```mermaid
+  flowchart TD
+      Start[Start] --> ReadFiles[Read Memory Files]
+      ReadFiles --> CheckFiles{Files Complete?}
+
+      CheckFiles -->|No| Plan[Create Plan]
+      Plan --> DocumentChat[Document in Chat]
+
+      CheckFiles -->|Yes| VerifyContext[Verify Context]
+      VerifyContext --> Strategy[Develop Strategy]
+      Strategy --> Present[Present Approach]
+
+      Present --> Verification{Approach Verified?}
+
+      Verification -->|No| Clarify[Seek Clarification]
+      Clarify --> Strategy
+
+      Verification -->|Yes| DocumentMemory[Document in Memory Files]
+  ```
+
+### ACT/Code MODE
+- **When to use:**
+  - Implementing planned features
+  - Fixing bugs
+  - Refactoring code
+  - Writing tests
+
+- **Process Flow:**
+  ```mermaid
+  flowchart TD
+      Start[Start] --> Context[Check Memory Files]
+      Context --> Update[Update Documentation]
+      Update --> Rules[Update lessons-learned & error-documentation]
+      Rules --> Execute[Execute Task]
+      Execute --> Document[Document Changes in Memory Files]
+  ```
+
+## Documentation Updates
+
+- **When to update Memory Files:**
+  - After discovering new project patterns
+  - After implementing significant changes
+  - When context needs clarification
+  - After significant part of a plan is verified
+  - When explicitly requested with **update memory files**
+
+- **Update Process:**
+  - Review Core Files
+  - Document current state in [active_context.md](mdc:tasks/active_context.md) and [tasks_plan.md](mdc:tasks/tasks_plan.md)
+  - Clarify next steps in [tasks_plan.md](mdc:tasks/tasks_plan.md)
+  - Update [lessons-learned.mdc](mdc:.cursor/rules/lessons-learned.mdc) and [error-documentation.mdc](mdc:.cursor/rules/error-documentation.mdc)
+
+## File Content Guidelines
+
+### [product_requirement_docs.md](mdc:docs/product_requirement_docs.md)
+- **✅ DO:**
+  - Keep problem statements clear and concise
+  - Update scope as project evolves
+  - Maintain clear success criteria
+
+  ```markdown
+  ## Project Overview
+
+  ### Purpose
+  This repository serves as...
+
+  ### Problems Solved
+  1. **Standardization**: Provides consistent...
+  2. **Automation**: Streamlines repository...
+
+  ### Core Requirements
+
+  #### 1. Repository Settings Management
+  - Maintain organization-wide...
+  ```
+
+- **❌ DON'T:**
+  - Mix implementation details with requirements
+  - Leave outdated information
+
+### [architecture.md](mdc:docs/architecture.md)
+- **✅ DO:**
+  - Use mermaid diagrams for visual clarity
+  - Show component relationships
+  - Document data flows
+
+  ```markdown
+  ## System Overview
+
+  ### High-Level Architecture
+  ```mermaid
+  graph TD
+      A[Component] --> B[Component]
+      B --> C[Component]
+  ```
+
+  ## Component Architecture
+
+  ### 1. Component Name
+  - Purpose
+  - Integration points
+  ```
+
+- **❌ DON'T:**
+  - Include implementation-specific details
+  - Mix architecture with technical choices
+
+### [technical.md](mdc:docs/technical.md)
+- **✅ DO:**
+  - Document development environment
+  - Explain technical decisions and rationale
+  - Keep tool versions updated
+
+  ```markdown
+  ## Development Environment
+
+  ### Core Technologies
+  - **Node.js**: Version specified in...
+  - **Package Manager**: pnpm@10.8.1
+
+  ## Technical Decisions and Rationale
+
+  ### ESM Modules
+  - Better tree-shaking
+  - Native async/await support
+  ```
+
+- **❌ DON'T:**
+  - Include architecture information
+  - Mix with task planning
+
+### [tasks_plan.md](mdc:tasks/tasks_plan.md)
+- **✅ DO:**
+  - Clearly mark task status
+  - Document known issues
+  - Update progress regularly
+
+  ```markdown
+  ## Current Status
+  Version: 2.3.5
+  Status: Active Development
+
+  ## Completed Tasks
+
+  ### Core Setup ✅
+  - [x] Initialize repository with TypeScript
+
+  ## In Progress Tasks
+
+  ### Documentation Enhancement 🔄
+  - [ ] API documentation for workflows
+  ```
+
+- **❌ DON'T:**
+  - Mix with technical details
+  - Leave completed tasks unmarked
+
+### [active_context.md](mdc:tasks/active_context.md)
+- **✅ DO:**
+  - Focus on current work
+  - Document recent changes
+  - Outline immediate next steps
+
+  ```markdown
+  ## Current Development Focus
+
+  ### Active Development Areas
+  1. **Documentation Enhancement**
+     - API documentation for workflows
+     - Usage examples
+
+  ## Next Steps
+
+  ### Immediate Actions
+  1. **Documentation**
+     - Complete API documentation
+  ```
+
+- **❌ DON'T:**
+  - Include long-term planning
+  - Mix with technical details
+
+### [error-documentation.mdc](mdc:.cursor/rules/error-documentation.mdc)
+- **✅ DO:**
+  - Document issues and their resolution
+  - Include error details and context
+  - Categorize errors by type
+
+  ```markdown
+  ## Critical Errors
+
+  ### Error Type: Configuration
+
+  #### Error: Invalid TypeScript Configuration
+  - **Symptoms**: tsc fails with "Cannot find module..."
+  - **Root Cause**: Incorrect module resolution in tsconfig.json
+  - **Resolution**: Changed moduleResolution to "node"
+  ```
+
+- **❌ DON'T:**
+  - Leave resolution steps unclear
+  - Mix with feature planning
+
+### [lessons-learned.mdc](mdc:.cursor/rules/lessons-learned.mdc)
+- **✅ DO:**
+  - Document recurring patterns
+  - Record user preferences
+  - Note project-specific approaches
+
+  ```markdown
+  ## Development Patterns
+
+  ### Workflow Structure
+  - Always use reusable workflows over repository-specific ones
+  - Implement proper error handling in each workflow
+  - Document all inputs and outputs
+  ```
+
+- **❌ DON'T:**
+  - Include temporary workarounds
+  - Mix with task planning
+
+## Maintenance Best Practices
+
+- **Regular Reviews:**
+  - Ensure all Core Files are up-to-date before starting new work
+  - Review for consistency across documents
+  - Validate architectural decisions against implementation
+
+- **Documentation Generation:**
+  - Generate documentation directly from code when possible
+  - Keep examples synchronized with actual code
+  - Update diagrams when architecture changes
+
+- **Collaboration:**
+  - Use Memory Files as the source of truth for project discussions
+  - Reference specific sections in communications
+  - Ensure all team members contribute to Memory Files
+
+- **Version Control:**
+  - Maintain history of major Memory File changes
+  - Include reasoning for significant updates
+  - Track evolving requirements and decisions

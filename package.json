@@ -19,7 +19,6 @@
     "bootstrap": "pnpm install --prefer-offline --loglevel error",
     "bump": "changeset version && pnpm bootstrap && pnpm run fix ",
     "fix": "pnpm run lint --fix",
-    "format": "prettier --write .",
     "lint": "eslint .",
     "update-metadata": "pnpm tsx ./scripts/generate-metadata.ts",
     "release": "tsx ./scripts/release.ts",

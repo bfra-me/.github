@@ -1,0 +1,16 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+## Documentation Usage
+- Always consult the project's [product_requirement_docs.md](mdc:docs/product_requirement_docs.md) file for a clear understanding of goals and features.
+- Review all additional documentation files within the [docs](mdc:docs) directory provided with the project.
+- If additional or updated documentation is required, use MCP servers (Brave Search, Puppeteer, FireCrawl) to locate official and current sources online.
+
+## Technical Stack Compliance
+- **Adhere strictly to the project's established technology stack found in [technical.md](mdc:docs/technical.md)**
+- Do not introduce new technologies unless explicitly instructed and justified.
+- You may suggest alternative technologies if beneficial, but never implement them without user confirmation.
+- Update [technical.md](mdc:docs/technical.md) to include missing technologies (used in the project but not listed as part of the tech stack) using existing formatting and layout.

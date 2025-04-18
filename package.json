@@ -37,7 +37,7 @@
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/js-yaml": "4.0.9",
     "@types/node": "22.14.1",
-    "eslint": "9.24.0",
+    "eslint": "9.25.0",
     "eslint-config-prettier": "10.1.2",
     "eslint-plugin-prettier": "5.2.6",
     "husky": "9.1.7",

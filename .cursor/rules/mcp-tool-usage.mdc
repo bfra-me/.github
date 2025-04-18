@@ -63,6 +63,4 @@ Follow these steps for each interaction:
 - Tools should be used proactively without requiring user prompting
 - Multiple tools can and should be used in parallel when appropriate
 - Avoid excessive recursive calls; trigger intelligently only when new progress or significant information is possible
-- Each step of analysis should be documented
-- Complex tasks should automatically trigger the full workflow
 - Knowledge retention across conversations should be managed through the Knowledge Graph

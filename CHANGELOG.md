@@ -1,5 +1,48 @@
 # @bfra.me/.github
 
+## 2.4.0
+### Minor Changes
+
+
+- Add architectural decisions and implementation tasks for two new systems: ([#635](https://github.com/bfra-me/.github/pull/635))
+  1. Preference monitoring system integrated with [Knowledge Graph](https://github.com/modelcontextprotocol/servers/tree/main/src/memory) MCP server for maintaining and evaluating user preferences stored alongside other contextual knowledge
+  2. Repository metrics and trigger system for automated collection and evaluation of repository health metrics
+
+- Add comprehensive documentation and improve development workflow with Cursor rules ([#628](https://github.com/bfra-me/.github/pull/628))
+
+
+- Create ADR and implementation tasks for repository metrics and trigger system. This system will provide automated collection and evaluation of repository metrics through GitHub Actions, including code quality, test coverage, build performance, dependency health, and security metrics. ([#635](https://github.com/bfra-me/.github/pull/635))
+
+
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.0`. ([#618](https://github.com/bfra-me/.github/pull/618))
+
+
+- Updated dependency `@changesets/cli` to `2.29.2`. ([#627](https://github.com/bfra-me/.github/pull/627))
+
+
+- Updated dependency `packageManager` to `pnpm@10.8.1`. ([#624](https://github.com/bfra-me/.github/pull/624))
+
+
+- Updated dependency `@changesets/cli` to `2.29.1`. ([#626](https://github.com/bfra-me/.github/pull/626))
+
+
+- Updated dependency `@types/node` to `22.14.1`. ([#625](https://github.com/bfra-me/.github/pull/625))
+
+
+- Updated dependency `@changesets/cli` to `2.29.0`. ([#623](https://github.com/bfra-me/.github/pull/623))
+
+
+- Updated dependency `eslint` to `9.25.0`. ([#632](https://github.com/bfra-me/.github/pull/632))
+
+
+- Optimize Renovate workflow by merging prepare and trigger-updates jobs into a single renovate job for improved maintainability and reduced complexity. ([#633](https://github.com/bfra-me/.github/pull/633))
+
+
+- Add comprehensive documentation for GitHub Actions workflows including CodeQL Analysis, Dependency Review, Renovate, and OpenSSF Scorecard workflows. ([#630](https://github.com/bfra-me/.github/pull/630))
+
 ## 2.3.5
 ### Patch Changes
 

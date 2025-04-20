@@ -1,7 +1,7 @@
 ---
 description: Glossary of other Cursor rules
 globs: **/*
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Glossary of @bfra.me/.github Cursor Rules
@@ -10,16 +10,15 @@ This file provides a quick reference to the purpose of each rule file located in
 
 ## Rule Entries
 
-- **[`architecture-understanding.mdc`](mdc:.cursor/rules/architecture-understanding.mdc)**: Guidelines for understanding and interpreting architectural diagrams.
+- **[`architecture-understanding.mdc`](mdc:.cursor/rules/architecture-understanding.mdc)**: Guidelines for understanding and interpreting architectural diagrams and project directory structure.
 - **[`change_validation.mdc`](mdc:.cursor/rules/change_validation.mdc)**: Guidelines for validating changes to memory files.
 - **[`changesets.mdc`](mdc:.cursor/rules/changesets.mdc)**: Guidelines for using Changesets (pnpm changeset) to manage versioning and changelogs.
 - **[`coding-best-practices.mdc`](mdc:.cursor/rules/coding-best-practices.mdc)**: Defines best practices for implementing code changes.
 - **[`content_context.mdc`](mdc:.cursor/rules/content_context.mdc)**: Guidelines for AI agents to understand content context when updating memory files.
 - **[`cursor_rules.mdc`](mdc:.cursor/rules/cursor_rules.mdc)**: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
-- **[`debug.mdc`](mdc:.cursor/rules/debug.mdc)**: Guidelines for diagnosing issues and solving persistent errors or incomplete fixes.
-- **[`directory-structure.mdc`](mdc:.cursor/rules/directory-structure.mdc)**: The top-level directory structure for the project.
+- **[`development-workflow.mdc`](mdc:.cursor/rules/development-workflow.mdc)**: Framework for planning and implementing development tasks.
 - **[`documentation-and-tech-stack.mdc`](mdc:.cursor/rules/documentation-and-tech-stack.mdc)**: Guidelines for using documentation and the project's tech stack.
-- **[`error-documentation.mdc`](mdc:.cursor/rules/error-documentation.mdc)**: Guidelines for documenting and tracking errors and their resolutions.
+- **[`error-management.mdc`](mdc:.cursor/rules/error-management.mdc)**: Framework for diagnosing, resolving, and documenting errors.
 - **[`github-actions.mdc`](mdc:.cursor/rules/github-actions.mdc)**: Guidelines for GitHub Actions workflows, including automation, testing, security, and CI/CD integration.
 - **[`glossary.mdc`](mdc:.cursor/rules/glossary.mdc)**: This file; provides a glossary of other Cursor rules.
 - **[`implement.mdc`](mdc:.cursor/rules/implement.mdc)**: Comprehensive instructions for implementing code changes.

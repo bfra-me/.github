@@ -54,19 +54,12 @@ flowchart TD
   - [technical.md](mdc:docs/technical.md): Development environment, tech stack, technical decisions
   - [tasks_plan.md](mdc:tasks/tasks_plan.md): Task backlog, project progress, known issues
   - [active_context.md](mdc:tasks/active_context.md): Current work focus, recent changes, next steps
-  - [error-documentation.mdc](mdc:.cursor/rules/error-documentation.mdc): Known issues and their resolution
+  - [error-management.mdc](mdc:.cursor/rules/error-management.mdc): Known issues and their resolution
   - [lessons-learned.mdc](mdc:.cursor/rules/lessons-learned.mdc): Project patterns, preferences, intelligence
 
 - **Optional Context Files:**
   - `docs/literature/`: Research and literature survey
   - `tasks/rfc/`: Request for comments for individual tasks
-
-## Success Patterns
-- Memory files reflect current project state
-- Documentation is organized by temporal context
-- Cross-references are maintained and valid
-- File structure follows standard templates
-- Knowledge graph integration is complete
 
 ## Working Modes
 
@@ -115,44 +108,29 @@ flowchart TD
       Execute --> Document[Document Changes in Memory Files]
   ```
 
-## Rule Processing for Memory Files
+## Knowledge Graph Integration
 
-- **Required Pre-Processing:**
-  - Before updating any memory file, process these rules in sequence:
-    1. [memory_files.mdc](mdc:.cursor/rules/memory_files.mdc): File structure and purpose
-    2. [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc): Rule formatting standards
-    3. [rule_preprocessing.mdc](mdc:.cursor/rules/rule_preprocessing.mdc): Rule preprocessing guidelines
-    4. [self_improve.mdc](mdc:.cursor/rules/self_improve.mdc): Continuous improvement principles
+### Entity Representation
+- **Create entities for memory files**
+  - Type: `DocumentEntity`
+  - Purpose: Store metadata about documentation
+  - Relations: Connect to related components
 
-- **Rule Integration Process:**
-  ```mermaid
-  flowchart TD
-      Start[Start] --> ReviewRules[Review Memory Files Rules]
-      ReviewRules --> ReviewFile[Review Target Memory File]
-      ReviewFile --> AnalyzeStructure[Analyze Current Structure]
-      AnalyzeStructure --> PlanChanges[Plan Structured Changes]
-      PlanChanges --> ImplementChanges[Implement Changes]
-      ImplementChanges --> ValidateChanges[Validate Against Rules]
-      ValidateChanges --> End[Complete Update]
-  ```
+- **Link documentation to components**
+  - Create bidirectional relationships
+  - Track documentation coverage
+  - Monitor update requirements
 
-## Documentation Updates
+### Content Tracking
+- **Extract key concepts as entities**
+  - Create component entities from architecture docs
+  - Extract requirements as requirement entities
+  - Link tasks to requirements
 
-- **When to update Memory Files:**
-  - After discovering new project patterns
-  - After implementing significant changes
-  - When context needs clarification
-  - After significant part of a plan is verified
-  - When triggered by "update memory files"
-
-- **Update Process:**
-  - Perform comprehensive review of all related Memory Files
-  - Document current state in [active_context.md](mdc:tasks/active_context.md) and [tasks_plan.md](mdc:tasks/tasks_plan.md)
-  - Create a change plan that preserves document structure and flow
-  - Identify existing content that covers similar topics
-  - Clarify next steps in [tasks_plan.md](mdc:tasks/tasks_plan.md)
-  - Update [lessons-learned.mdc](mdc:.cursor/rules/lessons-learned.mdc) and [error-documentation.mdc](mdc:.cursor/rules/error-documentation.mdc)
-  - Verify changes maintain structural and contextual integrity
+- **Store documentation update history**
+  - Track changes over time
+  - Record rationale for changes
+  - Monitor evolution of documentation
 
 ## File Content Guidelines
 
@@ -324,7 +302,7 @@ flowchart TD
   - Include long-term planning
   - Mix with technical details
 
-### [error-documentation.mdc](mdc:.cursor/rules/error-documentation.mdc)
+### [error-management.mdc](mdc:.cursor/rules/error-management.mdc)
 - **✅ DO:**
   - Document issues and their resolution
   - Include error details and context
@@ -377,47 +355,6 @@ flowchart TD
   - Review content flow to ensure logical organization
   - Validate cross-reference integrity across files
 
-- **Documentation Generation:**
-  - Generate documentation directly from code when possible
-  - Keep examples synchronized with actual code
-  - Update diagrams when architecture changes
-
-- **Collaboration:**
-  - Use Memory Files as the source of truth for project discussions
-  - Reference specific sections in communications
-  - Ensure all team members contribute to Memory Files
-
-- **Version Control:**
-  - Maintain history of major Memory File changes
-  - Include reasoning for significant updates
-  - Track evolving requirements and decisions
-
-## Structural Consistency Enforcement
-
-- **Structure Auditing:**
-  - Regularly review documents for structural consistency
-  - Compare heading usage across similar documents
-  - Verify section ordering aligns with templates
-  - Check for consistent formatting of similar elements
-
-- **Structure Remediation:**
-  - Correct heading levels to maintain proper hierarchy
-  - Reorganize sections to match template patterns
-  - Standardize formatting of similar content types
-  - Align document structure with established patterns
-
-- **✅ DO:**
-  - Use automated tools to check heading hierarchy
-  - Compare document structure against templates
-  - Fix structural inconsistencies during updates
-  - Document structural patterns for reference
-
-- **❌ DON'T:**
-  - Introduce new structural patterns without justification
-  - Mix formatting styles for similar content
-  - Skip heading levels in document hierarchy
-  - Allow structural drift between related documents
-
 ## Cross-Reference Management
 
 - **Cross-Reference Types:**
@@ -435,15 +372,9 @@ flowchart TD
 - **Cross-Reference Syntax:**
   ```markdown
   - Related architecture: [Component Architecture](mdc:docs/architecture.md#component-architecture)
-  - See also: [Error Handling](mdc:.cursor/rules/error-documentation.mdc#error-handling) for exception patterns
+  - See also: [Error Handling](mdc:.cursor/rules/error-management.mdc#error-handling) for exception patterns
   - Implementation: [Authentication Flow](mdc:src/auth/README.md)
   ```
-
-- **Cross-Reference Maintenance:**
-  - Update references when target content changes
-  - Remove references to deprecated or removed content
-  - Verify references resolve to specific sections when possible
-  - Regularly audit cross-references for validity
 
 ## Version History Management
 
@@ -452,13 +383,6 @@ flowchart TD
   - Track major content revisions, structural changes, and architectural decisions
   - Document rationale behind changes, not just the changes themselves
   - Preserve historical context while maintaining current accuracy
-
-- **Version History Implementation:**
-  - Include a dedicated "Version History" section at the end of each memory file
-  - Use consistent date formatting (YYYY-MM-DD)
-  - Categorize changes (e.g., Update, Addition, Removal, Restructure)
-  - Link to relevant issues, PRs, or other documentation when applicable
-  - Maintain chronological order with newest entries first
 
 - **Version History Template:**
   ```markdown
@@ -469,26 +393,6 @@ flowchart TD
   - **Rationale:** Improved security and third-party integration support
   - **Affected Sections:** Authentication Components, API Endpoints
   - **Related Documents:** [OAuth Design RFC](mdc:tasks/rfc/oauth-design.md)
-
-  ### 2023-10-22: Addition
-  - **Changes:** Added error handling guidelines for API responses
-  - **Rationale:** Standardize error reporting across services
-  - **Affected Sections:** Error Handling
-  ```
-
-- **Change Significance Criteria:**
-  - **Major Changes:** Architecture modifications, new components, workflow alterations
-  - **Medium Changes:** Significant clarifications, expanded documentation, improved examples
-  - **Minor Changes:** Formatting improvements, typo fixes, link updates
-
-- **Version Header Blocks:**
-  - Consider adding a version summary at the top of critical documents:
-  ```markdown
-  > **Document Status**
-  > - **Current Version:** 2.3
-  > - **Last Updated:** 2023-11-15
-  > - **Stability:** Stable
-  > - **Review Status:** Approved
   ```
 
 - **✅ DO:**

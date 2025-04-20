@@ -1,6 +1,6 @@
 ---
 description: Standard templates for memory files to ensure consistent structure
-globs: tasks/*, docs/*
+globs: tasks/*,docs/*
 alwaysApply: false
 ---
 

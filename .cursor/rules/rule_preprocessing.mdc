@@ -1,6 +1,6 @@
 ---
 description: Guidelines for AI agents to process rules before responding to tasks
-globs: **/*
+globs: 
 alwaysApply: true
 ---
 
@@ -11,7 +11,7 @@ alwaysApply: true
   - Begin by identifying task context from user query
   - Fetch all rules marked as "Always include" from [rules.mdc](mdc:.cursor/rules/rules.mdc)
   - For implementation tasks, include [implement.mdc](mdc:.cursor/rules/implement.mdc)
-  - For debugging tasks, include [debug.mdc](mdc:.cursor/rules/debug.mdc)
+  - For debugging tasks, include [error-management.mdc](mdc:.cursor/rules/error-management.mdc)
   - For planning tasks, include [plan.mdc](mdc:.cursor/rules/plan.mdc)
   - For memory file updates, include [memory_files.mdc](mdc:.cursor/rules/memory_files.mdc)
 

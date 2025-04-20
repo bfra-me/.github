@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Documentation and tech stack guidelines
+globs: 
 alwaysApply: true
 ---
 

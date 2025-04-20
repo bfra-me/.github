@@ -1,13 +1,100 @@
----
-description: Instructions to be always followed.
-globs:
-alwaysApply: true
----
+# Rule Management Framework
 
-These should be respected ALWAYS:
-1. Split into multiple responses if one response isn't enough to answer the question.
-2. IMPROVEMENTS and FURTHER PROGRESSIONS:
-- S1: Suggest ways to improve code stability or scalability.
-- S2: Offer strategies to enhance performance or security.
-- S3: Recommend methods for improving readability or maintainability.
-- Recommend areas for further investigation
+## Integration Points
+- @rule:knowledge_graph_management (requires) - Rule storage
+- @rule:content_context (requires) - Rule evolution
+- @rule:change_validation (requires) - Rule validation
+
+## Core Rule Structure
+- **Standardized Rule Format**
+  - Clear description header
+  - Defined integration points
+  - Appropriate categorization
+  - Proper version tracking
+
+## Rule Categories
+
+### 1. System Architecture
+- **Architecture understanding**
+  - System structure
+  - Component relationships
+  - Directory organization
+
+### 2. Development Process
+- **Planning workflow**
+  - Requirements analysis
+  - Solution design
+- **Implementation guidelines**
+  - Coding standards
+  - Testing protocols
+- **Error management**
+  - Debugging protocols
+  - Error documentation
+
+### 3. Knowledge Management
+- **Memory files**
+  - Documentation structure
+  - Content organization
+- **Lessons learned**
+  - Pattern recognition
+  - Development history
+
+## Rule Application Protocol
+
+### 1. Context Loading
+- **Load relevant rules based on context**
+- **Check dependencies between rules**
+- **Verify integration requirements**
+
+### 2. Rule Processing
+- **Apply rule guidance in proper sequence**
+- **Validate outcomes against expectations**
+- **Update knowledge with new patterns**
+
+### 3. Documentation
+- **Record rule applications for future reference**
+- **Track rule effectiveness**
+- **Update pattern libraries**
+
+## Tool Integration
+
+### 1. Knowledge Graph
+- **Store rule metadata centrally**
+- **Track relationships between rules**
+- **Monitor usage patterns**
+
+### 2. MCP Tools
+- **Use Sequential Thinking for complex analysis**
+- **Apply web search for research**
+- **Manage content context properly**
+
+## Validation Requirements
+
+### 1. Rule Validation
+- **Verify dependency relationships**
+- **Check integration compliance**
+- **Validate content structure**
+
+### 2. Application Validation
+- **Ensure process compliance**
+- **Verify expected outcomes**
+- **Match against known patterns**
+
+## Improvement Protocol
+
+### 1. Pattern Recognition
+- **Monitor rule usage frequency**
+- **Identify common application patterns**
+- **Track effectiveness metrics**
+
+### 2. Rule Updates
+- **Manage rule versions properly**
+- **Update dependencies when needed**
+- **Refresh documentation regularly**
+
+## Always Follow These Guidelines
+1. **Split into multiple responses** if one response isn't enough
+2. **Suggest improvements** for code stability or scalability
+3. **Offer strategies** to enhance performance or security
+4. **Recommend methods** for improving readability or maintainability
+5. **Identify areas** for further investigation

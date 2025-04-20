@@ -4,20 +4,67 @@ globs:
 alwaysApply: false
 ---
 
-# Architecture Understanding
-READ_ARCHITECTURE: |
-  File: docs/architecture.md [architecture.md](mdc:docs/architecture.md)
-  Required parsing:
-  1. Load and parse complete Mermaid diagram
-  2. Extract and understand:
-     - Module boundaries and relationships
-     - Data flow patterns
-     - System interfaces
-     - Component dependencies
-  3. Validate any changes against architectural constraints
-  4. Ensure new code maintains defined separation of concerns
+# System Architecture Framework
 
-  Error handling:
-  1. If file not found: STOP and notify user
-  2. If diagram parse fails: REQUEST clarification
-  3. If architectural violation detected: WARN user
+## Integration Points
+- @rule:knowledge_graph_management (requires) - Architecture knowledge storage
+- @rule:content_context (requires) - Temporal context for architecture
+- @rule:change_validation (requires) - Architecture change validation
+
+## System Structure
+```mermaid
+flowchart TD
+    Root[Project Root] --> Docs[docs/]
+    Root --> Tasks[tasks/]
+    Root --> Cursor[.cursor/rules/]
+    Root --> CLINE[.clinerules]
+    Root --> SourceCode[src/]
+    Root --> Test[test/]
+    Root --> Utils[utils/]
+    Root --> Config[config/]
+    Root --> Data[data/]
+```
+
+## Architecture Analysis Process
+
+### 1. Knowledge Graph Integration
+- **Store architectural components in memory**
+  - Represent directories, modules, and services
+  - Track relationships between components
+  - Maintain purpose definitions
+
+### 2. Mermaid Diagram Processing
+- **Extract visual representations from architecture.md**
+  - Parse component relationships
+  - Understand data flows
+  - Map dependencies
+
+### 3. Directory Management
+- **Track directory purposes and constraints**
+  - Monitor structural changes
+  - Maintain compatibility with architecture
+  - Document directory roles
+
+### 4. Constraint Validation
+- **Verify architectural boundaries**
+  - Enforce module separation
+  - Validate dependency rules
+  - Ensure pattern compliance
+
+## Tool Integration
+- **Use Sequential Thinking for architecture analysis**
+- **Store insights in Knowledge Graph**
+- **Apply content context markers for tracking**
+
+## Validation Protocol
+1. **Load architecture.md content**
+2. **Parse and validate Mermaid diagrams**
+3. **Compare against existing knowledge**
+4. **Verify directory structure compliance**
+5. **Update documentation if needed**
+
+## Error Handling
+1. **Missing architecture.md**: Create template
+2. **Invalid diagrams**: Request clarification
+3. **Structure violations**: Generate warning
+4. **Constraint conflicts**: Initiate resolution

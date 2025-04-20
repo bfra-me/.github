@@ -1,108 +1,136 @@
 ---
-description: Stores important patterns, preferences, and project intelligence, living document that grows smarter as progress happens
-globs:
+description: Repository of important patterns, preferences, and project intelligence
+globs: 
 alwaysApply: true
 ---
 
-# Lessons Learned
+# Project Intelligence System
+
+## Integration Points
+- @rule:knowledge_graph_management (requires) - Pattern storage
+- @rule:content_context (requires) - Learning timeline
+- @rule:change_validation (requires) - Pattern validation
 
 ## Development Patterns
 
 ### Workflow Structure
-- Always use reusable workflows over repository-specific ones
-- Implement proper error handling in each workflow with clear failure messages
-- Document all inputs, outputs, and permissions for each workflow
-- Use standardized naming conventions for workflow files and jobs
-- Separate configuration from logic in workflow files
+- **Use reusable workflows over repository-specific ones**
+- **Implement proper error handling in all workflows**
+- **Document inputs, outputs, and permissions thoroughly**
+- **Use standardized naming conventions consistently**
+- **Separate configuration from logic in workflow files**
 
 ### Repository Structure
-- Organize files into logical directories (workflows/, scripts/, metadata/)
-- Keep configuration files in the root directory
-- Maintain consistent naming conventions across files
-- Use dedicated documentation directories (docs/) for comprehensive documentation
+- **Organize files into logical directories**
+- **Keep configuration files in the root directory**
+- **Maintain consistent naming conventions**
+- **Use dedicated documentation directories**
 
 ### Code Quality
-- Use TypeScript with strict type checking for all scripts
-- Implement ESLint and Prettier for consistent code style
-- Enforce pre-commit hooks for code quality checks
-- Run type checking as part of CI process
-- Use JSDoc comments for better documentation
+- **Use TypeScript with strict type checking**
+- **Implement ESLint and Prettier for style consistency**
+- **Enforce pre-commit hooks for quality checks**
+- **Run type checking in CI processes**
+- **Use JSDoc comments for better documentation**
 
 ## User Preferences
 
 ### Configuration Preferences
-- Use YAML for configuration files over JSON when possible
-- Prefer explicit configuration over implicit defaults
-- Document all configuration options with examples
-- Use environment variables for sensitive information
-- Implement validation for all configuration files
+- **Use YAML for configuration when possible**
+- **Prefer explicit configuration over implicit defaults**
+- **Document all configuration options with examples**
+- **Use environment variables for sensitive information**
+- **Implement validation for all configuration files**
 
 ### Documentation Preferences
-- Maintain comprehensive documentation for all workflows
-- Use mermaid diagrams for visual representation of processes
-- Include troubleshooting guides for common issues
-- Provide examples for all configuration options
-- Keep documentation updated with each release
+- **Maintain comprehensive workflow documentation**
+- **Use Mermaid diagrams for visual representation**
+- **Include troubleshooting guides for common issues**
+- **Provide examples for all configuration options**
+- **Keep documentation updated with each release**
 
 ### Workflow Preferences
-- Prioritize security in all workflows
-- Optimize performance for large repositories
-- Implement extensive logging for debugging
-- Use minimal permissions principle for all GitHub tokens
-- Ensure cross-platform compatibility
+- **Prioritize security in all workflows**
+- **Optimize performance for large repositories**
+- **Implement extensive logging for debugging**
+- **Use minimal permissions principle for tokens**
+- **Ensure cross-platform compatibility**
 
 ## Project Intelligence
 
 ### GitHub Actions Best Practices
-- Use composite actions for reusable steps
-- Implement proper error handling and reporting
-- Set explicit permissions for GitHub tokens
-- Cache dependencies for faster execution
-- Use checkout@v4 for repository access
+- **Use composite actions for reusable steps**
+- **Implement proper error handling and reporting**
+- **Set explicit permissions for GitHub tokens**
+- **Cache dependencies for faster execution**
+- **Use checkout@v4 for repository access**
 
 ### TypeScript Best Practices
-- Use strict type checking
-- Implement interfaces for all data structures
-- Use generics for reusable functions
-- Avoid any type when possible
-- Follow ESM module standards
+- **Use strict type checking for all code**
+- **Implement interfaces for data structures**
+- **Use generics for reusable functions**
+- **Avoid 'any' type when possible**
+- **Follow ESM module standards**
 
 ### Security Best Practices
-- Implement OpenSSF Scorecard for security compliance
-- Use dependency scanning for vulnerability detection
-- Implement branch protection rules for all repositories
-- Regularly update dependencies for security patches
-- Use least privilege principle for all access tokens
+- **Implement OpenSSF Scorecard for compliance**
+- **Use dependency scanning for vulnerabilities**
+- **Implement branch protection rules**
+- **Regularly update dependencies for security**
+- **Apply least privilege principle for tokens**
 
 ### Release Management
-- Use Changesets for versioning and changelog generation
-- Implement automated release workflows
-- Use semantic versioning for all releases
-- Document breaking changes in release notes
-- Test releases in staging environments before production
+- **Use Changesets for versioning and changelogs**
+- **Implement automated release workflows**
+- **Use semantic versioning for all releases**
+- **Document breaking changes carefully**
+- **Test releases in staging before production**
+
+## Knowledge Graph Integration
+
+### Pattern Management
+- **Store project patterns in Knowledge Graph**
+  - Categorize by domain and application area
+  - Link to implementation examples
+  - Track effectiveness metrics
+  - Document constraints and limitations
+
+### Preference Tracking
+- **Record user preferences systematically**
+  - Document preference source and context
+  - Track preference changes over time
+  - Link to affected components
+  - Establish confidence levels
+
+### Experience Retention
+- **Maintain project intelligence as a living resource**
+  - Document solution approaches
+  - Track decision outcomes
+  - Record problem-solving patterns
+  - Create reusable solution templates
 
 ## Problem-Solving Strategies
 
 ### Troubleshooting Workflow Issues
-- Check workflow logs for detailed error messages
-- Verify GitHub token permissions
-- Test workflows with minimal configuration
-- Add debug logging for complex workflows
-- Use GitHub Actions local testing tools for development
+- **Check workflow logs for detailed error messages**
+- **Verify GitHub token permissions carefully**
+- **Test workflows with minimal configuration**
+- **Add debug logging for complex workflows**
+- **Use local testing tools during development**
 
 ### Dependency Management
-- Use Renovate for automated dependency updates
-- Implement proper peer dependency resolution
-- Test compatibility before updating dependencies
-- Use lockfiles for reproducible builds
-- Implement dependency pinning for critical packages
+- **Use Renovate for automated updates**
+- **Implement proper peer dependency resolution**
+- **Test compatibility before updating**
+- **Use lockfiles for reproducible builds**
+- **Implement dependency pinning for critical packages**
 
 ### Performance Optimization
-- Optimize workflow execution time
-- Implement caching strategies
-- Use parallel jobs when possible
-- Minimize external dependencies
-- Use efficient algorithms and data structures
+- **Optimize workflow execution time**
+- **Implement efficient caching strategies**
+- **Use parallel jobs when possible**
+- **Minimize external dependencies**
+- **Apply efficient algorithms and data structures**
 
 ## Success Patterns
 

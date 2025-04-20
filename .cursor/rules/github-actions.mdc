@@ -1,6 +1,6 @@
 ---
 description: Enforces best practices for GitHub Actions workflows, including automation, testing, security, and CI/CD integration. This ensures efficient, reliable, and secure workflows for software development.
-globs: .github/workflows/*.yml
+globs: .github/workflows/*.yaml
 alwaysApply: false
 ---
 

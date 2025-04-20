@@ -70,4 +70,16 @@ alwaysApply: true
   - Maintain links between related rules
   - Document breaking changes
 
+- **Integrate rule refreshers into the workflow:**
+  - See [rule_refresher.mdc](mdc:.cursor/rules/rule_refresher.mdc) for refresher protocols
+  - Schedule regular rule reviews based on project activity
+  - Apply progressive learning approach to rule comprehension
+  - Track rule application patterns to identify improvement opportunities
+
+- **Use rule refreshers to identify:**
+  - Commonly overlooked rules
+  - Rules requiring clarification
+  - Rules that may conflict
+  - Rules that could be consolidated
+
 Follow [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for proper rule formatting and structure.

@@ -1,0 +1,201 @@
+---
+description: Guidelines for managing and maintaining the Knowledge Graph accessed through the `server-memory` MCP server.
+globs: .cursor/rules/*,docs/*
+alwaysApply: false
+---
+
+# Knowledge Graph Management
+
+## Purpose
+This document provides detailed guidelines for effectively managing the knowledge graph used for retaining project context, user preferences, and decision tracking across conversations. Proper knowledge graph management ensures consistent understanding, accurate preference monitoring, and effective decision-making support.
+
+## Core Principles
+
+### 1. Entity Organization
+- Use consistent naming conventions for all entities
+  - Use PascalCase for entity types (e.g., `PersonEntity`, `ComponentEntity`)
+  - Use camelCase for entity names (e.g., `johnDoe`, `authenticationService`)
+- Group related entities using appropriate entity types
+  - `PersonEntity`: For team members, stakeholders, and users
+  - `OrganizationEntity`: For companies, teams, and groups
+  - `ComponentEntity`: For software components and services
+  - `RepositoryEntity`: For code repositories
+  - `TechnologyEntity`: For programming languages, frameworks, and tools
+  - `PreferenceNode`: For user preferences and settings
+  - `TriggerNode`: For conditions that may affect preferences
+  - `DecisionEntity`: For tracked decisions and their rationales
+- Maintain entity types aligned with the project domain model
+  - Review entity types quarterly to ensure alignment with evolving project needs
+  - Document entity type taxonomy in a centralized location
+
+### 2. Relation Structure
+- Use active voice for all relations
+  - Good: `personA → MANAGES → projectB`
+  - Avoid: `projectB → IS_MANAGED_BY → personA`
+- Ensure bidirectional relations where appropriate
+  - If `componentA → DEPENDS_ON → componentB` exists, consider adding `componentB → IS_REQUIRED_BY → componentA`
+- Maintain a consistent relation taxonomy
+  - Technical relations: `DEPENDS_ON`, `IMPLEMENTS`, `EXTENDS`, `USES`
+  - Organizational relations: `MANAGES`, `OWNS`, `CONTRIBUTES_TO`, `REVIEWS`
+  - Preference relations: `PREFERS`, `DISLIKES`, `MAY_AFFECT`, `TRIGGERS_REEVALUATION`
+
+### 3. Preference Tracking
+- All user preferences should be stored as `PreferenceNode` entities
+- Each preference should include:
+  - `value`: Current preference value
+  - `context`: When and why this preference was established
+  - `confidence`: Level of certainty (low/medium/high)
+  - `lastUpdated`: Timestamp of last confirmation/change
+  - `relevantTriggers`: Linked trigger nodes that may affect this preference
+- Preference categories to track:
+  - Communication preferences (verbosity, formality, technical detail)
+  - Technical preferences (languages, frameworks, patterns)
+  - Process preferences (documentation style, review process)
+  - UI/UX preferences (design styles, interaction patterns)
+
+### 4. Triggers and Monitoring
+- Create `TriggerNode` entities for conditions that may affect preferences
+- Link triggers to relevant preferences through "may_affect" relations
+- Record trigger evaluation history in observations
+- Update trigger status when monitoring detects changes
+- Common trigger types:
+  - Time-based triggers (e.g., preferences older than 30 days)
+  - Context-change triggers (e.g., new repository added)
+  - Consistency triggers (e.g., conflicting preferences detected)
+  - External event triggers (e.g., new framework version released)
+
+### 5. Knowledge Graph Maintenance
+- Regularly review and prune obsolete entities and relations
+  - Archive rather than delete when possible
+  - Maintain a history of significant changes
+- Consolidate duplicate or highly similar entities
+  - Use merge operations to combine duplicate entities
+  - Preserve all relationships during consolidation
+- Validate preference nodes against recent user interactions
+  - Increase confidence for repeatedly confirmed preferences
+  - Decrease confidence for preferences that haven't been referenced recently
+- Ensure confidence levels accurately reflect information certainty
+
+## Implementation Guidelines
+
+### Creating Entities
+When creating entities, follow these patterns:
+
+```javascript
+// Example entity creation
+{
+  "entities": [
+    {
+      "name": "authenticationService",
+      "entityType": "ComponentEntity",
+      "observations": [
+        "Responsible for user authentication and authorization",
+        "Implemented using JWT tokens",
+        "Performance critical component"
+      ]
+    },
+    {
+      "name": "userPreferenceForTypeScript",
+      "entityType": "PreferenceNode",
+      "observations": [
+        "Value: Strong preference for TypeScript over JavaScript",
+        "Context: Established during project initialization on 2023-05-12",
+        "Confidence: high",
+        "LastUpdated: 2023-09-30"
+      ]
+    }
+  ]
+}
+```
+
+### Creating Relations
+When creating relations, follow these patterns:
+
+```javascript
+// Example relation creation
+{
+  "relations": [
+    {
+      "from": "authenticationService",
+      "to": "userService",
+      "relationType": "DEPENDS_ON"
+    },
+    {
+      "from": "userPreferenceForTypeScript",
+      "to": "frameworkSelectionTrigger",
+      "relationType": "MAY_BE_AFFECTED_BY"
+    }
+  ]
+}
+```
+
+### Updating Entities
+When adding observations to existing entities:
+
+```javascript
+// Example observation addition
+{
+  "observations": [
+    {
+      "entityName": "userPreferenceForTypeScript",
+      "contents": [
+        "Confidence increased to high after consistent reinforcement",
+        "LastUpdated: 2023-10-15"
+      ]
+    }
+  ]
+}
+```
+
+### Querying the Knowledge Graph
+When searching for entities or information:
+
+```javascript
+// Example entity search
+search_nodes("TypeScript preference")
+
+// Example entity retrieval
+open_nodes(["userPreferenceForTypeScript", "frameworkSelectionTrigger"])
+```
+
+## Best Practices
+
+1. **Context Retention**
+   - Prioritize storing project context that will be valuable across multiple sessions
+   - Focus on capturing the "why" behind decisions, not just the "what"
+
+2. **Preference Evolution**
+   - Track changes in preferences over time
+   - Note external factors that influenced preference changes
+
+3. **Relation Depth**
+   - Aim for rich, meaningful relations rather than shallow connections
+   - Avoid creating unnecessary relations that don't add contextual value
+
+4. **Confidence Management**
+   - Be conservative with high confidence ratings
+   - Regularly review and adjust confidence levels based on new interactions
+
+5. **Trigger Engineering**
+   - Design triggers to be specific and actionable
+   - Avoid overlapping triggers that could cause conflicting evaluations
+
+## Evaluation Metrics
+
+The effectiveness of knowledge graph management should be measured by:
+
+1. **Retrieval Accuracy**: How accurately can relevant information be retrieved?
+2. **Context Retention**: How well is context maintained across conversations?
+3. **Preference Alignment**: How closely do stored preferences match actual user preferences?
+4. **Maintenance Overhead**: How much effort is required to maintain the knowledge graph?
+5. **Trigger Effectiveness**: How well do triggers identify relevant preference reevaluation points?
+
+## Integration with Preference Monitoring System
+
+The knowledge graph management approach integrates with the preference monitoring system as defined in ADR-0001:
+
+1. All preferences tracked by the monitoring system are stored as `PreferenceNode` entities
+2. All monitoring triggers are stored as `TriggerNode` entities
+3. Preference-trigger relationships are represented through appropriate relations
+4. Monitoring system updates preference nodes when changes are detected
+5. Knowledge graph queries provide the foundation for preference-aware responses

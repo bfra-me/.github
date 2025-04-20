@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description: Guidelines for using tools provided by available MCP servers
+globs:
 alwaysApply: true
 ---
 
@@ -46,11 +46,127 @@ Follow these steps for each interaction:
      c) Preferences (communication style, preferred language, etc.)
      d) Goals (goals, targets, aspirations, etc.)
      e) Relationships (personal and professional relationships up to 3 degrees of separation)
+     f) Project Context (repositories, technologies, components, etc.)
+     g) Decisions (architectural choices, implementation preferences, etc.)
 4. Memory Update:
    - If any new information was gathered during the interaction update your memory as follows:
-     a) Create entities for recurring organizations, people, and significant events
+     a) Create entities for recurring organizations, people, significant events, and project components
      b) Connect them to the current entities using relations
      c) Store facts about them as observations
+     d) Update preference nodes with timestamp data when preferences change
+     e) Link related entities through meaningful relations that capture the nature of their connection
+
+## Knowledge Graph Update Standards
+
+- **Entity Creation Standards:**
+  - Use consistent entity naming (with underscores replacing spaces)
+  - Assign appropriate entity types
+  - Make observations atomic (one clear fact per observation)
+  - Example entity:
+    ```json
+    {
+      "name": "Documentation_Style",
+      "entityType": "preference",
+      "observations": [
+        "Prefers markdown code blocks with language specifiers",
+        "Likes concise explanations with clear examples"
+      ]
+    }
+    ```
+
+- **Relation Standards:**
+  - Always use active voice for relation types
+  - Ensure relation types use underscores instead of spaces
+  - Create bidirectional relations when appropriate
+  - Example relation:
+    ```json
+    {
+      "from": "default_user",
+      "to": "Documentation_Style",
+      "relationType": "has_preference_for"
+    }
+    ```
+
+- **Observation Management:**
+  - Keep observations concise and factual
+  - Add specific observations rather than modifying existing ones
+  - Include context when relevant (e.g., "As of June 2023, prefers...")
+  - Example observation update:
+    ```json
+    {
+      "entityName": "default_user",
+      "contents": [
+        "Prefers TypeScript over JavaScript for new projects",
+        "Values comprehensive error handling in examples"
+      ]
+    }
+    ```
+
+- **Knowledge Graph Update Template:**
+  When updating the knowledge graph, document your changes using this format:
+  ```markdown
+  Knowledge Graph Updates:
+  - Entity created: [EntityName] (Type: [EntityType])
+    Observations: ["Observation 1", "Observation 2"]
+  - Relation added: [EntityA] [relation_type] [EntityB]
+  - Observations added to [EntityName]: ["New observation"]
+  Rationale: [Brief explanation of why this update was necessary]
+  ```
+
+## Preference Recording Protocol
+
+- **Preference Categories:**
+  - **Documentation Preferences**: Format, style, organization, examples
+  - **Development Practices**: Coding standards, patterns, architecture
+  - **Tool Configurations**: Editor settings, build configurations, workflow
+  - **Communication Style**: Verbosity, formality, technical depth
+  - **Process Preferences**: Workflow, collaboration, review process
+
+- **Preference Recording Triggers:**
+  - Explicit statements of preference: "I prefer...", "I like...", "Please use..."
+  - Corrections to agent behavior: "Don't do X", "Instead of X, do Y"
+  - Positive feedback on specific approaches: "This is good", "I like how you..."
+  - Consistent pattern of choices when options are presented
+  - Repeated requests for specific information or formats
+
+- **Preference Entity Structure:**
+  ```json
+  {
+    "name": "Documentation_Preference_Markdown",
+    "entityType": "preference",
+    "observations": [
+      "Prefers markdown code blocks with language specifiers",
+      "Prefers concise explanations with examples",
+      "Source: explicitly stated on 2023-06-15",
+      "Confidence: high"
+    ]
+  }
+  ```
+
+- **Preference Relation Example:**
+  ```json
+  {
+    "from": "default_user",
+    "to": "Documentation_Preference_Markdown",
+    "relationType": "has_preference_for"
+  }
+  ```
+
+- **Implementation Steps:**
+  1. Identify potential preference in user communication
+  2. Categorize the preference
+  3. Check for existing related preferences using `search_nodes`
+  4. Create or update preference entity with `create_entities` or `add_observations`
+  5. Link the preference to the user with `create_relations`
+  6. Confirm preference with user when confidence is low
+  7. Apply preference in future interactions
+
+- **Preference Conflict Resolution:**
+  - Prioritize explicit preferences over inferred ones
+  - Consider recency for similar preferences (include dates in observations)
+  - Use more specific preference over general ones
+  - When in doubt, ask for clarification
+  - Document conflicting preferences with context
 
 ## Required Tools Usage
 - Sequential Thinking: Always use when available

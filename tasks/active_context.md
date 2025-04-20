@@ -17,21 +17,33 @@
    - 🔄 Migration documentation
    - 🔄 Usage examples
 
-2. **Workflow Improvements**
+2. **Monitoring Systems Development**
+   - **Preference Monitoring System**
+     - ADR 0001 defines integration with Knowledge Graph MCP server
+     - System will maintain and evaluate user preferences stored in Knowledge Graph
+     - Implementation tasks focus on MCP client interaction and preference management
+     - No GitHub Actions integration (requires local MCP server access)
+   - **Repository Metrics System**
+     - ADR 0002 defines automated metrics collection and trigger system
+     - Operates independently through GitHub Actions
+     - Focuses on repository health metrics and automated responses
+     - Implementation tasks cover metric collection, trigger evaluation, and storage
+
+3. **Workflow Improvements**
    - Error handling enhancements
    - Performance optimization
    - Additional templates
    - Testing framework
    - Workflow monitoring system
 
-3. **Security Enhancements**
+4. **Security Enhancements**
    - Advanced security features
    - Additional security checks
    - Automated reporting
    - Best practices documentation
    - Vulnerability scanning improvements
 
-4. **Documentation System**
+5. **Documentation System**
    - Automated documentation generation
    - Unified documentation system
    - API documentation improvements
@@ -52,6 +64,11 @@
 - Enhanced documentation system structure
 - Added detailed error documentation for common issues
 - Implemented project intelligence documentation
+- Created ADRs for both monitoring systems
+- Defined implementation tasks for both systems
+- Clarified separation of concerns between systems
+- Added Knowledge Graph integration details
+- Updated memory with system relationships and characteristics
 
 ### Latest Version (2.3.5)
 - Dependency updates
@@ -67,6 +84,9 @@
    - Improved workflow error handling
    - Better security monitoring
    - Comprehensive memory files structure
+   - Separation of monitoring systems by operational context
+   - Knowledge Graph integration for preference monitoring
+   - GitHub Actions for repository metrics
 
 2. **Process Decisions**
    - Automated dependency management
@@ -74,6 +94,26 @@
    - Improved documentation workflow
    - Stricter code review process
    - Structured error documentation approach
+
+## Technical Context
+
+### Knowledge Graph Integration
+- MCP server (server-memory) maintains state across conversations
+- Local to development machine
+- Stores user preferences and contextual knowledge
+- Accessed through MCP client library
+
+### System Architecture
+- Preference system: Local MCP client-based
+- Metrics system: GitHub Actions-based
+- Clear separation of concerns
+- Independent operation paths
+
+### Current Constraints
+- Knowledge Graph access limited to local machine
+- No self-hosted GitHub Actions runners
+- Need to maintain system independence
+- Must preserve existing Knowledge Graph data model
 
 ## Current Considerations
 
@@ -84,6 +124,8 @@
    - Build process improvements
    - Resource utilization
    - Timeout handling in complex workflows
+   - MCP client performance
+   - Metric collection overhead
 
 2. **Security**
    - Enhanced security measures
@@ -98,6 +140,8 @@
    - Testing coverage
    - Error handling
    - Knowledge management through memory files
+   - Preference data structure
+   - Metrics storage format
 
 ### Process Considerations
 1. **Automation**
@@ -106,6 +150,8 @@
    - Documentation generation
    - Release process
    - Error tracking and reporting
+   - Metrics collection
+   - Trigger evaluation
 
 2. **Quality Assurance**
    - Code review process
@@ -113,6 +159,8 @@
    - Documentation quality
    - Security standards
    - Performance benchmarks
+   - Preference versioning
+   - Metrics reliability
 
 ## Next Steps
 
@@ -128,14 +176,21 @@
    - [ ] Implement workflow diagrams
    - [ ] Enhance API documentation
 
-2. **Development**
+2. **Monitoring Systems**
+   - [ ] Set up development environment for MCP client
+   - [ ] Implement core preference management functions
+   - [ ] Create initial metric collectors
+   - [ ] Configure test environment
+   - [ ] Develop validation framework
+
+3. **Development**
    - [ ] Implement error handling improvements
    - [ ] Optimize workflow performance
    - [ ] Add new workflow templates
    - [ ] Enhance security features
    - [ ] Develop workflow monitoring system
 
-3. **Testing**
+4. **Testing**
    - [ ] Expand test coverage
    - [ ] Implement workflow tests
    - [ ] Add security tests
@@ -145,6 +200,7 @@
 ### Upcoming Work
 1. **Short Term** (1-2 weeks)
    - Documentation completion
+   - Monitoring systems framework setup
    - Workflow improvements
    - Security enhancements
    - Issue resolution
@@ -156,6 +212,8 @@
    - Testing suite
    - Template expansion
    - Documentation system improvements
+   - Trigger system implementation
+   - Preference versioning
 
 ## Active Issues
 
@@ -166,6 +224,7 @@
    - Resource utilization
    - Timeout handling
    - Concurrent workflow execution
+   - MCP client efficiency
 
 2. **Documentation**
    - Missing workflow examples
@@ -173,6 +232,13 @@
    - Limited troubleshooting info
    - Integration examples needed
    - Complex workflow documentation
+
+3. **Monitoring Systems**
+   - Need to validate MCP client performance
+   - Metric storage optimization required
+   - Testing framework setup pending
+   - Preference management interface definition
+   - Trigger evaluation logic implementation
 
 ### Ongoing Improvements
 1. **Workflow System**
@@ -199,6 +265,8 @@
 - Prettier 3.5.3
 - Husky 9.1.7
 - Changesets 2.29.0
+- Knowledge Graph MCP server
+- MCP client library
 
 ### Active Tools
 - GitHub Actions
@@ -206,6 +274,7 @@
 - Changesets
 - OpenSSF Scorecard
 - Memory Files Framework
+- MCP client for Knowledge Graph
 
 ## Monitoring
 
@@ -216,6 +285,8 @@
    - Resource usage
    - Response times
    - Timeout frequency
+   - MCP client performance
+   - Trigger evaluation speed
 
 2. **Quality**
    - Test coverage
@@ -223,6 +294,8 @@
    - Issue count
    - Documentation completeness
    - Error resolution time
+   - Preference maintenance accuracy
+   - Metric collection reliability
 
 ### Health Checks
 1. **Automated Checks**
@@ -231,6 +304,8 @@
    - Performance monitoring
    - Health checks
    - Error tracking
+   - Metric threshold evaluation
+   - Knowledge Graph consistency
 
 2. **Manual Reviews**
    - Code reviews
@@ -238,23 +313,8 @@
    - Documentation reviews
    - Performance analysis
    - Error pattern analysis
-
-## Communication
-
-### Active Channels
-1. **Development**
-   - GitHub Issues
-   - Pull Requests
-   - Discussions
-   - Documentation
-   - Memory Files
-
-2. **Community**
-   - Issue templates
-   - Contributing guidelines
-   - Security policy
-   - Code of conduct
-   - Documentation portal
+   - Preference structure review
+   - Metrics system evaluation
 
 ## Resources
 
@@ -265,6 +325,8 @@
    - Configuration guides
    - Security documentation
    - Error documentation
+   - Knowledge Graph integration
+   - Metrics system
 
 2. **Process Docs**
    - Contributing guidelines
@@ -272,6 +334,8 @@
    - Release process
    - Security procedures
    - Memory Files structure
+   - Preference management
+   - Metrics collection
 
 ### Support Resources
 1. **Internal**

@@ -4,11 +4,13 @@ globs: .cursor/rules/*.mdc
 alwaysApply: true
 ---
 
+# Cursor Rules Management Guidelines
+
 - **Required Rule Structure:**
   ```markdown
   ---
   description: Clear, one-line description of what the rule enforces
-  globs: path/to/files/*.ext, other/path/**/*
+  globs: path/to/files/*.ext,other/path/**/*
   alwaysApply: boolean
   ---
 
@@ -47,6 +49,46 @@ alwaysApply: true
 
 - **Best Practices:**
   - Use bullet points for clarity
+  - Keep descriptions concise
+  - Include both DO and DON'T examples
+  - Reference actual code over theoretical examples
+  - Use consistent formatting across rules
+
+## Rule Integration Standards
+
+### Cross-Referencing System
+- Use the `@rule` prefix to reference other rules: `@rule:change_validation`
+- Include a "Related Rules" section in each rule file listing direct dependencies
+- Specify the relationship type:
+  - `requires`: Rule depends on another rule
+  - `extends`: Rule builds upon another rule
+  - `complements`: Rules work together but aren't dependent
+  - `impacts`: Changes to this rule affect another rule
+
+### Rule Hierarchy
+- Core Rules: Fundamental guidelines (e.g., cursor_rules, content_context)
+- Process Rules: Workflow and validation (e.g., change_validation, changesets)
+- Domain Rules: Specific technology or domain guidelines
+- Meta Rules: Rules about managing and improving rules
+
+### Integration Requirements
+1. Content Context Alignment
+   - All rules must follow content context timeframes
+   - Include context markers: [Current], [Recent], [Historical], [Planned]
+
+2. Change Validation Compliance
+   - Rules must specify validation requirements
+   - Reference relevant validation protocols
+
+3. Version Control
+   - Track rule versions using semantic versioning
+   - Document breaking changes in rule relationships
+
+4. Maintenance Guidelines
+   - Regular review of rule dependencies
+   - Update cross-references when rules change
+   - Validate integration points during updates
+
   - Keep descriptions concise
   - Include both DO and DON'T examples
   - Reference actual code over theoretical examples

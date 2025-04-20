@@ -1,85 +1,233 @@
 ---
 description: Guidelines for continuously improving Cursor rules based on emerging code patterns and best practices.
-globs: **/*
+globs: 
 alwaysApply: true
 ---
 
-- **Rule Improvement Triggers:**
-  - New code patterns not covered by existing rules
-  - Repeated similar implementations across files
-  - Common error patterns that could be prevented
-  - New libraries or tools being used consistently
-  - Emerging best practices in the codebase
+# Meta Rule Management System
 
-- **Analysis Process:**
+## Rule Evolution Framework
+
+### Continuous Improvement Triggers
+- **Code Pattern Triggers:**
+  - New patterns used in 3+ files
+  - Repeated implementation approaches
+  - Common error patterns
+  - Emerging best practices
+  - New tools or libraries adoption
+
+- **Documentation Triggers:**
+  - Repeated similar documentation structures
+  - Common review feedback patterns
+  - New documentation requirements
+  - Changes in project standards
+
+- **Process Triggers:**
+  - Changes in development workflow
+  - New integration requirements
+  - Security or compliance updates
+  - Performance optimization patterns
+
+### Rule Review Schedule
+- **Core Rules (Every Conversation):**
+  - [rules.mdc](mdc:.cursor/rules/rules.mdc)
+  - [memory_files.mdc](mdc:.cursor/rules/memory_files.mdc)
+  - [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc)
+
+- **Task-Specific Rules (On Mode Switch):**
+  - Plan mode: [plan.mdc](mdc:.cursor/rules/plan.mdc)
+  - Implement mode: [implement.mdc](mdc:.cursor/rules/implement.mdc)
+  - Debug mode: [debug.mdc](mdc:.cursor/rules/debug.mdc)
+
+- **Domain-Specific Rules (Context-Based):**
+  - TypeScript: [typescript.mdc](mdc:.cursor/rules/typescript.mdc)
+  - GitHub Actions: [github-actions.mdc](mdc:.cursor/rules/github-actions.mdc)
+  - Package management: [pnpm.mdc](mdc:.cursor/rules/pnpm.mdc)
+
+## Progressive Learning System
+
+### Level 1: Foundation
+- **Core Knowledge:**
+  - Project structure understanding
+  - Memory file organization
+  - Basic documentation patterns
+  - Essential rule relationships
+
+### Level 2: Proficiency
+- **Advanced Application:**
+  - Task-specific rule implementation
+  - Domain-specific best practices
+  - Error handling patterns
+  - Cross-rule dependencies
+
+### Level 3: Mastery
+- **Strategic Integration:**
+  - Rule priority resolution
+  - Edge case management
+  - Optimization patterns
+  - Rule evolution guidance
+
+## Rule Quality Management
+
+### Analysis Process
+- **Pattern Recognition:**
   - Compare new code with existing rules
-  - Identify patterns that should be standardized
-  - Look for references to external documentation
-  - Check for consistent error handling patterns
-  - Monitor test patterns and coverage
+  - Identify standardization opportunities
+  - Monitor test coverage patterns
+  - Track error handling approaches
 
-- **Rule Updates:**
-  - **Add New Rules When:**
-    - A new technology/pattern is used in 3+ files
-    - Common bugs could be prevented by a rule
-    - Code reviews repeatedly mention the same feedback
-    - New security or performance patterns emerge
+### Quality Metrics
+- **Usage Patterns:**
+  - Most frequently applied rules
+  - Least referenced rules
+  - Rules with adherence challenges
+  - Rules needing clarification
 
-  - **Modify Existing Rules When:**
-    - Better examples exist in the codebase
-    - Additional edge cases are discovered
-    - Related rules have been updated
-    - Implementation details have changed
+- **Effectiveness Indicators:**
+  - Error prevention rate
+  - Development velocity impact
+  - Maintenance effort reduction
+  - Learning curve feedback
 
-- **Example Pattern Recognition:**
-  ```typescript
-  // If you see repeated patterns like:
-  const data = await prisma.user.findMany({
-    select: { id: true, email: true },
-    where: { status: 'ACTIVE' }
-  });
-
-  // Consider adding to [prisma.mdc](mdc:.cursor/rules/prisma.mdc):
-  // - Standard select fields
-  // - Common where conditions
-  // - Performance optimization patterns
+### Rule Updates
+- **Addition Criteria:**
+  ```mermaid
+  flowchart TD
+      A[Pattern Identified] --> B{Used in 3+ Files?}
+      B -->|Yes| C{Prevents Issues?}
+      C -->|Yes| D{Clear Value?}
+      D -->|Yes| E[Create New Rule]
+      B -->|No| F[Monitor Usage]
+      C -->|No| F
+      D -->|No| F
   ```
 
-- **Rule Quality Checks:**
-  - Rules should be actionable and specific
-  - Examples should come from actual code
-  - References should be up to date
-  - Patterns should be consistently enforced
+- **Modification Triggers:**
+  - Better examples discovered
+  - Edge cases identified
+  - Related rules updated
+  - Implementation details changed
 
-- **Continuous Improvement:**
-  - Monitor code review comments
-  - Track common development questions
-  - Update rules after major refactors
-  - Add links to relevant documentation
-  - Cross-reference related rules
+## Rule Maintenance Protocol
 
-- **Rule Deprecation:**
-  - Mark outdated patterns as deprecated
-  - Remove rules that no longer apply
-  - Update references to deprecated rules
-  - Document migration paths for old patterns
+### Documentation Standards
+- **Rule Structure:**
+  - Clear purpose statement
+  - Practical examples
+  - Common pitfalls
+  - Related rules
+  - Version history
 
-- **Documentation Updates:**
-  - Keep examples synchronized with code
-  - Update references to external docs
-  - Maintain links between related rules
-  - Document breaking changes
+- **Example Format:**
+  ```typescript
+  // ✅ DO: Show ideal implementation
+  function goodExample() {
+    // Implementation details
+  }
 
-- **Integrate rule refreshers into the workflow:**
-  - See [rule_refresher.mdc](mdc:.cursor/rules/rule_refresher.mdc) for refresher protocols
-  - Schedule regular rule reviews based on project activity
-  - Apply progressive learning approach to rule comprehension
-  - Track rule application patterns to identify improvement opportunities
+  // ❌ DON'T: Highlight anti-patterns
+  function badExample() {
+    // What to avoid
+  }
+  ```
 
-- **Use rule refreshers to identify:**
-  - Commonly overlooked rules
-  - Rules requiring clarification
-  - Rules that may conflict
-  - Rules that could be consolidated
+### Version Control
+- **Change Categories:**
+  - Major: Breaking changes
+  - Minor: New guidelines
+  - Patch: Clarifications
+
+- **Update Process:**
+  1. Document change rationale
+  2. Update version number
+  3. Add migration notes
+  4. Update cross-references
+
+## Integration Best Practices
+
+### Rule Synergy
+- **Cross-Rule Dependencies:**
+  - Map rule relationships
+  - Identify conflicts
+  - Establish priorities
+  - Document interactions
+
+### Conflict Resolution
+- **Priority System:**
+  1. Security and stability rules
+  2. Project-specific requirements
+  3. General best practices
+  4. Style preferences
+
+## Continuous Evaluation
+
+### Monitoring Metrics
+- **Quantitative:**
+  - Rule application frequency
+  - Error reduction rates
+  - Development velocity
+  - Documentation clarity scores
+
+- **Qualitative:**
+  - Developer feedback
+  - Code review efficiency
+  - Learning curve impact
+  - Maintenance effort
+
+### Improvement Cycle
+```mermaid
+flowchart TD
+    A[Monitor Patterns] --> B[Identify Improvements]
+    B --> C[Update Rules]
+    C --> D[Validate Changes]
+    D --> E[Document Updates]
+    E --> A
+```
+
+## Rule Summary Cards
+
+### Core Memory File Rules
+```markdown
+Memory files must:
+1. Follow required templates
+2. Maintain heading hierarchy
+3. Use appropriate timeframes
+4. Integrate content properly
+5. Preserve cross-references
+```
+
+### Implementation Rules
+```markdown
+Code implementation must:
+1. Analyze dependencies
+2. Plan changes
+3. Make incremental updates
+4. Test thoroughly
+5. Update documentation
+```
+
+### Documentation Rules
+```markdown
+Documentation must:
+1. Use consistent format
+2. Follow hierarchy
+3. Include examples
+4. Cross-reference
+5. Stay current
+```
+
+## Deprecation Protocol
+- **Criteria for Deprecation:**
+  - Rule no longer applies
+  - Better alternatives exist
+  - Project requirements changed
+  - Technology stack updated
+
+- **Deprecation Process:**
+  1. Mark as deprecated
+  2. Document alternatives
+  3. Set removal timeline
+  4. Update references
+  5. Archive for reference
 
 Follow [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for proper rule formatting and structure.

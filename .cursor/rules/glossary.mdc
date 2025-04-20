@@ -8,23 +8,91 @@ alwaysApply: true
 
 This file provides a quick reference to the purpose of each rule file located in the `.cursor/rules` directory.
 
+## Rule Entries
+
 - **[`architecture-understanding.mdc`](mdc:.cursor/rules/architecture-understanding.mdc)**: Guidelines for understanding and interpreting architectural diagrams.
+- **[`change_validation.mdc`](mdc:.cursor/rules/change_validation.mdc)**: Guidelines for validating changes to memory files.
 - **[`changesets.mdc`](mdc:.cursor/rules/changesets.mdc)**: Guidelines for using Changesets (pnpm changeset) to manage versioning and changelogs.
 - **[`coding-best-practices.mdc`](mdc:.cursor/rules/coding-best-practices.mdc)**: Defines best practices for implementing code changes.
+- **[`content_context.mdc`](mdc:.cursor/rules/content_context.mdc)**: Guidelines for AI agents to understand content context when updating memory files.
 - **[`cursor_rules.mdc`](mdc:.cursor/rules/cursor_rules.mdc)**: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
 - **[`debug.mdc`](mdc:.cursor/rules/debug.mdc)**: Guidelines for diagnosing issues and solving persistent errors or incomplete fixes.
 - **[`directory-structure.mdc`](mdc:.cursor/rules/directory-structure.mdc)**: The top-level directory structure for the project.
 - **[`documentation-and-tech-stack.mdc`](mdc:.cursor/rules/documentation-and-tech-stack.mdc)**: Guidelines for using documentation and the project's tech stack.
 - **[`error-documentation.mdc`](mdc:.cursor/rules/error-documentation.mdc)**: Guidelines for documenting and tracking errors and their resolutions.
-- **[`github-actions.mdc`](mdc:.cursor/rules/github-actions.mdc)**: Guidelines  best practices for GitHub Actions workflows, including automation, testing, security, and CI/CD integration.
+- **[`github-actions.mdc`](mdc:.cursor/rules/github-actions.mdc)**: Guidelines for GitHub Actions workflows, including automation, testing, security, and CI/CD integration.
 - **[`glossary.mdc`](mdc:.cursor/rules/glossary.mdc)**: This file; provides a glossary of other Cursor rules.
 - **[`implement.mdc`](mdc:.cursor/rules/implement.mdc)**: Comprehensive instructions for implementing code changes.
+- **[`knowledge_graph_management.mdc`](mdc:.cursor/rules/knowledge_graph_management.mdc)**: Guidelines for managing and maintaining the Knowledge Graph accessed through the `server-memory` MCP server.
 - **[`lessons-learned.mdc`](mdc:.cursor/rules/lessons-learned.mdc)**: A learning journal that captures important patterns, preferences, and project intelligence for future work.
 - **[`mcp-tool-usage.mdc`](mdc:.cursor/rules/mcp-tool-usage.mdc)**: Guidelines for using tools provided by available MCP servers.
 - **[`memory_files.mdc`](mdc:.cursor/rules/memory_files.mdc)**: Guidelines for creating and maintaining project Memory Files for comprehensive project documentation.
+- **[`memory_templates.mdc`](mdc:.cursor/rules/memory_templates.mdc)**: Standard templates for memory files to ensure consistent structure.
 - **[`plan.mdc`](mdc:.cursor/rules/plan.mdc)**: Guidelines for planning and formulating solutions.
 - **[`pnpm.mdc`](mdc:.cursor/rules/pnpm.mdc)**: Guidelines for using pnpm as the package manager.
 - **[`renovate.mdc`](mdc:.cursor/rules/renovate.mdc)**: Guidelines for using Renovate to manage dependencies.
+- **[`rule_preprocessing.mdc`](mdc:.cursor/rules/rule_preprocessing.mdc)**: Guidelines for AI agents to process rules before responding to tasks.
+- **[`rule_refresher.mdc`](mdc:.cursor/rules/rule_refresher.mdc)**: Guidelines for periodic review and refresh of Cursor rules.
 - **[`rules.mdc`](mdc:.cursor/rules/rules.mdc)**: Instructions that must be followed in every interaction.
 - **[`self_improve.mdc`](mdc:.cursor/rules/self_improve.mdc)**: Guidelines for continuously improving Cursor rules based on emerging code patterns and best practices.
 - **[`typescript.mdc`](mdc:.cursor/rules/typescript.mdc)**: Guidelines for using TypeScript in the project.
+
+## AI Maintenance Guidelines
+
+### When to Update the Glossary
+
+1. **New Rule Creation**
+   - When a new rule file is created in `.cursor/rules/`
+   - When a rule is renamed or moved
+   - When a rule is deleted
+
+2. **Rule Description Changes**
+   - When a rule's primary purpose or scope changes significantly
+   - When a rule's description becomes outdated or inaccurate
+   - When a rule's functionality expands or contracts
+
+### How to Update the Glossary
+
+1. **Adding New Rules**
+   ```markdown
+   - **[`new-rule.mdc`](mdc:.cursor/rules/new-rule.mdc)**: Brief description of the rule's purpose.
+   ```
+   - Place the entry in alphabetical order
+   - Use the exact filename in the link
+   - Keep descriptions concise and focused on the primary purpose
+
+2. **Updating Descriptions**
+   - Preserve the link format
+   - Update only the description part
+   - Maintain consistent tone and length with other entries
+
+3. **Removing Rules**
+   - Remove the entire entry for deleted rules
+   - Update any references to the removed rule in other rules
+
+### Validation Steps
+
+1. **Before Updating**
+   - Verify the rule file exists in `.cursor/rules/`
+   - Check the rule's frontmatter for the official description
+   - Review recent changes to understand the context
+
+2. **After Updating**
+   - Verify alphabetical ordering
+   - Check link formatting
+   - Ensure consistent style with other entries
+   - Validate all links are working
+
+### Integration with Other Rules
+
+- Follow formatting guidelines from [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc)
+- Apply content context principles from [content_context.mdc](mdc:.cursor/rules/content_context.mdc)
+- Follow change validation process from [change_validation.mdc](mdc:.cursor/rules/change_validation.mdc)
+
+### Maintenance Checklist
+
+✅ Verify all rules in `.cursor/rules/` are listed
+✅ Ensure descriptions match current rule purposes
+✅ Check for consistent formatting and style
+✅ Validate all rule links
+✅ Update related rules if references change

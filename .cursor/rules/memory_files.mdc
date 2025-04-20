@@ -1,10 +1,21 @@
 ---
 description: Guidelines for creating and maintaining project Memory Files for comprehensive project documentation
 globs: docs/*,tasks/*
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Memory Files Management
+
+## Activation Patterns
+- "update memory files": Trigger memory file updates
+- "document current state": Record current project state
+- "refresh documentation": Update all relevant memory files
+- "capture project context": Store comprehensive context
+
+## Integration Points
+- @rule:knowledge_graph_management (complements) - Semantic information storage
+- @rule:content_context (requires) - Temporal context management
+- @rule:change_validation (requires) - Change validation protocol
 
 ## File Hierarchy
 ```mermaid
@@ -49,6 +60,13 @@ flowchart TD
 - **Optional Context Files:**
   - `docs/literature/`: Research and literature survey
   - `tasks/rfc/`: Request for comments for individual tasks
+
+## Success Patterns
+- Memory files reflect current project state
+- Documentation is organized by temporal context
+- Cross-references are maintained and valid
+- File structure follows standard templates
+- Knowledge graph integration is complete
 
 ## Working Modes
 
@@ -125,7 +143,7 @@ flowchart TD
   - After implementing significant changes
   - When context needs clarification
   - After significant part of a plan is verified
-  - When explicitly requested with **update memory files**
+  - When triggered by "update memory files"
 
 - **Update Process:**
   - Perform comprehensive review of all related Memory Files

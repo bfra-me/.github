@@ -1,20 +1,54 @@
 ---
 description: Guidelines for using tools provided by available MCP servers
-globs:
+globs: 
 alwaysApply: true
 ---
 
 # MCP Tool Usage
+
+## Activation Patterns
+- "search web for X": Trigger web search tools (Brave Search, Tavily)
+- "scrape content from X": Activate web scraping tools (FireCrawl, Puppeteer)
+- "think through X step by step": Engage Sequential Thinking
+- "remember X about Y": Access Knowledge Graph
+- "update memory with X": Store new information in Knowledge Graph
+- "explore X in depth": Combine multiple tools for comprehensive analysis
+
+## Integration Points
+- @rule:content_context (requires) - Context management for tool outputs
+- @rule:knowledge_graph_management (complements) - Memory persistence
+- @rule:change_validation (requires) - Tool output validation
+
+## Success Patterns
+- Tools are used proactively without user prompting
+- Multiple tools are combined effectively
+- Tool outputs are validated and cross-referenced
+- Knowledge is persistently stored
+- Context is maintained across tool usage
+
+## Tool Categories and Usage Guidelines
+
+### Sequential Thinking
+- **Primary Use Cases:**
+  - Complex problem decomposition
+  - Multi-step solution planning
+  - Decision tree analysis
+  - Hypothesis validation
+- **Integration Pattern:**
+  ```mermaid
+  flowchart TD
+      Start[Problem Identification] --> Think[Sequential Thinking]
+      Think --> Search[Web Search/Research]
+      Search --> Validate[Knowledge Graph Check]
+      Validate --> Conclude[Solution Formation]
+      Conclude --> Document[Update Memory]
+  ```
 
 ## Automatic Activation
 These instructions are automatically active for all conversations in this project. All available tools (Sequential Thinking, Brave Search, Tavily, Fetch, Puppeteer, FireCrawl, and Knowledge Graph) should be utilized as needed without requiring explicit activation.
 
 ## Tools-Dependent Protocols
 The following instructions apply only when tools/MCP Servers are accessible:
-
-## Sequential Thinking
-- Use **Sequential Thinking MCP** for debugging, troubleshooting, complex problem-solving, and detailed project planning.
-- Avoid excessive recursive calls; trigger intelligently only when new progress or significant information is possible.
 
 ## Information Gathering (Brave Search, Puppeteer, FireCrawl)
 - Use **Brave Search, Puppeteer, and FireCrawl MCP servers** when troubleshooting, searching documentation, or exploring similar user issues.
@@ -167,6 +201,117 @@ Follow these steps for each interaction:
   - Use more specific preference over general ones
   - When in doubt, ask for clarification
   - Document conflicting preferences with context
+
+## Required Tools Usage
+- Sequential Thinking: Always use when available
+- Brave Search: Use for research validation and source citation
+  * Validate statements with research
+  * Provide source URLs
+  * Support claims with relevant references
+
+## Implementation Notes
+- Tools should be used proactively without requiring user prompting
+- Multiple tools can and should be used in parallel when appropriate
+- Avoid excessive recursive calls; trigger intelligently only when new progress or significant information is possible
+- Knowledge retention across conversations should be managed through the Knowledge Graph
+
+## Tool Synergy Patterns
+
+### Research and Validation
+```mermaid
+flowchart TD
+    Query[User Query] --> ST[Sequential Thinking]
+    ST --> BS[Brave Search]
+    ST --> TV[Tavily Search]
+    BS --> FC[FireCrawl Validation]
+    TV --> FC
+    FC --> KG[Knowledge Graph Update]
+    KG --> Response[Response Formation]
+```
+
+### Web Interaction
+```mermaid
+flowchart TD
+    Task[Web Task] --> PP[Puppeteer]
+    PP --> FC[FireCrawl]
+    FC --> ST[Sequential Thinking]
+    ST --> KG[Knowledge Graph]
+    KG --> Result[Task Completion]
+```
+
+### Memory Management
+```mermaid
+flowchart TD
+    Input[New Information] --> ST[Sequential Thinking]
+    ST --> Categorize[Categorize Data]
+    Categorize --> Create[Create Entities]
+    Create --> Relate[Create Relations]
+    Relate --> Observe[Add Observations]
+    Observe --> Validate[Validate Updates]
+```
+
+## Tool-Specific Best Practices
+
+### Web Search Tools
+- **Brave Search & Tavily:**
+  - Use specific, targeted queries
+  - Combine results from multiple searches
+  - Validate information across sources
+  - Store relevant findings in Knowledge Graph
+
+### Web Interaction Tools
+- **Puppeteer & FireCrawl:**
+  - Validate site accessibility before interaction
+  - Use appropriate wait times for dynamic content
+  - Handle errors and timeouts gracefully
+  - Extract structured data when possible
+
+### Memory Tools
+- **Knowledge Graph:**
+  - Maintain entity naming consistency
+  - Create meaningful relations
+  - Store atomic observations
+  - Update preferences with timestamps
+  - Handle conflicts systematically
+
+## Implementation Guidelines
+
+### Tool Selection Criteria
+- **Choose Sequential Thinking when:**
+  - Problem requires step-by-step analysis
+  - Multiple solution paths exist
+  - Complex dependencies need mapping
+  - Hypothesis testing is required
+
+- **Choose Web Search when:**
+  - Current information is needed
+  - Technical documentation is required
+  - Best practices need validation
+  - Examples are needed
+
+- **Choose Web Interaction when:**
+  - Dynamic content needs processing
+  - Form submission is required
+  - Site navigation is necessary
+  - Screenshots are needed
+
+- **Choose Knowledge Graph when:**
+  - Information persistence is required
+  - Relationships need mapping
+  - Preferences need tracking
+  - Context needs preservation
+
+### Error Handling
+- Implement graceful fallbacks between tools
+- Log failures for future reference
+- Maintain context during tool switching
+- Update error patterns in Knowledge Graph
+
+### Performance Optimization
+- Use targeted searches over broad queries
+- Implement parallel tool usage when appropriate
+- Cache frequently accessed knowledge
+- Optimize tool chains for common patterns
 
 ## Required Tools Usage
 - Sequential Thinking: Always use when available

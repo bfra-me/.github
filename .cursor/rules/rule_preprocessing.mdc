@@ -1,0 +1,35 @@
+---
+description: Guidelines for AI agents to process rules before responding to tasks
+globs: **/*
+alwaysApply: true
+---
+
+# Rule Pre-Processing Protocol
+
+## Initial Rule Assessment
+- **Always review relevant rules at the start of each interaction**
+  - Begin by identifying task context from user query
+  - Fetch all rules marked as "Always include" from [rules.mdc](mdc:.cursor/rules/rules.mdc)
+  - For implementation tasks, include [implement.mdc](mdc:.cursor/rules/implement.mdc)
+  - For debugging tasks, include [debug.mdc](mdc:.cursor/rules/debug.mdc)
+  - For planning tasks, include [plan.mdc](mdc:.cursor/rules/plan.mdc)
+  - For memory file updates, include [memory_files.mdc](mdc:.cursor/rules/memory_files.mdc)
+
+## Rule Relevance Scoring
+- **Prioritize rules based on query relevance**
+  - Assign high priority (P1) to rules explicitly mentioned in the query
+  - Assign medium priority (P2) to rules relevant to the file types being modified
+  - Assign baseline priority (P3) to general project rules
+
+## Rule Application Checklist
+- **Generate a mental verification list before responding**
+  - Extract key directives from each relevant rule
+  - Create completion criteria for each directive
+  - Verify all P1 and P2 criteria are satisfied in your response
+  - Document any intentional rule exceptions with rationale
+
+## Rule Integration
+- **Apply rule knowledge consistently through the interaction**
+  - Maintain rule awareness across multiple messages in the same conversation
+  - Reference specific rules when explaining your approach
+  - When rules conflict, prioritize the more specific rule

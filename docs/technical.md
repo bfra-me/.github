@@ -1,5 +1,32 @@
 # Technical Documentation
 
+## System Architecture
+
+### Core Systems
+
+#### Knowledge Graph Integration
+- **MCP Server**: server-memory
+- **Purpose**: Maintain state across conversations, store preferences and contextual knowledge
+- **Access**: Local machine only
+- **Integration**: Through MCP client library
+- **Data Model**: Entities, relations, and observations
+
+#### Monitoring Systems
+
+1. **Preference Monitoring System**
+   - Integrates with Knowledge Graph
+   - Local operation only
+   - MCP client-based
+   - TypeScript implementation
+   - Focus on preference management
+
+2. **Repository Metrics System**
+   - GitHub Actions-based
+   - Independent operation
+   - JSON storage
+   - Automated triggers
+   - Focus on repository health
+
 ## Development Environment
 
 ### Core Technologies
@@ -16,10 +43,59 @@
 - **Changesets**: v2.29.0 for versioning
 - **lint-staged**: v15.5.1 for pre-commit linting
 - **tsx**: v4.19.3 for running TypeScript files directly
+- **MCP client library**: For Knowledge Graph interactions
 
-## Technical Stack Details
+### Development Setup
+1. Install dependencies
+2. Configure MCP client
+3. Set up GitHub Actions
+4. Configure monitoring systems
 
-### TypeScript Configuration
+## Technical Decisions and Rationale
+
+### ESM Modules
+- Better tree-shaking
+- Native async/await support
+- Future-proof architecture
+- Improved module resolution
+
+### Strict TypeScript
+- Enhanced type safety
+- Better developer experience
+- Reduced runtime errors
+- Self-documenting code
+
+### pnpm
+- Efficient dependency management
+- Strict dependency resolution
+- Faster installation times
+- Reduced disk space usage
+
+### Changesets
+- Automated versioning
+- Structured change tracking
+- Integrated with CI/CD
+- Developer-friendly workflow
+
+### Memory Files Framework
+- Centralized project knowledge
+- Structured documentation approach
+- Error tracking and resolution
+- Project intelligence and patterns
+
+### Knowledge Graph Integration
+- Local MCP server access
+- Client library for interactions
+- Preference data modeling
+- State persistence
+
+### Metrics Collection
+- GitHub Actions workflows
+- JSON-based storage
+- Automated triggers
+- Performance monitoring
+
+## TypeScript Configuration
 ```json
 {
   "compilerOptions": {
@@ -40,7 +116,7 @@
 }
 ```
 
-### Code Quality Tools
+## Code Quality Tools
 1. **ESLint**
    - Extended from @bfra.me/eslint-config
    - Integrated with Prettier
@@ -64,6 +140,36 @@
    - Core files for project management
    - Error tracking and resolution documentation
    - Lessons learned and project intelligence
+
+## Security Considerations
+
+### OpenSSF Scorecard
+- Automated security scoring
+- Best practices enforcement
+- Regular security audits
+- Vulnerability scanning
+
+### Access Control
+- Branch protection rules
+- Required reviews
+- Status checks enforcement
+- Minimal permission principle
+- Local-only Knowledge Graph access
+- GitHub Actions permissions
+- Token management
+- Data protection
+
+### Dependency Management
+- Automated updates via Renovate
+- Security vulnerability scanning
+- Version pinning for stability
+- Lockfile validation
+
+### Data Management
+- Preference versioning
+- Metric data retention
+- Backup procedures
+- Access logging
 
 ## Automation and Workflows
 
@@ -110,25 +216,85 @@
    - Semantic versioning
    - GitHub Releases integration
 
-## Security Implementation
+## Implementation Guidelines
 
-### OpenSSF Scorecard
-- Automated security scoring
-- Best practices enforcement
-- Regular security audits
-- Vulnerability scanning
+### Code Standards
+- TypeScript strict mode
+- Comprehensive testing
+- Documentation requirements
+- Performance optimization
 
-### Access Control
-- Branch protection rules
-- Required reviews
-- Status checks enforcement
-- Minimal permission principle
+### Monitoring Guidelines
+- Metric collection frequency
+- Storage optimization
+- Trigger conditions
+- Action responses
 
-### Dependency Management
-- Automated updates via Renovate
+## Technical Dependencies
+
+### Required Services
+- Knowledge Graph MCP server
+- GitHub Actions
+- Version control
+- Testing frameworks
+
+### Integration Points
+- MCP client interface
+- GitHub API
+- Storage systems
+- Notification services
+
+## Performance Considerations
+
+### Workflow Optimization
+- Minimal dependency installation
+- Efficient script execution
+- Caching strategies for CI/CD
+- Resource usage optimization
+
+### Development Efficiency
+- Automated development tools
+- Consistent environment configuration
+- Quick onboarding process
+- Self-documented codebase
+
+### Optimization Areas
+- MCP client operations
+- Metric collection overhead
+- Storage efficiency
+- Action response time
+
+### Monitoring Metrics
+- System response times
+- Resource utilization
+- Error rates
+- Success metrics
+
+## Maintenance Procedures
+
+### Regular Tasks
+- Dependency updates
+- Performance monitoring
+- Security audits
+- Documentation reviews
+
+### Troubleshooting
+- Error logging
+- Diagnostic tools
+- Recovery procedures
+- Support resources
+
+### Workflow Monitoring
+- Execution time tracking
+- Error rate monitoring
+- Success/failure metrics
+- Resource usage analysis
+
+### Health Checks
+- Regular dependency updates
 - Security vulnerability scanning
-- Version pinning for stability
-- Lockfile validation
+- Performance benchmarking
+- Documentation completeness checks
 
 ## Development Scripts
 
@@ -168,63 +334,3 @@
         ├── error-documentation.mdc # Error tracking
         └── lessons-learned.mdc     # Project intelligence
 ```
-
-## Technical Decisions and Rationale
-
-### ESM Modules
-- Better tree-shaking
-- Native async/await support
-- Future-proof architecture
-- Improved module resolution
-
-### Strict TypeScript
-- Enhanced type safety
-- Better developer experience
-- Reduced runtime errors
-- Self-documenting code
-
-### pnpm
-- Efficient dependency management
-- Strict dependency resolution
-- Faster installation times
-- Reduced disk space usage
-
-### Changesets
-- Automated versioning
-- Structured change tracking
-- Integrated with CI/CD
-- Developer-friendly workflow
-
-### Memory Files Framework
-- Centralized project knowledge
-- Structured documentation approach
-- Error tracking and resolution
-- Project intelligence and patterns
-
-## Performance Considerations
-
-### Workflow Optimization
-- Minimal dependency installation
-- Efficient script execution
-- Caching strategies for CI/CD
-- Resource usage optimization
-
-### Development Efficiency
-- Automated development tools
-- Consistent environment configuration
-- Quick onboarding process
-- Self-documented codebase
-
-## Monitoring and Maintenance
-
-### Workflow Monitoring
-- Execution time tracking
-- Error rate monitoring
-- Success/failure metrics
-- Resource usage analysis
-
-### Health Checks
-- Regular dependency updates
-- Security vulnerability scanning
-- Performance benchmarking
-- Documentation completeness checks

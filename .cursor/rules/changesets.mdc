@@ -1,6 +1,6 @@
 ---
-description: Guidelines for using Changesets (npm run changeset) to manage versioning and changelogs.
-globs: 
+description: Guidelines for using Changesets (pnpm changeset) to manage versioning and changelogs.
+globs:
 alwaysApply: true
 ---
 
@@ -76,6 +76,73 @@ Avoid creating changesets for changes that have **no impact or relevance to exte
 - ✅ **DO**: Provide *both* a concise changeset summary (when appropriate) *and* a detailed Git commit message.
 - ❌ **DON'T**: Use your detailed Git commit message body as the changeset summary.
 - ❌ **DON'T**: Skip running `changeset` for user-relevant changes just because you wrote a good commit message.
+
+## Comprehensive Changeset Documentation
+
+When documenting changes in a changeset, ensure they provide a complete picture of what changed and its impact:
+
+### Changeset Scope Documentation
+
+- **✅ DO:** Document the complete scope of changes:
+  - Identify all components affected by the change
+  - Describe both primary changes and consequential updates
+  - Include any related configuration changes
+  - Mention any new dependencies introduced
+  - Note any performance implications
+  - List any behavioral changes users should be aware of
+
+- **❌ DON'T:**
+  - Focus only on the primary change while ignoring collateral effects
+  - Omit changes to related components
+  - Exclude migration steps if they're needed
+  - Leave out breaking changes, however minor
+
+### Multi-Level Documentation
+
+For complex changes that affect multiple parts of the system, use a multi-level approach:
+
+1. **Primary Change:** The main feature or fix being implemented
+2. **Secondary Changes:** Required adjustments to related components
+3. **Consequential Changes:** Third-order effects that might not be obvious
+4. **Integration Points:** How the change affects interaction with other systems
+5. **User Experience Changes:** How the user's experience is affected
+
+### Changeset Scope Template
+
+For significant changes, consider using this expanded template in your changeset file:
+
+```markdown
+---
+"@package-name": minor
+---
+
+Add new JWT authentication support to API endpoints
+
+## Primary Change
+- Implement JWT authentication for all API endpoints
+- Add token validation middleware
+
+## Secondary Changes
+- Update user model to support token storage
+- Modify authorization logic in access control layer
+- Add token refresh endpoint
+
+## Migration Required
+Users will need to update their authentication code to use tokens instead of basic auth.
+See the migration guide at docs/migrations/auth-to-jwt.md
+
+## Configuration Changes
+New environment variables required:
+- JWT_SECRET
+- TOKEN_EXPIRY_TIME
+```
+
+### Interdependency Documentation
+
+- **Document Related Changes:** If the changeset requires or is related to other changes, explicitly document these relationships
+- **Reference Related PRs:** Link to dependent pull requests or issues
+- **Clarify Sequencing:** If changes must be applied in a specific order, document this requirement
+- **Dependency Graph:** For complex changes, consider including a visual or textual representation of the dependency graph
 
 ## The `.changeset` File
 

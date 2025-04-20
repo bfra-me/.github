@@ -4,6 +4,57 @@ globs:
 alwaysApply: true
 ---
 
+# Changeset Management Guidelines
+
+## Core Principles
+- All changes that affect versioning must have a changeset
+- Changesets must be created manually, not through CLI
+- Changesets are required for main branch protection
+- Each PR should include appropriate changeset files
+
+## Creating Changesets
+
+### Manual Process (Required)
+1. Create a new `.md` file in `.changeset/` directory
+2. Use a descriptive name: `feature-name.md`
+3. Follow the format:
+   ```md
+   ---
+   "@package-name": patch|minor|major
+   ---
+
+   Description of changes
+   ```
+
+### Version Bump Guidelines
+- `patch`: Bug fixes and minor changes
+- `minor`: New features (backward compatible)
+- `major`: Breaking changes
+
+### Integration with Branch Protection
+- Changesets are checked as part of PR validation
+- Missing changesets will fail the "Create Renovate Changeset" check
+- Changes affecting packages require corresponding changesets
+- Changesets must be committed with their related changes
+
+## Common Mistakes to Avoid
+- Don't use `pnpm changeset` CLI commands
+- Don't modify existing changeset files
+- Don't commit changesets directly to main
+- Don't create multiple changesets for the same change
+
+## Automated Release Process
+1. Changesets are collected during PR merge
+2. Release PR is automatically created
+3. Version bumps and changelog updates are automated
+4. Release is published after merge
+
+## Troubleshooting
+- If status checks fail, verify changeset format
+- Ensure changeset matches the scope of changes
+- Check package name matches workspace config
+- Verify version bump type is appropriate
+
 # Changesets Workflow Guidelines
 
 Changesets is used to manage package versioning and generate accurate `CHANGELOG.md` files automatically. It's crucial to use it correctly after making meaningful changes that affect the package from an external perspective or significantly impact internal development workflow documented elsewhere.

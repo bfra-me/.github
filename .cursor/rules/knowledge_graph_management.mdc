@@ -1,8 +1,9 @@
 ---
-description: Guidelines for managing and maintaining the Knowledge Graph through MCP Memory tools
-globs: .cursor/rules/*, docs/*
-alwaysApply: true
+description: Guidelines for managing and maintaining the Knowledge Graph accessed through the `server-memory` MCP server.
+globs: .cursor/rules/*,docs/*
+alwaysApply: false
 ---
+
 # Knowledge Graph Management
 
 ## Purpose

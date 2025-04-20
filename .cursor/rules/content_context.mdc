@@ -1,6 +1,6 @@
 ---
 description: Guidelines for AI agents to understand content context when updating memory files
-globs: tasks/*, docs/*
+globs: tasks/*,docs/*
 alwaysApply: false
 ---
 
@@ -89,3 +89,28 @@ alwaysApply: false
   - Identify conceptually overlapping explanations
   - Check for similar examples or use cases
   - Review content with similar purposes
+
+# Content Context Guidelines
+
+Related Rules:
+- @rule:cursor_rules (requires) - Base rule framework
+- @rule:change_validation (complements) - Validates context updates
+- @rule:knowledge_graph_management (impacts) - Affects knowledge representation
+
+Version: 1.0.0
+
+## Integration Points
+1. Rule Cross-References
+   - All referenced rules must include context markers
+   - Context inheritance follows rule hierarchy
+   - Context conflicts resolved using most restrictive timeframe
+
+2. Validation Requirements
+   - Context changes require change_validation approval
+   - Major context shifts trigger rule dependency review
+   - Context markers must be validated across rule chain
+
+3. Knowledge Graph Alignment
+   - Context updates propagate to linked knowledge nodes
+   - Temporal relationships preserved in graph structure
+   - Context boundaries enforced in graph queries

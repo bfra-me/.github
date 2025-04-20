@@ -1,6 +1,6 @@
 ---
 description: Include these rules while IMPLEMENTATION/Coding.
-globs:
+globs: 
 alwaysApply: true
 ---
 

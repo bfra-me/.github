@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Coding best practices for @bfra.me/.github
+globs: 
 alwaysApply: true
 ---
 

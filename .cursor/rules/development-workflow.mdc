@@ -1,0 +1,202 @@
+---
+description: Framework for planning and implementing development tasks
+globs: 
+alwaysApply: true
+---
+
+# Development Workflow Framework
+
+## Integration Points
+- @rule:knowledge_graph_management (requires) - Development context
+- @rule:mcp-tool-usage (requires) - Development tools
+- @rule:content_context (requires) - Development timeline
+- @rule:error-management (requires) - Error handling
+
+## Planning Phase
+
+### 1. Context Analysis
+- **Understand requirements thoroughly**
+  - Identify core functionality needs
+  - Clarify constraints and limitations
+  - Document dependencies
+  - Reference relevant knowledge
+
+### 2. Requirements Processing
+- **Use Sequential Thinking for decomposition**
+  - Break complex problems into manageable parts
+  - Identify key components and interactions
+  - Prioritize development tasks
+  - Create clear success criteria
+
+### 3. Solution Design
+- **Generate solution alternatives**
+  - Evaluate potential approaches
+  - Consider trade-offs
+  - Select optimal path
+  - Document decision rationale
+
+## Implementation Phase
+
+### 1. Development Context
+- **Establish implementation framework**
+  - Reference planning outcomes
+  - Identify affected codebase areas
+  - Document dependencies
+  - Select appropriate tools
+
+### 2. Code Management
+- **Follow programming principles**
+  - Maintain algorithm efficiency
+  - Ensure code modularity
+  - Preserve working components
+  - Apply appropriate design patterns
+
+### 3. Quality Control
+- **Validate implementation**
+  - Run automated tests
+  - Perform code reviews
+  - Verify documentation
+  - Validate against plan
+
+## Tool Integration
+
+### 1. Development Tools
+- **Leverage appropriate code tools**
+  - Analysis utilities
+  - Testing frameworks
+  - Documentation generators
+  - Version control
+
+### 2. Knowledge Tools
+- **Apply knowledge tools**
+  - Sequential Thinking
+  - Web search
+  - Knowledge Graph
+  - Content context
+
+## Validation Protocol
+
+### 1. Plan Validation
+- **Verify plan completeness**
+  - Requirements coverage
+  - Constraint compliance
+  - Resource availability
+  - Risk assessment
+
+### 2. Implementation Validation
+- **Ensure implementation quality**
+  - Code quality
+  - Test coverage
+  - Documentation completeness
+  - Performance metrics
+
+## <PLANNING>
+### UNDERSTANDING REQUIREMENTS
+<CLARIFICATION>
+- Always ask for clarifications and follow-ups
+- Identify underspecified requirements
+- Fully understand all aspects of the problem
+- Remove ambiguities and uncertainties
+- Suggest solutions that might not be apparent
+</CLARIFICATION>
+
+### FORMULATING SOLUTIONS
+<STEP BY STEP REASONING>
+- Have a meta architecture plan
+- Break down problems into key concepts
+- Think of all possible solutions
+- Evaluate approaches against criteria
+- Find optimal solution with clear reasoning
+</STEP BY STEP REASONING>
+
+### SOLUTION VALIDATION
+<REASONING PRESENTATION>
+- Provide detailed plans
+- Break down solutions step-by-step
+- Reason out optimality vs alternatives
+- State all assumptions explicitly
+- Explain trade-offs clearly
+</REASONING PRESENTATION>
+</PLANNING>
+
+## <IMPLEMENTATION>
+### <PROGRAMMING PRINCIPLES>
+- **algorithm_efficiency**: Use efficient algorithms and data structures
+- **modularity**: Break complex logic into smaller atomic parts
+- **file_management**: Break long files into manageable pieces
+- **import_statements**: Prefer importing from other files over modification
+- **file_organization**: Organize files logically
+- **reuse**: Prefer to reuse existing code
+- **code_preservation**: Preserve working components
+- **systematic_sequence**: Complete one step before starting another
+- **design_patterns**: Apply appropriate patterns for maintainability
+- **proactive_testing**: Include proper tests with functionality
+</PROGRAMMING PRINCIPLES>
+
+### <SYSTEMATIC CODE PROTOCOL>
+1. **ANALYZE CODE**
+   - Identify affected components
+   - Document dependencies
+   - Analyze flow from entry point to execution
+   - Track data and logic flow
+
+2. **PLAN CODE**
+   - Outline detailed plan with dependencies
+   - Explain all changes and impacts
+   - Document tradeoffs
+   - Provide structured proposal
+
+3. **MAKE CHANGES**
+   - Document current state
+   - Plan single logical change at a time
+   - Simulate interactions for validation
+   - Implement verified changes
+
+4. **TEST THOROUGHLY**
+   - Create unit tests for new functionality
+   - Verify existing behavior remains correct
+   - Document test coverage and results
+</SYSTEMATIC CODE PROTOCOL>
+
+### <TESTING>
+- **Create comprehensive test plans**
+  - Cover normal cases and edge cases
+  - Verify against requirements
+  - Test integration points
+  - Check error handling
+
+- **Implement tests for all critical functionality**
+  - Unit tests for isolated components
+  - Integration tests for interactions
+  - Performance tests for critical paths
+  - Document all test scenarios
+</TESTING>
+</IMPLEMENTATION>
+
+## Documentation Requirements
+
+### 1. Planning Documentation
+- Requirements analysis
+- Solution design
+- Decision rationale
+- Risk mitigation
+
+### 2. Implementation Documentation
+- Code changes
+- Test cases
+- Configuration updates
+- Deployment notes
+
+## Success Patterns
+
+### 1. Planning Patterns
+- Clear requirements
+- Thorough analysis
+- Documented decisions
+- Validated approach
+
+### 2. Implementation Patterns
+- Clean code
+- Comprehensive tests
+- Updated documentation
+- Efficient deployment

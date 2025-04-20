@@ -1,7 +1,7 @@
 ---
 description: Comprehensive guidelines for TypeScript development, covering code organization, common patterns, performance, security, testing, tooling, and more. Ensures high-quality, maintainable, and scalable TypeScript code.
 globs: **/*.ts,**/*.tsx
-alwaysApply: true
+alwaysApply: false
 ---
 
 - **Core TypeScript Best Practices**

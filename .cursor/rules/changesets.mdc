@@ -1,6 +1,6 @@
 ---
 description: Guidelines for using Changesets (pnpm changeset) to manage versioning and changelogs.
-globs:
+globs: 
 alwaysApply: true
 ---
 

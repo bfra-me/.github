@@ -37,7 +37,7 @@ alwaysApply: true
 - **Task-Specific Rules (On Mode Switch):**
   - Plan mode: [plan.mdc](mdc:.cursor/rules/plan.mdc)
   - Implement mode: [implement.mdc](mdc:.cursor/rules/implement.mdc)
-  - Debug mode: [debug.mdc](mdc:.cursor/rules/debug.mdc)
+  - Debug mode: [error-management.mdc](mdc:.cursor/rules/error-management.mdc)
 
 - **Domain-Specific Rules (Context-Based):**
   - TypeScript: [typescript.mdc](mdc:.cursor/rules/typescript.mdc)

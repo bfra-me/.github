@@ -89,3 +89,22 @@ This repository serves as the central configuration hub and template for the @bf
 3. High OpenSSF Scorecard rating
 4. Consistent code quality across repositories
 5. Minimal manual intervention needed for maintenance
+
+## Related Files
+
+- **Dependencies:**
+  - [Architecture Documentation](/docs/architecture.md): Defines system architecture to meet requirements
+  - [Technical Documentation](/docs/technical.md): Technical implementation of requirements
+
+- **Extensions:**
+  - [Tasks Plan](/tasks/tasks_plan.md): Converts requirements into actionable tasks
+  - [Active Context](/tasks/active_context.md): Maps requirements to current development focus
+
+- **Implementations:**
+  - [Workflow Documentation](/docs/workflows/README.md): Implementation of workflow requirements
+  - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Repository settings implementation
+
+- **Related Concepts:**
+  - [Memory Templates](/.cursor/rules/memory_templates.mdc): Documentation structure standards
+  - [Change Validation](/.cursor/rules/change_validation.mdc): Validation process for changes
+  - [GitHub Actions Rules](/.cursor/rules/github-actions.mdc): Implementation guidelines for workflows

@@ -1,23 +1,25 @@
 ---
-description: Guidelines for using tools provided by available MCP servers
+description: Guidelines for using tools provided by available MCP (Model Context Protocol) servers
 globs: 
 alwaysApply: true
 ---
+# MCP (Model Context Protocol) Tool Usage
 
-# MCP Tool Usage
+## Automatic Activation
+These instructions are automatically active for all conversations in this project. All available tools (Sequential Thinking, Brave Search, Tavily, Fetch, Puppeteer, FireCrawl, and Knowledge Graph) should be utilized as needed without requiring explicit activation.
 
 ## Activation Patterns
 - "search web for X": Trigger web search tools (Brave Search, Tavily)
 - "scrape content from X": Activate web scraping tools (FireCrawl, Puppeteer)
 - "think through X step by step": Engage Sequential Thinking
-- "remember X about Y": Access Knowledge Graph
-- "update memory with X": Store new information in Knowledge Graph
+- "remember X about Y": Access the knowledge graph
+- "update memory with X": Store new information in the knowledge graph
 - "explore X in depth": Combine multiple tools for comprehensive analysis
 
 ## Integration Points
-- @rule:content_context (requires) - Context management for tool outputs
-- @rule:knowledge_graph_management (complements) - Memory persistence
-- @rule:change_validation (requires) - Tool output validation
+- [rule:content_context](mdc:.cursor/rules/content_context.mdc) (requires) - Context management for tool outputs
+- [rule:knowledge_graph_management](mdc:.cursor/rules/knowledge_graph_management.mdc) (complements) - Memory persistence
+- [rule:change_validation](mdc:.cursor/rules/change_validation.mdc) (requires) - Tool output validation
 
 ## Success Patterns
 - Tools are used proactively without user prompting
@@ -28,7 +30,7 @@ alwaysApply: true
 
 ## Tool Categories and Usage Guidelines
 
-### Sequential Thinking
+### Reasoning (Sequential Thinking)
 - **Primary Use Cases:**
   - Complex problem decomposition
   - Multi-step solution planning
@@ -44,98 +46,14 @@ alwaysApply: true
       Conclude --> Document[Update Memory]
   ```
 
-## Automatic Activation
-These instructions are automatically active for all conversations in this project. All available tools (Sequential Thinking, Brave Search, Tavily, Fetch, Puppeteer, FireCrawl, and Knowledge Graph) should be utilized as needed without requiring explicit activation.
-
-## Tools-Dependent Protocols
-The following instructions apply only when tools/MCP Servers are accessible:
-
-## Information Gathering (Brave Search, Puppeteer, FireCrawl)
+### Information Gathering (Brave Search, Puppeteer, FireCrawl)
 - Use **Brave Search, Puppeteer, and FireCrawl MCP servers** when troubleshooting, searching documentation, or exploring similar user issues.
 - Combine effectively with **Sequential Thinking MCP** to refine solutions and acquire up-to-date information.
 - Prioritize reliable and concise sources.
 
-## Browser Tools
-- **Browser Tools MCP** requires user confirmation. Always recommend the user explicitly start the server and ensure a Chromium browser is running before using Browser Tools MCP.
-- Let the user explicitly instruct Cursor when Browser Tools should be used.
-- Remind user to disable puppeteer before attempting to use
-
-## GitHub MCP
-- Commit and push code changes to GitHub using the **GitHub MCP server** after every successful test.
-- Ensure commits are clear, descriptive, and incremental.
-- Never overwrite or unintentionally alter files like README.md or other critical documentation without explicit user approval.
-
-## Memory
-Follow these steps for each interaction:
-1. User Identification:
-   - You should assume that you are interacting with default_user
-   - If you have not identified default_user, proactively try to do so.
-2. Memory Retrieval:
-   - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
-   - Always refer to your knowledge graph as your "memory"
-3. Memory:
-   - While conversing with the user, be attentive to any new information that falls into these categories:
-     a) Basic Identity (age, gender, location, job title, education level, etc.)
-     b) Behaviors (interests, habits, etc.)
-     c) Preferences (communication style, preferred language, etc.)
-     d) Goals (goals, targets, aspirations, etc.)
-     e) Relationships (personal and professional relationships up to 3 degrees of separation)
-     f) Project Context (repositories, technologies, components, etc.)
-     g) Decisions (architectural choices, implementation preferences, etc.)
-4. Memory Update:
-   - If any new information was gathered during the interaction update your memory as follows:
-     a) Create entities for recurring organizations, people, significant events, and project components
-     b) Connect them to the current entities using relations
-     c) Store facts about them as observations
-     d) Update preference nodes with timestamp data when preferences change
-     e) Link related entities through meaningful relations that capture the nature of their connection
-
-## Knowledge Graph Update Standards
-
-- **Entity Creation Standards:**
-  - Use consistent entity naming (with underscores replacing spaces)
-  - Assign appropriate entity types
-  - Make observations atomic (one clear fact per observation)
-  - Example entity:
-    ```json
-    {
-      "name": "Documentation_Style",
-      "entityType": "preference",
-      "observations": [
-        "Prefers markdown code blocks with language specifiers",
-        "Likes concise explanations with clear examples"
-      ]
-    }
-    ```
-
-- **Relation Standards:**
-  - Always use active voice for relation types
-  - Ensure relation types use underscores instead of spaces
-  - Create bidirectional relations when appropriate
-  - Example relation:
-    ```json
-    {
-      "from": "default_user",
-      "to": "Documentation_Style",
-      "relationType": "has_preference_for"
-    }
-    ```
-
-- **Observation Management:**
-  - Keep observations concise and factual
-  - Add specific observations rather than modifying existing ones
-  - Include context when relevant (e.g., "As of June 2023, prefers...")
-  - Example observation update:
-    ```json
-    {
-      "entityName": "default_user",
-      "contents": [
-        "Prefers TypeScript over JavaScript for new projects",
-        "Values comprehensive error handling in examples"
-      ]
-    }
-    ```
-
+### Knowledge Graph (Memory)
+- Use the knowledge graph to store and retrieve information that persists across conversations.
+- Link related entities through meaningful relations that capture the nature of their connection.
 - **Knowledge Graph Update Template:**
   When updating the knowledge graph, document your changes using this format:
   ```markdown
@@ -201,127 +119,3 @@ Follow these steps for each interaction:
   - Use more specific preference over general ones
   - When in doubt, ask for clarification
   - Document conflicting preferences with context
-
-## Required Tools Usage
-- Sequential Thinking: Always use when available
-- Brave Search: Use for research validation and source citation
-  * Validate statements with research
-  * Provide source URLs
-  * Support claims with relevant references
-
-## Implementation Notes
-- Tools should be used proactively without requiring user prompting
-- Multiple tools can and should be used in parallel when appropriate
-- Avoid excessive recursive calls; trigger intelligently only when new progress or significant information is possible
-- Knowledge retention across conversations should be managed through the Knowledge Graph
-
-## Tool Synergy Patterns
-
-### Research and Validation
-```mermaid
-flowchart TD
-    Query[User Query] --> ST[Sequential Thinking]
-    ST --> BS[Brave Search]
-    ST --> TV[Tavily Search]
-    BS --> FC[FireCrawl Validation]
-    TV --> FC
-    FC --> KG[Knowledge Graph Update]
-    KG --> Response[Response Formation]
-```
-
-### Web Interaction
-```mermaid
-flowchart TD
-    Task[Web Task] --> PP[Puppeteer]
-    PP --> FC[FireCrawl]
-    FC --> ST[Sequential Thinking]
-    ST --> KG[Knowledge Graph]
-    KG --> Result[Task Completion]
-```
-
-### Memory Management
-```mermaid
-flowchart TD
-    Input[New Information] --> ST[Sequential Thinking]
-    ST --> Categorize[Categorize Data]
-    Categorize --> Create[Create Entities]
-    Create --> Relate[Create Relations]
-    Relate --> Observe[Add Observations]
-    Observe --> Validate[Validate Updates]
-```
-
-## Tool-Specific Best Practices
-
-### Web Search Tools
-- **Brave Search & Tavily:**
-  - Use specific, targeted queries
-  - Combine results from multiple searches
-  - Validate information across sources
-  - Store relevant findings in Knowledge Graph
-
-### Web Interaction Tools
-- **Puppeteer & FireCrawl:**
-  - Validate site accessibility before interaction
-  - Use appropriate wait times for dynamic content
-  - Handle errors and timeouts gracefully
-  - Extract structured data when possible
-
-### Memory Tools
-- **Knowledge Graph:**
-  - Maintain entity naming consistency
-  - Create meaningful relations
-  - Store atomic observations
-  - Update preferences with timestamps
-  - Handle conflicts systematically
-
-## Implementation Guidelines
-
-### Tool Selection Criteria
-- **Choose Sequential Thinking when:**
-  - Problem requires step-by-step analysis
-  - Multiple solution paths exist
-  - Complex dependencies need mapping
-  - Hypothesis testing is required
-
-- **Choose Web Search when:**
-  - Current information is needed
-  - Technical documentation is required
-  - Best practices need validation
-  - Examples are needed
-
-- **Choose Web Interaction when:**
-  - Dynamic content needs processing
-  - Form submission is required
-  - Site navigation is necessary
-  - Screenshots are needed
-
-- **Choose Knowledge Graph when:**
-  - Information persistence is required
-  - Relationships need mapping
-  - Preferences need tracking
-  - Context needs preservation
-
-### Error Handling
-- Implement graceful fallbacks between tools
-- Log failures for future reference
-- Maintain context during tool switching
-- Update error patterns in Knowledge Graph
-
-### Performance Optimization
-- Use targeted searches over broad queries
-- Implement parallel tool usage when appropriate
-- Cache frequently accessed knowledge
-- Optimize tool chains for common patterns
-
-## Required Tools Usage
-- Sequential Thinking: Always use when available
-- Brave Search: Use for research validation and source citation
-  * Validate statements with research
-  * Provide source URLs
-  * Support claims with relevant references
-
-## Implementation Notes
-- Tools should be used proactively without requiring user prompting
-- Multiple tools can and should be used in parallel when appropriate
-- Avoid excessive recursive calls; trigger intelligently only when new progress or significant information is possible
-- Knowledge retention across conversations should be managed through the Knowledge Graph

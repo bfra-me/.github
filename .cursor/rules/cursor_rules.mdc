@@ -1,6 +1,6 @@
 ---
 description: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
-globs: .cursor/rules/*.mdc
+globs: 
 alwaysApply: true
 ---
 
@@ -57,7 +57,11 @@ alwaysApply: true
 ## Rule Integration Standards
 
 ### Cross-Referencing System
-- Use the `@rule` prefix to reference other rules: `@rule:change_validation`
+- Use the `rule:` prefix and `mdc:` protocol to reference other rules (only applies to .mdc files in the .cursor/rules directory):
+  - Example:
+    ```markdown
+    [rule:change_validation](mdc:.cursor/rules/change_validation.mdc)
+    ```
 - Include a "Related Rules" section in each rule file listing direct dependencies
 - Specify the relationship type:
   - `requires`: Rule depends on another rule

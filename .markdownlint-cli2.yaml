@@ -1,6 +1,12 @@
 ---
 config:
   MD013: false
+  # MD022
+  blanks-around-headings: false
+  # MD031
+  blanks-around-fences: false
+  # MD032
+  blanks-around-lists: false
   MD033:
     allowed_elements: [a, h3, img, p]
   MD041: false

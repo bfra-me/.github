@@ -198,3 +198,23 @@ sequenceDiagram
 - Security patch application
 - Configuration updates
 - Documentation updates
+
+## Related Files
+
+- **Dependencies:**
+  - [Product Requirement Docs](/docs/product_requirement_docs.md): Provides foundational requirements
+  - [Technical Documentation](/docs/technical.md): Details technical implementation
+
+- **Extensions:**
+  - [Active Context](/tasks/active_context.md): Applies architecture to current development
+  - [Tasks Plan](/tasks/tasks_plan.md): Implements architectural components as tasks
+
+- **Implementations:**
+  - [Workflow Documentation](/docs/workflows/README.md): Documents workflow implementations
+  - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Implements settings management
+  - [Renovate Workflow](/docs/workflows/renovate.md): Implements dependency management
+
+- **Related Concepts:**
+  - [GitHub Actions Rules](/.cursor/rules/github-actions.mdc): Best practices for Actions
+  - [Memory Files](/.cursor/rules/memory_files.mdc): Documentation framework
+  - [TypeScript Rules](/.cursor/rules/typescript.mdc): TypeScript implementation guidelines

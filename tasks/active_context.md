@@ -351,3 +351,21 @@
    - Security resources
    - Community resources
    - Performance optimization guides
+
+## Related Files
+
+- **Dependencies:**
+  - [Technical Documentation](/docs/technical.md): Provides technical foundation for current work
+  - [Architecture Documentation](/docs/architecture.md): Defines system structure referenced in current focus
+
+- **Extensions:**
+  - [Tasks Plan](/tasks/tasks_plan.md): Extends active context into concrete tasks and timelines
+  - [Product Requirement Docs](/docs/product_requirement_docs.md): Maps current work to product requirements
+
+- **Implementations:**
+  - [Workflow Documentation](/docs/workflows/README.md): Implements workflows mentioned in current focus
+  - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Implements repository configuration features
+
+- **Related Concepts:**
+  - [Troubleshooting Guide](/docs/workflows/troubleshooting.md): Provides resolution for active issues
+  - [Memory Templates](/.cursor/rules/memory_templates.mdc): Defines standards for memory file structure

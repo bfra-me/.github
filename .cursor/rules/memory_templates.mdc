@@ -143,16 +143,16 @@ Every memory file should include a "Related Files" section that follows this tem
 ## Related Files
 
 - **Dependencies:**
-  - [File Name](mdc:path/to/file): Aspects this document depends on
+  - [File Name](path/to/file): Aspects this document depends on
 
 - **Extensions:**
-  - [File Name](mdc:path/to/file): Files that extend concepts from this document
+  - [File Name](path/to/file): Files that extend concepts from this document
 
 - **Implementations:**
-  - [File Name](mdc:path/to/file): Files that implement concepts described here
+  - [File Name](path/to/file): Files that implement concepts described here
 
 - **Related Concepts:**
-  - [File Name](mdc:path/to/file): Files covering related topics
+  - [File Name](path/to/file): Files covering related topics
 ```
 
 - **Cross-Reference Formatting:**
@@ -160,3 +160,9 @@ Every memory file should include a "Related Files" section that follows this tem
   - Add brief context explaining the relationship
   - Link to specific sections when possible
   - Group references by relationship type
+  - Prefix the file path with `/` to indicate a relative path from the project root
+    - Example:
+    ```markdown
+    - **Dependencies:**
+      - [Product Requirement Docs](mdc: /docs/product_requirement_docs.md): Maps tasks to product requirements
+    ```

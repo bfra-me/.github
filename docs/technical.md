@@ -334,3 +334,23 @@
         ├── error-documentation.mdc # Error tracking
         └── lessons-learned.mdc     # Project intelligence
 ```
+
+## Related Files
+
+- **Dependencies:**
+  - [Architecture Documentation](/docs/architecture.md): Provides system architectural foundation
+  - [Product Requirement Docs](/docs/product_requirement_docs.md): Defines technical requirements
+
+- **Extensions:**
+  - [Active Context](/tasks/active_context.md): Applies technical specifications to current development
+  - [Tasks Plan](/tasks/tasks_plan.md): Implements technical decisions in concrete tasks
+
+- **Implementations:**
+  - [Workflow Documentation](/docs/workflows/README.md): Documents workflow implementations
+  - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Implements repository configuration
+  - [Renovate Workflow](/docs/workflows/renovate.md): Implements dependency management
+
+- **Related Concepts:**
+  - [Troubleshooting Guide](/docs/workflows/troubleshooting.md): Technical troubleshooting procedures
+  - [Memory Templates](/.cursor/rules/memory_templates.mdc): Defines standards for memory file structure
+  - [GitHub Actions Rules](/.cursor/rules/github-actions.mdc): Defines GitHub Actions best practices

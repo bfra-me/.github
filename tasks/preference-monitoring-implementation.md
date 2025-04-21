@@ -91,3 +91,23 @@
 
 ## Related Tasks
 - Create separate ADR and implementation tasks for the metrics collection and trigger evaluation system
+
+## Related Files
+
+- **Dependencies:**
+  - [Active Context](/tasks/active_context.md): Current development focus and priorities
+  - [Technical Documentation](/docs/technical.md): Technical foundation for implementation
+  - [Architecture Documentation](/docs/architecture.md): System architecture for integration
+
+- **Extensions:**
+  - [Tasks Plan](/tasks/tasks_plan.md): Parent tasks plan defining scope
+  - [Repository Metrics Implementation](/tasks/repository-metrics-implementation.md): Related system implementation
+
+- **Implementations:**
+  - [Knowledge Graph Management](/.cursor/rules/knowledge_graph_management.mdc): Guidelines for Knowledge Graph integration
+  - [MCP Tool Usage](/.cursor/rules/mcp-tool-usage.mdc): Guidelines for MCP tool integration
+
+- **Related Concepts:**
+  - [TypeScript Rules](/.cursor/rules/typescript.mdc): TypeScript implementation guidelines
+  - [Memory Files Framework](/.cursor/rules/memory_files.mdc): Documentation framework
+  - [Error Management](/.cursor/rules/error-management.mdc): Error handling guidelines

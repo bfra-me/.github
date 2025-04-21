@@ -244,3 +244,23 @@ Key Considerations:
 - Maintain test coverage
 - Document all decisions
 - Regular progress updates
+
+## Related Files
+
+- **Dependencies:**
+  - [Active Context](/tasks/active_context.md): Provides current development focus and priorities
+  - [Technical Documentation](/docs/technical.md): Defines technical requirements and constraints
+
+- **Extensions:**
+  - [Preference Monitoring Implementation](/tasks/preference-monitoring-implementation.md): Detailed tasks for Preference System
+  - [Repository Metrics Implementation](/tasks/repository-metrics-implementation.md): Detailed tasks for Metrics System
+
+- **Implementations:**
+  - [Workflow Documentation](/docs/workflows/README.md): Documentation for implemented workflows
+  - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Implementation of repository settings tasks
+  - [Renovate Workflow](/docs/workflows/renovate.md): Implementation of dependency update tasks
+
+- **Related Concepts:**
+  - [Product Requirement Docs](/docs/product_requirement_docs.md): Maps tasks to product requirements
+  - [Architecture Documentation](/docs/architecture.md): Connects tasks to system architecture
+  - [Memory Templates](/.cursor/rules/memory_templates.mdc): Defines standards for memory file structure

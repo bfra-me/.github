@@ -1,29 +1,10 @@
 ---
-description: Rules to parse solution architecture from docs/architecture.md
-globs: 
+description: Rules to parse solution architecture from `docs/architecture.md`
+globs:
 alwaysApply: false
 ---
 
 # System Architecture Framework
-
-## Integration Points
-- @rule:knowledge_graph_management (requires) - Architecture knowledge storage
-- @rule:content_context (requires) - Temporal context for architecture
-- @rule:change_validation (requires) - Architecture change validation
-
-## System Structure
-```mermaid
-flowchart TD
-    Root[Project Root] --> Docs[docs/]
-    Root --> Tasks[tasks/]
-    Root --> Cursor[.cursor/rules/]
-    Root --> CLINE[.clinerules]
-    Root --> SourceCode[src/]
-    Root --> Test[test/]
-    Root --> Utils[utils/]
-    Root --> Config[config/]
-    Root --> Data[data/]
-```
 
 ## Architecture Analysis Process
 
@@ -34,7 +15,7 @@ flowchart TD
   - Maintain purpose definitions
 
 ### 2. Mermaid Diagram Processing
-- **Extract visual representations from architecture.md**
+- **Extract visual representations from `docs/architecture.md`**
   - Parse component relationships
   - Understand data flows
   - Map dependencies
@@ -57,14 +38,19 @@ flowchart TD
 - **Apply content context markers for tracking**
 
 ## Validation Protocol
-1. **Load architecture.md content**
+1. **Load `docs/architecture.md` content**
 2. **Parse and validate Mermaid diagrams**
 3. **Compare against existing knowledge**
 4. **Verify directory structure compliance**
 5. **Update documentation if needed**
 
 ## Error Handling
-1. **Missing architecture.md**: Create template
+1. **Missing `docs/architecture.md`**: Create template
 2. **Invalid diagrams**: Request clarification
 3. **Structure violations**: Generate warning
 4. **Constraint conflicts**: Initiate resolution
+
+- **Related Rules:**
+  - [knowledge-graph.mdc](mdc:.cursor/rules/knowledge-graph.mdc) (requires) - Architecture knowledge storage
+  - [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (requires) - Temporal context for architecture
+  - [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (requires) - Architecture change validation

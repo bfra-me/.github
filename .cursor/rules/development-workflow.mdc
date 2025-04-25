@@ -1,16 +1,16 @@
 ---
 description: Framework for planning and implementing development tasks
-globs: 
-alwaysApply: true
+globs:
+alwaysApply: false
 ---
 
 # Development Workflow Framework
 
-## Integration Points
-- @rule:knowledge_graph_management (requires) - Development context
-- @rule:mcp-tool-usage (requires) - Development tools
-- @rule:content_context (requires) - Development timeline
-- @rule:error-management (requires) - Error handling
+- **Related Rules:**
+  - [knowledge-graph.mdc](mdc:.cursor/rules/knowledge-graph.mdc) (requires) - Development context
+  - [mcp-tool-usage.mdc](mdc:.cursor/rules/mcp-tool-usage.mdc) (requires) - Development tools
+  - [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (requires) - Development timeline
+  - [error-management.mdc](mdc:.cursor/rules/error-management.mdc) (requires) - Error handling
 
 ## Planning Phase
 

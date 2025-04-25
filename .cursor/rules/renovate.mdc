@@ -1,6 +1,6 @@
 ---
 description: Enforces best practices for configuring Renovate Bot, including automated dependency updates, using presets, defining a review process, and implementing automated testing.
-globs: /renovate.json*,.renovaterc.json,renovate.config.js,.github/renovate.json*
+globs: .github/renovate.json*,.github/workflows/renovate.yaml
 alwaysApply: false
 ---
 

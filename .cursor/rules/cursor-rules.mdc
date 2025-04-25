@@ -1,0 +1,96 @@
+---
+description: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
+globs:
+alwaysApply: false
+---
+
+# Cursor Rules Management Guidelines
+
+- **Cursor Rule File Structure:**
+  ````
+  ---
+  description: Short description of the rule's purpose
+  globs: optional/path/pattern/**/*
+  alwaysApply: false
+  ---
+
+  # Rule Title
+
+  Main content explaining the rule with markdown formatting.
+
+  1. Step-by-step instructions
+  2. Code examples
+  3. Guidelines
+
+  - **Main Points in Bold**
+    - Sub-points with details
+    - Examples and explanations
+
+  Example:
+  ```typescript
+  // ✅ DO: Show good examples
+  function goodExample() {
+    // Implementation following guidelines
+  }
+
+  // ❌ DON'T: Show anti-patterns
+  function badExample() {
+    // Implementation not following guidelines
+  }
+  ```
+  ````
+
+- **Rule Content Guidelines:**
+  - Start with high-level overview
+  - Include specific, actionable requirements
+  - Show examples of correct implementation
+  - Reference existing code when possible
+  - Keep rules DRY by referencing other rules
+
+- **Best Practices:**
+  - Use bullet points for clarity
+  - Keep descriptions concise
+  - Include both DO and DON'T examples
+  - Reference actual code over theoretical examples
+  - Use consistent formatting across rules
+
+- **File Creation Best Practices:**
+  - Due to potential issues with direct file creation, use the following printf approach:
+    ```bash
+    printf '%s\n' '---' 'description: Your description' 'globs: your/globs/**/*.{ext}' 'alwaysApply: false' '---' '' '# Your Rule Title' '' 'Your Rule Content' > .cursor/rules/your-rule.mdc
+    ```
+  - This ensures proper YAML frontmatter and content formatting
+  - Avoid using echo with heredoc as it may cause formatting issues
+  - Always verify the file content after creation using `cat`
+
+- **File References:**
+  - Use `[filename](mdc:path/to/file)` ([filename](mdc:filename)) to reference files
+  - Example: [prisma.mdc](mdc:.cursor/rules/prisma.mdc) for rule references
+  - Example: [schema.prisma](mdc:prisma/schema.prisma) for code references
+
+- **Cross-Referencing Rules:**
+  - Include a "Related Rules" section in each rule file listing direct dependencies as cross-references
+  - Use file references to reference other rules (only applies to .mdc files in the .cursor/rules directory)
+  - Specify the relationship type:
+    - `requires`: Rule depends on another rule
+    - `extends`: Rule builds upon another rule
+    - `complements`: Rules work together but aren't dependent
+    - `impacts`: Changes to this rule affect another rule
+  - Example:
+    ```markdown
+    - **Related Rules:**
+      - [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) (requires) - Base rule framework
+      - [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (complements) - Validates context updates
+    ```
+
+- **Rule Hierarchy:**
+  - Core Rules: Fundamental guidelines (e.g., `cursor-rules`, `content-context`)
+  - Process Rules: Workflow and validation (e.g., `change-validation`, `changesets`)
+  - Domain Rules: Specific technology or domain guidelines (e.g., `prisma`, `typescript`)
+  - Meta Rules: Rules about managing and improving rules (e.g., `self-improve`)
+
+- **Rule Maintenance:**
+  - Update rules when new patterns emerge
+  - Add examples from actual codebase
+  - Remove outdated patterns
+  - Cross-reference related rules

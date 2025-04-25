@@ -1,6 +1,6 @@
 ---
 description: Guidelines for validating changes to memory files
-globs: tasks/*,docs/*
+globs: tasks/**,docs/**
 alwaysApply: false
 ---
 

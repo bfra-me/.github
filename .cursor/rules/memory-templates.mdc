@@ -1,6 +1,6 @@
 ---
-description: Standard templates for memory files to ensure consistent structure
-globs: tasks/*,docs/*
+description: Standard templates for Memory Files to ensure consistent structure
+globs: tasks/**,docs/**
 alwaysApply: false
 ---
 
@@ -126,14 +126,12 @@ alwaysApply: false
   - Preserve established document patterns when updating
 
 - **Structural Validation Checklist:**
-  ```markdown
   - [ ] Headings follow proper hierarchy (H1 > H2 > H3 > H4)
   - [ ] Section ordering aligns with template guidelines
   - [ ] Similar content uses consistent formatting
   - [ ] Lists have uniform structure and indentation
   - [ ] Code blocks use consistent language markers
   - [ ] Updates preserve existing structural patterns
-  ```
 
 ## Cross-References Section Template
 
@@ -164,5 +162,5 @@ Every memory file should include a "Related Files" section that follows this tem
     - Example:
     ```markdown
     - **Dependencies:**
-      - [Product Requirement Docs](mdc: /docs/product_requirement_docs.md): Maps tasks to product requirements
+      - [product_requirement_docs.md](mdc:docs/product_requirement_docs.md): Maps tasks to product requirements
     ```

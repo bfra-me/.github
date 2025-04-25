@@ -1,14 +1,20 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+
 # Rule Management Framework
 
-## Integration Points
-- @rule:knowledge_graph_management (requires) - Rule storage
-- @rule:content_context (requires) - Rule evolution
-- @rule:change_validation (requires) - Rule validation
+- **Related Rules:**
+  - [knowledge-graph.mdc](mdc:.cursor/rules/knowledge-graph.mdc) (requires) - Rule storage
+  - [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (requires) - Rule evolution
+  - [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (requires) - Rule validation
 
 ## Core Rule Structure
 - **Standardized Rule Format**
   - Clear description header
-  - Defined integration points
+  - Related rules cross-referenced
   - Appropriate categorization
   - Proper version tracking
 

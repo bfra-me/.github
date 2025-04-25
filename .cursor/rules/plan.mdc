@@ -1,10 +1,10 @@
 ---
-description: Always include these rules.
-globs: 
-alwaysApply: true
+description: Guidelines for AI assistants to plan solutions to tasks
+globs:
+alwaysApply: false
 ---
 
-- Below is the Planning Workflow to follow:
+# Planning Workflow
 
 1. UNDERSTAND the REQUIREMENTS:
 <CLARIFICATION>

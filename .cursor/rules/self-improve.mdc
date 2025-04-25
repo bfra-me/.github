@@ -3,8 +3,9 @@ description: Guidelines for continuously improving Cursor rules based on emergin
 globs: **/*
 alwaysApply: false
 ---
-
 # Self-Improvement System for Cursor Rules
+
+> **Important:** This rule provides a framework for continuously improving Cursor rules based on emerging code patterns and best practices. It extends the rule management framework defined in [rules.mdc](mdc:.cursor/rules/rules.mdc) and relies on the formatting and structure guidelines in [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc).
 
 - **Rule Improvement Triggers:**
   - **Code Pattern Triggers:**
@@ -142,3 +143,8 @@ alwaysApply: false
     - Version history
 
 Follow [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) for proper rule formatting and structure.
+
+## Related Rules
+- [rules.mdc](mdc:.cursor/rules/rules.mdc) (extends) - Provides the central rule management framework that this improvement system builds upon
+- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) (requires) - Defines proper formatting and structure for rules
+- [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc) (complements) - Ensures rules are properly applied and prioritized

@@ -3,8 +3,24 @@ description: Guidelines for AI agents to process rules before responding to task
 globs:
 alwaysApply: false
 ---
-
 # Rule Pre-Processing Protocol
+
+> **Important:** This rule provides essential preprocessing steps that must be followed before applying any other rules. It extends the Rule Application Protocol defined in [rules.mdc](mdc:.cursor/rules/rules.mdc).
+
+## Rule Nature Understanding
+
+Before processing rules, understand that:
+
+- **Rules are AI Guidance**: Cursor rules exist primarily to guide AI assistants, not as traditional human documentation.
+- **Directives vs. Context**: Rules contain both explicit directives (that must be followed) and context (that informs understanding).
+- **Rule Evolution**: Rules evolve over time, so check for version indicators and deprecation notices.
+- **AI-Optimized Format**: The format is optimized for AI consumption rather than human reading patterns.
+
+When processing rules, pay special attention to:
+- Explicit directives (often marked with ✅ DO or ❌ DON'T)
+- Priority indicators (P1, P2, P3, or other priority markers)
+- Scope limitations (file types, contexts where the rule applies)
+- Conflict resolution guidance (which rules take precedence)
 
 ## Initial Rule Assessment
 - **Always review relevant rules at the start of each interaction**
@@ -33,3 +49,8 @@ alwaysApply: false
   - Maintain rule awareness across multiple messages in the same conversation
   - Reference specific rules when explaining your approach
   - When rules conflict, prioritize the more specific rule
+
+## Related Rules
+- [rules.mdc](mdc:.cursor/rules/rules.mdc) (extends) - Provides the central index and application protocol that this preprocessing guide supports
+- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) (requires) - Defines proper formatting and structure for rules
+- [self-improve.mdc](mdc:.cursor/rules/self-improve.mdc) (complements) - Guidelines for improving rules based on emerging patterns

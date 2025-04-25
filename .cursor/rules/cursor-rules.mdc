@@ -3,7 +3,6 @@ description: Guidelines for creating and maintaining Cursor rules to ensure cons
 globs:
 alwaysApply: false
 ---
-
 # Cursor Rules Management Guidelines
 
 - **Cursor Rule File Structure:**
@@ -94,3 +93,8 @@ alwaysApply: false
   - Add examples from actual codebase
   - Remove outdated patterns
   - Cross-reference related rules
+
+## Related Rules
+- [rules.mdc](mdc:.cursor/rules/rules.mdc) (complemented by) - Central index and application protocol for all rules
+- [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc) (requires) - Critical preprocessing steps for rule application
+- [self-improve.mdc](mdc:.cursor/rules/self-improve.mdc) (extends) - Framework for continuously improving rules over time

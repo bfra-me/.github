@@ -130,6 +130,11 @@ Key Considerations:
    - [ ] Set up development environment for MCP client
    - [ ] Implement core preference management functions
    - [ ] Create initial metric collectors
+3. Cursor Rules Enhancement
+   - [ ] Add AI-Optimized Rule Relationship Diagram to rules.mdc
+   - [ ] Develop AI-Focused Rule Templates for cursor-rules.mdc
+   - [ ] Enhance AI Rule Selection Guidelines in rule-preprocessing.mdc
+   - [ ] Begin implementing Rule Effectiveness Metrics
 
 ### Medium Term (1-6 months)
 1. Implement advanced workflow features

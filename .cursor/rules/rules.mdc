@@ -59,6 +59,137 @@ All rule improvements should consider this AI-centric consumption model to ensur
   - Pattern recognition
   - Development history
 
+## Rule Relationship Visualization
+
+This visualization depicts the relationships between different rules, showing dependencies, complementary connections, and priority levels.
+
+<!--
+{
+  "ruleRelationships": {
+    "rules.mdc": {
+      "priority": "high",
+      "requires": ["rule-preprocessing.mdc", "cursor-rules.mdc"],
+      "isExtendedBy": ["self-improve.mdc"]
+    },
+    "rule-preprocessing.mdc": {
+      "priority": "high",
+      "complements": ["content-context.mdc", "change-validation.mdc"]
+    },
+    "cursor-rules.mdc": {
+      "priority": "high",
+      "complements": ["memory-files.mdc"]
+    },
+    "development-workflow.mdc": {
+      "priority": "high",
+      "requires": ["implement.mdc", "error-management.mdc"]
+    },
+    "implement.mdc": {
+      "priority": "high",
+      "complements": ["error-management.mdc"]
+    },
+    "memory-files.mdc": {
+      "priority": "high",
+      "requires": ["memory-templates.mdc", "knowledge-graph.mdc", "lessons-learned.mdc", "documentation-and-tech-stack.mdc"],
+      "complements": ["content-context.mdc", "change-validation.mdc"]
+    },
+    "self-improve.mdc": {
+      "priority": "medium",
+      "extends": ["rules.mdc"]
+    }
+  }
+}
+-->
+
+```mermaid
+%% Rule Relationship Diagram with Priority and Dependency Indicators
+%% Priority Levels: High = red border, Medium = blue border, Low = green border
+%% Relationship Types: requires = solid arrow, complements = dashed arrow, extended by = dotted arrow
+
+flowchart TD
+    %% Core Rules (High Priority)
+    rules["rules.mdc"]:::highPriority
+    preprocessing["rule-preprocessing.mdc"]:::highPriority
+    cursor["cursor-rules.mdc"]:::highPriority
+
+    %% System Architecture
+    arch["architecture-understanding.mdc"]:::mediumPriority
+    mcp["mcp-tool-usage.mdc"]:::mediumPriority
+
+    %% Development Process
+    workflow["development-workflow.mdc"]:::highPriority
+    implement["implement.mdc"]:::highPriority
+    error["error-management.mdc"]:::mediumPriority
+    changesets["changesets.mdc"]:::mediumPriority
+    coding["coding-best-practices.mdc"]:::mediumPriority
+    github["github-actions.mdc"]:::mediumPriority
+    pnpm["pnpm.mdc"]:::mediumPriority
+    renovate["renovate.mdc"]:::mediumPriority
+    typescript["typescript.mdc"]:::mediumPriority
+
+    %% Knowledge Management
+    memory["memory-files.mdc"]:::highPriority
+    templates["memory-templates.mdc"]:::mediumPriority
+    context["content-context.mdc"]:::mediumPriority
+    validation["change-validation.mdc"]:::mediumPriority
+    knowledge["knowledge-graph.mdc"]:::mediumPriority
+    lessons["lessons-learned.mdc"]:::lowPriority
+    improve["self-improve.mdc"]:::mediumPriority
+    doctech["documentation-and-tech-stack.mdc"]:::lowPriority
+
+    %% Core Rule Relationships
+    rules ==> preprocessing
+    rules ==> cursor
+    preprocessing --> context
+    preprocessing --> validation
+    improve -.-> rules
+
+    %% System Architecture Relationships
+    cursor --> arch
+    preprocessing --> mcp
+
+    %% Development Process Relationships
+    rules --> workflow
+    workflow --> implement
+    workflow --> error
+    rules --> changesets
+    rules --> coding
+    rules --> github
+    rules --> pnpm
+    rules --> renovate
+    rules --> typescript
+
+    %% Knowledge Management Relationships
+    rules --> memory
+    memory --> templates
+    memory -.-> context
+    memory -.-> validation
+    memory --> knowledge
+    memory --> lessons
+    lessons -.-> improve
+    memory --> doctech
+
+    %% Cross-Category Relationships
+    implement -.-> error
+    cursor -.-> memory
+
+    %% Style Definitions
+    classDef highPriority stroke:#f66,stroke-width:3px;
+    classDef mediumPriority stroke:#66f,stroke-width:2px;
+    classDef lowPriority stroke:#6d6,stroke-width:1px;
+```
+
+### Legend
+
+- **Arrow Types**:
+  - Solid Arrow (==>) = "requires" relationship (essential dependency)
+  - Dashed Arrow (-->) = "complements" relationship (enhances functionality)
+  - Dotted Arrow (-.>) = "extended by" relationship (built upon by another rule)
+
+- **Border Colors**:
+  - Red Border = High Priority
+  - Blue Border = Medium Priority
+  - Green Border = Low Priority
+
 ## Rule Index
 
 This section provides a quick reference to all active Cursor rules within this repository, located in the `.cursor/rules` directory. These rules define processes, structures, and guidelines for development.

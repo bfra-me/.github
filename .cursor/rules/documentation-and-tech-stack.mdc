@@ -1,7 +1,7 @@
 ---
 description: Documentation and tech stack guidelines
-globs: 
-alwaysApply: true
+globs:
+alwaysApply: false
 ---
 
 ## Documentation Usage

@@ -1,21 +1,21 @@
 ---
 description: Guidelines for creating and maintaining project Memory Files for comprehensive project documentation
-globs: docs/*,tasks/*
+globs:
 alwaysApply: false
 ---
 
 # Memory Files Management
+
+- **Related Rules:**
+  - [knowledge-graph.mdc](mdc:.cursor/rules/knowledge-graph.mdc) (complements) - Semantic information storage
+  - [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (requires) - Temporal context management
+  - [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (requires) - Change validation protocol
 
 ## Activation Patterns
 - "update memory files": Trigger memory file updates
 - "document current state": Record current project state
 - "refresh documentation": Update all relevant memory files
 - "capture project context": Store comprehensive context
-
-## Integration Points
-- @rule:knowledge_graph_management (complements) - Semantic information storage
-- @rule:content_context (requires) - Temporal context management
-- @rule:change_validation (requires) - Change validation protocol
 
 ## File Hierarchy
 ```mermaid
@@ -29,7 +29,7 @@ flowchart TD
 
     TC --> AC[active_context.md]
 
-    AC --> ER[error-documentation.mdc]
+    AC --> ER[error-management.mdc]
     AC --> LL[lessons-learned.mdc]
 
     subgraph LIT[docs/literature]
@@ -135,7 +135,7 @@ flowchart TD
 ## File Content Guidelines
 
 - **All memory files must follow standard templates**
-  - See [memory_templates.mdc](mdc:.cursor/rules/memory_templates.mdc) for required templates
+  - See [memory-templates.mdc](mdc:.cursor/rules/memory-templates.mdc) for required templates
   - Templates ensure consistent structure across all memory files
   - Variations must maintain the core structure while extending as needed
 
@@ -169,7 +169,7 @@ flowchart TD
 
 ### Content Context Management
 - **Content must be placed in appropriate contexts:**
-  - See [content_context.mdc](mdc:.cursor/rules/content_context.mdc) for context classification
+  - See [content-context.mdc](mdc:.cursor/rules/content-context.mdc) for context classification
   - Apply progressive disclosure principle (most current/relevant information first)
   - Maintain contextual relationship between related content
   - Migrate content between sections as timeframes change
@@ -350,7 +350,7 @@ flowchart TD
   - Validate architectural decisions against implementation
 
 - **Change Validation:**
-  - Apply [change_validation.mdc](mdc:.cursor/rules/change_validation.mdc) protocol to all memory file updates
+  - Apply [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) protocol to all memory file updates
   - Perform structural validation before submitting changes
   - Review content flow to ensure logical organization
   - Validate cross-reference integrity across files
@@ -371,9 +371,9 @@ flowchart TD
 
 - **Cross-Reference Syntax:**
   ```markdown
-  - Related architecture: [Component Architecture](mdc:docs/architecture.md#component-architecture)
-  - See also: [Error Handling](mdc:.cursor/rules/error-management.mdc#error-handling) for exception patterns
-  - Implementation: [Authentication Flow](mdc:src/auth/README.md)
+  - Related architecture: [Component Architecture](/docs/architecture.md#component-architecture)
+  - See also: [Error Handling](/.cursor/rules/error-management.mdc) for exception patterns
+  - Implementation: [Authentication Flow](/src/auth/README.md)
   ```
 
 ## Version History Management
@@ -392,7 +392,7 @@ flowchart TD
   - **Changes:** Restructured authentication workflow to support OAuth 2.0
   - **Rationale:** Improved security and third-party integration support
   - **Affected Sections:** Authentication Components, API Endpoints
-  - **Related Documents:** [OAuth Design RFC](mdc:tasks/rfc/oauth-design.md)
+  - **Related Documents:** [OAuth Design RFC](/tasks/rfc/oauth-design.md)
   ```
 
 - **✅ DO:**
@@ -411,7 +411,7 @@ flowchart TD
 ## Rule Preprocessing Integration
 
 - **Rule Preprocessing Application:**
-  - Apply preprocessing principles from [rule_preprocessing.mdc](mdc:.cursor/rules/rule_preprocessing.mdc) to ensure:
+  - Apply preprocessing principles from [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc) to ensure:
     - Rules are consistently structured
     - Dependencies between rules are properly managed
     - Rules are applied in the correct sequence

@@ -226,7 +226,7 @@ alwaysApply: false
 
     javascript
     // .pnpmfile.cjs
-    module.exports = {
+    export default {
       hooks: {
         readPackage(pkg) {
           if (pkg.dependencies && pkg.dependencies['old-package']) {

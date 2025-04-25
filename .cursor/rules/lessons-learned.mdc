@@ -1,15 +1,15 @@
 ---
 description: Repository of important patterns, preferences, and project intelligence
-globs: 
-alwaysApply: true
+globs:
+alwaysApply: false
 ---
 
 # Project Intelligence System
 
-## Integration Points
-- @rule:knowledge_graph_management (requires) - Pattern storage
-- @rule:content_context (requires) - Learning timeline
-- @rule:change_validation (requires) - Pattern validation
+- **Related Rules:**
+  - [knowledge-graph.mdc](mdc:.cursor/rules/knowledge-graph.mdc) (requires) - Pattern storage
+  - [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (requires) - Learning timeline
+  - [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (requires) - Pattern validation
 
 ## Development Patterns
 

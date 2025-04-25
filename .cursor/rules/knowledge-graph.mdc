@@ -1,6 +1,6 @@
 ---
 description: Guidelines for managing and maintaining the Knowledge Graph accessed through the `server-memory` MCP server.
-globs: .cursor/rules/*,docs/*
+globs: *
 alwaysApply: false
 ---
 

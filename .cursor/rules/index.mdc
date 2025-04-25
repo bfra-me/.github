@@ -1,44 +1,44 @@
 ---
-description: Glossary of other Cursor rules
-globs: **/*
-alwaysApply: false
+description:
+globs:
+alwaysApply: true
 ---
 
-# Glossary of @bfra.me/.github Cursor Rules
+# @bfra.me/.github - Cursor Rules Index
 
-This file provides a quick reference to the purpose of each rule file located in the `.cursor/rules` directory.
+This file provides a quick reference to the purpose of all active Cursor rules within this repository, located in the `.cursor/rules` directory. These rules define processes, structures, and guidelines for development.
 
 ## Rule Entries
 
 - **[`architecture-understanding.mdc`](mdc:.cursor/rules/architecture-understanding.mdc)**: Guidelines for understanding and interpreting architectural diagrams and project directory structure.
-- **[`change_validation.mdc`](mdc:.cursor/rules/change_validation.mdc)**: Guidelines for validating changes to memory files.
+- **[`change-validation.mdc`](mdc:.cursor/rules/change-validation.mdc)**: Guidelines for validating changes to memory files.
 - **[`changesets.mdc`](mdc:.cursor/rules/changesets.mdc)**: Guidelines for using Changesets (pnpm changeset) to manage versioning and changelogs.
 - **[`coding-best-practices.mdc`](mdc:.cursor/rules/coding-best-practices.mdc)**: Defines best practices for implementing code changes.
-- **[`content_context.mdc`](mdc:.cursor/rules/content_context.mdc)**: Guidelines for AI agents to understand content context when updating memory files.
-- **[`cursor_rules.mdc`](mdc:.cursor/rules/cursor_rules.mdc)**: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
+- **[`content-context.mdc`](mdc:.cursor/rules/content-context.mdc)**: Guidelines for AI agents to understand content context when updating memory files.
+- **[`cursor-rules.mdc`](mdc:.cursor/rules/cursor-rules.mdc)**: Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness.
 - **[`development-workflow.mdc`](mdc:.cursor/rules/development-workflow.mdc)**: Framework for planning and implementing development tasks.
 - **[`documentation-and-tech-stack.mdc`](mdc:.cursor/rules/documentation-and-tech-stack.mdc)**: Guidelines for using documentation and the project's tech stack.
 - **[`error-management.mdc`](mdc:.cursor/rules/error-management.mdc)**: Framework for diagnosing, resolving, and documenting errors.
 - **[`github-actions.mdc`](mdc:.cursor/rules/github-actions.mdc)**: Guidelines for GitHub Actions workflows, including automation, testing, security, and CI/CD integration.
-- **[`glossary.mdc`](mdc:.cursor/rules/glossary.mdc)**: This file; provides a glossary of other Cursor rules.
+- **[`index.mdc`](mdc:.cursor/rules/index.mdc)**: This file; provides a central index of the project's Cursor rules.
 - **[`implement.mdc`](mdc:.cursor/rules/implement.mdc)**: Comprehensive instructions for implementing code changes.
-- **[`knowledge_graph_management.mdc`](mdc:.cursor/rules/knowledge_graph_management.mdc)**: Guidelines for managing and maintaining the Knowledge Graph accessed through the `server-memory` MCP server.
+- **[`knowledge-graph.mdc`](mdc:.cursor/rules/knowledge-graph.mdc)**: Guidelines for managing and maintaining the knowledge graph accessed through the server-memory MCP (Model Context Protocol) server.
 - **[`lessons-learned.mdc`](mdc:.cursor/rules/lessons-learned.mdc)**: A learning journal that captures important patterns, preferences, and project intelligence for future work.
-- **[`mcp-tool-usage.mdc`](mdc:.cursor/rules/mcp-tool-usage.mdc)**: Guidelines for using tools provided by available MCP servers.
-- **[`memory_files.mdc`](mdc:.cursor/rules/memory_files.mdc)**: Guidelines for creating and maintaining project Memory Files for comprehensive project documentation.
-- **[`memory_templates.mdc`](mdc:.cursor/rules/memory_templates.mdc)**: Standard templates for memory files to ensure consistent structure.
+- **[`mcp-tool-usage.mdc`](mdc:.cursor/rules/mcp-tool-usage.mdc)**: Guidelines for using tools provided by available MCP (Model Context Protocol) servers.
+- **[`memory-files.mdc`](mdc:.cursor/rules/memory-files.mdc)**: Guidelines for creating and maintaining project Memory Files for comprehensive project documentation.
+- **[`memory-templates.mdc`](mdc:.cursor/rules/memory-templates.mdc)**: Standard templates for memory files to ensure consistent structure.
 - **[`plan.mdc`](mdc:.cursor/rules/plan.mdc)**: Guidelines for planning and formulating solutions.
 - **[`pnpm.mdc`](mdc:.cursor/rules/pnpm.mdc)**: Guidelines for using pnpm as the package manager.
 - **[`renovate.mdc`](mdc:.cursor/rules/renovate.mdc)**: Guidelines for using Renovate to manage dependencies.
-- **[`rule_preprocessing.mdc`](mdc:.cursor/rules/rule_preprocessing.mdc)**: Guidelines for AI agents to process rules before responding to tasks.
-- **[`rule_refresher.mdc`](mdc:.cursor/rules/rule_refresher.mdc)**: Guidelines for periodic review and refresh of Cursor rules.
+- **[`rule-preprocessing.mdc`](mdc:.cursor/rules/rule-preprocessing.mdc)**: Guidelines for AI agents to process rules before responding to tasks.
+- **[`rule-refresher.mdc`](mdc:.cursor/rules/rule-refresher.mdc)**: Guidelines for periodic review and refresh of Cursor rules.
 - **[`rules.mdc`](mdc:.cursor/rules/rules.mdc)**: Instructions that must be followed in every interaction.
-- **[`self_improve.mdc`](mdc:.cursor/rules/self_improve.mdc)**: Guidelines for continuously improving Cursor rules based on emerging code patterns and best practices.
+- **[`self-improve.mdc`](mdc:.cursor/rules/self-improve.mdc)**: Guidelines for continuously improving Cursor rules based on emerging code patterns and best practices.
 - **[`typescript.mdc`](mdc:.cursor/rules/typescript.mdc)**: Guidelines for using TypeScript in the project.
 
 ## AI Maintenance Guidelines
 
-### When to Update the Glossary
+### When to Update the Index
 
 1. **New Rule Creation**
    - When a new rule file is created in `.cursor/rules/`
@@ -50,7 +50,7 @@ This file provides a quick reference to the purpose of each rule file located in
    - When a rule's description becomes outdated or inaccurate
    - When a rule's functionality expands or contracts
 
-### How to Update the Glossary
+### How to Update the Index
 
 1. **Adding New Rules**
    ```markdown
@@ -84,9 +84,9 @@ This file provides a quick reference to the purpose of each rule file located in
 
 ### Integration with Other Rules
 
-- Follow formatting guidelines from [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc)
-- Apply content context principles from [content_context.mdc](mdc:.cursor/rules/content_context.mdc)
-- Follow change validation process from [change_validation.mdc](mdc:.cursor/rules/change_validation.mdc)
+- Follow formatting guidelines from [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc)
+- Apply content context principles from [content-context.mdc](mdc:.cursor/rules/content-context.mdc)
+- Follow change validation process from [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc)
 
 ### Maintenance Checklist
 

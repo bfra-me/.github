@@ -1,15 +1,15 @@
 ---
 description: Framework for diagnosing, resolving, and documenting errors
-globs: 
-alwaysApply: true
+globs:
+alwaysApply: false
 ---
 
 # Error Management Framework
 
-## Integration Points
-- @rule:knowledge_graph_management (requires) - Error pattern storage
-- @rule:mcp-tool-usage (requires) - Debugging tools
-- @rule:content_context (requires) - Error timeline
+- **Related Rules:**
+   - [knowledge-graph.mdc](mdc:.cursor/rules/knowledge-graph.mdc) (requires) - Error pattern storage
+   - [mcp-tool-usage.mdc](mdc:.cursor/rules/mcp-tool-usage.mdc) (requires) - Debugging tools
+   - [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (requires) - Error timeline
 
 ## Error Knowledge Base
 

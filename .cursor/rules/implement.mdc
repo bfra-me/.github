@@ -1,7 +1,7 @@
 ---
 description: Include these rules while IMPLEMENTATION/Coding.
-globs: 
-alwaysApply: true
+globs:
+alwaysApply: false
 ---
 
 # IMPLEMENTATION (ACT MODE/Code MODE):
@@ -108,7 +108,7 @@ After you propose a change, run the tests yourself, and verify that it passes. D
 </TEST PLAN>
 
 2. Write test code for ANY added critical functionality ALWAYS. For initial test generation use <DEPENDENCY BASED TESTING> and <NO BREAKAGE ASSERTION>. Then use <TEST PLAN> to write code for extensive testing.
-3. Document testing as specified in [memory.mdc](mdc:.cursor/rules/memory.mdc)
+3. Document testing as specified in [memory-files.mdc](mdc:.cursor/rules/memory-files.mdc)
 </TESTING>
 
 - When implementing something new, be relentless and implement everything to the letter. Stop only when you're done till successfully testing, not before.

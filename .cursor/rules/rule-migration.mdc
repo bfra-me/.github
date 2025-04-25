@@ -1,0 +1,270 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Rule Migration Guidelines
+
+> **AI-DIRECTIVE:** When migrating cursor rules, maintain all existing guidance while restructuring to the new template format; prioritize directive clarity, pattern recognition, and relationship integrity.
+
+## Task Context
+
+This rule provides guidance for the systematic migration of existing Cursor rules to the new AI-focused template format established in the Cursor Rules Enhancement project. It applies during the rule migration process.
+
+- **Applicable Tasks:** Rule migration, rule reformatting, rule enhancement
+- **Activation Triggers:** Working with existing .mdc files in the .cursor/rules directory
+- **Priority Level:** High - consistent migration is critical for AI comprehension
+- **Task Sequence:** After rule templates are established, before rule effectiveness metrics
+
+## Directive Checklist
+
+<!-- AI-PATTERN-START: directive_checklist -->
+- [ ] Identify the appropriate template type for the rule (Core, Domain-Specific, or Task-Specific)
+- [ ] Create proper YAML frontmatter with all required metadata
+- [ ] Add an explicit AI-DIRECTIVE summary statement
+- [ ] Reorganize content to match the new template structure
+- [ ] Add AI-PATTERN-START/END tags to all key content sections
+- [ ] Update cross-references to use the standardized format
+- [ ] Add or update version history
+- [ ] Validate template compliance and content integrity
+- [ ] Document migration changes and rationale
+<!-- AI-PATTERN-END: directive_checklist -->
+
+## Template Selection Guidelines
+
+<!-- AI-PATTERN-START: template_selection -->
+### Core Rule Template
+**Use when the rule:**
+- Provides fundamental guidelines used across all contexts
+- Defines critical processes that must be consistently followed
+- Establishes base patterns for rule creation and application
+- Has high priority and global scope
+
+**Candidate rules include:**
+- rules.mdc
+- cursor-rules.mdc
+- rule-preprocessing.mdc
+- memory-files.mdc
+- content-context.mdc
+- change-validation.mdc
+
+### Domain-Specific Rule Template
+**Use when the rule:**
+- Focuses on specific technologies or technical domains
+- Provides guidelines for particular file types or components
+- Offers patterns for specific languages or frameworks
+- Has medium priority and domain-specific scope
+
+**Candidate rules include:**
+- typescript.mdc
+- github-actions.mdc
+- pnpm.mdc
+- renovate.mdc
+- coding-best-practices.mdc
+- architecture-understanding.mdc
+- documentation-and-tech-stack.mdc
+- memory-templates.mdc
+
+### Task-Specific Rule Template
+**Use when the rule:**
+- Guides processes for particular development tasks
+- Provides checklists or workflows for specific activities
+- Activates only during certain phases of development
+- Has medium to low priority and task-specific scope
+
+**Candidate rules include:**
+- development-workflow.mdc
+- implement.mdc
+- plan.mdc
+- error-management.mdc
+- changesets.mdc
+<!-- AI-PATTERN-END: template_selection -->
+
+## Migration Process
+
+<!-- AI-PATTERN-START: migration_process -->
+### 1. YAML Frontmatter Addition
+
+```yaml
+---
+description: [Brief description of the rule's purpose and scope]
+globs: [Applicable file patterns, e.g., "**/*.{ts,tsx}" or "**/*"]
+alwaysApply: [true/false - true for core rules, false for others]
+priority: [high/medium/low - based on rule importance]
+version: [Semantic version, e.g., "1.0.0"]
+scope: [global/domain-specific/task-specific]
+---
+```
+
+### 2. AI-Directive Addition
+
+Add a concise directive summary immediately after the title:
+
+```markdown
+> **AI-DIRECTIVE:** [Concise statement of the most critical guidance for AI application]
+```
+
+### 3. Content Reorganization
+
+Reorganize content according to the template structure:
+
+- **Core Rule Template:** Purpose and Scope, Core Directives, Implementation Patterns, Anti-Patterns, Decision Trees
+- **Domain-Specific Rule Template:** Domain Context, Core Directives, Domain Patterns, Common Pitfalls
+- **Task-Specific Rule Template:** Task Context, Directive Checklist, Task Workflow, Verification Process
+
+### 4. Pattern Tagging
+
+Add AI-PATTERN tags to all key sections:
+
+```markdown
+<!-- AI-PATTERN-START: section_name -->
+[Section content here]
+<!-- AI-PATTERN-END: section_name -->
+```
+
+Common pattern sections include:
+- core_directives
+- implementation_examples
+- anti_patterns
+- decision_tree
+- domain_patterns
+- pitfalls
+- directive_checklist
+- task_workflow
+- verification
+- related_rules
+- version_history
+
+### 5. Relationship Updates
+
+Update the Related Rules section:
+
+```markdown
+## Related Rules
+
+<!-- AI-PATTERN-START: related_rules -->
+- [rule-name.mdc](mdc:.cursor/rules/rule-name.mdc) (requires) - Brief description
+- [another-rule.mdc](mdc:.cursor/rules/another-rule.mdc) (complements) - Brief description
+<!-- AI-PATTERN-END: related_rules -->
+```
+
+Use consistent relationship types:
+- requires: Rule depends on another rule
+- extends: Rule builds upon another rule
+- complements: Rules work together but aren't dependent
+- impacts: Changes to this rule affect another rule
+<!-- AI-PATTERN-END: migration_process -->
+
+## Content Preservation Guidelines
+
+<!-- AI-PATTERN-START: content_preservation -->
+### Maintaining Existing Guidance
+
+- **✅ DO:**
+  - Preserve all existing directives and guidance
+  - Keep all examples and code snippets
+  - Maintain all warning and caution notes
+  - Retain all rule relationships
+  - Preserve contextual information
+
+- **❌ DON'T:**
+  - Remove any substantive content
+  - Change the meaning or intent of directives
+  - Alter code examples unless improving format
+  - Delete sections entirely
+  - Lose cross-references to other rules
+
+### Content Transformation Approach
+
+1. **Analyze the original structure:**
+   - Identify key directives and patterns
+   - Note existing sections and their purpose
+   - Map relationships with other rules
+
+2. **Plan the transformation:**
+   - Match existing content to new template sections
+   - Identify gaps that need new content
+   - Plan section ordering according to template
+
+3. **Transform incrementally:**
+   - Convert one section at a time
+   - Validate content preservation after each section
+   - Add pattern tags as you transform each section
+<!-- AI-PATTERN-END: content_preservation -->
+
+## Verification Process
+
+<!-- AI-PATTERN-START: verification -->
+### Before Completing Migration:
+
+- [ ] Verify all original content is preserved
+- [ ] Ensure all template sections are properly implemented
+- [ ] Check that all AI-PATTERN tags are correctly applied
+- [ ] Validate all cross-references
+- [ ] Confirm YAML frontmatter is complete and accurate
+
+### Common Migration Issues:
+
+1. **Content Loss:**
+   - Compare original and migrated rule line by line
+   - Check for missing examples or directives
+
+2. **Template Inconsistency:**
+   - Verify section order matches template for rule type
+   - Ensure all required sections are present
+
+3. **Tag Issues:**
+   - Check for matching START/END tags
+   - Verify consistent naming of pattern sections
+
+4. **Relationship Errors:**
+   - Validate all rule references point to existing files
+   - Ensure relationship types are correctly specified
+<!-- AI-PATTERN-END: verification -->
+
+## Implementation Priority
+
+<!-- AI-PATTERN-START: implementation_priority -->
+Implement migration in this priority order:
+
+1. **Critical Foundation:**
+   - rules.mdc
+   - cursor-rules.mdc
+   - rule-preprocessing.mdc
+
+2. **Core Process & Knowledge:**
+   - memory-files.mdc
+   - change-validation.mdc
+   - content-context.mdc
+   - development-workflow.mdc
+
+3. **Domain Guidelines:**
+   - typescript.mdc
+   - github-actions.mdc
+   - pnpm.mdc
+   - renovate.mdc
+
+4. **Task Implementation:**
+   - implement.mdc
+   - plan.mdc
+   - error-management.mdc
+   - changesets.mdc
+
+5. **Remaining Rules:**
+   - All other rules in alphabetical order
+<!-- AI-PATTERN-END: implementation_priority -->
+
+## Related Rules
+
+<!-- AI-PATTERN-START: related_rules -->
+- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) (requires) - Guidelines for creating and formatting rules
+- [rules.mdc](mdc:.cursor/rules/rules.mdc) (requires) - Central index for all Cursor rules
+- [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (complements) - Protocol for validating changes
+- [self-improve.mdc](mdc:.cursor/rules/self-improve.mdc) (complements) - Framework for continuously improving rules
+<!-- AI-PATTERN-END: related_rules -->
+
+## Version History
+
+<!-- AI-PATTERN-START: version_history -->
+- v1.0.0 (2023-11-15): Initial version - Rule migration guidelines created
+<!-- AI-PATTERN-END: version_history -->

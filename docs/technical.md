@@ -11,6 +11,18 @@
 - **Integration**: Through MCP client library
 - **Data Model**: Entities, relations, and observations
 
+#### Cursor Rules System
+- **Purpose**: Provide AI-optimized guidance for project development
+- **Location**: `.cursor/rules/*.mdc` files
+- **Core Components**:
+  - Rule relationship visualization (mermaid diagram with priority indicators)
+  - AI-focused rule templates (with directive markers and standardized formatting)
+  - Rule selection guidelines
+  - Rule evaluation metrics
+- **Priority Levels**: High, Medium, Low (visually indicated with color-coded borders)
+- **Relationship Types**: Requires, Complements, Extended by (indicated with different arrow styles)
+- **Scope Classification**: Global, Domain-specific, Task-specific
+
 #### Monitoring Systems
 
 1. **Preference Monitoring System**
@@ -44,6 +56,7 @@
 - **lint-staged**: v15.5.1 for pre-commit linting
 - **tsx**: v4.19.3 for running TypeScript files directly
 - **MCP client library**: For Knowledge Graph interactions
+- **Mermaid**: For rule relationship visualization
 
 ### Development Setup
 1. Install dependencies
@@ -52,6 +65,25 @@
 4. Configure monitoring systems
 
 ## Technical Decisions and Rationale
+
+### Cursor Rules Enhancement
+- **AI-Optimized Structure**
+  - Clear directive markers for better AI parsing
+  - Standardized formatting for pattern recognition
+  - Explicit priority and scope indicators
+  - Machine-readable metadata for relationships
+
+- **Visual Relationship Diagram**
+  - Mermaid flowchart for visualizing dependencies
+  - Color-coded priority indicators (red/blue/green borders)
+  - Different arrow styles for relationship types
+  - Clear legend for human and AI interpretation
+
+- **Rule Templates**
+  - Core Rule Template (high priority, global scope)
+  - Domain-Specific Rule Template (medium priority, domain-specific scope)
+  - Task-Specific Rule Template (medium/low priority, task-specific scope)
+  - Standardized sections for consistent AI processing
 
 ### ESM Modules
 - Better tree-shaking
@@ -140,6 +172,12 @@
    - Core files for project management
    - Error tracking and resolution documentation
    - Lessons learned and project intelligence
+
+5. **Cursor Rules System**
+   - AI-optimized guidance for development
+   - Standardized rule templates with directive markers
+   - Visual relationship mapping with priority indicators
+   - Explicit scope and priority taxonomy
 
 ## Security Considerations
 

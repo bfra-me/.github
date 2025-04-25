@@ -1,7 +1,7 @@
 ---
 description: Coding best practices for @bfra.me/.github
-globs: 
-alwaysApply: true
+globs:
+alwaysApply: false
 ---
 
 # @bfra.me/.github Coding Best Practices

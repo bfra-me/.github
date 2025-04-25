@@ -3,14 +3,16 @@ description: Framework for planning and implementing development tasks
 globs:
 alwaysApply: false
 ---
-
 # Development Workflow Framework
+
+> **Note:** This file consolidates the planning guidelines previously contained in plan.mdc with the overall development workflow framework. The planning process is now fully integrated into this single comprehensive workflow document.
 
 - **Related Rules:**
   - [knowledge-graph.mdc](mdc:.cursor/rules/knowledge-graph.mdc) (requires) - Development context
   - [mcp-tool-usage.mdc](mdc:.cursor/rules/mcp-tool-usage.mdc) (requires) - Development tools
   - [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (requires) - Development timeline
   - [error-management.mdc](mdc:.cursor/rules/error-management.mdc) (requires) - Error handling
+  - [implement.mdc](mdc:.cursor/rules/implement.mdc) (extended by) - Detailed implementation guidelines
 
 ## Planning Phase
 
@@ -28,7 +30,54 @@ alwaysApply: false
   - Prioritize development tasks
   - Create clear success criteria
 
-### 3. Solution Design
+### 3. Detailed Planning Process
+
+#### Understanding Requirements
+<CLARIFICATION>
+- Always ask for clarifications and follow-ups
+- Identify underspecified requirements and ask for detailed information
+- Fully understand all aspects of the problem and gather details to make it precise and clear
+- Ask about all hypotheses and assumptions needed - remove ambiguities and uncertainties
+- Suggest solutions that might not be apparent (anticipate needs)
+- Only proceed to solution formulation after achieving complete clarity and confidence
+</CLARIFICATION>
+
+#### Formulating Solutions
+<STEP BY STEP REASONING>
+<DECOMPOSE>
+- Create a meta architecture plan for the solution
+- Break down the problem into key concepts and smaller sub-problems
+</DECOMPOSE>
+- Think about all possible ways to solve the problem
+- Set up evaluation criteria and trade-offs to assess solution merit
+- Find the optimal solution and identify what makes it optimal
+
+<WEB USE>
+- Use web research when needed via appropriate MCP tools
+- Particularly useful for technical specifications, standards, or best practices
+</WEB USE>
+
+<MULTI ATTEMPTS>
+- Reason rigorously about solution optimality
+- Question every assumption and inference with comprehensive reasoning
+- Consider better solutions by combining the strongest aspects of different approaches
+- Iterate through the process, refining and integrating solutions until a strong option emerges
+- Use web research when needed for technical validation
+</MULTI ATTEMPTS>
+</STEP BY STEP REASONING>
+
+#### Solution Validation
+<REASONING PRESENTATION>
+- Provide detailed plans with comprehensive specifics
+- Break down the solution step-by-step with clarity on each component
+- Reason out optimality compared to other promising solutions
+- Explicitly state all assumptions, choices, and decisions
+- Clearly explain trade-offs between different solutions
+- Restate the original query when appropriate to confirm understanding
+</REASONING PRESENTATION>
+- Before implementation, thoroughly validate the solution plan produced
+
+### 4. Solution Design
 - **Generate solution alternatives**
   - Evaluate potential approaches
   - Consider trade-offs

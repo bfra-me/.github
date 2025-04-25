@@ -3,8 +3,15 @@ description: Guidelines for AI assistants to plan solutions to tasks
 globs:
 alwaysApply: false
 ---
+# [DEPRECATED] Planning Workflow
 
-# Planning Workflow
+> **IMPORTANT: This file is deprecated.**
+>
+> The planning workflow guidelines previously contained in this file have been consolidated into the comprehensive [development-workflow.mdc](mdc:.cursor/rules/development-workflow.mdc) document.
+>
+> Please refer to the **Planning Phase** section in development-workflow.mdc for the current planning guidelines.
+>
+> This file will be removed in a future update.
 
 1. UNDERSTAND the REQUIREMENTS:
 <CLARIFICATION>

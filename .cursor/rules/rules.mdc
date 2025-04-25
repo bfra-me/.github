@@ -3,10 +3,34 @@ description:
 globs:
 alwaysApply: true
 ---
-
 # @bfra-me/.github - Cursor Rule Management
 
 This document serves as the central reference for all Cursor rule management within the @bfra-me/.github repository, providing AI assistants with a comprehensive framework for applying, validating, and maintaining project-specific guidelines across development contexts.
+
+## AI Consumption Model
+
+Cursor rules are specifically designed to be consumed by AI assistants operating within the Cursor IDE environment. They serve as contextual guidance that helps AI agents:
+
+- **Understand Project Context**: Rules provide AI agents with project-specific information that may not be inferrable from code alone.
+- **Follow Consistent Patterns**: Rules establish consistent patterns for AI responses across different interactions.
+- **Apply Domain Knowledge**: Rules encode domain-specific knowledge relevant to the project.
+- **Prioritize Requirements**: Rules help AI agents understand which requirements take precedence.
+
+### Key Distinctions from Human Documentation
+
+- **Directive-Focused**: Rules emphasize clear directives that can be parsed and applied by AI agents.
+- **Context-Sensitive**: Rules include markers for when they should be applied or ignored.
+- **AI-Optimized Structure**: Content is structured to facilitate AI comprehension rather than human reading flow.
+- **Explicit Prioritization**: Rules include explicit priority information to resolve conflicts.
+
+### Rule Consumption Process
+
+1. **Rule Loading**: AI assistant loads relevant rules based on context
+2. **Rule Prioritization**: Rules are prioritized based on relevance to the current query
+3. **Rule Application**: AI applies rule directives to generate responses
+4. **Rule Verification**: AI validates its output against rule requirements
+
+All rule improvements should consider this AI-centric consumption model to ensure they enhance the ability of AI assistants to effectively apply project guidelines.
 
 ## Rule Categories
 
@@ -47,27 +71,26 @@ This section provides a quick reference to all active Cursor rules within this r
 | **[`coding-best-practices.mdc`](mdc:.cursor/rules/coding-best-practices.mdc)** | Defines best practices for implementing code changes | Development Process |
 | **[`content-context.mdc`](mdc:.cursor/rules/content-context.mdc)** | Guidelines for AI agents to understand content context when updating memory files | Knowledge Management |
 | **[`cursor-rules.mdc`](mdc:.cursor/rules/cursor-rules.mdc)** | Guidelines for creating and maintaining Cursor rules to ensure consistency and effectiveness | System Architecture |
-| **[`development-workflow.mdc`](mdc:.cursor/rules/development-workflow.mdc)** | Framework for planning and implementing development tasks | Development Process |
+| **[`development-workflow.mdc`](mdc:.cursor/rules/development-workflow.mdc)** | Comprehensive framework for planning and implementing development tasks (includes planning guidelines formerly in plan.mdc) | Development Process |
 | **[`documentation-and-tech-stack.mdc`](mdc:.cursor/rules/documentation-and-tech-stack.mdc)** | Guidelines for using documentation and the project's tech stack | Knowledge Management |
 | **[`error-management.mdc`](mdc:.cursor/rules/error-management.mdc)** | Framework for diagnosing, resolving, and documenting errors | Development Process |
 | **[`github-actions.mdc`](mdc:.cursor/rules/github-actions.mdc)** | Guidelines for GitHub Actions workflows, including automation, testing, security, and CI/CD integration | Development Process |
-| **[`index.mdc`](mdc:.cursor/rules/index.mdc)** | This file; provides a central index of the project's Cursor rules | Knowledge Management |
 | **[`implement.mdc`](mdc:.cursor/rules/implement.mdc)** | Comprehensive instructions for implementing code changes | Development Process |
 | **[`knowledge-graph.mdc`](mdc:.cursor/rules/knowledge-graph.mdc)** | Guidelines for managing and maintaining the knowledge graph accessed through the server-memory MCP server | Knowledge Management |
 | **[`lessons-learned.mdc`](mdc:.cursor/rules/lessons-learned.mdc)** | A learning journal that captures important patterns, preferences, and project intelligence for future work | Knowledge Management |
 | **[`mcp-tool-usage.mdc`](mdc:.cursor/rules/mcp-tool-usage.mdc)** | Guidelines for using tools provided by available MCP (Model Context Protocol) servers | System Architecture |
 | **[`memory-files.mdc`](mdc:.cursor/rules/memory-files.mdc)** | Guidelines for creating and maintaining project Memory Files for comprehensive project documentation | Knowledge Management |
 | **[`memory-templates.mdc`](mdc:.cursor/rules/memory-templates.mdc)** | Standard templates for memory files to ensure consistent structure | Knowledge Management |
-| **[`plan.mdc`](mdc:.cursor/rules/plan.mdc)** | Guidelines for planning and formulating solutions | Development Process |
 | **[`pnpm.mdc`](mdc:.cursor/rules/pnpm.mdc)** | Guidelines for using pnpm as the package manager | Development Process |
 | **[`renovate.mdc`](mdc:.cursor/rules/renovate.mdc)** | Guidelines for using Renovate to manage dependencies | Development Process |
 | **[`rule-preprocessing.mdc`](mdc:.cursor/rules/rule-preprocessing.mdc)** | Guidelines for AI agents to process rules before responding to tasks | System Architecture |
-| **[`rule-refresher.mdc`](mdc:.cursor/rules/rule-refresher.mdc)** | Guidelines for periodic review and refresh of Cursor rules | Knowledge Management |
-| **[`rules.mdc`](mdc:.cursor/rules/rules.mdc)** | Instructions that must be followed in every interaction | System Architecture |
+| **[`rules.mdc`](mdc:.cursor/rules/rules.mdc)** | This file; Provides a central index of Cursor rules; includes instructions that must be followed in every interaction | Development Process |
 | **[`self-improve.mdc`](mdc:.cursor/rules/self-improve.mdc)** | Guidelines for continuously improving Cursor rules based on emerging code patterns and best practices | Knowledge Management |
 | **[`typescript.mdc`](mdc:.cursor/rules/typescript.mdc)** | Guidelines for using TypeScript in the project | Development Process |
 
 ## Rule Application Protocol
+
+> **Important:** Before applying any rules, follow the preprocessing steps in [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc). These steps are critical for properly understanding, prioritizing, and applying rules effectively.
 
 ### 1. Context Loading
 - **Load relevant rules based on context**
@@ -83,6 +106,13 @@ This section provides a quick reference to all active Cursor rules within this r
 - **Record rule applications for future reference**
 - **Track rule effectiveness**
 - **Update pattern libraries**
+
+## Related Rules
+- [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc) (requires) - Provides critical preprocessing steps that must be followed before applying rules
+- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) (requires) - Defines proper formatting and structure for rules
+- [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (complements) - Guides understanding content context when updating files
+- [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (complements) - Provides validation process for changes
+- [self-improve.mdc](mdc:.cursor/rules/self-improve.mdc) (extended by) - Framework for continuously improving rules based on emerging patterns and best practices
 
 ## Tool Integration
 

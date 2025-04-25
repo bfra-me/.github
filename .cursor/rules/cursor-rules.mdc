@@ -11,6 +11,9 @@ alwaysApply: false
   description: Short description of the rule's purpose
   globs: optional/path/pattern/**/*
   alwaysApply: false
+  priority: high|medium|low
+  version: 1.0.0
+  scope: global|domain-specific|task-specific
   ---
 
   # Rule Title
@@ -56,7 +59,7 @@ alwaysApply: false
 - **File Creation Best Practices:**
   - Due to potential issues with direct file creation, use the following printf approach:
     ```bash
-    printf '%s\n' '---' 'description: Your description' 'globs: your/globs/**/*.{ext}' 'alwaysApply: false' '---' '' '# Your Rule Title' '' 'Your Rule Content' > .cursor/rules/your-rule.mdc
+    printf '%s\n' '---' 'description: Your description' 'globs: your/globs/**/*.{ext}' 'alwaysApply: false' 'priority: high|medium|low' 'version: 1.0.0' 'scope: global|domain-specific|task-specific' '---' '' '# Your Rule Title' '' 'Your Rule Content' > .cursor/rules/your-rule.mdc
     ```
   - This ensures proper YAML frontmatter and content formatting
   - Avoid using echo with heredoc as it may cause formatting issues
@@ -93,6 +96,367 @@ alwaysApply: false
   - Add examples from actual codebase
   - Remove outdated patterns
   - Cross-reference related rules
+
+## AI-Focused Rule Templates
+
+To optimize rules for AI consumption, follow these template structures based on rule type and purpose. Each template includes explicit directive markers, standardized formatting for pattern recognition, and clear scope/priority indicators.
+
+### Core Rule Template
+
+```markdown
+---
+description: Comprehensive description of the core rule's purpose and scope
+globs: applicable/file/patterns/**/*
+alwaysApply: true
+priority: high
+version: 1.0.0
+scope: global
+---
+
+# Rule Title
+
+> **AI-DIRECTIVE:** This concise statement summarizes the most critical directive for AI application.
+
+## Purpose and Scope
+
+This section explains the rule's purpose, when it should be applied, and its scope of influence.
+
+- **When to Apply:** Clear triggers for when this rule should be used
+- **Priority Level:** High - this rule should take precedence in conflicts
+- **Interaction Effects:** How this rule affects or is affected by other rules
+
+## Core Directives
+
+<!-- AI-PATTERN-START: core_directives -->
+- **✅ ALWAYS:**
+  - First critical directive that must be followed
+  - Second critical directive that must be followed
+  - Third critical directive that must be followed
+
+- **❌ NEVER:**
+  - First prohibited action that must be avoided
+  - Second prohibited action that must be avoided
+  - Third prohibited action that must be avoided
+<!-- AI-PATTERN-END: core_directives -->
+
+## Implementation Patterns
+
+<!-- AI-PATTERN-START: implementation_examples -->
+### Pattern 1: [Pattern Name]
+
+```typescript
+// Example implementation showing the correct approach
+function correctImplementation() {
+  // Implementation details following the rule
+}
+```
+
+**Key Points:**
+- First important aspect of this pattern
+- Second important aspect of this pattern
+
+### Pattern 2: [Pattern Name]
+
+```typescript
+// Another example implementation
+const anotherCorrectApproach = () => {
+  // More implementation details
+};
+```
+<!-- AI-PATTERN-END: implementation_examples -->
+
+## Anti-Patterns to Avoid
+
+<!-- AI-PATTERN-START: anti_patterns -->
+### Anti-Pattern 1: [Anti-Pattern Name]
+
+```typescript
+// ❌ DON'T: Example of incorrect implementation
+function incorrectImplementation() {
+  // Implementation that violates the rule
+}
+```
+
+**Why This Is Problematic:**
+- Explanation of why this pattern is problematic
+- Consequences of using this pattern
+
+### Anti-Pattern 2: [Anti-Pattern Name]
+
+```typescript
+// ❌ DON'T: Another example of incorrect implementation
+const anotherIncorrectApproach = () => {
+  // More problematic implementation details
+};
+```
+<!-- AI-PATTERN-END: anti_patterns -->
+
+## Decision Trees for Edge Cases
+
+<!-- AI-PATTERN-START: decision_tree -->
+### Scenario: [Common Edge Case]
+
+1. **If** condition A applies:
+   - Follow approach X
+2. **Else if** condition B applies:
+   - Follow approach Y
+3. **Else**:
+   - Default to approach Z
+
+### Scenario: [Another Edge Case]
+
+1. **If** condition C applies:
+   - Follow approach P
+2. **Else**:
+   - Follow approach Q
+<!-- AI-PATTERN-END: decision_tree -->
+
+## Related Rules
+
+<!-- AI-PATTERN-START: related_rules -->
+- [rule-name.mdc](mdc:.cursor/rules/rule-name.mdc) (requires) - Brief description
+- [another-rule.mdc](mdc:.cursor/rules/another-rule.mdc) (complements) - Brief description
+<!-- AI-PATTERN-END: related_rules -->
+
+## Version History
+
+<!-- AI-PATTERN-START: version_history -->
+- v1.0.0 (YYYY-MM-DD): Initial version
+- v1.1.0 (YYYY-MM-DD): Added feature X
+- v1.2.0 (YYYY-MM-DD): Modified directive Y
+<!-- AI-PATTERN-END: version_history -->
+```
+
+### Domain-Specific Rule Template
+
+```markdown
+---
+description: Detailed description of the domain-specific rule
+globs: domain/specific/files/**/*.{ext}
+alwaysApply: false
+priority: medium
+version: 1.0.0
+scope: domain-specific
+---
+
+# Domain-Specific Rule Title
+
+> **AI-DIRECTIVE:** This concise statement summarizes the domain-specific directive.
+
+## Domain Context
+
+This section explains the specific technical or process domain this rule applies to.
+
+- **Applicable Technologies:** List of technologies this rule applies to
+- **Component Scope:** Specific components or file types this affects
+- **Priority Level:** Medium - this rule takes precedence in its domain
+- **Prerequisites:** Knowledge or rules that should be understood first
+
+## Core Directives
+
+<!-- AI-PATTERN-START: core_directives -->
+- **✅ DO:**
+  - First important practice to follow
+  - Second important practice to follow
+  - Third important practice to follow
+
+- **❌ DON'T:**
+  - First practice to avoid
+  - Second practice to avoid
+  - Third practice to avoid
+<!-- AI-PATTERN-END: core_directives -->
+
+## Domain Patterns
+
+<!-- AI-PATTERN-START: domain_patterns -->
+### Pattern 1: [Domain-Specific Pattern]
+
+```typescript
+// Example implementation
+function domainSpecificImplementation() {
+  // Implementation details
+}
+```
+
+**Implementation Notes:**
+- Important consideration for this pattern
+- Edge case handling approach
+<!-- AI-PATTERN-END: domain_patterns -->
+
+## Common Pitfalls
+
+<!-- AI-PATTERN-START: pitfalls -->
+### Pitfall 1: [Common Issue]
+
+```typescript
+// ❌ DON'T: Problematic implementation
+function problematicApproach() {
+  // Problematic code
+}
+
+// ✅ DO: Correct implementation
+function correctApproach() {
+  // Fixed implementation
+}
+```
+
+**Why This Happens:**
+- Root causes of this common issue
+- How to identify this problem in existing code
+<!-- AI-PATTERN-END: pitfalls -->
+
+## Related Rules
+
+<!-- AI-PATTERN-START: related_rules -->
+- [domain-related-rule.mdc](mdc:.cursor/rules/domain-related-rule.mdc) (requires) - Brief description
+- [another-domain-rule.mdc](mdc:.cursor/rules/another-domain-rule.mdc) (complements) - Brief description
+<!-- AI-PATTERN-END: related_rules -->
+```
+
+### Task-Specific Rule Template
+
+```markdown
+---
+description: Focused description of the task-specific rule
+globs: task/specific/files/**/*.{ext}
+alwaysApply: false
+priority: medium
+version: 1.0.0
+scope: task-specific
+---
+
+# Task-Specific Rule Title
+
+> **AI-DIRECTIVE:** This concise statement summarizes the task-specific directive.
+
+## Task Context
+
+This section defines when this rule should be applied during specific tasks.
+
+- **Applicable Tasks:** List of specific tasks or scenarios
+- **Activation Triggers:** Conditions that should trigger this rule
+- **Priority Level:** Medium or Low, depending on task importance
+- **Task Sequence:** Where in the development process this applies
+
+## Directive Checklist
+
+<!-- AI-PATTERN-START: directive_checklist -->
+- [ ] First step to follow for this task
+- [ ] Second step to follow for this task
+- [ ] Third step to follow for this task
+<!-- AI-PATTERN-END: directive_checklist -->
+
+## Task Workflow
+
+<!-- AI-PATTERN-START: task_workflow -->
+1. First step in the process
+   ```typescript
+   // Example code for step 1
+   function stepOne() {
+     // Implementation
+   }
+   ```
+
+2. Second step in the process
+   ```typescript
+   // Example code for step 2
+   function stepTwo() {
+     // Implementation
+   }
+   ```
+
+3. Third step in the process
+   ```typescript
+   // Example code for step 3
+   function stepThree() {
+     // Implementation
+   }
+   ```
+<!-- AI-PATTERN-END: task_workflow -->
+
+## Verification Process
+
+<!-- AI-PATTERN-START: verification -->
+### Before Completing the Task:
+- [ ] Verify all checklist items are completed
+- [ ] Test using provided verification method
+- [ ] Ensure no unintended side effects
+
+### Example Verification:
+```typescript
+// Verification code example
+function verifyTask() {
+  // Verification implementation
+}
+```
+<!-- AI-PATTERN-END: verification -->
+
+## Related Rules
+
+<!-- AI-PATTERN-START: related_rules -->
+- [task-related-rule.mdc](mdc:.cursor/rules/task-related-rule.mdc) (requires) - Brief description
+- [another-task-rule.mdc](mdc:.cursor/rules/another-task-rule.mdc) (complements) - Brief description
+<!-- AI-PATTERN-END: related_rules -->
+```
+
+## AI-Optimized Pattern Guidelines
+
+To maximize the AI's ability to effectively parse and apply rules, follow these optimized pattern guidelines:
+
+### Explicit Directive Markers
+
+- **Use > AI-DIRECTIVE:** at the top of each rule for the most critical instruction
+- Wrap important pattern sections in `<!-- AI-PATTERN-START: pattern_name -->` and `<!-- AI-PATTERN-END: pattern_name -->` tags
+- Use consistent emoji indicators:
+  - ✅ for recommended practices
+  - ❌ for practices to avoid
+  - 🔄 for processes or workflows
+  - ⚠️ for warnings and important notes
+
+### Standardized Formatting for Pattern Recognition
+
+- **Section Consistency:** Maintain the same section order across all rules of the same type
+- **Pattern Naming:** Use descriptive, consistent names for patterns
+- **Code Examples:** Always include language specifiers in code blocks (```typescript, ```javascript, etc.)
+- **Visual Hierarchy:** Use consistent heading levels to indicate importance
+  - Level 1 (#): Rule title only
+  - Level 2 (##): Major sections
+  - Level 3 (###): Subsections and patterns
+  - Level 4 (####): Examples and details
+
+### Scope Definition Guidelines
+
+- **Explicitly Define:**
+  - When the rule applies (task, domain, or globally)
+  - What files or components it affects
+  - What priority level it has (high, medium, low)
+  - What related rules should be consulted
+
+- **Use the `scope` frontmatter property with these values:**
+  - `global`: Applies across all contexts
+  - `domain-specific`: Limited to specific technologies or patterns
+  - `task-specific`: Only relevant during particular tasks
+
+### Priority Level Integration
+
+- **Use the `priority` frontmatter property with these values:**
+  - `high`: Critical rules that should override others in conflicts
+  - `medium`: Important rules that yield to high priority
+  - `low`: Helpful guidelines that yield to medium and high priority
+
+- **Within rule content, visually reinforce priority:**
+  - High priority directives: Bold, highlighted in dedicated sections
+  - Medium priority: Standard formatting in main sections
+  - Low priority: Mentioned in sub-sections or notes
+
+### Pattern Integration Approach
+
+When multiple rules apply to the same context, AI should integrate them following this priority-based approach:
+
+1. Apply all high-priority directives first
+2. Apply medium-priority directives where they don't conflict with high-priority
+3. Apply low-priority directives where they complement but don't conflict
+4. When conflicts exist, explicitly follow the rule with higher priority
 
 ## Related Rules
 - [rules.mdc](mdc:.cursor/rules/rules.mdc) (complemented by) - Central index and application protocol for all rules

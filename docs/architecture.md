@@ -9,18 +9,23 @@ graph TD
     B --> C[Workflow Templates]
     B --> D[Development Standards]
     B --> E[Security Configurations]
+    B --> F[Cursor Rules System]
 
-    C --> F[Renovate Bot]
-    C --> G[Repository Settings]
-    C --> H[Release Management]
+    C --> G[Renovate Bot]
+    C --> H[Repository Settings]
+    C --> I[Release Management]
 
-    D --> I[TypeScript]
-    D --> J[ESLint/Prettier]
-    D --> K[Pre-commit Hooks]
+    D --> J[TypeScript]
+    D --> K[ESLint/Prettier]
+    D --> L[Pre-commit Hooks]
 
-    E --> L[OpenSSF Scorecard]
-    E --> M[Branch Protection]
-    E --> N[Security Policies]
+    E --> M[OpenSSF Scorecard]
+    E --> N[Branch Protection]
+    E --> O[Security Policies]
+
+    F --> P[AI-Optimized Templates]
+    F --> Q[Rule Relationship Model]
+    F --> R[Rule Selection Guidelines]
 ```
 
 ## Component Architecture
@@ -66,6 +71,37 @@ graph TD
     D --> J[Branch Protection]
 ```
 
+### 4. Cursor Rules System
+```mermaid
+graph TD
+    A[Cursor Rules System] --> B[Rule Templates]
+    A --> C[Rule Relationships]
+    A --> D[Selection Guidelines]
+
+    B --> E[Core Rules]
+    B --> F[Domain-Specific Rules]
+    B --> G[Task-Specific Rules]
+
+    C --> H[Priority Levels]
+    C --> I[Dependency Types]
+    C --> J[Visual Representation]
+
+    D --> K[Relevance Detection]
+    D --> L[Conflict Resolution]
+    D --> M[Application Context]
+```
+
+- **Purpose**: Provide AI-optimized guidance for project development
+- **Location**: `.cursor/rules/*.mdc` files
+- **Core Components**:
+  - Rule templates with standardized structure and directive markers
+  - Rule relationship model with priority and dependency indicators
+  - Selection guidelines for AI consumption
+- **Integration Points**:
+  - Development standards enforcement
+  - Knowledge graph for pattern tracking
+  - Memory files for documentation
+
 ## Core Components
 
 ### 1. Settings Management
@@ -99,6 +135,15 @@ graph TD
   - Access control
   - Security policies
 
+### 5. Cursor Rules Framework
+- Location: `.cursor/rules/`
+- Purpose: AI-optimized development guidance
+- Components:
+  - `rules.mdc`: Central index with relationship diagram
+  - `cursor-rules.mdc`: Template definitions and formatting guidelines
+  - `rule-preprocessing.mdc`: Rule selection and application guidance
+  - Various domain-specific and task-specific rules
+
 ## Data Flow
 
 ### 1. Repository Creation Flow
@@ -131,6 +176,23 @@ sequenceDiagram
     GitHub->>Repository: Merge Updates
 ```
 
+### 3. Cursor Rules Consumption Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant AI
+    participant Rules
+    participant KnowledgeGraph
+
+    User->>AI: Development Query
+    AI->>Rules: Load Relevant Rules
+    Rules->>AI: Rule Directives
+    AI->>KnowledgeGraph: Check Patterns
+    AI->>User: Optimized Response
+    User->>AI: Feedback
+    AI->>KnowledgeGraph: Update Patterns
+```
+
 ## Integration Points
 
 ### 1. GitHub Integration
@@ -151,6 +213,12 @@ sequenceDiagram
 - Automated security updates
 - Access control system
 
+### 4. AI Integration
+- Cursor rules for AI consumption
+- Knowledge graph for pattern tracking
+- Standardized rule format
+- Priority-based rule selection
+
 ## Deployment Architecture
 
 ### 1. Template Deployment
@@ -165,6 +233,12 @@ sequenceDiagram
 - Security patches
 - Documentation updates
 
+### 3. Rules Deployment
+- Rule templates in `.cursor/rules/`
+- Standardized frontmatter with priority and scope
+- Visual relationship diagram
+- AI directive markers
+
 ## System Requirements
 
 ### 1. Performance Requirements
@@ -172,6 +246,7 @@ sequenceDiagram
 - Efficient dependency management
 - Quick template instantiation
 - Responsive automation
+- Optimized rule parsing by AI
 
 ### 2. Security Requirements
 - Secure configuration storage
@@ -184,6 +259,7 @@ sequenceDiagram
 - Concurrent workflow execution
 - Organization-wide settings
 - Template reusability
+- Extensible rule framework
 
 ## Monitoring and Maintenance
 
@@ -192,29 +268,22 @@ sequenceDiagram
 - Security score monitoring
 - Dependency update status
 - Settings synchronization
+- Rule effectiveness metrics
 
 ### 2. Maintenance Tasks
 - Regular dependency updates
 - Security patch application
 - Configuration updates
 - Documentation updates
+- Rule pattern updates
 
 ## Related Files
 
 - **Dependencies:**
-  - [Product Requirement Docs](/docs/product_requirement_docs.md): Provides foundational requirements
-  - [Technical Documentation](/docs/technical.md): Details technical implementation
+  - [technical.md](/docs/technical.md): Detailed technical specifications
+  - [product_requirement_docs.md](/docs/product_requirement_docs.md): High-level requirements
+  - [tasks_plan.md](/tasks/tasks_plan.md): Implementation schedule
 
 - **Extensions:**
-  - [Active Context](/tasks/active_context.md): Applies architecture to current development
-  - [Tasks Plan](/tasks/tasks_plan.md): Implements architectural components as tasks
-
-- **Implementations:**
-  - [Workflow Documentation](/docs/workflows/README.md): Documents workflow implementations
-  - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Implements settings management
-  - [Renovate Workflow](/docs/workflows/renovate.md): Implements dependency management
-
-- **Related Concepts:**
-  - [GitHub Actions Rules](/.cursor/rules/github-actions.mdc): Best practices for Actions
-  - [Memory Files](/.cursor/rules/memory_files.mdc): Documentation framework
-  - [TypeScript Rules](/.cursor/rules/typescript.mdc): TypeScript implementation guidelines
+  - [active_context.md](/tasks/active_context.md): Current development focus
+  - [cursor-rules-enhancement.md](/tasks/cursor-rules-enhancement.md): Rules enhancement plan

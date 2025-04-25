@@ -1,7 +1,7 @@
 ---
 description: Guidelines for agents using tools provided by available Model Context Protocol (MCP) servers
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Model Context Protocol (MCP) Tool Usage

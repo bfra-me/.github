@@ -1,5 +1,60 @@
 # @bfra.me/.github
 
+## 2.5.0
+### Minor Changes
+
+
+- Enhance AI rule consumption with detailed selection guidelines and migration plan ([#657](https://github.com/bfra-me/.github/pull/657))
+  
+  ## Primary Change
+  - Add detailed priority scoring system to rule-preprocessing.mdc
+  - Create comprehensive rule migration plan with rule-migration.mdc
+  - Enhance rule relevance detection with explicit signals
+  
+  ## Secondary Changes
+  - Update rule-preprocessing.mdc to conform to new AI-focused template format
+  - Add structured conflict resolution decision tree
+  - Implement detailed keyword and pattern matching guidance
+  - Update project documentation to reflect task completion
+  
+  ## Migration Required
+  All existing rules will need to be migrated to the new AI-focused templates following the guidance in rule-migration.mdc.
+
+### Patch Changes
+
+
+- Add AI-focused rule templates to cursor-rules.mdc to optimize rule consumption by AI assistants. This includes templates with explicit directive markers, standardized formatting for pattern recognition, scope definition, and priority levels. ([#656](https://github.com/bfra-me/.github/pull/656))
+
+
+- Add "Related Files" sections to documentation and improve file path handling in templates ([#645](https://github.com/bfra-me/.github/pull/645))
+  
+  - Add "Related Files" sections to architecture, technical, and product requirement docs
+  - Add "Related Files" sections to task documentation files
+  - Update memory templates with improved file path handling and examples
+  - Standardize file reference format across documentation
+
+- Refactor MCP tool usage documentation for improved clarity and organization. ([#647](https://github.com/bfra-me/.github/pull/647))
+  
+  - Streamlined the MCP tool usage documentation structure
+  - Updated rule cross-references to use proper linking syntax
+  - Reorganized sections for better logical flow
+  - Improved formatting and consistency
+  - Removed duplicated content and redundant instructions
+
+- Update memory files to reflect completion of Cursor Rules Enhancement Tasks #1 and #2. Add detailed information about the AI-Optimized Rule Relationship Diagram and AI-Focused Rule Templates to architecture.md, technical.md, active_context.md, and tasks_plan.md. ([#656](https://github.com/bfra-me/.github/pull/656))
+
+
+- Updated dependency `packageManager` to `pnpm@10.9.0`. ([#643](https://github.com/bfra-me/.github/pull/643))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.1`. ([#658](https://github.com/bfra-me/.github/pull/658))
+
+
+- Updated dependency `eslint` to `9.25.1`. ([#646](https://github.com/bfra-me/.github/pull/646))
+
+
+- Add AI-optimized rule relationship visualization to rules.mdc ([#655](https://github.com/bfra-me/.github/pull/655))
+
 ## 2.4.0
 ### Minor Changes
 

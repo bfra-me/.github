@@ -1,14 +1,43 @@
 ---
-description:
-globs:
+description: Central reference for all Cursor rule management within the @bfra-me/.github repository, providing AI assistants with a comprehensive framework for applying, validating, and maintaining project-specific guidelines
+globs: **/*
 alwaysApply: true
 ---
 # @bfra-me/.github - Cursor Rule Management
 
-This document serves as the central reference for all Cursor rule management within the @bfra-me/.github repository, providing AI assistants with a comprehensive framework for applying, validating, and maintaining project-specific guidelines across development contexts.
+> **AI-DIRECTIVE:** Apply rules based on context relevance and explicit priority levels, following preprocessing guidelines before implementation; maintain consistent patterns across related rules.
+
+## Purpose and Scope
+
+This rule serves as the central reference for all Cursor rule management within the @bfra-me/.github repository. It provides AI assistants with a comprehensive framework for applying, validating, and maintaining project-specific guidelines across development contexts.
+
+- **When to Apply:** During all AI interactions within this repository
+- **Priority Level:** High - this rule establishes the foundation for all others
+- **Interaction Effects:** Defines relationships between all other rules
+
+## Core Directives
+
+<!-- AI-PATTERN-START: core_directives -->
+- **✅ ALWAYS:**
+  - Follow preprocessing steps in rule-preprocessing.mdc before applying any rules
+  - Load relevant rules based on context
+  - Check dependencies between rules
+  - Apply rule guidance in proper sequence
+  - Validate outcomes against expectations
+  - Update knowledge with new patterns
+  - Document rule applications for future reference
+
+- **❌ NEVER:**
+  - Skip preprocessing steps
+  - Apply rules without considering dependencies
+  - Ignore priority levels in rule application
+  - Apply conflicting rule directives without resolution
+  - Fail to document rule applications
+<!-- AI-PATTERN-END: core_directives -->
 
 ## AI Consumption Model
 
+<!-- AI-PATTERN-START: consumption_model -->
 Cursor rules are specifically designed to be consumed by AI assistants operating within the Cursor IDE environment. They serve as contextual guidance that helps AI agents:
 
 - **Understand Project Context**: Rules provide AI agents with project-specific information that may not be inferrable from code alone.
@@ -29,11 +58,11 @@ Cursor rules are specifically designed to be consumed by AI assistants operating
 2. **Rule Prioritization**: Rules are prioritized based on relevance to the current query
 3. **Rule Application**: AI applies rule directives to generate responses
 4. **Rule Verification**: AI validates its output against rule requirements
-
-All rule improvements should consider this AI-centric consumption model to ensure they enhance the ability of AI assistants to effectively apply project guidelines.
+<!-- AI-PATTERN-END: consumption_model -->
 
 ## Rule Categories
 
+<!-- AI-PATTERN-START: rule_categories -->
 ### 1. System Architecture
 - **Architecture understanding**
   - System structure
@@ -58,47 +87,12 @@ All rule improvements should consider this AI-centric consumption model to ensur
 - **Lessons learned**
   - Pattern recognition
   - Development history
+<!-- AI-PATTERN-END: rule_categories -->
 
 ## Rule Relationship Visualization
 
+<!-- AI-PATTERN-START: relationship_visualization -->
 This visualization depicts the relationships between different rules, showing dependencies, complementary connections, and priority levels.
-
-<!--
-{
-  "ruleRelationships": {
-    "rules.mdc": {
-      "priority": "high",
-      "requires": ["rule-preprocessing.mdc", "cursor-rules.mdc"],
-      "isExtendedBy": ["self-improve.mdc"]
-    },
-    "rule-preprocessing.mdc": {
-      "priority": "high",
-      "complements": ["content-context.mdc", "change-validation.mdc"]
-    },
-    "cursor-rules.mdc": {
-      "priority": "high",
-      "complements": ["memory-files.mdc"]
-    },
-    "development-workflow.mdc": {
-      "priority": "high",
-      "requires": ["implement.mdc", "error-management.mdc"]
-    },
-    "implement.mdc": {
-      "priority": "high",
-      "complements": ["error-management.mdc"]
-    },
-    "memory-files.mdc": {
-      "priority": "high",
-      "requires": ["memory-templates.mdc", "knowledge-graph.mdc", "lessons-learned.mdc", "documentation-and-tech-stack.mdc"],
-      "complements": ["content-context.mdc", "change-validation.mdc"]
-    },
-    "self-improve.mdc": {
-      "priority": "medium",
-      "extends": ["rules.mdc"]
-    }
-  }
-}
--->
 
 ```mermaid
 %% Rule Relationship Diagram with Priority and Dependency Indicators
@@ -177,23 +171,11 @@ flowchart TD
     classDef mediumPriority stroke:#66f,stroke-width:2px;
     classDef lowPriority stroke:#6d6,stroke-width:1px;
 ```
-
-### Legend
-
-- **Arrow Types**:
-  - Solid Arrow (==>) = "requires" relationship (essential dependency)
-  - Dashed Arrow (-->) = "complements" relationship (enhances functionality)
-  - Dotted Arrow (-.>) = "extended by" relationship (built upon by another rule)
-
-- **Border Colors**:
-  - Red Border = High Priority
-  - Blue Border = Medium Priority
-  - Green Border = Low Priority
+<!-- AI-PATTERN-END: relationship_visualization -->
 
 ## Rule Index
 
-This section provides a quick reference to all active Cursor rules within this repository, located in the `.cursor/rules` directory. These rules define processes, structures, and guidelines for development.
-
+<!-- AI-PATTERN-START: rule_index -->
 | Rule File | Description | Category |
 |-----------|-------------|----------|
 | **[`architecture-understanding.mdc`](mdc:.cursor/rules/architecture-understanding.mdc)** | Guidelines for understanding and interpreting architectural diagrams and project directory structure | System Architecture |
@@ -218,9 +200,11 @@ This section provides a quick reference to all active Cursor rules within this r
 | **[`rules.mdc`](mdc:.cursor/rules/rules.mdc)** | This file; Provides a central index of Cursor rules; includes instructions that must be followed in every interaction | Development Process |
 | **[`self-improve.mdc`](mdc:.cursor/rules/self-improve.mdc)** | Guidelines for continuously improving Cursor rules based on emerging code patterns and best practices | Knowledge Management |
 | **[`typescript.mdc`](mdc:.cursor/rules/typescript.mdc)** | Guidelines for using TypeScript in the project | Development Process |
+<!-- AI-PATTERN-END: rule_index -->
 
 ## Rule Application Protocol
 
+<!-- AI-PATTERN-START: application_protocol -->
 > **Important:** Before applying any rules, follow the preprocessing steps in [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc). These steps are critical for properly understanding, prioritizing, and applying rules effectively.
 
 ### 1. Context Loading
@@ -237,59 +221,34 @@ This section provides a quick reference to all active Cursor rules within this r
 - **Record rule applications for future reference**
 - **Track rule effectiveness**
 - **Update pattern libraries**
+<!-- AI-PATTERN-END: application_protocol -->
 
-## Related Rules
-- [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc) (requires) - Provides critical preprocessing steps that must be followed before applying rules
-- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) (requires) - Defines proper formatting and structure for rules
-- [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (complements) - Guides understanding content context when updating files
-- [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (complements) - Provides validation process for changes
-- [self-improve.mdc](mdc:.cursor/rules/self-improve.mdc) (extended by) - Framework for continuously improving rules based on emerging patterns and best practices
+## Implementation Guidelines
 
-## Tool Integration
+<!-- AI-PATTERN-START: implementation_guidelines -->
+### Tool Integration
 
-### 1. Knowledge Graph
+#### 1. Knowledge Graph
 - **Store rule metadata centrally**
 - **Track relationships between rules**
 - **Monitor usage patterns**
 
-### 2. MCP Tools
+#### 2. MCP Tools
 - **Use Sequential Thinking for complex analysis**
 - **Apply web search for research**
 - **Manage content context properly**
 
-## Validation Requirements
-
-### 1. Rule Validation
-- **Verify dependency relationships**
-- **Check integration compliance**
-- **Validate content structure**
-
-### 2. Application Validation
-- **Ensure process compliance**
-- **Verify expected outcomes**
-- **Match against known patterns**
-
-## Improvement Protocol
-
-### 1. Pattern Recognition
-- **Monitor rule usage frequency**
-- **Identify common application patterns**
-- **Track effectiveness metrics**
-
-### 2. Rule Updates
-- **Manage rule versions properly**
-- **Update dependencies when needed**
-- **Refresh documentation regularly**
-
-## Always Follow These Guidelines
+### Always Follow These Guidelines
 1. **Split into multiple responses** if one response isn't enough
 2. **Suggest improvements** for code stability or scalability
 3. **Offer strategies** to enhance performance or security
 4. **Recommend methods** for improving readability or maintainability
 5. **Identify areas** for further investigation
+<!-- AI-PATTERN-END: implementation_guidelines -->
 
-## Rule Index Maintenance
+## Index Maintenance
 
+<!-- AI-PATTERN-START: index_maintenance -->
 ### When to Update the Index
 
 1. **New Rule Creation**
@@ -338,17 +297,83 @@ This section provides a quick reference to all active Cursor rules within this r
    - Check link formatting
    - Ensure consistent style with other entries
    - Validate all links are working
+<!-- AI-PATTERN-END: index_maintenance -->
 
-### Integration with Other Rules
+## Anti-Patterns to Avoid
 
-- Follow formatting guidelines from [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc)
-- Apply content context principles from [content-context.mdc](mdc:.cursor/rules/content-context.mdc)
-- Follow change validation process from [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc)
+<!-- AI-PATTERN-START: anti_patterns -->
+### Anti-Pattern 1: Ignoring Preprocessing Steps
 
-### Maintenance Checklist
+```markdown
+// ❌ DON'T: Jump directly to applying a specific rule
+Based on the typescript.mdc rule, I'll implement the interface as follows...
+```
 
-✅ Verify all rules in `.cursor/rules/` are listed
-✅ Ensure descriptions match current rule purposes
-✅ Check for consistent formatting and style
-✅ Validate all rule links
-✅ Update related rules if references change
+**Why This Is Problematic:**
+- Skips critical context loading and prioritization
+- May miss conflicting directives from other rules
+- Fails to consider rule dependencies
+
+### Anti-Pattern 2: Selective Rule Application
+
+```markdown
+// ❌ DON'T: Apply only convenient parts of rules
+I'll follow the TypeScript naming conventions but ignore the error handling requirements...
+```
+
+**Why This Is Problematic:**
+- Creates inconsistent implementation
+- Undermines the integrated rule system
+- Leads to technical debt and maintenance issues
+<!-- AI-PATTERN-END: anti_patterns -->
+
+## Decision Trees for Edge Cases
+
+<!-- AI-PATTERN-START: decision_tree -->
+### Scenario: Rule Conflict Resolution
+
+1. **If** conflicting directives from different rules exist:
+   - Check priority levels (high > medium > low)
+   - Apply the directive from the higher priority rule
+
+2. **If** rules have the same priority level:
+   - Check for explicit dependency relationships
+   - Apply the directive from the dependency rule first
+   - Then apply non-conflicting directives from the dependent rule
+
+3. **If** no clear resolution through priority or dependencies:
+   - Use the more specific rule over the more general rule
+   - Document the conflict for future rule improvement
+
+### Scenario: Missing Rule Guidance
+
+1. **If** no specific rule exists for a particular situation:
+   - Check for similar situations in existing rules
+   - Apply general principles from related rules
+   - Document the gap for future rule enhancement
+
+2. **If** multiple applicable rules provide partial guidance:
+   - Synthesize guidance while maintaining consistency
+   - Prioritize critical security and stability concerns
+   - Document the synthesis approach for future reference
+<!-- AI-PATTERN-END: decision_tree -->
+
+## Related Rules
+
+<!-- AI-PATTERN-START: related_rules -->
+- [rule-preprocessing.mdc](mdc:.cursor/rules/rule-preprocessing.mdc) (requires) - Provides critical preprocessing steps that must be followed before applying rules
+- [cursor-rules.mdc](mdc:.cursor/rules/cursor-rules.mdc) (requires) - Defines proper formatting and structure for rules
+- [content-context.mdc](mdc:.cursor/rules/content-context.mdc) (complements) - Guides understanding content context when updating files
+- [change-validation.mdc](mdc:.cursor/rules/change-validation.mdc) (complements) - Provides validation process for changes
+- [self-improve.mdc](mdc:.cursor/rules/self-improve.mdc) (extended by) - Framework for continuously improving rules based on emerging patterns and best practices
+<!-- AI-PATTERN-END: related_rules -->
+
+## Version History
+
+<!-- AI-PATTERN-START: version_history -->
+- v1.0.0 (2023-11-27): Initial versioned migration to AI-focused template format
+- v0.9.0 (2023-11-15): Added explicit AI consumption model guidance
+- v0.8.0 (2023-10-20): Enhanced rule relationship visualization with priority indicators
+- v0.7.0 (2023-09-05): Added comprehensive rule index with categorization
+- v0.6.0 (2023-08-10): Implemented rule application protocol
+<!-- AI-PATTERN-END: version_history -->

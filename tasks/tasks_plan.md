@@ -66,7 +66,7 @@ Tasks defined in [cursor-rules-enhancement.md](./cursor-rules-enhancement.md):
 - [ ] Phase 1.5: Rule Migration Implementation (3-4 weeks)
   - [x] Create comprehensive migration plan for existing rules (Task #3.5)
   - [x] Develop rule-migration.mdc with detailed guidelines
-  - [ ] Migrate critical foundation rules (rules.mdc, cursor-rules.mdc, rule-preprocessing.mdc)
+  - [x] Migrate critical foundation rules (rules.mdc, cursor-rules.mdc, rule-preprocessing.mdc)
   - [ ] Migrate core process & knowledge rules (memory-files.mdc, change-validation.mdc, etc.)
   - [ ] Migrate domain-specific rules (typescript.mdc, github-actions.mdc, etc.)
   - [ ] Migrate task-specific rules (implement.mdc, plan.mdc, etc.)
@@ -173,7 +173,8 @@ Key Considerations:
    - [x] Develop AI-Focused Rule Templates for cursor-rules.mdc (Task #2)
    - [x] Enhance AI Rule Selection Guidelines in rule-preprocessing.mdc (Task #3)
    - [x] Create comprehensive migration plan for existing rules (Task #3.5)
-   - [ ] Begin rule migration process with foundation rules
+   - [x] Complete migration of critical foundation rules (Task #3.6)
+   - [ ] Begin migration of core process & knowledge rules (Task #3.7)
    - [ ] Begin implementing Rule Effectiveness Metrics (Task #4)
 
 ### Medium Term (1-6 months)

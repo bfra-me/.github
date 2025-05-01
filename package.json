@@ -36,7 +36,7 @@
     "@octokit/rest": "21.1.1",
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/js-yaml": "4.0.9",
-    "@types/node": "22.14.1",
+    "@types/node": "22.15.3",
     "eslint": "9.25.1",
     "eslint-config-prettier": "10.1.2",
     "eslint-plugin-prettier": "5.2.6",

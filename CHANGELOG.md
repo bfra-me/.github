@@ -1,5 +1,32 @@
 # @bfra.me/.github
 
+## 2.5.1
+### Patch Changes
+
+
+- Updated dependency `packageManager` to `pnpm@10.10.0`. ([#663](https://github.com/bfra-me/.github/pull/663))
+
+
+- Updated dependency `eslint-plugin-prettier` to `5.3.1`. ([#675](https://github.com/bfra-me/.github/pull/675))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.4`. ([#674](https://github.com/bfra-me/.github/pull/674))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.3`. ([#669](https://github.com/bfra-me/.github/pull/669))
+
+
+- Updated dependency `tsx` to `4.19.4`. ([#665](https://github.com/bfra-me/.github/pull/665))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.2`. ([#659](https://github.com/bfra-me/.github/pull/659))
+
+
+- Updated dependency `@types/node` to `22.15.3`. ([#667](https://github.com/bfra-me/.github/pull/667))
+
+
+- Updated dependency `eslint` to `9.26.0`. ([#672](https://github.com/bfra-me/.github/pull/672))
+
 ## 2.5.0
 ### Minor Changes
 

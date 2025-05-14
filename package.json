@@ -1,6 +1,6 @@
 {
   "name": "@bfra.me/.github",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "Defaults for the @bfra-me GitHub Organization",
   "keywords": [
     "github",
@@ -29,26 +29,26 @@
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
     "@actions/exec": "1.1.1",
-    "@bfra.me/eslint-config": "0.20.5",
+    "@bfra.me/eslint-config": "0.20.6",
     "@bfra.me/prettier-config": "0.15.4",
     "@bfra.me/tsconfig": "0.9.7",
-    "@changesets/cli": "2.29.2",
+    "@changesets/cli": "2.29.4",
     "@octokit/rest": "21.1.1",
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/js-yaml": "4.0.9",
     "@types/node": "22.15.3",
     "eslint": "9.26.0",
-    "eslint-config-prettier": "10.1.2",
-    "eslint-plugin-prettier": "5.3.1",
+    "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-prettier": "5.4.0",
     "husky": "9.1.7",
     "jiti": "2.4.2",
     "js-yaml": "4.1.0",
-    "lint-staged": "15.5.1",
+    "lint-staged": "15.5.2",
     "prettier": "3.5.3",
     "tsx": "4.19.4",
     "typescript": "5.8.3"
   },
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.11.0",
   "lint-staged": {
     "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [
       "pnpm run fix"

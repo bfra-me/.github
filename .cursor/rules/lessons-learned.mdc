@@ -1,9 +1,8 @@
 ---
 description: Repository of important patterns, preferences, and project intelligence
 globs:
-alwaysApply: false
+alwaysApply: true
 ---
-
 # Project Intelligence System
 
 - **Related Rules:**
@@ -19,6 +18,15 @@ alwaysApply: false
 - **Document inputs, outputs, and permissions thoroughly**
 - **Use standardized naming conventions consistently**
 - **Separate configuration from logic in workflow files**
+
+### Git Workflow Best Practices
+- **Never commit directly to the `main` branch**
+- **Always create a feature branch for all changes**
+- **Use descriptive branch names with prefixes (e.g., `feat/`, `fix/`)**
+- **Make commits with clear, conventional commit messages**
+- **Create pull requests for review before merging to `main`**
+- **Ensure all tests pass before merging**
+- **Keep feature branches up-to-date with `main`**
 
 ### Repository Structure
 - **Organize files into logical directories**

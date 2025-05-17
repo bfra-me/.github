@@ -1,5 +1,23 @@
 # @bfra.me/.github
 
+## 2.5.3
+### Patch Changes
+
+
+- Updated dependency `eslint` to `9.27.0`. ([#702](https://github.com/bfra-me/.github/pull/702))
+
+
+- Updated dependency `@changesets/cli` to `2.29.4`. ([#694](https://github.com/bfra-me/.github/pull/694))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.6`. ([#691](https://github.com/bfra-me/.github/pull/691))
+
+
+- Updated dependency `@types/node` to `22.15.18`. ([#700](https://github.com/bfra-me/.github/pull/700))
+
+
+- Updated dependency `packageManager` to `pnpm@10.11.0`. ([#695](https://github.com/bfra-me/.github/pull/695))
+
 ## 2.5.2
 ### Patch Changes
 

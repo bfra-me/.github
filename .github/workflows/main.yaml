@@ -80,7 +80,7 @@ jobs:
           HUSKY: '0'
         run: pnpm bootstrap
       - name: Create Release Pull Request or Publish to npm
-        uses: changesets/action@e0538e686673de0265c8a3e2904b8c76beaa43fd # v1.5.2
+        uses: changesets/action@e0145edc7d9d8679003495b11f87bd8ef63c0cba # v1.5.3
         with:
           commit: 'chore(changesets): publish release'
           publish: pnpm release

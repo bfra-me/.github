@@ -29,8 +29,8 @@
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
     "@actions/exec": "1.1.1",
-    "@bfra.me/eslint-config": "0.20.7",
-    "@bfra.me/prettier-config": "0.15.4",
+    "@bfra.me/eslint-config": "0.20.8",
+    "@bfra.me/prettier-config": "0.15.5",
     "@bfra.me/tsconfig": "0.9.7",
     "@changesets/cli": "2.29.4",
     "@octokit/rest": "21.1.1",

@@ -1,11 +1,11 @@
 {
-  "name": "update-metadata-action",
-  "version": "0.1.0",
+  "name": "@bfra.me-actions/update-metadata",
+  "version": "0.0.0",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsup --minify",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
@@ -24,6 +24,7 @@
     "@types/node": "^22.15.18",
     "@vitest/coverage-v8": "^3.1.4",
     "eslint": "^9.27.0",
+    "tsup": "8.5.0",
     "typescript": "^5.8.3",
     "vitest": "^3.1.4"
   }

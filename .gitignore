@@ -3,3 +3,10 @@ node_modules
 # SpecStory explanation file
 .specstory/.what-is-this.md
 .specstory/
+
+# Build outputs for actions
+.github/actions/*/dist/
+.github/actions/*/lib/
+
+# Coverage reports
+.github/actions/*/coverage/

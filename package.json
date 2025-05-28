@@ -16,7 +16,7 @@
   "author": "Marcus R. Brown <git@mrbro.dev> (https://mrbro.dev/)",
   "type": "module",
   "scripts": {
-    "bootstrap": "pnpm install --prefer-offline --loglevel error",
+    "bootstrap": "pnpm install --prefer-offline --loglevel warn",
     "bump": "changeset version && pnpm bootstrap && pnpm run fix ",
     "fix": "pnpm run lint --fix",
     "lint": "eslint .",

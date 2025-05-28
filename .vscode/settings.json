@@ -15,6 +15,7 @@
     },
     "editor.formatOnType": false,
 
+    "eslint.format.enable": true,
     // Silent the stylistic rules in you IDE, but still auto fix them
     "eslint.rules.customizations": [
         {
@@ -54,5 +55,12 @@
     ],
 
     "typescript.enablePromptUseWorkspaceTsdk": true,
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+
+    "[javascript][javascriptreact]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescript][typescriptreact]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    }
 }

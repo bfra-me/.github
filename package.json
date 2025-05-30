@@ -20,8 +20,8 @@
     "bootstrap": "pnpm install --prefer-offline --loglevel warn",
     "build": "pnpm -r run build",
     "bump": "changeset version && pnpm run build && pnpm run fix",
-    "fix": "pnpm run lint --fix",
-    "lint": "eslint .",
+    "fix": "eslint . --fix && pnpm -r run lint --fix",
+    "lint": "eslint . && pnpm -r run lint",
     "prepare": "husky",
     "quality-check": "pnpm run type-check && pnpm run lint",
     "release": "tsx ./scripts/release.ts",
@@ -30,7 +30,7 @@
   },
   "lint-staged": {
     "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [
-      "pnpm run fix"
+      "eslint --fix"
     ],
     "package.json": [
       "sort-package-json"

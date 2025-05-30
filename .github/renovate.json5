@@ -30,7 +30,7 @@
     },
   ],
   postUpgradeTasks: {
-    commands: ['pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],
+    commands: ['pnpm run fix', 'pnpm run build'],
     executionMode: 'branch',
   },
   prBodyDefinitions: {

@@ -17,15 +17,23 @@
   "type": "module",
   "scripts": {
     "bootstrap": "pnpm install --prefer-offline --loglevel warn",
-    "bump": "changeset version && pnpm run build && pnpm run fix",
     "build": "pnpm -r run build",
+    "bump": "changeset version && pnpm run build && pnpm run fix",
     "fix": "pnpm run lint --fix",
     "lint": "eslint .",
-    "test": "pnpm -r run test",
-    "release": "tsx ./scripts/release.ts",
     "prepare": "husky",
-    "type-check": "pnpm -r run type-check",
-    "quality-check": "pnpm run type-check && pnpm run lint"
+    "quality-check": "pnpm run type-check && pnpm run lint",
+    "release": "tsx ./scripts/release.ts",
+    "test": "pnpm -r run test",
+    "type-check": "pnpm -r run type-check"
+  },
+  "lint-staged": {
+    "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [
+      "pnpm run fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
   },
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
@@ -43,14 +51,10 @@
     "jiti": "2.4.2",
     "lint-staged": "15.5.2",
     "prettier": "3.5.3",
+    "sort-package-json": "3.2.1",
     "tsx": "4.19.4",
     "typescript": "5.8.3",
     "vitest": "3.1.4"
   },
-  "packageManager": "pnpm@10.11.0",
-  "lint-staged": {
-    "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [
-      "pnpm run fix"
-    ]
-  }
+  "packageManager": "pnpm@10.11.0"
 }

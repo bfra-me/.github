@@ -1,8 +1,16 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
-  "changelog": ["@svitejs/changesets-changelog-github-compact", {"repo": "bfra-me/.github"}],
+  "changelog": [
+    "@svitejs/changesets-changelog-github-compact",
+    {
+      "repo": "bfra-me/.github"
+    }
+  ],
   "commit": false,
-  "privatePackages": {"tag": true, "version": true},
+  "privatePackages": {
+    "tag": false,
+    "version": true
+  },
   "access": "restricted",
   "baseBranch": "main",
   "updateInternalDependencies": "patch"

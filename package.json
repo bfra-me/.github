@@ -20,8 +20,8 @@
     "bootstrap": "pnpm install --prefer-offline --loglevel warn",
     "build": "pnpm -r run build",
     "bump": "changeset version && pnpm run build && pnpm run fix",
-    "fix": "eslint . --fix && pnpm -r run lint --fix",
-    "lint": "eslint . && pnpm -r run lint",
+    "fix": "JITI_INTEROP_DEFAULT=false eslint . --fix && pnpm -r run lint --fix",
+    "lint": "JITI_INTEROP_DEFAULT=false eslint . && pnpm -r run lint",
     "prepare": "husky",
     "quality-check": "pnpm run type-check && pnpm run lint",
     "release": "tsx ./scripts/release.ts",
@@ -30,7 +30,7 @@
   },
   "lint-staged": {
     "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [
-      "eslint --fix"
+      "cross-env JITI_INTEROP_DEFAULT=false eslint --fix"
     ],
     "package.json": [
       "sort-package-json"
@@ -45,6 +45,7 @@
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/node": "22.15.18",
     "@vitest/coverage-v8": "3.1.4",
+    "cross-env": "7.0.3",
     "eslint": "9.27.0",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-prettier": "5.4.1",

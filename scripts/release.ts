@@ -62,6 +62,17 @@ async function main() {
       `sha=${sha}`,
     ])
   }
+
+  // Create a new tag
+  await exec('gh', [
+    'api',
+    `repos/${process.env.GH_REPO}/git/refs`,
+    '-f',
+    `ref=refs/tags/${tag}`,
+    '-f',
+    `sha=${sha}`,
+  ])
+  console.log(`Created tag ${tag} and updated branch ${ref}`)
 }
 
 await main()

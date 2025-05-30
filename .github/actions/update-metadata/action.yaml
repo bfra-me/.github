@@ -1,0 +1,12 @@
+name: Update Metadata
+description: 'Generate and update repository metadata, optionally autofix, create changeset, and open PR.'
+branding:
+  icon: refresh-cw
+  color: blue
+inputs:
+  token:
+    description: GitHub token with repo write access.
+    required: true
+runs:
+  using: node20
+  main: dist/index.js

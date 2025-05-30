@@ -1,5 +1,10 @@
 node_modules
+tsconfig.tsbuildinfo
 .cursor/mcp.json
+
 # SpecStory explanation file
 .specstory/.what-is-this.md
 .specstory/
+
+# Coverage reports
+.github/actions/*/coverage/

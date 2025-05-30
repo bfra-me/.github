@@ -36,11 +36,31 @@ Update repository settings. Repository settings are defined in [.github/settings
 
 This repository uses [pnpm](https://pnpm.io/) as the package manager.
 
-To install the dependencies, run:
+### Installation
+
+To install dependencies for all packages in the workspace, run:
 
 ```bash
-pnpm bootstrap
+pnpm install
 ```
+
+### Workspace Scripts
+
+The following scripts can be run from the root to operate on all packages:
+
+- **Build all actions**: `pnpm build`
+- **Run tests**: `pnpm test`
+- **Lint code**: `pnpm lint`
+- **Type check**: `pnpm type-check`
+
+### Adding New Actions
+
+To add a new action to the monorepo:
+
+1. Create a new directory under `.github/actions/`
+2. Add a `package.json` with the action-specific configuration
+3. The workspace will automatically include it
+4. Use the root scripts to build, test, and lint across all actions
 
 ### Pre-commit Hooks
 

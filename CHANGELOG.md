@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 2.6.0
+### Minor Changes
+
+
+- Ignore bot edits to Renovate issues/PRs; ignore pushes to `main`. ([#720](https://github.com/bfra-me/.github/pull/720))
+
+
+### Patch Changes
+
+
+- Updated dependency `eslint-plugin-prettier` to `5.4.1`. ([#719](https://github.com/bfra-me/.github/pull/719))
+
+
+- Update repository metadata files based on the latest organization scan. ([#716](https://github.com/bfra-me/.github/pull/716))
+
 ## 2.5.4
 ### Patch Changes
 

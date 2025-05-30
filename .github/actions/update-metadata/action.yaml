@@ -7,39 +7,6 @@ inputs:
   token:
     description: GitHub token with repo write access.
     required: true
-  node-version:
-    description: Node.js version to use.
-    required: false
-    default: '20'
-  autofix:
-    description: Autofix lint errors.
-    required: false
-    default: 'true'
-  pr-branch:
-    description: Branch name for PR.
-    required: false
-    default: ci/update-metadata
-  commit-message:
-    description: Commit message for metadata update.
-    required: false
-    default: 'chore: update repository metadata'
-  pr-title:
-    description: Pull request title.
-    required: false
-    default: 'chore: update repository metadata'
-  pr-body:
-    description: Pull request body.
-    required: false
-    default: This PR updates the repository metadata files based on the latest organization scan.
-  skip-changeset:
-    description: Skip creating a changeset.
-    required: false
-    default: 'false'
-outputs:
-  unstaged-changes:
-    description: Unstaged changes after running metadata update.
-  pr-url:
-    description: URL of the created pull request.
 runs:
   using: node20
   main: dist/index.js

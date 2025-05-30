@@ -27,3 +27,5 @@
 *.so -text
 
 .cursorrules text linguist-language=Markdown
+
+.github/actions/*/dist/**/*.js -diff

@@ -17,7 +17,7 @@
   "type": "module",
   "scripts": {
     "bootstrap": "pnpm install --prefer-offline --loglevel warn",
-    "bump": "changeset version && pnpm bootstrap && pnpm run fix ",
+    "bump": "changeset version && pnpm run build && pnpm run fix",
     "build": "pnpm -r run build",
     "fix": "pnpm run lint --fix",
     "lint": "eslint .",

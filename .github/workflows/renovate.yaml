@@ -13,18 +13,18 @@ on:
     - cron: '0 * * * *' # Run every hour
   workflow_call:
     inputs:
-      log_level:
+      log-level:
         description: Log level
         type: string
         default: debug
-      path_filters:
+      path-filters:
         description: List of paths to filter for checking for changes
         type: string
-      print_config:
+      print-config:
         description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
         type: boolean
         default: false
-      renovate_app_slug:
+      renovate-app-slug:
         description: GitHub App slug
         type: string
     secrets:
@@ -36,14 +36,14 @@ on:
         required: true
   workflow_dispatch:
     inputs:
-      log_level:
+      log-level:
         description: Log level
         type: string
         default: debug
-      path_filters:
+      path-filters:
         description: List of paths to filter for checking for changes
         type: string
-      print_config:
+      print-config:
         description: Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.
         type: boolean
         default: false
@@ -169,7 +169,7 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         with:
           filters: |
-            changes: ${{ inputs.path_filters != '' && inputs.path_filters || env.default_path_filters }}
+            changes: ${{ inputs.path-filters != '' && inputs.path-filters || env.default_path_filters }}
 
       - name: Renovate
         env:
@@ -183,8 +183,8 @@ jobs:
           branch: ${{ (github.ref_name != github.event.repository.default_branch || env.dry_run == 'true') && ( github.head_ref || github.ref_name ) || '' }}
           cache: true
           dry-run: ${{ env.dry_run }}
-          log-level: ${{ inputs.log_level || needs.prepare.outputs.autodiscover == 'true' && 'debug' || env.WORKFLOW_LOG_LEVEL }}
-          print-config: ${{ inputs.print_config }}
+          log-level: ${{ inputs.log-level || needs.prepare.outputs.autodiscover == 'true' && 'debug' || env.WORKFLOW_LOG_LEVEL }}
+          print-config: ${{ inputs.print-config }}
           renovate-app-id: ${{ secrets.APPLICATION_ID }}
           renovate-app-private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
     timeout-minutes: 30

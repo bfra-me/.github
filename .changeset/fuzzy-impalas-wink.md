@@ -1,5 +1,5 @@
 ---
-"@bfra.me/.github": major
+"@bfra.me-github/organization": major
 ---
 
 - Update @bfra.me/renovate-action to v6.

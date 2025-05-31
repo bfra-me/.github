@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup --minify",
-    "lint": "JITI_INTEROP_DEFAULT=false eslint .",
+    "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
     "type-check": "tsc --noEmit"

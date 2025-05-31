@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 2.6.1
+### Patch Changes
+
+
+- Updated dependency `lint-staged` to `16.1.0`. ([#734](https://github.com/bfra-me/.github/pull/734))
+
+
+- Updated dependency `eslint` to `9.28.0`. ([#730](https://github.com/bfra-me/.github/pull/730))
+
 ## 2.6.0
 ### Minor Changes
 

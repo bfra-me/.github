@@ -12,6 +12,10 @@
       allowedVersions: '<=3.13',
     },
     {
+      matchDepNames: ['jiti'],
+      allowedVersions: '<2.2.0',
+    },
+    {
       matchPackageNames: ['aquasecurity/trivy-action'],
       versioning: 'github-releases',
     },

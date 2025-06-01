@@ -27,6 +27,21 @@ on:
       renovate-app-slug:
         description: GitHub App slug
         type: string
+      # Remove these deprecated inputs in the next major version
+      log_level:
+        description: '[DEPRECATED] Log level'
+        type: string
+        default: debug
+      path_filters:
+        description: '[DEPRECATED] List of paths to filter for checking for changes'
+        type: string
+      print_config:
+        description: '[DEPRECATED] Log the fully-resolved Renovate config for each repository, plus fully-resolved presets.'
+        type: boolean
+        default: false
+      renovate_app_slug:
+        description: '[DEPRECATED] GitHub App slug'
+        type: string
     secrets:
       APPLICATION_ID:
         description: GitHub App ID

@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 3.0.1
+### Patch Changes
+
+
+- Updated dependency `@types/node` to `22.15.29`. ([#751](https://github.com/bfra-me/.github/pull/751))
+
 ## 3.0.0
 ### Major Changes
 

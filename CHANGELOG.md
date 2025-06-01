@@ -1,5 +1,13 @@
 # @bfra.me/.github
 
+## 3.0.0
+### Major Changes
+
+
+- - Update @bfra.me/renovate-action to v6. ([#739](https://github.com/bfra-me/.github/pull/739))
+  - Rename Renovate workflow inputs.
+  - Rename root package to @bfra.me-github/organization.
+
 ## 2.6.1
 ### Patch Changes
 

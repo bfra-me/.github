@@ -25,7 +25,6 @@ branches:
           - Renovate
           - Review Dependencies
           - Triage
-          - Trigger Repository Updates
 
       enforce_admins: true
       required_pull_request_reviews:

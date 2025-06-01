@@ -19,7 +19,6 @@ branches:
           - Create Renovate Changeset
           - GitGuardian Scan
           - License Scan
-          - Prepare Repository List
           - Quality Check
           - Release
           - Renovate

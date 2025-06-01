@@ -9,7 +9,7 @@ on:
   pull_request:
     types: [edited]
   push:
-    branches: ['**']
+    branches-ignore: [main]
   repository_dispatch:
     types: [renovate-trigger]
   schedule:
@@ -43,13 +43,13 @@ jobs:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     name: Renovate
     secrets: inherit
-    uses: bfra-me/.github/.github/workflows/renovate.yaml@v2
+    uses: bfra-me/.github/.github/workflows/renovate.yaml@v3
     with:
-      log_level: ${{ inputs.log-level || 'debug' }}
+      log-level: ${{ inputs.log-level || 'debug' }}
       # Use path filters to specify which files trigger Renovate.
-      # path_filters: >-
+      # path-filters: >-
       #   [
       #     '.github/workflows/renovate.yaml',
       #     '.github/renovate.json5'
       #   ]
-      print_config: ${{ inputs.print-config || false }}
+      print-config: ${{ inputs.print-config || false }}

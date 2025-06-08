@@ -1,5 +1,27 @@
 # @bfra.me/.github
 
+## 3.0.2
+### Patch Changes
+
+
+- Updated dependency `@vitest/coverage-v8` to `3.2.2`. ([#775](https://github.com/bfra-me/.github/pull/775))
+  Updated dependency `vitest` to `3.2.2`.
+
+- Updated dependency `@vitest/coverage-v8` to `3.2.1`. ([#771](https://github.com/bfra-me/.github/pull/771))
+  Updated dependency `vitest` to `3.2.1`.
+
+- Updated dependency `packageManager` to `pnpm@10.11.1`. ([#763](https://github.com/bfra-me/.github/pull/763))
+
+
+- Updated dependency `packageManager` to `pnpm@10.12.1`. ([#785](https://github.com/bfra-me/.github/pull/785))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.10`. ([#760](https://github.com/bfra-me/.github/pull/760))
+
+
+- Updated dependency `@vitest/coverage-v8` to `3.2.0`. ([#765](https://github.com/bfra-me/.github/pull/765))
+  Updated dependency `vitest` to `3.2.0`.
+
 ## 3.0.1
 ### Patch Changes
 

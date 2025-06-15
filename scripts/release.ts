@@ -247,7 +247,7 @@ async function main() {
         '--fail-on-no-commits',
         '--verify-tag',
         '--target',
-        releaseSha.toString('hex'),
+        releaseSha,
         '--title',
         tagName,
         '--notes-file',

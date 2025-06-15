@@ -1,5 +1,5 @@
 ---
-'@bfra.me-github/organization': patch
+"@bfra.me/.github": patch
 ---
 
 Updated dependency `@vitest/coverage-v8` to `3.2.3`.

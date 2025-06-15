@@ -1,5 +1,5 @@
 ---
-'@bfra.me-github/organization': patch
+"@bfra.me/.github": patch
 ---
 
 Updated dependency `tsx` to `4.20.3`.

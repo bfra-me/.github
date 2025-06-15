@@ -1,5 +1,44 @@
 # @bfra.me/.github
 
+## 3.0.3
+### Patch Changes
+
+
+- Move all release processes into the release script. ([#816](https://github.com/bfra-me/.github/pull/816))
+
+
+- Updated dependency `tsx` to `4.20.1`. ([#800](https://github.com/bfra-me/.github/pull/800))
+
+
+- Updated dependency `tsx` to `4.20.3`. ([#808](https://github.com/bfra-me/.github/pull/808))
+
+
+- Updated dependency `lint-staged` to `16.1.1`. ([#811](https://github.com/bfra-me/.github/pull/811))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.20.11`. ([#788](https://github.com/bfra-me/.github/pull/788))
+
+
+- Updated dependency `@types/node` to `22.15.31`. ([#815](https://github.com/bfra-me/.github/pull/815))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.21.0`. ([#806](https://github.com/bfra-me/.github/pull/806))
+
+
+- Updated dependency `lint-staged` to `16.1.2`. ([#817](https://github.com/bfra-me/.github/pull/817))
+
+
+- Updated dependency `tsx` to `4.20.0`. ([#798](https://github.com/bfra-me/.github/pull/798))
+
+
+- Updated dependency `@vitest/coverage-v8` to `3.2.3`. ([#804](https://github.com/bfra-me/.github/pull/804))
+  Updated dependency `vitest` to `3.2.3`.
+
+- Updated dependency `tsx` to `4.20.2`. ([#802](https://github.com/bfra-me/.github/pull/802))
+
+
+- Rename package back to `@bfra.me/.github`. ([#816](https://github.com/bfra-me/.github/pull/816))
+
 ## 3.0.2
 ### Patch Changes
 

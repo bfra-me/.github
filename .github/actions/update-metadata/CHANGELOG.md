@@ -1,5 +1,11 @@
 # @bfra.me-actions/update-metadata
 
+## 0.1.2
+### Patch Changes
+
+
+- \[INTERNAL\] Bump version to test release process. ([#818](https://github.com/bfra-me/.github/pull/818))
+
 ## 0.1.1
 ### Patch Changes
 

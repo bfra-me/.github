@@ -214,9 +214,10 @@ async function main() {
   }
 
   for (const {pkg, tagName} of releasedPackages) {
+    const changelogPath = path.join(pkg.dir, 'CHANGELOG.md')
     let changelog
     try {
-      changelog = await fs.readFile(path.join(pkg.dir, 'CHANGELOG.md'), 'utf8')
+      changelog = await fs.readFile(changelogPath, 'utf8')
     } catch (error) {
       if (isErrorWithCode(error, 'ENOENT')) {
         // if we can't find a changelog, the user has probably disabled changelogs
@@ -225,12 +226,9 @@ async function main() {
       throw error
     }
     const changelogEntry = getChangelogEntry(changelog, pkg.packageJson.version)
-    if (!changelogEntry) {
-      // we can find a changelog but not the entry for this version
-      // if this is true, something has probably gone wrong
-      throw new Error(
-        `Could not find changelog entry for ${pkg.packageJson.name}@${pkg.packageJson.version}`,
-      )
+    if (changelogEntry.content.trim() === '') {
+      console.log(`No changelog entry found for ${tagName} in ${changelogPath}, skipping release.`)
+      continue
     }
 
     // Write the changelog entry to a temporary file for the `gh release` command
@@ -247,7 +245,7 @@ async function main() {
         '--fail-on-no-commits',
         '--verify-tag',
         '--target',
-        releaseSha,
+        `${releaseSha}`,
         '--title',
         tagName,
         '--notes-file',
@@ -256,6 +254,9 @@ async function main() {
       ].filter(Boolean),
       {cwd},
     )
+    console.log(`Created release for ${tagName} targetting ${releaseSha}`)
+
+    await fs.unlink(notesPath)
   }
 }
 

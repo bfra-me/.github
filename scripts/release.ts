@@ -242,7 +242,6 @@ async function main() {
         'release',
         'create',
         tagName,
-        '--fail-on-no-commits',
         '--verify-tag',
         '--target',
         `${releaseSha}`,

@@ -99,6 +99,7 @@ jobs:
         uses: changesets/action@v1
         with:
           commit: 'chore: version bump'
+          createGithubReleases: false
           publish: pnpm release
           setupGitUser: false
           title: 'chore(🦋📦): publish release'

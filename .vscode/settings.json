@@ -13,6 +13,7 @@
         "source.fixAll.eslint": "explicit",
         "source.organizeImports": "never"
     },
+    "editor.formatOnSave": false,
     "editor.formatOnType": false,
 
     "eslint.format.enable": true,

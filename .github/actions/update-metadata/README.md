@@ -3,9 +3,11 @@
 Generate and update repository metadata. Designed for use in .github repos and organization-wide automation.
 
 ## Inputs
+
 - `token`: GitHub token with repo write access (required)
 
 ## Example Usage
+
 ```yaml
 jobs:
   update-metadata:
@@ -18,10 +20,12 @@ jobs:
 ```
 
 ## Development
+
 - Main logic in `src/index.ts`, built to `dist/index.js`
 - Test with `pnpm test` (Vitest)
 - Lint with `pnpm lint`
 - Build with `pnpm build`
 
 ## License
+
 MIT

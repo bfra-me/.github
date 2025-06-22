@@ -23,9 +23,9 @@ jobs:
 
 ### Parameters
 
-| Parameter | Description | Required | Default |
-|-----------|-------------|----------|---------|
-| `secrets: inherit` | Inherits secrets from the caller workflow | Yes | - |
+| Parameter          | Description                               | Required | Default |
+| ------------------ | ----------------------------------------- | -------- | ------- |
+| `secrets: inherit` | Inherits secrets from the caller workflow | Yes      | -       |
 
 ### Triggers
 
@@ -35,11 +35,13 @@ jobs:
 ## Permissions
 
 The workflow requires the following permissions:
+
 - `contents: read` - For reading repository contents
 
 ## Examples
 
 ### Basic Usage
+
 ```yaml
 jobs:
   review-dependencies:
@@ -47,6 +49,7 @@ jobs:
 ```
 
 ### With Branch Specification
+
 ```yaml
 on:
   pull_request:
@@ -59,6 +62,7 @@ jobs:
 ## Supported Package Managers
 
 The Dependency Review workflow supports manifest files from:
+
 - npm (package.json, package-lock.json)
 - Yarn (yarn.lock)
 - pnpm (pnpm-lock.yaml)
@@ -73,11 +77,13 @@ The Dependency Review workflow supports manifest files from:
 ## Capabilities
 
 1. **Vulnerability Detection**
+
    - Identifies known security vulnerabilities in dependencies
    - Provides severity level for each vulnerability
    - Lists affected packages with version information
 
 2. **License Compliance**
+
    - Detects license changes in dependencies
    - Identifies dependencies with potentially non-compliant licenses
    - Reports new license introductions
@@ -90,6 +96,7 @@ The Dependency Review workflow supports manifest files from:
 ## Outputs
 
 The workflow provides the following outputs:
+
 - List of vulnerable dependencies detected
 - Severity levels of vulnerabilities
 - License compliance information
@@ -100,6 +107,7 @@ The workflow provides the following outputs:
 To customize the Dependency Review workflow, you can:
 
 1. Configure denial of specific licenses:
+
    ```yaml
    - name: Dependency Review
      uses: actions/dependency-review-action@v4
@@ -108,6 +116,7 @@ To customize the Dependency Review workflow, you can:
    ```
 
 2. Set failure thresholds for vulnerability severity:
+
    ```yaml
    - name: Dependency Review
      uses: actions/dependency-review-action@v4
@@ -128,10 +137,12 @@ To customize the Dependency Review workflow, you can:
 Common errors and solutions:
 
 1. **Missing Manifest Files**
+
    - Ensure package manifest files are committed to the repository
    - Verify that manifest files are in supported formats
 
 2. **False Positives**
+
    - Update dependency allowlist configuration
    - Use versioning constraints to specify acceptable versions
    - Override specific vulnerability alerts when necessary
@@ -144,11 +155,13 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Version Control**
+
    - Always use specific version tags
    - Test updates in development first
    - Review changes before deployment
 
 2. **Configuration**
+
    - Set appropriate severity thresholds
    - Configure license policy
    - Document exceptions and overrides
@@ -163,11 +176,13 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Workflow Fails to Start**
+
    - Check permissions configuration
    - Verify workflow file syntax
    - Review GitHub Actions permission settings
 
 2. **False Positives**
+
    - Review dependency allowlist configuration
    - Check for incorrect version detection
    - Update to latest action version
@@ -180,6 +195,7 @@ Common errors and solutions:
 ## Support
 
 For additional support:
+
 1. Check the [troubleshooting guide](./troubleshooting.md)
 2. Review [existing issues](https://github.com/bfra-me/.github/issues)
 3. Visit the [actions/dependency-review-action](https://github.com/actions/dependency-review-action) repository

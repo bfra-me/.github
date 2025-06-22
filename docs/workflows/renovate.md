@@ -35,17 +35,17 @@ jobs:
 
 ### Required Parameters
 
-| Parameter | Description | Required | Default |
-|-----------|-------------|----------|---------|
-| `secrets: inherit` | Inherits secrets from the caller workflow | Yes | - |
+| Parameter          | Description                               | Required | Default |
+| ------------------ | ----------------------------------------- | -------- | ------- |
+| `secrets: inherit` | Inherits secrets from the caller workflow | Yes      | -       |
 
 ### Optional Parameters
 
-| Parameter | Description | Required | Default |
-|-----------|-------------|----------|---------|
-| `log_level` | Log level for Renovate (debug, info, warn, error) | No | debug |
-| `print_config` | Print the resolved Renovate config | No | false |
-| `path_filters` | Files that trigger Renovate when changed | No | All files |
+| Parameter      | Description                                       | Required | Default   |
+| -------------- | ------------------------------------------------- | -------- | --------- |
+| `log_level`    | Log level for Renovate (debug, info, warn, error) | No       | debug     |
+| `print_config` | Print the resolved Renovate config                | No       | false     |
+| `path_filters` | Files that trigger Renovate when changed          | No       | All files |
 
 ### Triggers
 
@@ -59,22 +59,26 @@ jobs:
 ## Permissions
 
 The workflow requires the following permissions:
+
 - `contents: read` - For reading repository content
 - Additional permissions are needed for Renovate to create PRs (handled internally)
 
 ## Capabilities
 
 1. **Dependency Management**
+
    - Automatically updates dependencies to latest versions
    - Creates pull requests for dependency updates
    - Groups related updates into single PRs
 
 2. **Security Patching**
+
    - Prioritizes security vulnerability patches
    - Auto-merges non-breaking security updates
    - Provides detailed changelogs and release notes
 
 3. **Customization**
+
    - Highly configurable update behavior
    - Supports custom update schedules
    - Can be configured per-dependency
@@ -87,6 +91,7 @@ The workflow requires the following permissions:
 ## Supported Package Managers
 
 Renovate supports numerous package ecosystems, including:
+
 - npm/yarn/pnpm (JavaScript/TypeScript)
 - pip/poetry/conda (Python)
 - Composer (PHP)
@@ -102,6 +107,7 @@ Renovate supports numerous package ecosystems, including:
 ## Examples
 
 ### Basic Usage
+
 ```yaml
 jobs:
   dependencies:
@@ -109,6 +115,7 @@ jobs:
 ```
 
 ### With Custom Parameters
+
 ```yaml
 jobs:
   dependencies:
@@ -124,6 +131,7 @@ jobs:
 ```
 
 ### Custom Schedule
+
 ```yaml
 on:
   schedule:
@@ -136,6 +144,7 @@ jobs:
 ## Configuration File
 
 Renovate is configured via a configuration file in your repository. Common locations include:
+
 - `renovate.json`
 - `.github/renovate.json`
 - `.renovaterc.json`
@@ -143,6 +152,7 @@ Renovate is configured via a configuration file in your repository. Common locat
 - `.github/renovate.json5`
 
 Example configuration file:
+
 ```json
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
@@ -162,6 +172,7 @@ Example configuration file:
 ## Outputs
 
 The workflow provides the following outputs:
+
 - Pull requests for dependency updates
 - Detailed logs of dependency checking
 - Resolved configuration (if print_config is true)
@@ -172,11 +183,13 @@ The workflow provides the following outputs:
 Common errors and solutions:
 
 1. **Authentication Issues**
+
    - Verify GitHub token permissions
    - Check token expiration
    - Ensure token has repository access
 
 2. **Configuration Problems**
+
    - Validate Renovate configuration syntax
    - Check for conflicting configuration settings
    - Use schema validation for configuration files
@@ -189,11 +202,13 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Configuration Management**
+
    - Use preset configurations for common scenarios
    - Test configuration changes in a development branch
    - Document your configuration decisions
 
 2. **Update Management**
+
    - Group related updates when possible
    - Schedule disruptive updates during low-activity periods
    - Set up auto-merge for patch and minor updates
@@ -208,11 +223,13 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Missing Updates**
+
    - Check Renovate logs for skipped dependencies
    - Verify package manager compatibility
    - Check update schedule configuration
 
 2. **Too Many PRs**
+
    - Configure grouping for related dependencies
    - Use dependency dashboard to manage updates
    - Adjust update schedule to batch changes
@@ -225,6 +242,7 @@ Common errors and solutions:
 ## Support
 
 For additional support:
+
 1. Check the [troubleshooting guide](./troubleshooting.md)
 2. Review [existing issues](https://github.com/bfra-me/.github/issues)
 3. Visit the [Renovate documentation](https://docs.renovatebot.com/)

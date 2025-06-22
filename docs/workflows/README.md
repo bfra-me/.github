@@ -5,15 +5,19 @@ This directory contains comprehensive documentation for all reusable workflows p
 ## Available Workflows
 
 1. [Repository Settings Update](./update-repo-settings.md)
+
    - Automates repository settings management using configuration files
 
 2. [Dependency Review](./dependency-review.md)
+
    - Analyzes dependencies for security vulnerabilities
 
 3. [OpenSSF Scorecard](./scorecard.md)
+
    - Evaluates repository security and maintenance status
 
 4. [CodeQL Analysis](./codeql-analysis.md)
+
    - Performs security and code quality analysis
 
 5. [Renovate Configuration](./renovate.md)
@@ -24,6 +28,7 @@ This directory contains comprehensive documentation for all reusable workflows p
 ### Getting Started
 
 1. Reference workflows using the following format:
+
    ```yaml
    jobs:
      job-name:

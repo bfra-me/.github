@@ -26,6 +26,7 @@ jobs:
 ### Required Files
 
 1. `.github/settings.yml` - Contains repository settings configuration
+
    ```yaml
    repository:
      # Repository settings
@@ -56,9 +57,9 @@ jobs:
 
 ### Parameters
 
-| Parameter | Description | Required | Default |
-|-----------|-------------|----------|---------|
-| `secrets: inherit` | Inherits secrets from the caller workflow | Yes | - |
+| Parameter          | Description                               | Required | Default |
+| ------------------ | ----------------------------------------- | -------- | ------- |
+| `secrets: inherit` | Inherits secrets from the caller workflow | Yes      | -       |
 
 ### Triggers
 
@@ -69,12 +70,14 @@ jobs:
 ## Permissions
 
 The workflow requires the following permissions:
+
 - `admin:org` - For managing organization settings
 - `repo` - For managing repository settings
 
 ## Examples
 
 ### Basic Usage
+
 ```yaml
 jobs:
   update-settings:
@@ -82,6 +85,7 @@ jobs:
 ```
 
 ### Custom Schedule
+
 ```yaml
 on:
   schedule:
@@ -94,6 +98,7 @@ jobs:
 ## Outputs
 
 The workflow provides the following outputs:
+
 - Status of each setting update
 - Error messages for failed updates
 - Summary of changes made
@@ -103,10 +108,12 @@ The workflow provides the following outputs:
 Common errors and solutions:
 
 1. **Permission Denied**
+
    - Ensure workflow has required permissions
    - Check organization access settings
 
 2. **Invalid Configuration**
+
    - Validate settings.yml format
    - Check for required fields
 
@@ -117,11 +124,13 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Version Control**
+
    - Always use specific version tags
    - Test updates in development first
    - Review changes before deployment
 
 2. **Configuration**
+
    - Keep settings.yml up to date
    - Document custom configurations
    - Use organization templates
@@ -136,11 +145,13 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Workflow Fails to Start**
+
    - Check branch protection rules
    - Verify workflow permissions
    - Validate YAML syntax
 
 2. **Settings Not Applied**
+
    - Check settings.yml format
    - Verify permission scopes
    - Review error logs
@@ -153,6 +164,7 @@ Common errors and solutions:
 ## Support
 
 For additional support:
+
 1. Check the [troubleshooting guide](./troubleshooting.md)
 2. Review [existing issues](https://github.com/bfra-me/.github/issues)
 3. Create a new issue with:

@@ -1,5 +1,26 @@
 # @bfra.me/.github
 
+## 4.0.0
+### Major Changes
+
+
+- Update to @bfra-me/renovate-action v7. ([#842](https://github.com/bfra-me/.github/pull/842))
+
+
+- Remove deprecated `workflow_call` inputs from the Renovate workflow. ([#841](https://github.com/bfra-me/.github/pull/841))
+
+
+### Patch Changes
+
+
+- Updated dependency `@vitest/coverage-v8` to `3.2.4`. ([#838](https://github.com/bfra-me/.github/pull/838))
+  Updated dependency `vitest` to `3.2.4`.
+
+- Updated dependency `packageManager` to `pnpm@10.12.2`. ([#843](https://github.com/bfra-me/.github/pull/843))
+
+
+- Updated dependency `prettier` to `3.6.0`. ([#844](https://github.com/bfra-me/.github/pull/844))
+
 ## 3.0.5
 ### Patch Changes
 

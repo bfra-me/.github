@@ -107,17 +107,14 @@ This repository serves as the central configuration hub and template for the @bf
 ## Related Files
 
 - **Dependencies:**
-
   - [Architecture Documentation](/docs/architecture.md): Defines system architecture to meet requirements
   - [Technical Documentation](/docs/technical.md): Technical implementation of requirements
 
 - **Extensions:**
-
   - [Tasks Plan](/tasks/tasks_plan.md): Converts requirements into actionable tasks
   - [Active Context](/tasks/active_context.md): Maps requirements to current development focus
 
 - **Implementations:**
-
   - [Workflow Documentation](/docs/workflows/README.md): Implementation of workflow requirements
   - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Repository settings implementation
 

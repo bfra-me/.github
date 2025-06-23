@@ -141,19 +141,16 @@
 ## Related Files
 
 - **Dependencies:**
-
   - [Active Context](/tasks/active_context.md): Current development focus and priorities
   - [Technical Documentation](/docs/technical.md): Technical foundation for implementation
   - [GitHub Actions](/.cursor/rules/github-actions.mdc): Guidelines for GitHub Actions integration
 
 - **Extensions:**
-
   - [Tasks Plan](/tasks/tasks_plan.md): Parent tasks plan defining scope
   - [Preference Monitoring Implementation](/tasks/preference-monitoring-implementation.md): Related system implementation
   - [ADR 0002](/docs/adr/0002-repository-metrics-and-trigger-system.md): Architectural decision record
 
 - **Implementations:**
-
   - [Workflows Documentation](/docs/workflows/README.md): Documentation for workflow integration
   - [Error Management](/.cursor/rules/error-management.mdc): Error handling guidelines
 

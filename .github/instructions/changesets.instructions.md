@@ -118,7 +118,6 @@ Avoid creating changesets for changes that have **no impact or relevance to exte
   - **Format**: Concise, imperative mood, single line usually sufficient.
   - **Example**: `Fix dependency resolution bug in 'next' command.`
 - **Git Commit Message**:
-
   - **Audience**: Developers browsing the Git history of _this_ repository.
   - **Purpose**: Explain _why_ the change was made, the context, and the implementation details (can include internal context).
   - **Format**: Follows commit conventions (e.g., Conventional Commits), can be multi-line with a subject and body.
@@ -145,7 +144,6 @@ When documenting changes in a changeset, ensure they provide a complete picture 
 ### Changeset Scope Documentation
 
 - **✅ DO:** Document the complete scope of changes:
-
   - Identify all components affected by the change
   - Describe both primary changes and consequential updates
   - Include any related configuration changes

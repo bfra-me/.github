@@ -77,13 +77,11 @@ The Dependency Review workflow supports manifest files from:
 ## Capabilities
 
 1. **Vulnerability Detection**
-
    - Identifies known security vulnerabilities in dependencies
    - Provides severity level for each vulnerability
    - Lists affected packages with version information
 
 2. **License Compliance**
-
    - Detects license changes in dependencies
    - Identifies dependencies with potentially non-compliant licenses
    - Reports new license introductions
@@ -137,12 +135,10 @@ To customize the Dependency Review workflow, you can:
 Common errors and solutions:
 
 1. **Missing Manifest Files**
-
    - Ensure package manifest files are committed to the repository
    - Verify that manifest files are in supported formats
 
 2. **False Positives**
-
    - Update dependency allowlist configuration
    - Use versioning constraints to specify acceptable versions
    - Override specific vulnerability alerts when necessary
@@ -155,13 +151,11 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Version Control**
-
    - Always use specific version tags
    - Test updates in development first
    - Review changes before deployment
 
 2. **Configuration**
-
    - Set appropriate severity thresholds
    - Configure license policy
    - Document exceptions and overrides
@@ -176,13 +170,11 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Workflow Fails to Start**
-
    - Check permissions configuration
    - Verify workflow file syntax
    - Review GitHub Actions permission settings
 
 2. **False Positives**
-
    - Review dependency allowlist configuration
    - Check for incorrect version detection
    - Update to latest action version

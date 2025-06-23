@@ -109,18 +109,15 @@
 ## Related Files
 
 - **Dependencies:**
-
   - [Active Context](/tasks/active_context.md): Current development focus and priorities
   - [Technical Documentation](/docs/technical.md): Technical foundation for implementation
   - [Architecture Documentation](/docs/architecture.md): System architecture for integration
 
 - **Extensions:**
-
   - [Tasks Plan](/tasks/tasks_plan.md): Parent tasks plan defining scope
   - [Repository Metrics Implementation](/tasks/repository-metrics-implementation.md): Related system implementation
 
 - **Implementations:**
-
   - [Knowledge Graph Management](/.cursor/rules/knowledge_graph_management.mdc): Guidelines for Knowledge Graph integration
   - [MCP Tool Usage](/.cursor/rules/mcp-tool-usage.mdc): Guidelines for MCP tool integration
 

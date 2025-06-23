@@ -57,47 +57,38 @@ The workflow requires the following permissions:
 The Scorecard action performs various security checks including:
 
 1. **Branch Protection**
-
    - Verifies branch protection rules on default branch
    - Checks required reviews, status checks, etc.
 
 2. **Dependency Management**
-
    - Checks for dependency update tools (Dependabot, Renovate)
    - Verifies dependency manifest files
 
 3. **Code Review**
-
    - Analyzes pull request review practices
    - Checks for required reviews on PRs
 
 4. **Security Policy**
-
    - Verifies presence of SECURITY.md file
    - Checks for responsible disclosure policy
 
 5. **CI/CD**
-
    - Evaluates CI/CD configuration
    - Checks for pinned dependencies in workflows
 
 6. **Dangerous Workflows**
-
    - Identifies potentially dangerous workflow patterns
    - Checks for script injection risks
 
 7. **Token Permissions**
-
    - Analyzes token permission practices
    - Checks for adherence to principle of least privilege
 
 8. **Vulnerabilities**
-
    - Checks for unpatched vulnerabilities
    - Evaluates vulnerability management practices
 
 9. **Binary Artifacts**
-
    - Identifies binary artifacts in the repository
    - Flags potential risks from binaries
 
@@ -150,12 +141,10 @@ The workflow provides the following outputs:
 Scorecard results include:
 
 1. **Overall Score**
-
    - Numeric score from 0-10
    - Higher is better
 
 2. **Check Scores**
-
    - Individual scores for each check
    - Detailed reason for each score
    - Improvement recommendations
@@ -180,13 +169,11 @@ Replace `{owner}` and `{repo}` with your repository information.
 Common errors and solutions:
 
 1. **Authentication Issues**
-
    - Ensure SCORECARD_TOKEN has correct permissions
    - Check token expiration
    - Verify token access to repository
 
 2. **Branch Protection Check Failures**
-
    - Check branch protection configuration
    - Verify admin access for token
    - Review protection settings
@@ -199,13 +186,11 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Token Management**
-
    - Use dedicated token for Scorecard
    - Limit token permissions to minimum required
    - Rotate token regularly
 
 2. **Result Analysis**
-
    - Review score changes over time
    - Prioritize fixing high-risk areas
    - Document exceptions with justifications
@@ -220,13 +205,11 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Workflow Fails to Start**
-
    - Check permissions configuration
    - Verify secrets are available
    - Review workflow file syntax
 
 2. **Low Scores**
-
    - Review check-specific documentation
    - Implement recommended fixes
    - Rerun after changes

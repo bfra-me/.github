@@ -37,10 +37,9 @@ applyTo: '.github/renovate.json*,.github/workflows/renovate.yaml'
 
   - Define a clear review process for pull requests created by Renovate Bot. Determine who will review PRs and when.
   - Ensure team members are assigned to review pull requests regularly to avoid stale updates.
-  - Consider automatically assigning reviewers to pull requests to reduce unmaintained updates.
+  - Consider automatically assigning reviewers to pull requests to reduce unmaintained updates and increase the likelihood of prompt reviews.
   - Incorporate release logs and config diffs into the code review process.
   - Use grouping of similar dependencies to combine pull requests and reduce noise.
-  - Consider automatically assigned reviewers to increase the likelihood of prompt reviews.
 
 - **Testing**
 

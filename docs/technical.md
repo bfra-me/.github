@@ -28,7 +28,6 @@
 #### Monitoring Systems
 
 1. **Preference Monitoring System**
-
    - Integrates with Knowledge Graph
    - Local operation only
    - MCP client-based
@@ -75,14 +74,12 @@
 ### Cursor Rules Enhancement
 
 - **AI-Optimized Structure**
-
   - Clear directive markers for better AI parsing
   - Standardized formatting for pattern recognition
   - Explicit priority and scope indicators
   - Machine-readable metadata for relationships
 
 - **Visual Relationship Diagram**
-
   - Mermaid flowchart for visualizing dependencies
   - Color-coded priority indicators (red/blue/green borders)
   - Different arrow styles for relationship types
@@ -168,28 +165,24 @@
 ## Code Quality Tools
 
 1. **ESLint**
-
    - Extended from @bfra.me/eslint-config
    - Integrated with Prettier
    - Strict TypeScript rules enabled
    - Pre-commit enforcement via Husky
 
 2. **Prettier**
-
    - Configuration from @bfra.me/prettier-config
    - Enforced through pre-commit hooks
    - Integrated with ESLint
    - Consistent formatting across all files
 
 3. **EditorConfig**
-
    - Ensures consistent coding style
    - Cross-editor compatibility
    - Basic formatting rules
    - Complements Prettier configuration
 
 4. **Memory Files Framework**
-
    - Documentation structure for project knowledge
    - Core files for project management
    - Error tracking and resolution documentation
@@ -240,21 +233,18 @@
 ### GitHub Actions
 
 1. **Renovate Workflow**
-
    - Self-hosted Renovate bot
    - Automated dependency updates
    - Changeset integration
    - Customizable update schedule
 
 2. **Repository Settings Workflow**
-
    - Automated settings management
    - Uses elstudio/actions-settings
    - Template-based configuration
    - Branch protection rules enforcement
 
 3. **Security Workflows**
-
    - OpenSSF Scorecard integration
    - CodeQL analysis
    - Dependency review
@@ -275,7 +265,6 @@
    ```
 
 2. **Pre-commit Hooks**
-
    - ESLint checks
    - Prettier formatting
    - TypeScript type checking
@@ -422,17 +411,14 @@
 ## Related Files
 
 - **Dependencies:**
-
   - [Architecture Documentation](/docs/architecture.md): Provides system architectural foundation
   - [Product Requirement Docs](/docs/product_requirement_docs.md): Defines technical requirements
 
 - **Extensions:**
-
   - [Active Context](/tasks/active_context.md): Applies technical specifications to current development
   - [Tasks Plan](/tasks/tasks_plan.md): Implements technical decisions in concrete tasks
 
 - **Implementations:**
-
   - [Workflow Documentation](/docs/workflows/README.md): Documents workflow implementations
   - [Repository Settings Workflow](/docs/workflows/update-repo-settings.md): Implements repository configuration
   - [Renovate Workflow](/docs/workflows/renovate.md): Implements dependency management

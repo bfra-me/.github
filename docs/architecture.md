@@ -305,7 +305,6 @@ sequenceDiagram
 ## Related Files
 
 - **Dependencies:**
-
   - [technical.md](/docs/technical.md): Detailed technical specifications
   - [product_requirement_docs.md](/docs/product_requirement_docs.md): High-level requirements
   - [tasks_plan.md](/tasks/tasks_plan.md): Implementation schedule

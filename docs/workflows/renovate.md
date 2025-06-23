@@ -66,19 +66,16 @@ The workflow requires the following permissions:
 ## Capabilities
 
 1. **Dependency Management**
-
    - Automatically updates dependencies to latest versions
    - Creates pull requests for dependency updates
    - Groups related updates into single PRs
 
 2. **Security Patching**
-
    - Prioritizes security vulnerability patches
    - Auto-merges non-breaking security updates
    - Provides detailed changelogs and release notes
 
 3. **Customization**
-
    - Highly configurable update behavior
    - Supports custom update schedules
    - Can be configured per-dependency
@@ -183,13 +180,11 @@ The workflow provides the following outputs:
 Common errors and solutions:
 
 1. **Authentication Issues**
-
    - Verify GitHub token permissions
    - Check token expiration
    - Ensure token has repository access
 
 2. **Configuration Problems**
-
    - Validate Renovate configuration syntax
    - Check for conflicting configuration settings
    - Use schema validation for configuration files
@@ -202,13 +197,11 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Configuration Management**
-
    - Use preset configurations for common scenarios
    - Test configuration changes in a development branch
    - Document your configuration decisions
 
 2. **Update Management**
-
    - Group related updates when possible
    - Schedule disruptive updates during low-activity periods
    - Set up auto-merge for patch and minor updates
@@ -223,13 +216,11 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Missing Updates**
-
    - Check Renovate logs for skipped dependencies
    - Verify package manager compatibility
    - Check update schedule configuration
 
 2. **Too Many PRs**
-
    - Configure grouping for related dependencies
    - Use dependency dashboard to manage updates
    - Adjust update schedule to batch changes

@@ -4,11 +4,9 @@ applyTo: '**/*.ts,**/*.tsx'
 ---
 
 - **Core TypeScript Best Practices**
-
   - Focuses on fundamental practices to improve code quality, maintainability, and scalability.
 
   - **Start with Strict Type-Checking**
-
     - Enable the `strict` flag in your `tsconfig.json` file to enforce stricter type checking.
     - This helps catch errors early during development.
 
@@ -34,7 +32,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Avoid 'any' and Use Alternatives**
-
     - Avoid using `any` as it bypasses type checking, leading to potential runtime errors.
     - Use more specific types like `string`, `number`, custom types, `unknown`, or union types instead.
 
@@ -52,7 +49,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Use Type Inference and Annotations**
-
     - Utilize type inference for simple cases where the type is clear.
     - Use explicit type annotations for complex projects, function parameters, and return types to improve clarity.
 
@@ -65,7 +61,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Organize Code with Modules**
-
     - Break code into smaller, reusable modules using `export` and `import` keywords.
     - Use ES6 module syntax for better compatibility and maintainability.
 
@@ -83,7 +78,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Integration with Third-Party Tools**
-
     - Integrate TypeScript with build tools like Webpack, Rollup, or Parcel for a seamless development workflow.
     - Use DefinitelyTyped (`@types/*`) or package-provided type definitions for third-party libraries.
 
@@ -98,7 +92,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Consistent Coding Style with ESLint and Prettier**
-
     - Maintain a consistent coding style using ESLint and Prettier.
     - Configure ESLint with TypeScript-specific rules and integrate Prettier for automatic code formatting.
 
@@ -135,11 +128,9 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
 - **Advanced TypeScript Best Practices**
-
   - Focuses on more advanced features and techniques for writing robust and flexible code.
 
   - **Importance of Generics**
-
     - Utilize generics to create reusable components and functions that can operate on multiple data types while maintaining type safety.
     - Provide default values for generic parameters and use constraints to ensure generic types adhere to specific structures or interfaces.
 
@@ -153,7 +144,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Union and Intersection Types**
-
     - Implement union and intersection types for better flexibility and precision.
     - Use union types when a variable can hold values of different types.
     - Use intersection types to combine multiple types into one.
@@ -176,7 +166,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Access Modifiers for Encapsulation**
-
     - Control the visibility of class members using access modifiers (`public`, `private`, `protected`).
     - Use `private` to restrict access within the class itself.
     - Use `protected` for inheritance when you want access to the class and its subclasses.
@@ -213,7 +202,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Utilize Enums for Readable Constants**
-
     - Define a set of named constants using enums to make code more readable and maintainable.
     - Use string enums for clarity when the meaning of the value is more important than its numeric position.
 
@@ -233,7 +221,6 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **Error Handling**
-
     - Implement effective error handling using `try-catch` blocks to handle exceptions.
     - Define custom error types to categorize errors more efficiently.
 
@@ -274,9 +261,7 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
 - **Code Organization and Structure**
-
   - **Directory Structure Best Practices**
-
     - Organize code into feature-based or module-based directories.
     - Use a `src` directory to contain all source code.
     - Separate concerns into logical directories like `components`, `services`, `utils`, `models`, and `types`.
@@ -304,19 +289,16 @@ applyTo: '**/*.ts,**/*.tsx'
     ```
 
   - **File Naming Conventions**
-
     - Use PascalCase for component files (e.g., `Button.tsx`).
     - Use camelCase for utility files and functions (e.g., `apiService.ts`, `helpers.ts`).
     - Use `.ts` extension for TypeScript files and `.tsx` for files containing JSX.
 
   - **Module Organization**
-
     - Organize related functions, variables, and classes into logical modules.
     - Use `export` and `import` to manage dependencies between modules.
     - Avoid circular dependencies between modules.
 
   - **Component Architecture Recommendations**
-
     - For React/JSX projects, follow the component-based architecture.
     - Separate components into smaller, reusable units.
     - Use functional components with hooks for managing state and side effects.
@@ -327,28 +309,23 @@ applyTo: '**/*.ts,**/*.tsx'
     - Split large bundles into smaller chunks to improve initial load time.
 
 - **Common Patterns and Anti-patterns**
-
   - **Design Patterns**
-
     - **Singleton:** Ensures a class only has one instance.
     - **Factory:** Creates objects without specifying the exact class to create.
     - **Observer:** Defines a one-to-many dependency between objects.
     - **Strategy:** Defines a family of algorithms and makes them interchangeable.
 
   - **Recommended Approaches**
-
     - Use interfaces to define contracts for objects and functions.
     - Prefer composition over inheritance to create flexible and reusable code.
     - Use discriminated unions to represent different states of an object.
 
   - **Anti-patterns and Code Smells**
-
     - **Overusing `!` non-null assertion operator:** Can hide potential null/undefined errors.
     - **Ignoring TypeScript errors:** Defeats the purpose of using TypeScript.
     - **Complex conditional logic:** Simplify logic using appropriate design patterns or refactoring.
 
   - **State Management**
-
     - Use state management libraries like Redux, Zustand, or Context API for complex applications.
     - Follow unidirectional data flow principles.
     - Use immutable data structures to avoid unexpected side effects.
@@ -359,21 +336,17 @@ applyTo: '**/*.ts,**/*.tsx'
     - Create custom error classes for specific error scenarios.
 
 - **Performance Considerations**
-
   - **Optimization Techniques**
-
     - Use efficient data structures and algorithms.
     - Memoize expensive function calls to avoid redundant computations.
     - Debounce or throttle event handlers to reduce the frequency of updates.
 
   - **Memory Management**
-
     - Avoid memory leaks by properly disposing of resources.
     - Use weak references to avoid preventing garbage collection.
     - Profile memory usage to identify and fix memory-related issues.
 
   - **Bundle Size Optimization**
-
     - Use tree shaking to remove unused code from bundles.
     - Minify and compress bundles to reduce file size.
     - Analyze bundle contents to identify large dependencies.
@@ -384,33 +357,27 @@ applyTo: '**/*.ts,**/*.tsx'
     - Prioritize loading visible content first.
 
 - **Security Best Practices**
-
   - **Common Vulnerabilities**
-
     - Cross-Site Scripting (XSS)
     - Injection Attacks (SQL, Command Injection)
     - Cross-Site Request Forgery (CSRF)
 
   - **Preventing Vulnerabilities**
-
     - Sanitize user inputs to prevent XSS attacks.
     - Use parameterized queries or ORM to prevent injection attacks.
     - Implement CSRF protection tokens.
 
   - **Input Validation**
-
     - Validate all user inputs on both client and server sides.
     - Use type checking and schema validation to enforce data integrity.
     - Escape special characters to prevent injection attacks.
 
   - **Authentication and Authorization**
-
     - Use strong authentication mechanisms (e.g., multi-factor authentication).
     - Implement role-based access control (RBAC) to restrict access to resources.
     - Use JWT (JSON Web Tokens) for secure API communication.
 
   - **Data Protection**
-
     - Encrypt sensitive data at rest and in transit.
     - Use HTTPS to secure communication between client and server.
     - Store passwords securely using hashing and salting.
@@ -421,25 +388,20 @@ applyTo: '**/*.ts,**/*.tsx'
     - Implement rate limiting to prevent abuse.
 
 - **Testing Approaches**
-
   - **Unit Testing**
-
     - Write unit tests for individual components and functions.
     - Use testing frameworks like Jest or Mocha with Chai or expect.
     - Mock dependencies to isolate the code under test.
 
   - **Integration Testing**
-
     - Write integration tests to verify interactions between different parts of the application.
     - Test the integration of components, services, and external APIs.
 
   - **End-to-End Testing**
-
     - Write end-to-end tests to simulate user interactions and verify the overall functionality of the application.
     - Use testing frameworks like Cypress or Puppeteer.
 
   - **Test Organization**
-
     - Organize tests into separate directories (e.g., `__tests__`).
     - Use descriptive test names.
     - Follow the Arrange-Act-Assert pattern.
@@ -449,27 +411,22 @@ applyTo: '**/*.ts,**/*.tsx'
     - Use stubbing to replace function implementations with predefined values.
 
 - **Common Pitfalls and Gotchas**
-
   - **Frequent Mistakes**
-
     - Incorrectly configuring `tsconfig.json`.
     - Misusing `!` non-null assertion operator.
     - Overusing type assertions.
     - Ignoring TypeScript errors.
 
   - **Edge Cases**
-
     - Handling `null` and `undefined` values.
     - Dealing with asynchronous operations and Promises.
     - Working with complex type definitions.
 
   - **Version-Specific Issues**
-
     - Be aware of breaking changes in new TypeScript versions.
     - Update dependencies regularly to avoid compatibility issues.
 
   - **Compatibility Concerns**
-
     - Ensure compatibility with target JavaScript environment (browsers, Node.js).
     - Use appropriate compiler options to generate compatible code.
 
@@ -479,28 +436,23 @@ applyTo: '**/*.ts,**/*.tsx'
     - Use `console.log()` statements for simple debugging.
 
 - **Tooling and Environment**
-
   - **Recommended Development Tools**
-
     - VS Code with TypeScript extension
     - WebStorm
     - ESLint, Prettier
     - Jest, Mocha, Cypress
 
   - **Build Configuration**
-
     - Configure `tsconfig.json` with appropriate compiler options.
     - Use build tools like Webpack, Rollup, or Parcel.
     - Optimize build process for production.
 
   - **Linting and Formatting**
-
     - Configure ESLint with TypeScript-specific rules.
     - Integrate Prettier for automatic code formatting.
     - Use editor extensions to automatically lint and format code on save.
 
   - **Deployment**
-
     - Transpile TypeScript code to JavaScript before deployment.
     - Minify and compress code for production.
     - Deploy to a web server or cloud platform.

@@ -4,11 +4,9 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
 ---
 
 - **Overview**
-
   - pnpm (Performant npm) is a package manager that optimizes disk space and installation speed through a shared dependency model. This guide outlines best practices for using pnpm to ensure efficient and maintainable projects.
 
 - **Dependency Management**
-
   - **Use `pnpm install` to install dependencies.**
     - This command installs dependencies defined in `package.json` and generates/updates the `pnpm-lock.yaml` file.
   - **Use `pnpm add <package>` to add new dependencies.**
@@ -23,7 +21,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - This command updates dependencies to their latest versions within the specified ranges in `package.json`.
     - Review changes carefully to avoid breaking changes.
   - **Use workspaces for monorepos.**
-
     - Define workspaces in `pnpm-workspace.yaml` to manage multiple packages in a single repository.
     - Example `pnpm-workspace.yaml`:
 
@@ -33,7 +30,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     ```
 
   - **Leverage `.pnpmfile.cjs` for patching dependencies.**
-
     - Use this file to apply patches to dependencies during installation. This is preferred over directly modifying files in `node_modules`.
     - Example:
 
@@ -55,7 +51,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - This command analyzes and optimizes the dependency graph by removing duplicate packages, further saving disk space.
 
 - **Code Organization and Structure:**
-
   - **Directory Structure:**
     - `src/`: Contains the main application source code.
     - `packages/`: (For monorepos) Contains individual packages within the monorepo.
@@ -75,7 +70,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - Optimize initial load time by loading only necessary code.
 
 - **Common Patterns and Anti-patterns:**
-
   - **Design Patterns:**
     - Singleton: Use sparingly for global state management.
     - Factory: Create instances of objects without specifying their concrete classes.
@@ -95,7 +89,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - Use error tracking services like Sentry to monitor errors in production.
 
 - **Performance Considerations:**
-
   - **Optimization Techniques:**
     - Minimize bundle size through tree-shaking and code splitting.
     - Optimize images and other assets.
@@ -113,7 +106,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - Load components or modules on demand using dynamic imports.
 
 - **Security Best Practices:**
-
   - **Common Vulnerabilities:**
     - Cross-site scripting (XSS).
     - Cross-site request forgery (CSRF).
@@ -132,7 +124,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - Implement proper CORS (Cross-Origin Resource Sharing) configuration.
 
 - **Testing Approaches:**
-
   - **Unit Testing:**
     - Write unit tests for individual components and functions.
     - Use a testing framework like Jest or Mocha.
@@ -149,7 +140,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - Tools like Jest and Sinon.JS provide mocking capabilities.
 
 - **Common Pitfalls and Gotchas:**
-
   - **Frequent Mistakes:**
     - Forgetting to commit `pnpm-lock.yaml`.
     - Directly modifying files in `node_modules`.
@@ -167,7 +157,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - Use `pnpm ls` to inspect the dependency tree.
 
 - **Tooling and Environment:**
-
   - **Recommended Tools:**
     - IDE: VS Code, IntelliJ IDEA, WebStorm
     - Build Tools: Webpack, Rollup, Parcel
@@ -187,7 +176,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     - Use caching to speed up builds.
 
 - **`.npmrc` Configuration**
-
   - **`shamefully-hoist=true`**: Avoid using this option unless absolutely necessary. While it can resolve certain dependency issues, it circumvents pnpm's strict dependency isolation, potentially leading to unexpected behavior. Consider alternative solutions like aliasing dependencies or using `.pnpmfile.cjs` to patch problematic packages.
   - **`strict-peer-dependencies=true`**: Enforces strict peer dependency requirements, preventing potential runtime errors caused by incompatible peer dependency versions.
   - **`node-linker=hoisted`**: While this option might seem appealing for compatibility with tools expecting a flat `node_modules` structure, it negates pnpm's benefits. Avoid it and explore alternatives if possible. If required, understand the implications for disk space usage and dependency isolation.
@@ -195,7 +183,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
   - **`auto-install-peers=true`**: Let pnpm handle peer dependencies by default.
 
 - **Examples**
-
   - **Migrating from npm/Yarn to pnpm**
 
     ```bash
@@ -213,7 +200,6 @@ applyTo: '**/package.json,.pnpmfile.cjs,.npmrc'
     ```
 
   - **Using pnpm with Docker**
-
     - Optimize Docker images by leveraging pnpm's caching.
 
     ```dockerfile

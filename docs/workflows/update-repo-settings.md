@@ -108,12 +108,10 @@ The workflow provides the following outputs:
 Common errors and solutions:
 
 1. **Permission Denied**
-
    - Ensure workflow has required permissions
    - Check organization access settings
 
 2. **Invalid Configuration**
-
    - Validate settings.yml format
    - Check for required fields
 
@@ -124,13 +122,11 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Version Control**
-
    - Always use specific version tags
    - Test updates in development first
    - Review changes before deployment
 
 2. **Configuration**
-
    - Keep settings.yml up to date
    - Document custom configurations
    - Use organization templates
@@ -145,13 +141,11 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Workflow Fails to Start**
-
    - Check branch protection rules
    - Verify workflow permissions
    - Validate YAML syntax
 
 2. **Settings Not Applied**
-
    - Check settings.yml format
    - Verify permission scopes
    - Review error logs

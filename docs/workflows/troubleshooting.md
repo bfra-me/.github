@@ -61,7 +61,6 @@ This guide provides solutions for common issues encountered when using @bfra-me/
 #### Common Issues
 
 1. Settings not applying
-
    - Verify settings.yml format
    - Check permission scopes
    - Review error logs
@@ -76,7 +75,6 @@ This guide provides solutions for common issues encountered when using @bfra-me/
 #### Common Issues
 
 1. False positives
-
    - Update dependency allowlist
    - Check version constraints
    - Review security policies
@@ -91,7 +89,6 @@ This guide provides solutions for common issues encountered when using @bfra-me/
 #### Common Issues
 
 1. Low scores
-
    - Review scoring criteria
    - Implement recommended fixes
    - Check security best practices
@@ -106,7 +103,6 @@ This guide provides solutions for common issues encountered when using @bfra-me/
 #### Common Issues
 
 1. Analysis failures
-
    - Check language support
    - Verify build configuration
    - Review memory limits
@@ -121,7 +117,6 @@ This guide provides solutions for common issues encountered when using @bfra-me/
 #### Common Issues
 
 1. Updates not creating PRs
-
    - Check repository access
    - Verify configuration
    - Review update rules

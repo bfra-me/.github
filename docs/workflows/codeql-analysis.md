@@ -101,13 +101,11 @@ jobs:
 ## Capabilities
 
 1. **Security Vulnerability Detection**
-
    - Identifies common security vulnerabilities
    - Detects unsafe coding patterns
    - Finds potential injection points
 
 2. **Code Quality Analysis**
-
    - Identifies code quality issues
    - Detects potential bugs and errors
    - Finds performance issues
@@ -122,13 +120,11 @@ jobs:
 CodeQL supports different build modes depending on the language:
 
 1. **Automatic Build**
-
    - Default for most languages
    - CodeQL automatically attempts to build the code
    - Works for many standard project configurations
 
 2. **Manual Build**
-
    - For projects with custom build systems
    - Requires specifying build commands
    - Provides more control over the analysis process
@@ -182,13 +178,11 @@ The workflow provides the following outputs:
 Common errors and solutions:
 
 1. **Build Failures**
-
    - Check if the correct build mode is selected
    - Verify build dependencies are installed
    - Consider switching to manual build mode
 
 2. **Memory Issues**
-
    - Increase runner memory if available
    - Break analysis into smaller parts
    - Exclude large generated files
@@ -201,13 +195,11 @@ Common errors and solutions:
 ## Best Practices
 
 1. **Performance Optimization**
-
    - Use path filters to exclude irrelevant files
    - Cache build artifacts when possible
    - Schedule resource-intensive analysis outside peak hours
 
 2. **Integration**
-
    - Set as a required check for pull requests
    - Review alerts regularly
    - Prioritize fixing high-severity issues
@@ -222,13 +214,11 @@ Common errors and solutions:
 ### Common Issues
 
 1. **Unable to Automatically Build**
-
    - Switch to manual build mode
    - Provide explicit build commands
    - Check for missing dependencies
 
 2. **Analysis Taking Too Long**
-
    - Exclude large generated files
    - Use path filters to focus analysis
    - Split analysis across multiple runners

@@ -45,7 +45,7 @@ jobs:
               - '.github/workflows/**'
               - '.github/renovate.json5'
               - 'workflow-templates/*'
-              - '**/mise.toml'
+              - '**/.mise.toml'
               - '**/package.json'
               - '**/pnpm-lock.yaml'
 

@@ -68,6 +68,9 @@
   },
   "packageManager": "pnpm@10.12.3",
   "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
     "overrides": {
       "jiti": "<2.2.0"
     }

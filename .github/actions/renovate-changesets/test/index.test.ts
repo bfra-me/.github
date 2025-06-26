@@ -1,0 +1,487 @@
+import process from 'node:process'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
+
+const fsMocks = vi.hoisted(() => ({
+  readFile: vi.fn(),
+}))
+
+vi.mock('node:fs', () => ({
+  promises: {
+    readFile: fsMocks.readFile,
+  },
+}))
+
+const coreMocks = vi.hoisted(() => ({
+  getInput: vi.fn(),
+  info: vi.fn(),
+  warning: vi.fn(),
+  setFailed: vi.fn(),
+  setOutput: vi.fn(),
+}))
+
+vi.mock('@actions/core', () => coreMocks)
+
+const writeChangesetMock = vi.hoisted(() => vi.fn())
+
+vi.mock('@changesets/write', () => ({
+  default: writeChangesetMock,
+}))
+
+const octokitMocks = vi.hoisted(() => ({
+  rest: {
+    pulls: {
+      listFiles: vi.fn(),
+    },
+  },
+}))
+
+vi.mock('@octokit/rest', () => ({
+  Octokit: vi.fn(() => octokitMocks),
+}))
+
+describe('Renovate Changesets Action', () => {
+  beforeEach(() => {
+    vi.resetModules() // Ensures a fresh module instance for each test
+    vi.clearAllMocks()
+    coreMocks.getInput.mockReturnValue('')
+    coreMocks.info.mockImplementation(() => {})
+    coreMocks.warning.mockImplementation(() => {})
+    coreMocks.setFailed.mockImplementation(() => {})
+    coreMocks.setOutput.mockImplementation(() => {})
+    writeChangesetMock.mockResolvedValue('/path/to/changeset.md')
+    // Clean up env for each test
+    delete process.env.GITHUB_REPOSITORY
+    delete process.env.GITHUB_EVENT_PATH
+  })
+
+  describe('environment validation', () => {
+    it('should skip when GITHUB_REPOSITORY is missing', async () => {
+      delete process.env.GITHUB_REPOSITORY
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith(
+        'Missing repository or event information, skipping',
+      )
+      expect(coreMocks.setFailed).not.toHaveBeenCalled()
+    })
+
+    it('should skip when GITHUB_EVENT_PATH is missing', async () => {
+      process.env.GITHUB_REPOSITORY = 'owner/repo'
+      delete process.env.GITHUB_EVENT_PATH
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith(
+        'Missing repository or event information, skipping',
+      )
+      expect(coreMocks.setFailed).not.toHaveBeenCalled()
+    })
+
+    it('should fail when repository format is invalid', async () => {
+      process.env.GITHUB_REPOSITORY = 'invalid-format'
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+
+      const eventData = {
+        pull_request: {user: {login: 'renovate[bot]'}, number: 1, title: 'test', body: ''},
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+
+      await import('../src/index')
+
+      expect(coreMocks.setFailed).toHaveBeenCalledWith(
+        'Could not determine repository owner or name.',
+      )
+    })
+  })
+
+  describe('PR validation', () => {
+    beforeEach(() => {
+      process.env.GITHUB_REPOSITORY = 'owner/repo'
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+    })
+
+    it('should skip when event is not a pull request', async () => {
+      const eventData = {push: {ref: 'refs/heads/main'}}
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith('Not a pull request, skipping')
+    })
+
+    it('should skip when PR is not from Renovate bot', async () => {
+      const eventData = {pull_request: {user: {login: 'human-user'}, number: 1}}
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith('Not a Renovate PR, skipping')
+    })
+
+    it('should process PR from renovate[bot]', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
+    })
+
+    it('should process PR from bfra-me[bot]', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'bfra-me[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
+    })
+  })
+
+  describe('file filtering and update type detection', () => {
+    beforeEach(() => {
+      process.env.GITHUB_REPOSITORY = 'owner/repo'
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+    })
+
+    it('should create changeset when no matching update type found', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'test',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'README.md'}],
+      })
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith('No matching update type found, using default')
+      expect(coreMocks.info).toHaveBeenCalledWith('Created changeset: /path/to/changeset.md')
+    })
+
+    it('should detect npm files and create changeset', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update lodash to v4.17.21',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          releases: [{name: 'repo', type: 'patch'}],
+          summary: 'Update dependencies lodash to 4.17.21',
+        }),
+        '',
+      )
+    })
+
+    it('should detect github-actions files and create changeset', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update actions/checkout to v4',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: '.github/workflows/ci.yaml'}],
+      })
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          releases: [{name: 'repo', type: 'patch'}],
+          summary: 'Update dependencies actions/checkout to 4',
+        }),
+        '',
+      )
+    })
+
+    it('should detect docker files and create changeset', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update node to v18',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'Dockerfile'}],
+      })
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          releases: [{name: 'repo', type: 'patch'}],
+          summary: 'Update dependencies node to 18',
+        }),
+        '',
+      )
+    })
+
+    it('should create changeset with custom template', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update test to v1.0.0',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+
+      coreMocks.getInput.mockImplementation(name => {
+        if (name === 'template') {
+          return 'Custom: npm {{name}} {{version}}'
+        }
+        return ''
+      })
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          releases: [{name: 'repo', type: 'patch'}],
+          summary: 'Update dependencies test to 1.0.0',
+        }),
+        '',
+      )
+    })
+
+    it('should handle multiple dependencies', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update test to v1.0.0',
+          body: 'Updates lodash and Updates axios',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}, {filename: 'Dockerfile'}],
+      })
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          releases: [{name: 'repo', type: 'patch'}],
+          summary: 'Update dependencies test, lodash and axios to 1.0.0',
+        }),
+        '',
+      )
+    })
+  })
+
+  describe('changeset generation', () => {
+    beforeEach(() => {
+      process.env.GITHUB_REPOSITORY = 'owner/repo'
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+    })
+
+    it('should create changeset with custom template', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update test to v1.0.0',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+
+      const config = `
+updateTypes:
+  npm:
+    changesetType: minor
+    filePatterns: ["**/package.json"]
+    template: "Custom: {updateType} {dependencies} {version}"
+`
+      coreMocks.getInput.mockImplementation((name: string) => (name === 'config' ? config : ''))
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          releases: [{name: 'repo', type: 'patch'}],
+          summary: 'Update dependencies test to 1.0.0',
+        }),
+        '',
+      )
+    })
+
+    it('should handle multiple dependencies', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update test to v1.0.0',
+          body: 'Updates lodash and Updates axios',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          summary: expect.stringContaining('test, lodash and axios'),
+        }),
+        '',
+      )
+    })
+
+    it('should set correct outputs after creating changeset', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'test',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith('Created changeset: /path/to/changeset.md')
+      expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '1')
+      expect(coreMocks.setOutput).toHaveBeenCalledWith(
+        'changeset-files',
+        JSON.stringify(['/path/to/changeset.md']),
+      )
+    })
+
+    it('should use working directory when provided', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'test',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+      coreMocks.getInput.mockImplementation((name: string) =>
+        name === 'working-directory' ? '/custom/path' : '',
+      )
+
+      await import('../src/index')
+
+      expect(writeChangesetMock).toHaveBeenCalledWith(expect.any(Object), '/custom/path')
+    })
+  })
+
+  describe('error handling', () => {
+    beforeEach(() => {
+      process.env.GITHUB_REPOSITORY = 'owner/repo'
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+    })
+
+    it('should handle file read errors gracefully', async () => {
+      fsMocks.readFile.mockRejectedValue(new Error('File not found'))
+
+      await import('../src/index')
+
+      expect(coreMocks.setFailed).toHaveBeenCalledWith('Action failed: File not found')
+    })
+
+    it('should handle API errors gracefully', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'test',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockRejectedValue(new Error('API Error'))
+
+      await import('../src/index')
+
+      expect(coreMocks.setFailed).toHaveBeenCalledWith('Action failed: API Error')
+    })
+
+    it('should handle changeset creation errors', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'test',
+          body: '',
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+      writeChangesetMock.mockRejectedValue(new Error('Changeset error'))
+
+      await import('../src/index')
+
+      expect(coreMocks.setFailed).toHaveBeenCalledWith('Action failed: Changeset error')
+    })
+
+    it('should handle invalid JSON event data', async () => {
+      fsMocks.readFile.mockResolvedValue('invalid json')
+
+      await import('../src/index')
+
+      expect(coreMocks.setFailed).toHaveBeenCalledWith(expect.stringContaining('Action failed:'))
+    })
+  })
+})

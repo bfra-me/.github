@@ -93,6 +93,46 @@ importers:
         specifier: 3.2.4
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.31)(jiti@2.1.2)(tsx@4.20.3)(yaml@2.8.0)
 
+  .github/actions/renovate-changesets:
+    dependencies:
+      '@actions/core':
+        specifier: ^1.10.0
+        version: 1.11.1
+      '@changesets/write':
+        specifier: ^0.3.2
+        version: 0.3.2
+      '@octokit/rest':
+        specifier: ^22.0.0
+        version: 22.0.0
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
+    devDependencies:
+      '@bfra.me/eslint-config':
+        specifier: ^0.24.0
+        version: 0.24.0(@typescript-eslint/eslint-plugin@8.34.1(@typescript-eslint/parser@8.34.1(eslint@9.29.0(jiti@2.1.2))(typescript@5.8.3))(eslint@9.29.0(jiti@2.1.2))(typescript@5.8.3))(@typescript-eslint/utils@8.34.1(eslint@9.29.0(jiti@2.1.2))(typescript@5.8.3))(eslint-config-prettier@10.1.5(eslint@9.29.0(jiti@2.1.2)))(eslint-plugin-prettier@5.5.1(eslint-config-prettier@10.1.5(eslint@9.29.0(jiti@2.1.2)))(eslint@9.29.0(jiti@2.1.2))(prettier@3.6.1))(eslint@9.29.0(jiti@2.1.2))(typescript@5.8.3)
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
+      '@types/node':
+        specifier: ^22.15.18
+        version: 22.15.31
+      '@vitest/coverage-v8':
+        specifier: ^3.1.4
+        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.15.31)(jiti@2.1.2)(tsx@4.20.3)(yaml@2.8.0))
+      eslint:
+        specifier: ^9.27.0
+        version: 9.29.0(jiti@2.1.2)
+      tsup:
+        specifier: 8.5.0
+        version: 8.5.0(jiti@2.1.2)(postcss@8.5.6)(tsx@4.20.3)(typescript@5.8.3)(yaml@2.8.0)
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+      vitest:
+        specifier: ^3.1.4
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.15.31)(jiti@2.1.2)(tsx@4.20.3)(yaml@2.8.0)
+
   .github/actions/update-metadata:
     dependencies:
       '@actions/core':
@@ -253,6 +293,9 @@ packages:
 
   '@changesets/types@6.1.0':
     resolution: {integrity: sha512-rKQcJ+o1nKNgeoYRHKOS07tAMNd3YSN0uHaJOZYjBAgxfV7TUE7JE+z4BzZdQwb5hKaYbayKN5KrYV7ODb2rAA==}
+
+  '@changesets/write@0.3.2':
+    resolution: {integrity: sha512-kDxDrPNpUgsjDbWBvUo27PzKX4gqeKOlhibaOXDJA6kuBisGqNHv/HwGJrAu8U/dSf8ZEFIeHIPtvSlZI1kULw==}
 
   '@changesets/write@0.4.0':
     resolution: {integrity: sha512-CdTLvIOPiCNuH71pyDu3rA+Q0n65cmAbXnwWH84rKGiFumFzkmHNT8KHTMEchcxN+Kl8I54xGUhJ7l3E7X396Q==}
@@ -1643,6 +1686,9 @@ packages:
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
+  human-id@1.0.2:
+    resolution: {integrity: sha512-UNopramDEhHJD+VR+ehk8rOslwSfByxPIZyJRfV739NDhN5LF1fa1MqnzKm2lGTQRjNrjK19Q5fhkgIfjlVUKw==}
+
   human-id@4.1.1:
     resolution: {integrity: sha512-3gKm/gCSUipeLsRYZbbdA1BD83lBoWUkZ7G9VFrhWPAU76KwYo5KR8V28bpoPm/ygy0x5/GCbpRQdY7VLYCoIg==}
     hasBin: true
@@ -2989,6 +3035,13 @@ snapshots:
   '@changesets/types@4.1.0': {}
 
   '@changesets/types@6.1.0': {}
+
+  '@changesets/write@0.3.2':
+    dependencies:
+      '@changesets/types': 6.1.0
+      fs-extra: 7.0.1
+      human-id: 1.0.2
+      prettier: 2.8.8
 
   '@changesets/write@0.4.0':
     dependencies:
@@ -4369,6 +4422,8 @@ snapshots:
   has-flag@4.0.0: {}
 
   html-escaper@2.0.2: {}
+
+  human-id@1.0.2: {}
 
   human-id@4.1.1: {}
 

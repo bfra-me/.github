@@ -1,0 +1,33 @@
+---
+name: Renovate Changesets
+description: Generate changeset files for Renovate dependency updates
+author: bfra.me
+branding:
+  icon: edit-3
+  color: blue
+
+inputs:
+  config-file:
+    description: Path to configuration file
+    required: false
+  config:
+    description: Inline configuration (JSON/YAML)
+    required: false
+  token:
+    description: GitHub token for API access
+    required: false
+    default: ${{ github.token }}
+  working-directory:
+    description: Working directory
+    required: false
+    default: .
+
+outputs:
+  changesets-created:
+    description: Number of changesets created
+  changeset-files:
+    description: List of created changeset files (JSON array)
+
+runs:
+  using: node20
+  main: dist/index.js

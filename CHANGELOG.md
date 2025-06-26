@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.0.2
+### Patch Changes
+
+
+- Updated dependency `sort-package-json` to `3.3.1`. ([#862](https://github.com/bfra-me/.github/pull/862))
+
+
+- Updated dependency `eslint-plugin-prettier` to `5.5.1`. ([#864](https://github.com/bfra-me/.github/pull/864))
+
+
+- Updated dependency `prettier` to `3.6.1`. ([#859](https://github.com/bfra-me/.github/pull/859))
+
 ## 4.0.1
 ### Patch Changes
 

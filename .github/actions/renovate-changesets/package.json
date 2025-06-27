@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@actions/core": "^1.10.0",
-    "@changesets/write": "^0.3.2",
+    "@changesets/write": "^0.4.0",
     "@octokit/rest": "^22.0.0",
     "js-yaml": "^4.1.0"
   },

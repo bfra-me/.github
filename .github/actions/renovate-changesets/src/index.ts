@@ -15,6 +15,9 @@ interface Config {
   }
   defaultChangesetType: 'patch' | 'minor' | 'major'
   excludePatterns?: string[]
+  branchPrefix?: string
+  skipBranchPrefixCheck?: boolean
+  sort?: boolean
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -49,7 +52,18 @@ async function getConfig(): Promise<Config> {
   const configFile = core.getInput('config-file')
   const configInline = core.getInput('config')
 
-  let config = DEFAULT_CONFIG
+  // Read from action inputs, with fallback to environment variables
+  const branchPrefix = core.getInput('branch-prefix') || process.env.BRANCH_PREFIX || 'renovate/'
+  const skipBranchPrefixCheck =
+    core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
+  const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
+
+  let config = {
+    ...DEFAULT_CONFIG,
+    branchPrefix,
+    skipBranchPrefixCheck,
+    sort,
+  }
 
   if (configFile) {
     try {
@@ -117,6 +131,7 @@ function generateChangesetContent(
   dependencies: string[],
   version: string | undefined,
   template?: string,
+  shouldSort = false,
 ): string {
   if (template) {
     return template
@@ -125,14 +140,32 @@ function generateChangesetContent(
       .replaceAll('{version}', version || 'latest')
   }
 
+  let sortedDependencies = dependencies
+  if (shouldSort) {
+    sortedDependencies = [...dependencies].sort()
+  }
+
   const depList =
-    dependencies.length > 1
-      ? `${dependencies.slice(0, -1).join(', ')} and ${dependencies.at(-1)}`
-      : dependencies[0] || 'dependencies'
+    sortedDependencies.length > 1
+      ? `${sortedDependencies.slice(0, -1).join(', ')} and ${sortedDependencies.at(-1)}`
+      : sortedDependencies[0] || 'dependencies'
 
   const versionText = version ? ` to ${version}` : ''
 
   return `Update ${updateType} ${depList}${versionText}`
+}
+
+function isValidBranch(branchName: string, branchPrefix: string, skipCheck: boolean): boolean {
+  if (skipCheck) {
+    return true
+  }
+  return branchName.startsWith(branchPrefix)
+}
+
+function sortChangesetReleases(
+  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+): {name: string; type: 'patch' | 'minor' | 'major'}[] {
+  return [...releases].sort((a, b) => a.name.localeCompare(b.name))
 }
 
 async function run(): Promise<void> {
@@ -151,7 +184,13 @@ async function run(): Promise<void> {
       return
     }
 
-    const eventData = JSON.parse(await fs.readFile(eventPath, 'utf8'))
+    let eventData: any
+    try {
+      eventData = JSON.parse(await fs.readFile(eventPath, 'utf8'))
+    } catch {
+      core.warning('Unable to parse event data, continuing without some validations')
+      eventData = {}
+    }
 
     // Only process pull requests from Renovate
     if (!eventData.pull_request) {
@@ -164,6 +203,28 @@ async function run(): Promise<void> {
 
     if (!isRenovatePR) {
       core.info('Not a Renovate PR, skipping')
+      return
+    }
+
+    const config = await getConfig()
+
+    // Check branch name if required
+    const branchName = pr.head?.ref
+    if (!branchName) {
+      core.info('Unable to determine branch name, skipping')
+      return
+    }
+
+    if (
+      !isValidBranch(
+        branchName,
+        config.branchPrefix || 'renovate/',
+        config.skipBranchPrefixCheck || false,
+      )
+    ) {
+      core.info(
+        `Branch ${branchName} does not match expected prefix ${config.branchPrefix || 'renovate/'}, skipping`,
+      )
       return
     }
 
@@ -182,11 +243,13 @@ async function run(): Promise<void> {
     })
 
     const changedFiles = files.map(file => file.filename)
-    const config = await getConfig()
+    core.info(`Changed files: ${changedFiles.join(', ')}`)
+    core.info(`Using config: ${JSON.stringify(config, null, 2)}`)
 
     // Filter out excluded patterns
-    const filteredFiles = config.excludePatterns
-      ? changedFiles.filter(file => !matchesPatterns(file, config.excludePatterns!))
+    const excludePatterns = config.excludePatterns || []
+    const filteredFiles = excludePatterns
+      ? changedFiles.filter(file => !matchesPatterns(file, excludePatterns))
       : changedFiles
 
     if (filteredFiles.length === 0) {
@@ -208,17 +271,26 @@ async function run(): Promise<void> {
       dependencies,
       version,
       settings?.template,
+      config.sort,
     )
+
+    // Prepare releases for changeset
+    let releases = [
+      {
+        name: repo,
+        type: changesetType,
+      },
+    ]
+
+    // Sort releases if requested
+    if (config.sort) {
+      releases = sortChangesetReleases(releases)
+    }
 
     // Generate changeset
     const changesetPath = await writeChangeset(
       {
-        releases: [
-          {
-            name: repo,
-            type: changesetType,
-          },
-        ],
+        releases,
         summary: changesetContent,
       },
       workingDirectory,

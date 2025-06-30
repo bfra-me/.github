@@ -33,8 +33,21 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-workflow-access-token.outputs.token }}
 
-      - name: Setup pnpm
+      - name: 📦 Setup PNPM
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          run_install: false
+
+      - name: 🏆 Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          cache: pnpm
+          node-version-file: .node-version
+
+      - name: 🧰 Install dependencies
+        env:
+          HUSKY: '0'
+        run: pnpm bootstrap
 
       - id: filter
         name: Filter changes

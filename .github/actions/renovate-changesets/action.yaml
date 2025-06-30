@@ -25,6 +25,10 @@ inputs:
     description: Sort dependency bumps and update messages within changesets
     required: false
     default: 'false'
+  dry-run:
+    description: Log what would be written without creating any changeset files
+    required: false
+    default: 'false'
   token:
     description: GitHub token for API access
     required: false

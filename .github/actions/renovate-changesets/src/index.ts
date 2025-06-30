@@ -18,6 +18,7 @@ interface Config {
   branchPrefix?: string
   skipBranchPrefixCheck?: boolean
   sort?: boolean
+  dryRun?: boolean
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -57,12 +58,14 @@ async function getConfig(): Promise<Config> {
   const skipBranchPrefixCheck =
     core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
   const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
+  const dryRun = core.getBooleanInput('dry-run') || process.env.DRY_RUN === 'TRUE'
 
   let config = {
     ...DEFAULT_CONFIG,
     branchPrefix,
     skipBranchPrefixCheck,
     sort,
+    dryRun,
   }
 
   if (configFile) {
@@ -288,17 +291,36 @@ async function run(): Promise<void> {
     }
 
     // Generate changeset
-    const changesetPath = await writeChangeset(
-      {
-        releases,
-        summary: changesetContent,
-      },
-      workingDirectory,
-    )
+    let changesetPath: string
 
-    core.info(`Created changeset: ${changesetPath}`)
-    core.setOutput('changesets-created', '1')
-    core.setOutput('changeset-files', JSON.stringify([changesetPath]))
+    if (config.dryRun) {
+      // In dry-run mode, log what would be written but don't create any files
+      core.info('DRY RUN MODE: Would have written changeset with the following content:')
+      core.info(`Summary: ${changesetContent}`)
+      core.info(`Releases: ${JSON.stringify(releases, null, 2)}`)
+
+      // Use a placeholder path for dry run
+      changesetPath = 'dry-run/changeset.md'
+      core.info(
+        `DRY RUN MODE: Would have created changeset at: ${workingDirectory}/.changeset/${changesetPath}`,
+      )
+
+      core.setOutput('changesets-created', '0') // No files actually created
+      core.setOutput('changeset-files', JSON.stringify([]))
+    } else {
+      // Normal mode - actually write the changeset
+      changesetPath = await writeChangeset(
+        {
+          releases,
+          summary: changesetContent,
+        },
+        workingDirectory,
+      )
+
+      core.info(`Created changeset: ${changesetPath}`)
+      core.setOutput('changesets-created', '1')
+      core.setOutput('changeset-files', JSON.stringify([changesetPath]))
+    }
   } catch (error) {
     core.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`)
   }

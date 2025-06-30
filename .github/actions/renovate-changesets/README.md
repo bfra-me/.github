@@ -33,19 +33,20 @@ This GitHub Action automatically generates changeset files for Renovate dependen
 
 ## Inputs
 
-| Input               | Description                      | Required | Default               |
-| ------------------- | -------------------------------- | -------- | --------------------- |
-| `config-file`       | Path to configuration file       | No       | -                     |
-| `config`            | Inline configuration (JSON/YAML) | No       | -                     |
-| `token`             | GitHub token for API access      | No       | `${{ github.token }}` |
-| `working-directory` | Working directory                | No       | `.`                   |
+| Input | Description | Required | Default |
+| --- | --- | --- | --- |
+| `config-file` | Path to configuration file | No | - |
+| `config` | Inline configuration (JSON/YAML) | No | - |
+| `dry-run` | Log planned changeset without writing any files | No | `false` |
+| `token` | GitHub token for API access | No | `${{ github.token }}` |
+| `working-directory` | Working directory | No | `.` |
 
 ## Outputs
 
-| Output               | Description                                  |
-| -------------------- | -------------------------------------------- |
-| `changesets-created` | Number of changesets created                 |
-| `changeset-files`    | List of created changeset files (JSON array) |
+| Output               | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `changesets-created` | Number of changesets created (0 in dry-run mode)              |
+| `changeset-files`    | List of created changeset files (empty array in dry-run mode) |
 
 ## Configuration
 
@@ -141,6 +142,16 @@ defaultChangesetType: patch
       defaultChangesetType: patch
       excludePatterns:
         - '**/test/**'
+```
+
+### Using Dry Run Mode
+
+```yaml
+- name: Preview Renovate Changesets (Dry Run)
+  uses: ./.github/actions/renovate-changesets
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    dry-run: true
 ```
 
 ## Development

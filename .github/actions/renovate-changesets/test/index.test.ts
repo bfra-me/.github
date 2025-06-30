@@ -519,6 +519,74 @@ updateTypes:
     })
   })
 
+  describe('dry-run mode', () => {
+    beforeEach(() => {
+      process.env.GITHUB_REPOSITORY = 'owner/repo'
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+    })
+
+    it('should not create changeset files when dry-run is true', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: '',
+          head: {ref: 'renovate/some-branch'},
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+      coreMocks.getInput.mockImplementation(name => (name === 'dry-run' ? 'true' : ''))
+      coreMocks.getBooleanInput.mockImplementation(name => name === 'dry-run')
+
+      await import('../src/index')
+
+      // Verify writeChangeset was not called
+      expect(writeChangesetMock).not.toHaveBeenCalled()
+
+      // Verify logs about dry run
+      expect(coreMocks.info).toHaveBeenCalledWith(
+        'DRY RUN MODE: Would have written changeset with the following content:',
+      )
+      expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Summary:'))
+      expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Releases:'))
+
+      // Verify output was set correctly
+      expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '0')
+      expect(coreMocks.setOutput).toHaveBeenCalledWith('changeset-files', JSON.stringify([]))
+    })
+
+    it('should support dry-run from environment variable', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: '',
+          head: {ref: 'renovate/some-branch'},
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+      process.env.DRY_RUN = 'TRUE'
+      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getBooleanInput.mockReturnValue(false)
+
+      await import('../src/index')
+
+      // Verify writeChangeset was not called
+      expect(writeChangesetMock).not.toHaveBeenCalled()
+
+      // Clean up
+      delete process.env.DRY_RUN
+    })
+  })
+
   describe('input and environment variable compatibility', () => {
     beforeEach(() => {
       process.env.GITHUB_REPOSITORY = 'owner/repo'
@@ -530,6 +598,7 @@ updateTypes:
       delete process.env.BRANCH_PREFIX
       delete process.env.SKIP_BRANCH_CHECK
       delete process.env.SORT_CHANGESETS
+      delete process.env.DRY_RUN
     })
 
     it('should use branch-prefix from action input if provided', async () => {

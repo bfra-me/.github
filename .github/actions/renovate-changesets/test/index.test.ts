@@ -33,6 +33,9 @@ const octokitMocks = vi.hoisted(() => ({
     pulls: {
       listFiles: vi.fn(),
     },
+    issues: {
+      createComment: vi.fn(),
+    },
   },
 }))
 
@@ -558,8 +561,16 @@ updateTypes:
       expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '0')
       expect(coreMocks.setOutput).toHaveBeenCalledWith('changeset-files', JSON.stringify([]))
     })
+  })
 
-    it('should support dry-run from environment variable', async () => {
+  describe('PR commenting functionality', () => {
+    beforeEach(() => {
+      process.env.GITHUB_REPOSITORY = 'owner/repo'
+      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
+      octokitMocks.rest.issues.createComment.mockResolvedValue({data: {}})
+    })
+
+    it('should post PR comment when comment-pr is true (default)', async () => {
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -573,17 +584,117 @@ updateTypes:
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
-      process.env.DRY_RUN = 'TRUE'
       coreMocks.getInput.mockImplementation(() => '')
-      coreMocks.getBooleanInput.mockReturnValue(false)
+      coreMocks.getBooleanInput.mockImplementation(name => name === 'comment-pr')
 
       await import('../src/index')
 
-      // Verify writeChangeset was not called
-      expect(writeChangesetMock).not.toHaveBeenCalled()
+      expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith({
+        owner: 'owner',
+        repo: 'repo',
+        issue_number: 1,
+        body: expect.stringContaining('Changeset Summary'),
+      })
+      expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith({
+        body: `## Changeset Summary
 
-      // Clean up
-      delete process.env.DRY_RUN
+A changeset has been created at \`.changeset//path/to/changeset.md\`.
+
+### Summary
+\`\`\`
+Update dependencies dependencies
+\`\`\`
+
+### Releases
+- **repo**: patch
+`,
+        issue_number: 1,
+        owner: 'owner',
+        repo: 'repo',
+      })
+    })
+
+    it('should post dry-run PR comment when in dry-run mode', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: '',
+          head: {ref: 'renovate/some-branch'},
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getBooleanInput.mockImplementation(
+        name => name === 'comment-pr' || name === 'dry-run',
+      )
+
+      await import('../src/index')
+
+      expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith({
+        owner: 'owner',
+        repo: 'repo',
+        issue_number: 1,
+        body: expect.stringContaining('[DRY RUN]'),
+      })
+      expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.stringContaining('preview of the changeset'),
+        }),
+      )
+    })
+
+    it('should not post PR comment when comment-pr is false', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: '',
+          head: {ref: 'renovate/some-branch'},
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getBooleanInput.mockImplementation(name => name !== 'comment-pr')
+
+      await import('../src/index')
+
+      expect(octokitMocks.rest.issues.createComment).not.toHaveBeenCalled()
+    })
+
+    it('should handle PR comment errors gracefully', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: '',
+          head: {ref: 'renovate/some-branch'},
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: 'package.json'}],
+      })
+      octokitMocks.rest.issues.createComment.mockRejectedValue(new Error('API Error'))
+
+      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getBooleanInput.mockImplementation(name => name === 'comment-pr')
+
+      await import('../src/index')
+
+      expect(coreMocks.warning).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to create PR comment'),
+      )
+      expect(coreMocks.setFailed).not.toHaveBeenCalled() // Should not fail the action
     })
   })
 
@@ -598,7 +709,6 @@ updateTypes:
       delete process.env.BRANCH_PREFIX
       delete process.env.SKIP_BRANCH_CHECK
       delete process.env.SORT_CHANGESETS
-      delete process.env.DRY_RUN
     })
 
     it('should use branch-prefix from action input if provided', async () => {

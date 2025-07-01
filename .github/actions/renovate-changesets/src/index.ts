@@ -19,6 +19,7 @@ interface Config {
   skipBranchPrefixCheck?: boolean
   sort?: boolean
   dryRun?: boolean
+  commentPR?: boolean
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -58,7 +59,8 @@ async function getConfig(): Promise<Config> {
   const skipBranchPrefixCheck =
     core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
   const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
-  const dryRun = core.getBooleanInput('dry-run') || process.env.DRY_RUN === 'TRUE'
+  const dryRun = core.getBooleanInput('dry-run')
+  const commentPR = core.getBooleanInput('comment-pr')
 
   let config = {
     ...DEFAULT_CONFIG,
@@ -66,6 +68,7 @@ async function getConfig(): Promise<Config> {
     skipBranchPrefixCheck,
     sort,
     dryRun,
+    commentPR,
   }
 
   if (configFile) {
@@ -169,6 +172,61 @@ function sortChangesetReleases(
   releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
 ): {name: string; type: 'patch' | 'minor' | 'major'}[] {
   return [...releases].sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Creates a comment on a pull request with changeset details
+ */
+async function createPRComment(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  prNumber: number,
+  changesetContent: string,
+  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+  changesetPath: string,
+  isDryRun = false,
+): Promise<void> {
+  try {
+    const dryRunPrefix = isDryRun ? '**[DRY RUN]** ' : ''
+    const title = `${dryRunPrefix}Changeset Summary`
+    const changesetInfo = isDryRun
+      ? `This is a preview of the changeset that would be created.`
+      : `A changeset has been created at \`.changeset/${changesetPath}\`.`
+
+    // Format releases in a readable format
+    const formattedReleases = releases
+      .map(release => `- **${release.name}**: ${release.type}`)
+      .join('\n')
+
+    const comment = [
+      `## ${title}`,
+      '',
+      changesetInfo,
+      '',
+      '### Summary',
+      '```',
+      changesetContent,
+      '```',
+      '',
+      '### Releases',
+      formattedReleases,
+      '',
+    ].join('\n')
+
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: prNumber,
+      body: comment,
+    })
+
+    core.info(`Created PR comment with changeset details on PR #${prNumber}`)
+  } catch (error) {
+    core.warning(
+      `Failed to create PR comment: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
 }
 
 async function run(): Promise<void> {
@@ -307,6 +365,20 @@ async function run(): Promise<void> {
 
       core.setOutput('changesets-created', '0') // No files actually created
       core.setOutput('changeset-files', JSON.stringify([]))
+
+      // Create PR comment with changeset preview if enabled
+      if (config.commentPR) {
+        await createPRComment(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          changesetContent,
+          releases,
+          changesetPath,
+          true,
+        )
+      }
     } else {
       // Normal mode - actually write the changeset
       changesetPath = await writeChangeset(
@@ -320,6 +392,20 @@ async function run(): Promise<void> {
       core.info(`Created changeset: ${changesetPath}`)
       core.setOutput('changesets-created', '1')
       core.setOutput('changeset-files', JSON.stringify([changesetPath]))
+
+      // Create PR comment with changeset details if enabled
+      if (config.commentPR) {
+        await createPRComment(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          changesetContent,
+          releases,
+          changesetPath,
+          false,
+        )
+      }
     }
   } catch (error) {
     core.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`)

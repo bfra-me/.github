@@ -15,6 +15,11 @@ interface Config {
   }
   defaultChangesetType: 'patch' | 'minor' | 'major'
   excludePatterns?: string[]
+  branchPrefix?: string
+  skipBranchPrefixCheck?: boolean
+  sort?: boolean
+  dryRun?: boolean
+  commentPR?: boolean
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -49,7 +54,22 @@ async function getConfig(): Promise<Config> {
   const configFile = core.getInput('config-file')
   const configInline = core.getInput('config')
 
-  let config = DEFAULT_CONFIG
+  // Read from action inputs, with fallback to environment variables
+  const branchPrefix = core.getInput('branch-prefix') || process.env.BRANCH_PREFIX || 'renovate/'
+  const skipBranchPrefixCheck =
+    core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
+  const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
+  const dryRun = core.getBooleanInput('dry-run')
+  const commentPR = core.getBooleanInput('comment-pr')
+
+  let config = {
+    ...DEFAULT_CONFIG,
+    branchPrefix,
+    skipBranchPrefixCheck,
+    sort,
+    dryRun,
+    commentPR,
+  }
 
   if (configFile) {
     try {
@@ -117,6 +137,7 @@ function generateChangesetContent(
   dependencies: string[],
   version: string | undefined,
   template?: string,
+  shouldSort = false,
 ): string {
   if (template) {
     return template
@@ -125,14 +146,87 @@ function generateChangesetContent(
       .replaceAll('{version}', version || 'latest')
   }
 
+  let sortedDependencies = dependencies
+  if (shouldSort) {
+    sortedDependencies = [...dependencies].sort()
+  }
+
   const depList =
-    dependencies.length > 1
-      ? `${dependencies.slice(0, -1).join(', ')} and ${dependencies.at(-1)}`
-      : dependencies[0] || 'dependencies'
+    sortedDependencies.length > 1
+      ? `${sortedDependencies.slice(0, -1).join(', ')} and ${sortedDependencies.at(-1)}`
+      : sortedDependencies[0] || 'dependencies'
 
   const versionText = version ? ` to ${version}` : ''
 
   return `Update ${updateType} ${depList}${versionText}`
+}
+
+function isValidBranch(branchName: string, branchPrefix: string, skipCheck: boolean): boolean {
+  if (skipCheck) {
+    return true
+  }
+  return branchName.startsWith(branchPrefix)
+}
+
+function sortChangesetReleases(
+  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+): {name: string; type: 'patch' | 'minor' | 'major'}[] {
+  return [...releases].sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Creates a comment on a pull request with changeset details
+ */
+async function createPRComment(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  prNumber: number,
+  changesetContent: string,
+  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+  changesetPath: string,
+  isDryRun = false,
+): Promise<void> {
+  try {
+    const dryRunPrefix = isDryRun ? '**[DRY RUN]** ' : ''
+    const title = `${dryRunPrefix}Changeset Summary`
+    const changesetInfo = isDryRun
+      ? `This is a preview of the changeset that would be created.`
+      : `A changeset has been created at \`.changeset/${changesetPath}\`.`
+
+    // Format releases in a readable format
+    const formattedReleases = releases
+      .map(release => `- **${release.name}**: ${release.type}`)
+      .join('\n')
+
+    const comment = [
+      `## ${title}`,
+      '',
+      changesetInfo,
+      '',
+      '### Summary',
+      '```',
+      changesetContent,
+      '```',
+      '',
+      '### Releases',
+      formattedReleases,
+      '',
+    ].join('\n')
+
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: prNumber,
+      body: comment,
+    })
+
+    core.info(`Created PR comment with changeset details on PR #${prNumber}`)
+  } catch (error) {
+    core.warning(
+      `Failed to create PR comment: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
 }
 
 async function run(): Promise<void> {
@@ -151,7 +245,13 @@ async function run(): Promise<void> {
       return
     }
 
-    const eventData = JSON.parse(await fs.readFile(eventPath, 'utf8'))
+    let eventData: any
+    try {
+      eventData = JSON.parse(await fs.readFile(eventPath, 'utf8'))
+    } catch {
+      core.warning('Unable to parse event data, continuing without some validations')
+      eventData = {}
+    }
 
     // Only process pull requests from Renovate
     if (!eventData.pull_request) {
@@ -164,6 +264,28 @@ async function run(): Promise<void> {
 
     if (!isRenovatePR) {
       core.info('Not a Renovate PR, skipping')
+      return
+    }
+
+    const config = await getConfig()
+
+    // Check branch name if required
+    const branchName = pr.head?.ref
+    if (!branchName) {
+      core.info('Unable to determine branch name, skipping')
+      return
+    }
+
+    if (
+      !isValidBranch(
+        branchName,
+        config.branchPrefix || 'renovate/',
+        config.skipBranchPrefixCheck || false,
+      )
+    ) {
+      core.info(
+        `Branch ${branchName} does not match expected prefix ${config.branchPrefix || 'renovate/'}, skipping`,
+      )
       return
     }
 
@@ -182,11 +304,13 @@ async function run(): Promise<void> {
     })
 
     const changedFiles = files.map(file => file.filename)
-    const config = await getConfig()
+    core.info(`Changed files: ${changedFiles.join(', ')}`)
+    core.info(`Using config: ${JSON.stringify(config, null, 2)}`)
 
     // Filter out excluded patterns
-    const filteredFiles = config.excludePatterns
-      ? changedFiles.filter(file => !matchesPatterns(file, config.excludePatterns!))
+    const excludePatterns = config.excludePatterns || []
+    const filteredFiles = excludePatterns
+      ? changedFiles.filter(file => !matchesPatterns(file, excludePatterns))
       : changedFiles
 
     if (filteredFiles.length === 0) {
@@ -208,25 +332,81 @@ async function run(): Promise<void> {
       dependencies,
       version,
       settings?.template,
+      config.sort,
     )
+
+    // Prepare releases for changeset
+    let releases = [
+      {
+        name: repo,
+        type: changesetType,
+      },
+    ]
+
+    // Sort releases if requested
+    if (config.sort) {
+      releases = sortChangesetReleases(releases)
+    }
 
     // Generate changeset
-    const changesetPath = await writeChangeset(
-      {
-        releases: [
-          {
-            name: repo,
-            type: changesetType,
-          },
-        ],
-        summary: changesetContent,
-      },
-      workingDirectory,
-    )
+    let changesetPath: string
 
-    core.info(`Created changeset: ${changesetPath}`)
-    core.setOutput('changesets-created', '1')
-    core.setOutput('changeset-files', JSON.stringify([changesetPath]))
+    if (config.dryRun) {
+      // In dry-run mode, log what would be written but don't create any files
+      core.info('DRY RUN MODE: Would have written changeset with the following content:')
+      core.info(`Summary: ${changesetContent}`)
+      core.info(`Releases: ${JSON.stringify(releases, null, 2)}`)
+
+      // Use a placeholder path for dry run
+      changesetPath = 'dry-run/changeset.md'
+      core.info(
+        `DRY RUN MODE: Would have created changeset at: ${workingDirectory}/.changeset/${changesetPath}`,
+      )
+
+      core.setOutput('changesets-created', '0') // No files actually created
+      core.setOutput('changeset-files', JSON.stringify([]))
+
+      // Create PR comment with changeset preview if enabled
+      if (config.commentPR) {
+        await createPRComment(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          changesetContent,
+          releases,
+          changesetPath,
+          true,
+        )
+      }
+    } else {
+      // Normal mode - actually write the changeset
+      changesetPath = await writeChangeset(
+        {
+          releases,
+          summary: changesetContent,
+        },
+        workingDirectory,
+      )
+
+      core.info(`Created changeset: ${changesetPath}`)
+      core.setOutput('changesets-created', '1')
+      core.setOutput('changeset-files', JSON.stringify([changesetPath]))
+
+      // Create PR comment with changeset details if enabled
+      if (config.commentPR) {
+        await createPRComment(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          changesetContent,
+          releases,
+          changesetPath,
+          false,
+        )
+      }
+    }
   } catch (error) {
     core.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`)
   }

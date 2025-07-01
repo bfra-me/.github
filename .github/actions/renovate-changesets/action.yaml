@@ -7,12 +7,32 @@ branding:
   color: blue
 
 inputs:
+  branch-prefix:
+    description: Branch prefix that Renovate was configured with (defaults to 'renovate/')
+    required: false
+    default: renovate/
+  comment-pr:
+    description: Post a comment on the PR with changeset details
+    required: false
+    default: 'true'
   config-file:
     description: Path to configuration file
     required: false
   config:
     description: Inline configuration (JSON/YAML)
     required: false
+  dry-run:
+    description: Log what would be written without creating any changeset files
+    required: false
+    default: 'false'
+  skip-branch-prefix-check:
+    description: Skip checking that the branch ref begins with branch-prefix
+    required: false
+    default: 'false'
+  sort:
+    description: Sort dependency bumps and update messages within changesets
+    required: false
+    default: 'false'
   token:
     description: GitHub token for API access
     required: false

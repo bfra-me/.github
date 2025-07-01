@@ -33,19 +33,27 @@ This GitHub Action automatically generates changeset files for Renovate dependen
 
 ## Inputs
 
-| Input               | Description                      | Required | Default               |
-| ------------------- | -------------------------------- | -------- | --------------------- |
-| `config-file`       | Path to configuration file       | No       | -                     |
-| `config`            | Inline configuration (JSON/YAML) | No       | -                     |
-| `token`             | GitHub token for API access      | No       | `${{ github.token }}` |
-| `working-directory` | Working directory                | No       | `.`                   |
+| Input | Description | Required | Default |
+| --- | --- | --- | --- |
+| `config-file` | Path to configuration file | No | - |
+| `config` | Inline configuration (JSON/YAML) | No | - |
+| `dry-run` | Log planned changeset without writing any files | No | `false` |
+| `comment-pr` | Post a comment on the PR with changeset details | No | `true` |
+| `token` | GitHub token for API access | No | `${{ github.token }}` |
+| `working-directory` | Working directory | No | `.` |
 
 ## Outputs
 
-| Output               | Description                                  |
-| -------------------- | -------------------------------------------- |
-| `changesets-created` | Number of changesets created                 |
-| `changeset-files`    | List of created changeset files (JSON array) |
+| Output               | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `changesets-created` | Number of changesets created (0 in dry-run mode)              |
+| `changeset-files`    | List of created changeset files (empty array in dry-run mode) |
+
+The action will also post a comment on the pull request with details about the changeset when `comment-pr` is enabled. This comment includes:
+
+- A summary of the changeset
+- The list of releases that will be updated
+- Whether this is a dry run or an actual changeset
 
 ## Configuration
 
@@ -141,6 +149,26 @@ defaultChangesetType: patch
       defaultChangesetType: patch
       excludePatterns:
         - '**/test/**'
+```
+
+### Using Dry Run Mode
+
+```yaml
+- name: Preview Renovate Changesets (Dry Run)
+  uses: ./.github/actions/renovate-changesets
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    dry-run: true
+```
+
+### Without PR Comments
+
+```yaml
+- name: Create Renovate Changeset (No Comments)
+  uses: ./.github/actions/renovate-changesets
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
+    comment-pr: false
 ```
 
 ## Development

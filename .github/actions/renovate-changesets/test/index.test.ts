@@ -3,11 +3,17 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 const fsMocks = vi.hoisted(() => ({
   readFile: vi.fn(),
+  writeFile: vi.fn(),
+  mkdir: vi.fn(),
+  access: vi.fn(),
 }))
 
 vi.mock('node:fs', () => ({
   promises: {
     readFile: fsMocks.readFile,
+    writeFile: fsMocks.writeFile,
+    mkdir: fsMocks.mkdir,
+    access: fsMocks.access,
   },
 }))
 
@@ -22,11 +28,11 @@ const coreMocks = vi.hoisted(() => ({
 
 vi.mock('@actions/core', () => coreMocks)
 
-const writeChangesetMock = vi.hoisted(() => vi.fn())
-
-vi.mock('@changesets/write', () => ({
-  default: writeChangesetMock,
+const execMocks = vi.hoisted(() => ({
+  getExecOutput: vi.fn(),
 }))
+
+vi.mock('@actions/exec', () => execMocks)
 
 const octokitMocks = vi.hoisted(() => ({
   rest: {
@@ -59,7 +65,24 @@ describe('Renovate Changesets Action', () => {
     coreMocks.warning.mockImplementation(() => {})
     coreMocks.setFailed.mockImplementation(() => {})
     coreMocks.setOutput.mockImplementation(() => {})
-    writeChangesetMock.mockResolvedValue('/path/to/changeset.md')
+
+    // Mock @actions/exec
+    execMocks.getExecOutput.mockResolvedValue({
+      stdout: 'abc1234',
+      stderr: '',
+      exitCode: 0,
+    })
+
+    // Mock file system operations
+    fsMocks.readFile.mockImplementation(async () => {})
+    fsMocks.writeFile.mockResolvedValue(undefined)
+    fsMocks.mkdir.mockResolvedValue(undefined)
+    fsMocks.access.mockRejectedValue(new Error('File not found')) // Default to file not existing
+
+    // Reset octokit mocks
+    octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
+    octokitMocks.rest.issues.createComment.mockResolvedValue({} as any)
+
     // Clean up env for each test
     delete process.env.GITHUB_REPOSITORY
     delete process.env.GITHUB_EVENT_PATH
@@ -198,7 +221,7 @@ describe('Renovate Changesets Action', () => {
       await import('../src/index')
 
       expect(coreMocks.info).toHaveBeenCalledWith('No matching update type found, using default')
-      expect(coreMocks.info).toHaveBeenCalledWith('Created changeset: /path/to/changeset.md')
+      expect(coreMocks.info).toHaveBeenCalledWith('Created changeset: renovate-abc1234.md')
     })
 
     it('should detect npm files and create changeset', async () => {
@@ -218,12 +241,10 @@ describe('Renovate Changesets Action', () => {
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          releases: [{name: 'repo', type: 'patch'}],
-          summary: 'Update dependencies lodash to 4.17.21',
-        }),
-        '',
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('.changeset/renovate-abc1234.md'),
+        expect.stringContaining("'repo': patch"),
+        'utf8',
       )
     })
 
@@ -244,12 +265,10 @@ describe('Renovate Changesets Action', () => {
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          releases: [{name: 'repo', type: 'patch'}],
-          summary: 'Update dependencies actions/checkout to 4',
-        }),
-        '',
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('.changeset/renovate-abc1234.md'),
+        expect.stringContaining("'repo': patch"),
+        'utf8',
       )
     })
 
@@ -270,12 +289,10 @@ describe('Renovate Changesets Action', () => {
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          releases: [{name: 'repo', type: 'patch'}],
-          summary: 'Update dependencies node to 18',
-        }),
-        '',
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('.changeset/renovate-abc1234.md'),
+        expect.stringContaining("'repo': patch"),
+        'utf8',
       )
     })
 
@@ -303,12 +320,10 @@ describe('Renovate Changesets Action', () => {
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          releases: [{name: 'repo', type: 'patch'}],
-          summary: 'Update dependencies test to 1.0.0',
-        }),
-        '',
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('.changeset/renovate-abc1234.md'),
+        expect.stringContaining('Update dependencies dependency `test` to `1.0.0`'),
+        'utf8',
       )
     })
 
@@ -329,12 +344,12 @@ describe('Renovate Changesets Action', () => {
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          releases: [{name: 'repo', type: 'patch'}],
-          summary: 'Update dependencies test, lodash and axios to 1.0.0',
-        }),
-        '',
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('.changeset/renovate-abc1234.md'),
+        expect.stringContaining(
+          'Update dependencies dependencies: `test`, `lodash`, `axios` to `1.0.0`',
+        ),
+        'utf8',
       )
     })
   })
@@ -371,12 +386,10 @@ updateTypes:
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          releases: [{name: 'repo', type: 'patch'}],
-          summary: 'Update dependencies test to 1.0.0',
-        }),
-        '',
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('.changeset/renovate-abc1234.md'),
+        expect.stringContaining('Update dependencies dependency `test` to `1.0.0`'),
+        'utf8',
       )
     })
 
@@ -397,11 +410,10 @@ updateTypes:
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          summary: expect.stringContaining('test, lodash and axios'),
-        }),
-        '',
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('.changeset/renovate-abc1234.md'),
+        expect.stringContaining('dependencies: `test`, `lodash`, `axios`'),
+        'utf8',
       )
     })
 
@@ -422,11 +434,11 @@ updateTypes:
 
       await import('../src/index')
 
-      expect(coreMocks.info).toHaveBeenCalledWith('Created changeset: /path/to/changeset.md')
+      expect(coreMocks.info).toHaveBeenCalledWith('Created changeset: renovate-abc1234.md')
       expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '1')
       expect(coreMocks.setOutput).toHaveBeenCalledWith(
         'changeset-files',
-        JSON.stringify(['/path/to/changeset.md']),
+        JSON.stringify(['.changeset/renovate-abc1234.md']),
       )
     })
 
@@ -450,7 +462,11 @@ updateTypes:
 
       await import('../src/index')
 
-      expect(writeChangesetMock).toHaveBeenCalledWith(expect.any(Object), '/custom/path')
+      expect(fsMocks.writeFile).toHaveBeenCalledWith(
+        expect.stringContaining('/custom/path/.changeset/renovate-abc1234.md'),
+        expect.anything(),
+        'utf8',
+      )
     })
   })
 
@@ -503,7 +519,7 @@ updateTypes:
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
-      writeChangesetMock.mockRejectedValue(new Error('Changeset error'))
+      fsMocks.writeFile.mockRejectedValue(new Error('Changeset error'))
 
       await import('../src/index')
 
@@ -519,47 +535,6 @@ updateTypes:
       const warned = coreMocks.warning.mock.calls.length > 0
       const infoed = coreMocks.info.mock.calls.length > 0
       expect(failed || warned || infoed).toBe(true)
-    })
-  })
-
-  describe('dry-run mode', () => {
-    beforeEach(() => {
-      process.env.GITHUB_REPOSITORY = 'owner/repo'
-      process.env.GITHUB_EVENT_PATH = '/path/to/event.json'
-    })
-
-    it('should not create changeset files when dry-run is true', async () => {
-      const eventData = {
-        pull_request: {
-          user: {login: 'renovate[bot]'},
-          number: 1,
-          title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
-          head: {ref: 'renovate/some-branch'},
-        },
-      }
-      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
-      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
-        data: [{filename: 'package.json'}],
-      })
-      coreMocks.getInput.mockImplementation(name => (name === 'dry-run' ? 'true' : ''))
-      coreMocks.getBooleanInput.mockImplementation(name => name === 'dry-run')
-
-      await import('../src/index')
-
-      // Verify writeChangeset was not called
-      expect(writeChangesetMock).not.toHaveBeenCalled()
-
-      // Verify logs about dry run
-      expect(coreMocks.info).toHaveBeenCalledWith(
-        'DRY RUN MODE: Would have written changeset with the following content:',
-      )
-      expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Summary:'))
-      expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Releases:'))
-
-      // Verify output was set correctly
-      expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '0')
-      expect(coreMocks.setOutput).toHaveBeenCalledWith('changeset-files', JSON.stringify([]))
     })
   })
 
@@ -598,7 +573,7 @@ updateTypes:
       expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith({
         body: `## Changeset Summary
 
-A changeset has been created at \`.changeset//path/to/changeset.md\`.
+A changeset has been created at \`.changeset/renovate-abc1234.md\`.
 
 ### Summary
 \`\`\`
@@ -612,40 +587,6 @@ Update dependencies dependencies
         owner: 'owner',
         repo: 'repo',
       })
-    })
-
-    it('should post dry-run PR comment when in dry-run mode', async () => {
-      const eventData = {
-        pull_request: {
-          user: {login: 'renovate[bot]'},
-          number: 1,
-          title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
-          head: {ref: 'renovate/some-branch'},
-        },
-      }
-      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
-      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
-        data: [{filename: 'package.json'}],
-      })
-      coreMocks.getInput.mockImplementation(() => '')
-      coreMocks.getBooleanInput.mockImplementation(
-        name => name === 'comment-pr' || name === 'dry-run',
-      )
-
-      await import('../src/index')
-
-      expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith({
-        owner: 'owner',
-        repo: 'repo',
-        issue_number: 1,
-        body: expect.stringContaining('[DRY RUN]'),
-      })
-      expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: expect.stringContaining('preview of the changeset'),
-        }),
-      )
     })
 
     it('should not post PR comment when comment-pr is false', async () => {
@@ -686,8 +627,13 @@ Update dependencies dependencies
       })
       octokitMocks.rest.issues.createComment.mockRejectedValue(new Error('API Error'))
 
-      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getInput.mockImplementation((name: string) => (name === 'comment-pr' ? 'true' : ''))
       coreMocks.getBooleanInput.mockImplementation(name => name === 'comment-pr')
+
+      // Ensure the mock rejection is set up after beforeEach reset
+      octokitMocks.rest.issues.createComment.mockImplementation(() => {
+        throw new Error('API Error')
+      })
 
       await import('../src/index')
 

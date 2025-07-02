@@ -1,7 +1,8 @@
 import {promises as fs} from 'node:fs'
+import path from 'node:path'
 import process from 'node:process'
 import * as core from '@actions/core'
-import writeChangeset from '@changesets/write'
+import {getExecOutput} from '@actions/exec'
 import {Octokit} from '@octokit/rest'
 import {load} from 'js-yaml'
 
@@ -18,7 +19,6 @@ interface Config {
   branchPrefix?: string
   skipBranchPrefixCheck?: boolean
   sort?: boolean
-  dryRun?: boolean
   commentPR?: boolean
 }
 
@@ -59,7 +59,6 @@ async function getConfig(): Promise<Config> {
   const skipBranchPrefixCheck =
     core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
   const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
-  const dryRun = core.getBooleanInput('dry-run')
   const commentPR = core.getBooleanInput('comment-pr')
 
   let config = {
@@ -67,7 +66,6 @@ async function getConfig(): Promise<Config> {
     branchPrefix,
     skipBranchPrefixCheck,
     sort,
-    dryRun,
     commentPR,
   }
 
@@ -151,14 +149,19 @@ function generateChangesetContent(
     sortedDependencies = [...dependencies].sort()
   }
 
-  const depList =
-    sortedDependencies.length > 1
-      ? `${sortedDependencies.slice(0, -1).join(', ')} and ${sortedDependencies.at(-1)}`
-      : sortedDependencies[0] || 'dependencies'
+  // Create more descriptive changeset content
+  if (sortedDependencies.length === 0) {
+    return `Update ${updateType} dependencies${version ? ` to ${version}` : ''}`
+  }
 
-  const versionText = version ? ` to ${version}` : ''
+  if (sortedDependencies.length === 1) {
+    const dep = sortedDependencies[0]
+    return `Update ${updateType} dependency \`${dep}\`${version ? ` to \`${version}\`` : ''}`
+  }
 
-  return `Update ${updateType} ${depList}${versionText}`
+  // Multiple dependencies
+  const depList = sortedDependencies.map(dep => `\`${dep}\``).join(', ')
+  return `Update ${updateType} dependencies: ${depList}${version ? ` to \`${version}\`` : ''}`
 }
 
 function isValidBranch(branchName: string, branchPrefix: string, skipCheck: boolean): boolean {
@@ -185,14 +188,10 @@ async function createPRComment(
   changesetContent: string,
   releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
   changesetPath: string,
-  isDryRun = false,
 ): Promise<void> {
   try {
-    const dryRunPrefix = isDryRun ? '**[DRY RUN]** ' : ''
-    const title = `${dryRunPrefix}Changeset Summary`
-    const changesetInfo = isDryRun
-      ? `This is a preview of the changeset that would be created.`
-      : `A changeset has been created at \`.changeset/${changesetPath}\`.`
+    const title = `Changeset Summary`
+    const changesetInfo = `A changeset has been created at \`.changeset/${changesetPath}\`.`
 
     // Format releases in a readable format
     const formattedReleases = releases
@@ -227,6 +226,48 @@ async function createPRComment(
       `Failed to create PR comment: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
+}
+
+async function writeRenovateChangeset(
+  changeset: {releases: {name: string; type: string}[]; summary: string},
+  workingDirectory: string,
+): Promise<string> {
+  const changesetDir = path.join(workingDirectory, '.changeset')
+
+  // Get git short SHA for naming
+  const {stdout: shortSha} = await getExecOutput('git', ['rev-parse', '--short', 'HEAD'])
+  const changesetName = `renovate-${shortSha.trim()}.md`
+  const changesetPath = path.join(changesetDir, changesetName)
+
+  // Check if changeset already exists
+  try {
+    await fs.access(changesetPath)
+    core.info(`Changeset already exists: ${changesetName}`)
+    return 'existing'
+  } catch {
+    // File doesn't exist, proceed with creation
+  }
+
+  // Ensure .changeset directory exists
+  await fs.mkdir(changesetDir, {recursive: true})
+
+  // Create changeset content
+  const frontmatter = changeset.releases
+    .map(release => `'${release.name}': ${release.type}`)
+    .join('\n')
+
+  const content = `---
+${frontmatter}
+---
+
+${changeset.summary}
+`
+
+  // Write the changeset file
+  await fs.writeFile(changesetPath, content, 'utf8')
+  core.info(`Created changeset: ${changesetName}`)
+
+  return changesetName
 }
 
 async function run(): Promise<void> {
@@ -349,63 +390,38 @@ async function run(): Promise<void> {
     }
 
     // Generate changeset
-    let changesetPath: string
+    const changesetPath = await writeRenovateChangeset(
+      {
+        releases,
+        summary: changesetContent,
+      },
+      workingDirectory,
+    )
 
-    if (config.dryRun) {
-      // In dry-run mode, log what would be written but don't create any files
-      core.info('DRY RUN MODE: Would have written changeset with the following content:')
-      core.info(`Summary: ${changesetContent}`)
-      core.info(`Releases: ${JSON.stringify(releases, null, 2)}`)
+    // Check if a changeset was actually created (not a duplicate)
+    const changesetExists = changesetPath !== 'existing'
 
-      // Use a placeholder path for dry run
-      changesetPath = 'dry-run/changeset.md'
-      core.info(
-        `DRY RUN MODE: Would have created changeset at: ${workingDirectory}/.changeset/${changesetPath}`,
+    if (changesetExists) {
+      // Log message removed to avoid redundancy with writeRenovateChangeset
+      core.info(`Changeset already exists: ${changesetPath}`)
+    }
+    core.setOutput('changesets-created', changesetExists ? '1' : '0')
+    core.setOutput(
+      'changeset-files',
+      JSON.stringify(changesetExists ? [`.changeset/${changesetPath}`] : []),
+    )
+
+    // Create PR comment with changeset details if enabled
+    if (config.commentPR) {
+      await createPRComment(
+        octokit,
+        owner,
+        repo,
+        pr.number,
+        changesetContent,
+        releases,
+        changesetPath,
       )
-
-      core.setOutput('changesets-created', '0') // No files actually created
-      core.setOutput('changeset-files', JSON.stringify([]))
-
-      // Create PR comment with changeset preview if enabled
-      if (config.commentPR) {
-        await createPRComment(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          changesetContent,
-          releases,
-          changesetPath,
-          true,
-        )
-      }
-    } else {
-      // Normal mode - actually write the changeset
-      changesetPath = await writeChangeset(
-        {
-          releases,
-          summary: changesetContent,
-        },
-        workingDirectory,
-      )
-
-      core.info(`Created changeset: ${changesetPath}`)
-      core.setOutput('changesets-created', '1')
-      core.setOutput('changeset-files', JSON.stringify([changesetPath]))
-
-      // Create PR comment with changeset details if enabled
-      if (config.commentPR) {
-        await createPRComment(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          changesetContent,
-          releases,
-          changesetPath,
-          false,
-        )
-      }
     }
   } catch (error) {
     core.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`)

@@ -445,7 +445,7 @@ async function run(): Promise<void> {
       const changesetExists = changesetPath !== 'existing'
 
       if (changesetExists) {
-        core.info(`Created changeset: ${changesetPath}`)
+        // Log message removed to avoid redundancy with writeRenovateChangeset
       } else {
         core.info(`Changeset already exists: ${changesetPath}`)
       }

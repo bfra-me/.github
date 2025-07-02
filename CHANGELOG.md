@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.0.4
+### Patch Changes
+
+
+- Fix issues with Renovate changeset generation. ([#894](https://github.com/bfra-me/.github/pull/894))
+
+
+- Updated dependency `eslint` to `9.30.1`. ([#891](https://github.com/bfra-me/.github/pull/891))
+
+
+- Updated dependency `@types/node` to `22.15.34`. ([#890](https://github.com/bfra-me/.github/pull/890))
+
 ## 4.0.3
 ### Patch Changes
 

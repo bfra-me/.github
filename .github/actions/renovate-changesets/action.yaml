@@ -14,17 +14,13 @@ inputs:
   comment-pr:
     description: Post a comment on the PR with changeset details
     required: false
-    default: 'true'
+    default: 'false'
   config-file:
     description: Path to configuration file
     required: false
   config:
     description: Inline configuration (JSON/YAML)
     required: false
-  dry-run:
-    description: Log what would be written without creating any changeset files
-    required: false
-    default: 'false'
   skip-branch-prefix-check:
     description: Skip checking that the branch ref begins with branch-prefix
     required: false

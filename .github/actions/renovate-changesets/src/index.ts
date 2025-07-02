@@ -1,7 +1,8 @@
 import {promises as fs} from 'node:fs'
+import path from 'node:path'
 import process from 'node:process'
 import * as core from '@actions/core'
-import writeChangeset from '@changesets/write'
+import {getExecOutput} from '@actions/exec'
 import {Octokit} from '@octokit/rest'
 import {load} from 'js-yaml'
 
@@ -151,14 +152,19 @@ function generateChangesetContent(
     sortedDependencies = [...dependencies].sort()
   }
 
-  const depList =
-    sortedDependencies.length > 1
-      ? `${sortedDependencies.slice(0, -1).join(', ')} and ${sortedDependencies.at(-1)}`
-      : sortedDependencies[0] || 'dependencies'
+  // Create more descriptive changeset content
+  if (sortedDependencies.length === 0) {
+    return `Update ${updateType} dependencies${version ? ` to ${version}` : ''}`
+  }
 
-  const versionText = version ? ` to ${version}` : ''
+  if (sortedDependencies.length === 1) {
+    const dep = sortedDependencies[0]
+    return `Update ${updateType} dependency \`${dep}\`${version ? ` to \`${version}\`` : ''}`
+  }
 
-  return `Update ${updateType} ${depList}${versionText}`
+  // Multiple dependencies
+  const depList = sortedDependencies.map(dep => `\`${dep}\``).join(', ')
+  return `Update ${updateType} dependencies: ${depList}${version ? ` to \`${version}\`` : ''}`
 }
 
 function isValidBranch(branchName: string, branchPrefix: string, skipCheck: boolean): boolean {
@@ -227,6 +233,52 @@ async function createPRComment(
       `Failed to create PR comment: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
+}
+
+async function writeRenovateChangeset(
+  changeset: {releases: {name: string; type: string}[]; summary: string},
+  workingDirectory: string,
+): Promise<string> {
+  const changesetDir = path.join(workingDirectory, '.changeset')
+
+  // Get git short SHA for naming
+  const {stdout: shortSha} = await getExecOutput('git', ['rev-parse', '--short', 'HEAD'])
+  const changesetName = `renovate-${shortSha.trim()}.md`
+  const changesetPath = path.join(changesetDir, changesetName)
+
+  // Check if changeset already exists
+  try {
+    await fs.access(changesetPath)
+    core.info(`Changeset already exists: ${changesetName}`)
+    return 'existing'
+  } catch {
+    // File doesn't exist, proceed with creation
+  }
+
+  // Ensure .changeset directory exists
+  try {
+    await fs.mkdir(changesetDir, {recursive: true})
+  } catch {
+    // Directory might already exist
+  }
+
+  // Create changeset content
+  const frontmatter = changeset.releases
+    .map(release => `'${release.name}': ${release.type}`)
+    .join('\n')
+
+  const content = `---
+${frontmatter}
+---
+
+${changeset.summary}
+`
+
+  // Write the changeset file
+  await fs.writeFile(changesetPath, content, 'utf8')
+  core.info(`Created changeset: ${changesetName}`)
+
+  return changesetName
 }
 
 async function run(): Promise<void> {
@@ -381,7 +433,7 @@ async function run(): Promise<void> {
       }
     } else {
       // Normal mode - actually write the changeset
-      changesetPath = await writeChangeset(
+      changesetPath = await writeRenovateChangeset(
         {
           releases,
           summary: changesetContent,
@@ -389,9 +441,19 @@ async function run(): Promise<void> {
         workingDirectory,
       )
 
-      core.info(`Created changeset: ${changesetPath}`)
-      core.setOutput('changesets-created', '1')
-      core.setOutput('changeset-files', JSON.stringify([changesetPath]))
+      // Check if a changeset was actually created (not a duplicate)
+      const changesetExists = changesetPath !== 'existing'
+
+      if (changesetExists) {
+        core.info(`Created changeset: ${changesetPath}`)
+      } else {
+        core.info(`Changeset already exists: ${changesetPath}`)
+      }
+      core.setOutput('changesets-created', changesetExists ? '1' : '0')
+      core.setOutput(
+        'changeset-files',
+        JSON.stringify(changesetExists ? [`.changeset/${changesetPath}`] : []),
+      )
 
       // Create PR comment with changeset details if enabled
       if (config.commentPR) {

@@ -11,6 +11,9 @@ permissions:
 jobs:
   create-changeset:
     name: Create Renovate Changeset
+    permissions:
+      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     if: github.repository == 'bfra-me/.github' && ( github.actor == 'bfra-me[bot]' || github.actor == 'renovate[bot]' )
     steps:
@@ -49,19 +52,16 @@ jobs:
           HUSKY: '0'
         run: pnpm bootstrap
 
-      - id: filter
-        name: Filter changes
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+      - id: renovate-changesets
+        name: Generate Renovate changesets
+        uses: ./.github/actions/renovate-changesets
         with:
-          filters: |
-            changes:
-              - '.github/workflows/**'
-              - '.github/renovate.json5'
-              - 'workflow-templates/*'
-              - '**/.mise.toml'
-              - '**/package.json'
-              - '**/pnpm-lock.yaml'
+          token: ${{ steps.get-workflow-access-token.outputs.token }}
 
-      - name: Run changesets-renovate
-        if: steps.filter.outputs.changes == 'true'
-        run: pnpx @scaleway/changesets-renovate
+      - name: Commit and push changesets
+        if: steps.renovate-changesets.outputs.changesets-created > 0
+        run: |
+          short_sha=$(git rev-parse --short HEAD)
+          git add .
+          git commit -m "chore: add changeset renovate-${short_sha}"
+          git push

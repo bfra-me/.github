@@ -258,7 +258,10 @@ async function writeRenovateChangeset(
   // Ensure .changeset directory exists
   try {
     await fs.mkdir(changesetDir, {recursive: true})
-  } catch {
+  } catch (error: any) {
+    if (error.code !== 'EEXIST') {
+      throw error
+    }
     // Directory might already exist
   }
 

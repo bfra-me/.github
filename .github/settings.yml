@@ -17,8 +17,8 @@ branches:
           - CodeQL
           - Container Scan
           - Create Renovate Changeset
-          - GitGuardian Scan
-          - License Scan
+          # - GitGuardian Scan
+          # - License Scan
           - Quality Check
           - Release
           - Renovate

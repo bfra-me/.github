@@ -348,6 +348,13 @@ async function run(): Promise<void> {
     core.info(`Changed files: ${changedFiles.join(', ')}`)
     core.info(`Using config: ${JSON.stringify(config, null, 2)}`)
 
+    if (changedFiles.some(file => file.startsWith('.changeset/'))) {
+      core.info('Changeset files already exist, skipping changeset creation')
+      core.setOutput('changesets-created', '0')
+      core.setOutput('changeset-files', JSON.stringify([]))
+      return
+    }
+
     // Filter out excluded patterns
     const excludePatterns = config.excludePatterns || []
     const filteredFiles = excludePatterns

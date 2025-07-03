@@ -5,6 +5,7 @@ import * as core from '@actions/core'
 import {getExecOutput} from '@actions/exec'
 import {Octokit} from '@octokit/rest'
 import {load} from 'js-yaml'
+import {minimatch} from 'minimatch'
 
 interface Config {
   updateTypes: {
@@ -90,10 +91,7 @@ async function getConfig(): Promise<Config> {
 }
 
 function matchesPatterns(filePath: string, patterns: string[]): boolean {
-  return patterns.some(pattern => {
-    const regex = new RegExp(pattern.replaceAll('**', '.*').replaceAll('*', '[^/]*'))
-    return regex.test(filePath)
-  })
+  return patterns.some(pattern => minimatch(filePath, pattern, {dot: true}))
 }
 
 function detectUpdateType(changedFiles: string[], config: Config): string | undefined {

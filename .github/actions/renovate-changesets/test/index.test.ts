@@ -322,7 +322,7 @@ describe('Renovate Changesets Action', () => {
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining('Update dependencies dependency `test` to `1.0.0`'),
+        expect.stringContaining('Update npm dependency `test` to `1.0.0`'),
         'utf8',
       )
     })
@@ -346,9 +346,7 @@ describe('Renovate Changesets Action', () => {
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining(
-          'Update dependencies dependencies: `test`, `lodash`, `axios` to `1.0.0`',
-        ),
+        expect.stringContaining('Update npm dependencies: `test`, `lodash`, `axios` to `1.0.0`'),
         'utf8',
       )
     })
@@ -388,7 +386,7 @@ updateTypes:
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining('Update dependencies dependency `test` to `1.0.0`'),
+        expect.stringContaining('Custom: npm test 1.0.0'),
         'utf8',
       )
     })
@@ -577,7 +575,7 @@ A changeset has been created at \`.changeset/renovate-abc1234.md\`.
 
 ### Summary
 \`\`\`
-Update dependencies dependencies
+Update npm dependencies
 \`\`\`
 
 ### Releases

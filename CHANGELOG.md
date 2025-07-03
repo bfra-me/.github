@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.0.5
+### Patch Changes
+
+
+- Update npm dependency `sort-package-json` to `3.4.0`. ([#898](https://github.com/bfra-me/.github/pull/898))
+
 ## 4.0.4
 ### Patch Changes
 

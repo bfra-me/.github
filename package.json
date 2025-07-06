@@ -38,8 +38,8 @@
   },
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
-    "@bfra.me/eslint-config": "0.24.1",
-    "@bfra.me/prettier-config": "0.15.6",
+    "@bfra.me/eslint-config": "0.24.2",
+    "@bfra.me/prettier-config": "0.15.7",
     "@bfra.me/tsconfig": "0.10.0",
     "@changesets/cli": "2.29.5",
     "@changesets/config": "3.1.1",

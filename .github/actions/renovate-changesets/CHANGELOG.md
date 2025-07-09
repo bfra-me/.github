@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.1
+### Patch Changes
+
+
+- Replace broken regex globbing with [minimatch](https://isaacs.github.io/minimatch/). ([#902](https://github.com/bfra-me/.github/pull/902))
+
 ## 0.2.0
 ### Minor Changes
 

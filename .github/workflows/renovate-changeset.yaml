@@ -54,13 +54,12 @@ jobs:
 
       - id: renovate-changesets
         name: Generate Renovate changesets
-        uses: ./.github/actions/renovate-changesets
-        with:
-          comment-pr: 'false'
-          token: ${{ steps.get-workflow-access-token.outputs.token }}
+        env:
+          SKIP_COMMIT: 'true'
+        run: pnpx @scaleway/changesets-renovate
 
       - name: Commit and push changesets
-        if: steps.renovate-changesets.outputs.changesets-created > 0
+        if: success()
         run: |
           short_sha=$(git rev-parse --short HEAD)
           git add .

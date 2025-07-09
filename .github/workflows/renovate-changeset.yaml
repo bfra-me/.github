@@ -53,15 +53,5 @@ jobs:
         run: pnpm bootstrap
 
       - id: renovate-changesets
-        name: Generate Renovate changesets
-        env:
-          SKIP_COMMIT: 'true'
+        name: 🖌️ Generate Renovate changesets
         run: pnpx @scaleway/changesets-renovate
-
-      - name: Commit and push changesets
-        if: success()
-        run: |
-          short_sha=$(git rev-parse --short HEAD)
-          git add .
-          git commit -m "chore: add changeset renovate-${short_sha}"
-          git push

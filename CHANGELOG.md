@@ -1,5 +1,21 @@
 # @bfra.me/.github
 
+## 4.0.6
+### Patch Changes
+
+
+- Updated dependency `packageManager` to `pnpm@10.13.0`. ([#921](https://github.com/bfra-me/.github/pull/921))
+
+
+- Updated dependency `packageManager` to `pnpm@10.13.1`. ([#923](https://github.com/bfra-me/.github/pull/923))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.24.3`. ([#934](https://github.com/bfra-me/.github/pull/934))
+  Updated dependency `@bfra.me/prettier-config` to `0.16.0`.
+  Updated dependency `@bfra.me/tsconfig` to `0.11.0`.
+
+- Updated dependency `eslint` to `9.31.0`. ([#929](https://github.com/bfra-me/.github/pull/929))
+
 ## 4.0.5
 ### Patch Changes
 

@@ -4,11 +4,18 @@
 
 This repository serves as the organizational defaults and templates for the @bfra.me GitHub organization. It provides:
 
-- Reusable GitHub Actions workflow templates
-- Organization-wide repository settings and configurations
-- Security policies and compliance workflows
-- Development tools and shared configurations
-- Documentation templates and standards
+- Reusable GitHub Actions workflow templates with automated Renovate-Changeset integration
+- Organization-wide repository settings and configurations via Repository Settings App
+- Security policies and compliance workflows (OpenSSF Scorecard, CodeQL, dependency review)
+- Development tools and shared configurations for TypeScript/pnpm monorepos
+- Documentation templates and standards with AI-optimized cursor rules system
+
+### Key Architecture Patterns
+
+- **Automated Release System**: Custom `scripts/release.ts` handles multi-package tagging and GitHub releases
+- **Renovate-Changeset Integration**: Automatic changeset creation for dependency updates via `renovate-changeset.yaml`
+- **GitHub App Authentication**: Uses `bfra-me[bot]` with scoped tokens for automated workflows
+- **Template Inheritance**: Workflow templates in `workflow-templates/` provide organization-wide defaults
 
 ## Development Environment
 
@@ -26,6 +33,10 @@ This repository serves as the organizational defaults and templates for the @bfr
 ```
 .github/
 ├── workflows/           # Reusable workflow templates
+│   ├── renovate.yaml           # Self-hosted Renovate bot
+│   ├── renovate-changeset.yaml # Auto-creates changesets for deps
+│   ├── auto-release.yaml       # Automated releases via changesets
+│   └── update-repo-settings.yaml # Repository settings management
 ├── actions/            # Custom composite actions
 └── instructions/       # Individual instruction files
 
@@ -33,10 +44,17 @@ docs/                   # Comprehensive documentation
 ├── workflows/         # Workflow-specific documentation
 └── architecture.md    # System architecture
 
-workflow-templates/     # GitHub workflow templates
-scripts/               # Utility scripts
+workflow-templates/     # GitHub workflow templates for other repos
+scripts/               # Utility scripts (release.ts for automated releases)
 metadata/              # Project metadata and configurations
+.cursor/rules/         # AI-optimized development guidelines
 ```
+
+### Critical Workflows Integration
+
+- **Renovate → Changesets**: Dependency updates automatically generate appropriate changesets
+- **Changesets → Releases**: Manual changeset creation triggers automated version bumps and releases
+- **Repository Settings**: Declarative configuration via `common-settings.yaml` applied by workflows
 
 ## TypeScript Development Standards
 
@@ -244,6 +262,12 @@ Clear description of changes for users
 - Test refactoring without functional changes
 - Local configuration changes
 
+**AUTOMATED via Renovate:**
+
+- Dependency updates are handled by `renovate-changeset.yaml`
+- Creates appropriate changesets based on semver impact
+- No manual intervention needed for routine dependency updates
+
 ### Changeset Content Standards
 
 - Write clear, user-focused descriptions
@@ -350,6 +374,38 @@ pnpm run fix           # Auto-fix linting issues
 2. Release PR automatically created with version bumps
 3. Merge release PR to publish new versions
 4. GitHub releases created automatically with changelogs
+
+### Custom Release Script (`scripts/release.ts`)
+
+The release script provides sophisticated multi-package release management:
+
+```sh
+# - Handles complex tagging for monorepos and private packages
+# - Creates GitHub releases with auto-generated changelogs
+# - Manages version bumps across related packages
+pnpm run release  # Runs the custom release.ts script
+```
+
+**Key Features:**
+
+- Detects untagged packages and creates appropriate Git tags
+- Handles both private root packages (`v1.0.0`) and scoped packages (`@scope/pkg@1.0.0`)
+- Generates GitHub releases with markdown changelogs
+- Validates changeset compliance before releasing
+
+### Renovate Integration
+
+**Automated Dependency Updates:**
+
+- Triggered by renovate-changeset.yaml workflow
+- Creates changesets automatically for dependency updates
+- Enables auto-merge for patch/minor updates with proper testing
+
+**Manual Override:**
+
+- Major dependency updates require manual review
+- Security updates are prioritized and can bypass normal schedules
+- Changeset creation is automated but follows the same versioning rules
 
 ### Release Validation
 

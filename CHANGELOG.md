@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.0.8
+### Patch Changes
+
+
+- Updated dependency `jiti` to `2.5.1`. ([#967](https://github.com/bfra-me/.github/pull/967))
+
+
+- Updated dependency `jiti` to `<2.6.0`. ([#963](https://github.com/bfra-me/.github/pull/963))
+
 ## 4.0.7
 ### Patch Changes
 

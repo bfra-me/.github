@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.0.9
+### Patch Changes
+
+
+- Updated dependency `eslint` to `9.32.0`. ([#972](https://github.com/bfra-me/.github/pull/972))
+
+
+- Updated dependency `@manypkg/get-packages` to `3.1.0`. ([#970](https://github.com/bfra-me/.github/pull/970))
+
 ## 4.0.8
 ### Patch Changes
 

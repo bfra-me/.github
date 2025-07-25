@@ -45,7 +45,7 @@
     "@changesets/config": "3.1.1",
     "@changesets/should-skip-package": "0.1.2",
     "@changesets/types": "6.1.0",
-    "@manypkg/get-packages": "3.0.0",
+    "@manypkg/get-packages": "3.1.0",
     "@svitejs/changesets-changelog-github-compact": "1.2.0",
     "@types/node": "22.15.34",
     "@vitest/coverage-v8": "3.2.4",

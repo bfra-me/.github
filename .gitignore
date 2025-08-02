@@ -1,7 +1,9 @@
 node_modules
 tsconfig.tsbuildinfo
 .cursor/mcp.json
-.ai/
+!.ai/
+.ai/*
+!.ai/plan/
 
 # SpecStory explanation file
 .specstory/.what-is-this.md

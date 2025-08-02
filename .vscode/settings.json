@@ -14,7 +14,6 @@
         "source.organizeImports": "never"
     },
     "editor.formatOnSave": false,
-    "editor.formatOnType": false,
 
     "eslint.format.enable": true,
     // Silent the stylistic rules in you IDE, but still auto fix them
@@ -49,11 +48,19 @@
         "workflow-templates/**/*.yml": "github-actions-workflow"
     },
 
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "text": "The first line should be summary of no more than 70 characters starting with a conventional commit type from: `feat:`|`build:`|`chore:`|`fix:`|`ci:`|`docs:`|`test:`|`refactor:`|`style:`|`perf:`|`revert:`. The second line should be blank. The following lines should be the full summary with each item starting with a `-`. Any summary item that is security related should start with `SECURITY:`. Any summary item change that causes a breaking change to a feature/interface/dependency should start with `BREAKING CHANGE:`"
+        }
+    ],
+
     "github-actions.workflows.pinned.workflows": [
         ".github/workflows/main.yaml",
         ".github/workflows/renovate.yaml",
         ".github/workflows/update-metadata.yaml"
     ],
+
+    "prettier.enable": false,
 
     "typescript.enablePromptUseWorkspaceTsdk": true,
     "typescript.tsdk": "node_modules/typescript/lib",

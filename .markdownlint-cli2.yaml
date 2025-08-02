@@ -13,3 +13,4 @@ config:
 
 globs:
   - '!.cursorrules'
+  - '!.ai/**'

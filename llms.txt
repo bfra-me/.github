@@ -1,0 +1,63 @@
+# @bfra-me/.github
+
+> Central configuration hub and template repository for the @bfra-me GitHub organization, providing reusable workflows, organizational standards, development tooling, and community health files.
+
+This repository serves as both a template for creating new .github repositories and the central configuration point for organization-wide settings. It standardizes development practices, automates repository maintenance through GitHub Actions workflows, and enforces security best practices across all repositories in the organization.
+
+Key features include automated dependency management via Renovate, repository settings synchronization, release management with Changesets, comprehensive security scanning, and AI-optimized development guidance through the Cursor rules system.
+
+## Getting Started
+
+- [Main README](README.md): Project overview, reusable workflows, and development setup instructions
+- [Product Requirements](docs/product_requirement_docs.md): Problems solved, core requirements, and success criteria for the repository
+- [Architecture Overview](docs/architecture.md): System design, component relationships, and integration points
+- [Technical Documentation](docs/technical.md): Implementation details, configuration guides, and development environment setup
+
+## Workflow Documentation
+
+- [Workflow Documentation Index](docs/workflows/README.md): Complete guide to all available reusable workflows
+- [Repository Settings Workflow](docs/workflows/update-repo-settings.md): Automated repository configuration management
+- [Renovate Workflow](docs/workflows/renovate.md): Automated dependency updates with changeset integration
+- [OpenSSF Scorecard Workflow](docs/workflows/scorecard.md): Security posture assessment and monitoring
+- [CodeQL Analysis Workflow](docs/workflows/codeql-analysis.md): Static application security testing
+- [Dependency Review Workflow](docs/workflows/dependency-review.md): Pull request dependency vulnerability scanning
+- [Troubleshooting Guide](docs/workflows/troubleshooting.md): Common workflow issues and solutions
+
+## Workflow Templates
+
+- [Renovate Template](workflow-templates/renovate.yml): Self-hosted dependency update bot configuration
+- [Repository Settings Template](workflow-templates/update-repo-settings.yaml): Automated settings management template
+- [Security Scorecard Template](workflow-templates/scorecard.yaml): OpenSSF security assessment template
+- [CodeQL Template](workflow-templates/codeql-analysis.yaml): Static security analysis template
+- [Dependency Review Template](workflow-templates/dependency-review.yaml): Dependency vulnerability review template
+
+## Development Standards
+
+- [Package Configuration](package.json): TypeScript project setup with pnpm, ESLint, Prettier, and Husky
+- [TypeScript Configuration](tsconfig.json): Strict TypeScript settings with ESM modules
+- [ESLint Configuration](eslint.config.ts): Code quality and style enforcement rules
+- [Common Repository Settings](common-settings.yaml): Organization-wide repository configuration template
+- [Workspace Configuration](pnpm-workspace.yaml): Monorepo package management setup
+
+## Security Configuration
+
+- [Security Policy](SECURITY.md): Vulnerability reporting procedures and security practices
+- [OpenSSF Scorecard Badge](https://securityscorecards.dev/viewer/?uri=github.com/bfra-me/.github): Current security posture assessment
+- [Renovate Configuration](metadata/renovate.yaml): Dependency update security policies and automation rules
+
+## Task Management
+
+- [Active Context](tasks/active_context.md): Current development focus and priorities
+- [Tasks Plan](tasks/tasks_plan.md): Comprehensive project roadmap, completed tasks, and known issues
+- [Preference Monitoring Implementation](tasks/preference-monitoring-implementation.md): AI preference system implementation tasks
+- [Repository Metrics Implementation](tasks/repository-metrics-implementation.md): Repository health monitoring system tasks
+
+## Optional
+
+- [Release Script](scripts/release.ts): Custom automated release management for multi-package repositories
+- [Renovate Changesets Action](actions/renovate-changesets/): Custom action for integrating dependency updates with changesets
+- [Architectural Decision Records](docs/adr/): Historical design decisions and rationale documentation
+- [Cursor Rules Enhancement Tasks](tasks/cursor-rules-enhancement.md): AI-optimized development guidance system improvements
+- [Changelog](CHANGELOG.md): Version history and release notes
+- [License](LICENSE.md): MIT license terms and conditions
+- [Contributing Guidelines](profile/README.md): Organization profile and contribution standards

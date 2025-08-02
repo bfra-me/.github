@@ -8,53 +8,136 @@ This repository serves as the organizational defaults and templates for the @bfr
 - Organization-wide repository settings and configurations via Repository Settings App
 - Security policies and compliance workflows (OpenSSF Scorecard, CodeQL, dependency review)
 - Development tools and shared configurations for TypeScript/pnpm monorepos
-- Documentation templates and standards with AI-optimized cursor rules system
+- Custom internal actions for specialized workflows
+- Automated release management with multi-package support
 
-### Key Architecture Patterns
+### Core Architecture Patterns
 
 - **Automated Release System**: Custom `scripts/release.ts` handles multi-package tagging and GitHub releases
 - **Renovate-Changeset Integration**: Automatic changeset creation for dependency updates via `renovate-changeset.yaml`
 - **GitHub App Authentication**: Uses `bfra-me[bot]` with scoped tokens for automated workflows
 - **Template Inheritance**: Workflow templates in `workflow-templates/` provide organization-wide defaults
+- **Internal Actions**: Custom actions in `.github/actions/` for reusable workflow components
 
 ## Development Environment
 
 ### Core Technologies
 
 - **TypeScript 5.8.3** with strict mode enabled and ESM modules
-- **pnpm** as the package manager with workspaces support
-- **ESLint** with @bfra.me/eslint-config for consistent code quality
-- **Prettier** with @bfra.me/prettier-config for code formatting
-- **Changesets** for semantic versioning and changelog generation
-- **Husky** with lint-staged for pre-commit hooks
+- **pnpm 10.8.1** as the package manager with workspaces support
+- **ESLint 9.24.0** with @bfra.me/eslint-config for consistent code quality
+- **Prettier 3.5.3** with @bfra.me/prettier-config for code formatting
+- **Changesets 2.29.5** for semantic versioning and changelog generation
+- **Husky 9.1.7** with lint-staged for pre-commit hooks
+- **Node.js** version controlled via `.node-version` file
 
 ### Project Structure
 
 ```
 .github/
-├── workflows/           # Reusable workflow templates
-│   ├── renovate.yaml           # Self-hosted Renovate bot
-│   ├── renovate-changeset.yaml # Auto-creates changesets for deps
-│   ├── auto-release.yaml       # Automated releases via changesets
-│   └── update-repo-settings.yaml # Repository settings management
-├── actions/            # Custom composite actions
-└── instructions/       # Individual instruction files
+├── workflows/              # Reusable workflows for this organization
+├── actions/               # Custom internal actions (Node.js-based)
+│   ├── renovate-changesets/   # Renovate-Changeset integration
+│   └── update-metadata/       # Metadata management
+└── copilot-instructions.md    # This file
 
-docs/                   # Comprehensive documentation
-├── workflows/         # Workflow-specific documentation
-└── architecture.md    # System architecture
+docs/                      # Comprehensive documentation
+├── workflows/            # Workflow-specific documentation
+├── architecture.md       # System architecture
+├── technical.md         # Technical specifications
+└── adr/                 # Architectural Decision Records
 
-workflow-templates/     # GitHub workflow templates for other repos
-scripts/               # Utility scripts (release.ts for automated releases)
-metadata/              # Project metadata and configurations
-.cursor/rules/         # AI-optimized development guidelines
+tasks/                    # Reference documentation (legacy)
+├── tasks_plan.md        # Historical project roadmap
+└── *.md                # Task implementation details
+
+workflow-templates/       # GitHub workflow templates for other repos
+├── *.yaml              # Template workflows
+└── *.properties.json   # Template metadata
+
+scripts/                 # Utility scripts
+├── release.ts          # Automated release management
+└── *.ts               # Other automation scripts
+
+metadata/               # Project metadata and configurations
+├── renovate.yaml      # Renovate configuration
+└── *.yaml            # Other configurations
+
+.ai/plans/             # AI-powered workflow plans (work in progress)
 ```
 
-### Critical Workflows Integration
+## Internal Actions & Custom Workflows
 
-- **Renovate → Changesets**: Dependency updates automatically generate appropriate changesets
-- **Changesets → Releases**: Manual changeset creation triggers automated version bumps and releases
-- **Repository Settings**: Declarative configuration via `common-settings.yaml` applied by workflows
+### Custom Internal Actions
+
+Located in `.github/actions/`, these provide reusable components for specialized workflows:
+
+#### `renovate-changesets/`
+- **Purpose**: Automatically creates changesets for Renovate dependency updates
+- **Integration**: Used by `renovate-changeset.yaml` workflow
+- **Key Feature**: Converts dependency updates into proper semantic versioning changesets
+
+#### `update-metadata/`
+- **Purpose**: Manages project metadata and configuration files
+- **Usage**: Updates package.json, workflow templates, and other metadata
+- **Automation**: Keeps organizational standards synchronized
+
+### Internal Workflows (`.github/workflows/`)
+
+These workflows manage this repository itself:
+
+- **`renovate.yaml`**: Self-hosted Renovate bot for dependency management
+- **`renovate-changeset.yaml`**: Integrates Renovate with Changesets system
+- **`auto-release.yaml`**: Automated releases triggered by changeset merges
+- **`update-repo-settings.yaml`**: Synchronizes repository settings across organization
+
+## Reusable Workflows for Organization
+
+These workflows can be called by other repositories in the organization:
+
+### Workflow Usage Pattern
+```yaml
+jobs:
+  workflow-name:
+    uses: bfra-me/.github/.github/workflows/[workflow-name].yaml@v4.0.9
+    secrets: inherit
+    with:
+      # Optional parameters
+```
+
+### Available Workflows
+- **Security scanning**: CodeQL analysis, dependency review, OpenSSF Scorecard
+- **Repository management**: Settings synchronization, branch protection
+- **Dependency management**: Automated updates with changeset integration
+
+## Workflow Templates for Other Repositories
+
+Located in `workflow-templates/`, these provide starting points for new repositories:
+
+### Template Structure
+- **`*.yaml`**: The workflow template file
+- **`*.properties.json`**: Metadata describing the template
+- **`*.svg`**: Optional icon for GitHub's workflow template UI
+
+### Key Templates
+- **`renovate.yml`**: Basic Renovate configuration for dependency updates
+- **`scorecard.yaml`**: OpenSSF Scorecard security assessment
+- **`codeql-analysis.yaml`**: Static application security testing
+- **`dependency-review.yaml`**: Pull request dependency vulnerability scanning
+
+## Essential Development Workflows
+
+### Project Status and Context
+```bash
+# Check current development priorities
+cat tasks/active_context.md
+
+# Review completed and planned tasks
+cat tasks/tasks_plan.md
+
+# Check for active issues
+grep -A 10 "Active Issues" tasks/active_context.md
+```
 
 ## TypeScript Development Standards
 
@@ -220,13 +303,12 @@ When creating reusable workflows:
 
 ## Versioning with Changesets
 
-### Changeset Creation
+### Changeset Creation Guidelines
 
 Create changesets manually for all user-facing changes:
 
 ```bash
-# DO NOT use CLI - create manually
-# Create .changeset/feature-name.md
+# Create .changeset/feature-name.md manually (DO NOT use CLI)
 ```
 
 ```markdown
@@ -238,7 +320,6 @@ Clear description of changes for users
 ```
 
 ### Version Guidelines
-
 - **patch**: Bug fixes, documentation updates, dependency updates
 - **minor**: New features, backward-compatible enhancements
 - **major**: Breaking changes, API modifications
@@ -246,35 +327,15 @@ Clear description of changes for users
 ### When to Create Changesets
 
 **CREATE for:**
-
 - New features or functionality
 - Bug fixes affecting external behavior
-- Performance improvements
 - Breaking changes
 - User-facing documentation updates
-- Significant dependency updates
 - Build/tooling changes affecting consumers
 
-**SKIP for:**
-
-- Internal documentation updates (`.cursor/rules/`)
-- Code comments and minor cleanup
-- Test refactoring without functional changes
-- Local configuration changes
-
 **AUTOMATED via Renovate:**
-
 - Dependency updates are handled by `renovate-changeset.yaml`
 - Creates appropriate changesets based on semver impact
-- No manual intervention needed for routine dependency updates
-
-### Changeset Content Standards
-
-- Write clear, user-focused descriptions
-- Use imperative mood ("Add feature", "Fix bug")
-- Document migration steps for breaking changes
-- Include configuration changes when relevant
-- Reference related PRs for complex changes
 
 ## Security and Compliance
 
@@ -328,112 +389,80 @@ pnpm run fix           # Auto-fix linting issues
 - Keep architectural decisions in ADRs
 - Update documentation with code changes
 
-## Common Patterns and Anti-patterns
+## Common Patterns and Best Practices
 
 ### ✅ DO:
-
 - Use semantic commit messages with conventional commits
 - Keep workflow files focused and reusable
-- Implement comprehensive error handling
 - Use TypeScript strict mode consistently
 - Pin dependency versions in workflows
 - Create changesets for all user-facing changes
-- Group related Renovate updates
 - Write descriptive PR descriptions
+- Use minimal required permissions for workflows
+- Pin action versions to specific commits for security
 
 ### ❌ DON'T:
-
 - Use `any` type without justification
 - Hardcode secrets or sensitive data
 - Skip testing for automated updates
-- Modify files in `node_modules` directly
 - Ignore security vulnerability warnings
 - Create overly complex workflow files
 - Commit `node_modules` to version control
-- Use long-lived feature branches
 
-### Error Handling
-
-- Implement try-catch blocks for async operations
-- Use proper error types and messaging
-- Log errors appropriately for debugging
-- Fail fast in CI/CD pipelines when errors occur
-
-### Performance Optimization
-
-- Use caching strategies in workflows
-- Minimize Docker image sizes
-- Implement lazy loading where appropriate
-- Optimize bundle sizes through tree-shaking
-
-## Release and Publishing
-
-### Automated Release Process
-
-1. Changes merged to main trigger changeset collection
-2. Release PR automatically created with version bumps
-3. Merge release PR to publish new versions
-4. GitHub releases created automatically with changelogs
-
-### Custom Release Script (`scripts/release.ts`)
-
-The release script provides sophisticated multi-package release management:
-
-```sh
-# - Handles complex tagging for monorepos and private packages
-# - Creates GitHub releases with auto-generated changelogs
-# - Manages version bumps across related packages
-pnpm run release  # Runs the custom release.ts script
-```
-
-**Key Features:**
-
-- Detects untagged packages and creates appropriate Git tags
-- Handles both private root packages (`v1.0.0`) and scoped packages (`@scope/pkg@1.0.0`)
-- Generates GitHub releases with markdown changelogs
-- Validates changeset compliance before releasing
-
-### Renovate Integration
-
-**Automated Dependency Updates:**
-
-- Triggered by renovate-changeset.yaml workflow
-- Creates changesets automatically for dependency updates
-- Enables auto-merge for patch/minor updates with proper testing
-
-**Manual Override:**
-
-- Major dependency updates require manual review
-- Security updates are prioritized and can bypass normal schedules
-- Changeset creation is automated but follows the same versioning rules
-
-### Release Validation
-
-- Smoke test deployments after releases
-- Monitor for issues post-release
-- Implement rollback procedures for critical failures
-- Validate semantic versioning compliance
-
-## Troubleshooting Common Issues
-
-### Dependency Conflicts
-
-- Use `pnpm dedupe` to resolve duplicate dependencies
-- Check for peer dependency mismatches
-- Verify lockfile consistency across environments
-
-### Workflow Failures
-
-- Check action version compatibility
-- Validate secret availability and permissions
-- Review timeout settings for long-running jobs
-- Ensure proper caching configuration
-
-### TypeScript Errors
-
-- Verify tsconfig.json configuration
-- Check for missing type definitions
-- Ensure proper module resolution
-- Validate import/export patterns
+### Security Best Practices
+- Store all secrets in GitHub Secrets, never in code
+- Use minimal required permissions for workflows
+- Implement vulnerability scanning in CI pipeline
+- Enable branch protection on main branch
+- Regular security audits and dependency updates
 
 This document consolidates organizational best practices for the bfra.me/.github repository. Always prioritize security, maintainability, and consistency when making changes to this codebase.
+
+## Metadata & Configuration Management
+
+### Repository Settings
+- **`common-settings.yaml`**: Template for organization-wide repository settings
+- **Applied via**: `update-repo-settings.yaml` workflow using Repository Settings App
+- **Scope**: Branch protection, issue templates, security policies
+
+### Renovate Configuration
+- **`metadata/renovate.yaml`**: Organization-wide Renovate presets and rules
+- **Integration**: Used by repositories to inherit consistent dependency management
+- **Features**: Security priority, auto-merge policies, grouping strategies
+
+### Package Management
+- **`pnpm-workspace.yaml`**: Monorepo configuration for multi-package repositories
+- **`package.json`**: Root package with shared dependencies and scripts
+- **`.npmrc`**: npm/pnpm configuration for consistent package resolution
+
+## Development Workflows & Commands
+
+### Essential Development Scripts
+```bash
+# Setup and installation
+pnpm bootstrap              # Install all dependencies efficiently
+
+# Quality checks (run before commits)
+pnpm run quality-check     # TypeScript + ESLint validation
+pnpm run type-check        # TypeScript compilation check
+pnpm run lint              # ESLint validation
+pnpm run fix               # Auto-fix linting issues
+
+# Release workflow
+pnpm run release           # Custom release script for multi-package repos
+
+# Workspace operations
+pnpm -r run build          # Build all packages in workspace
+pnpm -r run test           # Run tests across all packages
+```
+
+### Project Reference Documentation
+```bash
+# Historical task tracking (reference only)
+cat tasks/tasks_plan.md    # Historical project roadmap
+cat tasks/active_context.md # Legacy development context
+
+# Current documentation
+cat docs/architecture.md    # System architecture overview
+cat docs/technical.md      # Technical implementation details
+```

@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 4.0.11
+### Patch Changes
+
+
+- Updated dependency `lint-staged` to `16.1.5`. ([#998](https://github.com/bfra-me/.github/pull/998))
+
+
+- Updated dependency `eslint-plugin-prettier` to `5.5.4`. ([#990](https://github.com/bfra-me/.github/pull/990))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.25.2`. ([#1002](https://github.com/bfra-me/.github/pull/1002))
+
+
+- Updated dependency `eslint` to `9.33.0`. ([#999](https://github.com/bfra-me/.github/pull/999))
+
 ## 4.0.10
 ### Patch Changes
 

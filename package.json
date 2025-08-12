@@ -69,7 +69,8 @@
   "packageManager": "pnpm@10.14.0",
   "pnpm": {
     "onlyBuiltDependencies": [
-      "esbuild"
+      "esbuild",
+      "unrs-resolver"
     ],
     "overrides": {
       "jiti": "<2.6.0"

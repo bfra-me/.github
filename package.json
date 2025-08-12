@@ -38,9 +38,9 @@
   },
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
-    "@bfra.me/eslint-config": "0.25.3",
-    "@bfra.me/prettier-config": "0.16.0",
-    "@bfra.me/tsconfig": "0.11.0",
+    "@bfra.me/eslint-config": "0.26.0",
+    "@bfra.me/prettier-config": "0.16.1",
+    "@bfra.me/tsconfig": "0.12.0",
     "@changesets/cli": "2.29.5",
     "@changesets/config": "3.1.1",
     "@changesets/should-skip-package": "0.1.2",
@@ -73,7 +73,7 @@
       "unrs-resolver"
     ],
     "overrides": {
-      "jiti": "<2.6.0"
+      "jiti": "<2.2.0"
     }
   }
 }

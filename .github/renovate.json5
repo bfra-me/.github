@@ -11,6 +11,11 @@
       matchPackageNames: ['aquasecurity/trivy-action'],
       versioning: 'github-releases',
     },
+    {
+      matchPackageNames: ['^elstudio/actions-settings(\\/.*)?$'],
+      enabled: false,
+      groupName: 'elstudio actions-settings',
+    },
   ],
   postUpgradeTasks: {
     commands: ['pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],

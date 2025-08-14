@@ -157,7 +157,7 @@ jobs:
           dry_run: ${{ github.event_name == 'push' && github.ref != 'refs/heads/main' }}
         if: >-
           ${{ !contains('["push", "workflow_run"]', github.event_name) || github.event.workflow_run.conclusion == 'success' || steps.filter.outputs.changes == 'true' }}
-        uses: bfra-me/renovate-action@c06ad3e7e6e1ac18bd4b6070dcfc35ce44dcbe7f # 7.52.0
+        uses: bfra-me/renovate-action@6e9a7cb4d13894bc181a2ee80129041efd8c564f # 7.53.0
         with:
           autodiscover: ${{ steps.prepare.outputs.autodiscover }}
           autodiscover-filter: ${{ steps.prepare.outputs.autodiscover == 'true' && steps.prepare.outputs.repos || '[]' }}

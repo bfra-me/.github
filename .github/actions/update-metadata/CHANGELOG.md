@@ -1,5 +1,11 @@
 # @bfra.me-actions/update-metadata
 
+## 0.1.6
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `^0.26.0`. ([#1012](https://github.com/bfra-me/.github/pull/1012))
+
 ## 0.1.5
 ### Patch Changes
 

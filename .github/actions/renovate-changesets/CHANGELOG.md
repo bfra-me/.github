@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.3
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `^0.26.0`. ([#1012](https://github.com/bfra-me/.github/pull/1012))
+
 ## 0.2.2
 ### Patch Changes
 

@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.0.12
+### Patch Changes
+
+
+- Updated dependency `@changesets/cli` to `2.29.6`. ([#1022](https://github.com/bfra-me/.github/pull/1022))
+
+
+- Updated dependency `tsx` to `4.20.4`. ([#1014](https://github.com/bfra-me/.github/pull/1014))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.25.3`. ([#1004](https://github.com/bfra-me/.github/pull/1004))
+
 ## 4.0.11
 ### Patch Changes
 

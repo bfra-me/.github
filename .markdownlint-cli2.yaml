@@ -14,3 +14,5 @@ config:
 globs:
   - '!.cursorrules'
   - '!.ai/**'
+  - '!.github/copilot-instructions.md'
+  - '!.specstory/**'

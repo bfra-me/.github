@@ -1,4 +1,15 @@
+autoInstallPeers: true
+
+ignoreWorkspaceRootCheck: true
+
 packages:
   - .
   - .github/actions/*
+
+savePrefix: ''
+
+shamefullyHoist: true
+
+shellEmulator: true
+
 strictPeerDependencies: false

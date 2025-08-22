@@ -12,7 +12,7 @@
       versioning: 'github-releases',
     },
     {
-      matchPackageNames: ['^elstudio/actions-settings(\\/.*)?$'],
+      matchPackageNames: ['^elstudio/actions-settings(\\/.*)?$', 'elstudio/actions-settings'],
       enabled: false,
       groupName: 'elstudio actions-settings',
     },

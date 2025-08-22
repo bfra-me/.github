@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.0.13
+### Patch Changes
+
+
+- Remove the default pull request template. ([#1034](https://github.com/bfra-me/.github/pull/1034))
+
+
+- Updated dependency `typescript` to `5.9.2`. ([#1036](https://github.com/bfra-me/.github/pull/1036))
+
+
+- Updated dependency `packageManager` to `pnpm@10.15.0`. ([#1030](https://github.com/bfra-me/.github/pull/1030))
+
 ## 4.0.12
 ### Patch Changes
 

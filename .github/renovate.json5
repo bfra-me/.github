@@ -16,6 +16,11 @@
       enabled: false,
       groupName: 'elstudio actions-settings',
     },
+    {
+      description: 'Disable Mise updates - workaround Renovate error due to no `tools` key.',
+      matchManagers: ['mise'],
+      enabled: false,
+    },
   ],
   postUpgradeTasks: {
     commands: ['pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],

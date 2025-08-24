@@ -1,6 +1,6 @@
 {
   "name": "@bfra.me-actions/renovate-changesets",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "GitHub Action to generate changeset files for Renovate dependency updates",
   "keywords": [
     "actions",

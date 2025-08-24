@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.0.14
+### Patch Changes
+
+
+- Updated dependency `tsx` to `4.20.5`. ([#1047](https://github.com/bfra-me/.github/pull/1047))
+
+
+- Updated dependency `eslint` to `9.34.0`. ([#1044](https://github.com/bfra-me/.github/pull/1044))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.27.0`. ([#1046](https://github.com/bfra-me/.github/pull/1046))
+
 ## 4.0.13
 ### Patch Changes
 

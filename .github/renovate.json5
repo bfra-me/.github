@@ -23,7 +23,12 @@
     },
   ],
   postUpgradeTasks: {
-    commands: ['corepack enable', 'pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],
+    commands: [
+      'npm install -g pnpm@10.15.0',
+      'pnpm run bootstrap',
+      'pnpm run fix',
+      'pnpm run build',
+    ],
     executionMode: 'branch',
   },
 }

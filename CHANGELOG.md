@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.1.0
+### Minor Changes
+
+
+- Add a reusable workflow to trigger the Renovate workflow across the organization. ([#1055](https://github.com/bfra-me/.github/pull/1055))
+
+
+### Patch Changes
+
+
+- Updated dependency `@types/node` to `22.17.2`. ([#1061](https://github.com/bfra-me/.github/pull/1061))
+
 ## 4.0.15
 ### Patch Changes
 

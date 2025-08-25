@@ -1,0 +1,41 @@
+---
+# Call the Renovate workflow for the entire organization.
+name: Trigger Renovate
+
+on:
+  workflow_call:
+    secrets:
+      APPLICATION_ID:
+        description: GitHub App ID
+        required: true
+      APPLICATION_PRIVATE_KEY:
+        description: GitHub App private key
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-org-renovate:
+    name: Trigger Renovate
+    runs-on: ubuntu-latest
+    steps:
+      - id: get-workflow-access-token
+        name: Get Workflow Access Token
+        uses: actions/create-github-app-token@a8d616148505b5069dccd32f177bb87d7f39123b # v2.1.1
+        with:
+          app-id: ${{ secrets.APPLICATION_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Dispatch Renovate workflow in the .github repository
+        env:
+          GH_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
+          ORG: ${{ github.repository_owner }}
+        run: |
+          echo "Triggering workflow_dispatch for $ORG/.github"
+          gh workflow run renovate.yaml --repo $ORG/.github

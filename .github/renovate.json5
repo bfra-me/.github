@@ -23,7 +23,7 @@
     },
   ],
   postUpgradeTasks: {
-    commands: ['pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],
+    commands: ['corepack enable', 'pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],
     executionMode: 'branch',
   },
 }

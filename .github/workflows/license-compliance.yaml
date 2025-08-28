@@ -25,8 +25,9 @@ jobs:
         with:
           api-key: ${{ secrets.FOSSA_API_KEY }}
 
-      - name: FOSSA test
-        uses: fossas/fossa-action@3ebcea1862c6ffbd5cf1b4d0bd6b3fe7bd6f2cac # v1.7.0
-        with:
-          api-key: ${{ secrets.FOSSA_API_KEY }}
-          run-tests: true
+      # Disabled due to timeouts
+      # - name: FOSSA test
+      #   uses: fossas/fossa-action@3ebcea1862c6ffbd5cf1b4d0bd6b3fe7bd6f2cac # v1.7.0
+      #   with:
+      #     api-key: ${{ secrets.FOSSA_API_KEY }}
+      #     run-tests: true

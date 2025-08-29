@@ -3,6 +3,7 @@ tsconfig.tsbuildinfo
 .cursor/mcp.json
 !.ai/
 .ai/*
+!.ai/notes/
 !.ai/plan/
 
 # SpecStory explanation file

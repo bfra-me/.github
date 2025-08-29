@@ -23,19 +23,24 @@ This repository serves as the organizational defaults and templates for the @bfr
 
 ### Core Technologies
 
-- **TypeScript 5.8.3** (strict mode, ESM modules) + **pnpm 10.8.1** (workspaces)
-- **ESLint 9.24.0** (@bfra.me/eslint-config) + **Prettier 3.5.3** (@bfra.me/prettier-config)
-- **Changesets 2.29.5** (versioning) + **Husky 9.1.7** (pre-commit hooks)
+- **TypeScript 5.9.2** (strict mode, ESM modules) + **pnpm 10.15.0** (workspaces)
+- **ESLint 9.34.0** (@bfra.me/eslint-config) + **Prettier 3.6.2** (@bfra.me/prettier-config)
+- **Changesets 2.29.6** (versioning) + **Husky 9.1.7** (pre-commit hooks)
 - **Node.js** version via `.node-version` file
 
 ### Project Structure
 
 ```
+.ai/                   # AI-driven development and planning
+├── plan/             # Implementation plans and specifications
+└── notes/           # Development notes and prompts
+
 .github/
 ├── workflows/              # Reusable workflows for this organization
 ├── actions/               # Custom internal actions (Node.js-based)
 │   ├── renovate-changesets/   # Renovate-Changeset integration
 │   └── update-metadata/       # Metadata management
+├── instructions/    # Project development guidelines
 └── copilot-instructions.md    # This file
 
 docs/                      # Comprehensive documentation
@@ -52,8 +57,6 @@ scripts/                 # Utility scripts
 metadata/               # Project metadata and configurations
 ├── renovate.yaml      # Renovate configuration
 └── *.yaml            # Other configurations
-
-.ai/plans/             # AI-powered implementation plans
 ```
 
 ## Essential Development Commands
@@ -76,14 +79,23 @@ pnpm run release           # Custom multi-package release script
 
 ### Project Context Commands
 ```bash
-# Check current development priorities
-cat tasks/active_context.md
+# Check implementation plans and AI specifications
+cat .ai/plan/feature-workflow-validation-system-1.md
+cat .ai/plan/infrastructure-org-health-monitoring-1.md
 
-# Review project status and roadmap
-cat tasks/tasks_plan.md
+# Review project development guidelines
+cat .github/instructions/github-actions.instructions.md
+cat .github/instructions/typescript.instructions.md
+cat .github/instructions/pnpm.instructions.md
 
-# Check for active issues
-grep -A 10 "Active Issues" tasks/active_context.md
+# Check project documentation and status
+cat README.md
+cat CONTRIBUTING.md
+cat llms.txt
+
+# Review workflow templates and their metadata
+ls workflow-templates/
+cat workflow-templates/*.properties.json
 ```
 
 ## Custom Internal Actions
@@ -191,6 +203,21 @@ This pattern provides:
 - Scoped permissions per workflow
 - Better security than personal access tokens
 - Audit trail for automated actions
+
+## Project Development Guidelines
+
+### Instruction System
+**Location**: `.github/instructions/*.instructions.md`
+**Purpose**: Comprehensive development guidelines for the project
+
+**Key Guidelines**:
+- **github-actions.instructions.md**: Best practices for GitHub Actions workflows including automation, testing, security, and CI/CD integration
+- **typescript.instructions.md**: Comprehensive TypeScript development guidelines covering code organization, patterns, performance, and security
+- **pnpm.instructions.md**: Package management best practices including dependency management, security, and performance optimization
+- **changesets.instructions.md**: Guidelines for using Changesets to manage versioning and changelogs effectively
+- **renovate.instructions.md**: Best practices for configuring Renovate Bot including automated dependency updates and review processes
+
+**Integration**: These instructions are referenced by AI coding assistants and enforced through automated workflows and code review processes.
 
 ## Monitoring & Validation Systems
 

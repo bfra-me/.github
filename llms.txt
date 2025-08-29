@@ -36,6 +36,15 @@ Key features include automated dependency management via Renovate, repository se
 - [Common Repository Settings](common-settings.yaml): Organization-wide repository configuration template
 - [Workspace Configuration](pnpm-workspace.yaml): Monorepo package management setup
 - [GitHub Copilot Instructions](.github/copilot-instructions.md): Development environment guidance and AI-optimized instructions
+- [Repository Settings Configuration](.github/settings.yml): Repository-specific settings using Repository Settings App format
+
+## Development Instructions
+
+- [GitHub Actions Instructions](.github/instructions/github-actions.instructions.md): Best practices for GitHub Actions workflows including automation, testing, security, and CI/CD integration
+- [TypeScript Instructions](.github/instructions/typescript.instructions.md): Comprehensive guidelines for TypeScript development covering code organization, patterns, performance, and security
+- [pnpm Instructions](.github/instructions/pnpm.instructions.md): Best practices for pnpm package management including dependency management, security, and performance
+- [Changesets Instructions](.github/instructions/changesets.instructions.md): Guidelines for using Changesets to manage versioning and changelogs
+- [Renovate Instructions](.github/instructions/renovate.instructions.md): Best practices for configuring Renovate Bot including automated dependency updates and review processes
 
 ## Security Configuration
 
@@ -54,4 +63,5 @@ Key features include automated dependency management via Renovate, repository se
 - [Renovate Changesets Action](actions/renovate-changesets/): Custom action for integrating dependency updates with changesets
 - [Changelog](CHANGELOG.md): Version history and release notes
 - [License](LICENSE.md): MIT license terms and conditions
-- [Contributing Guidelines](profile/README.md): Organization profile and contribution standards
+- [Contributing Guidelines](CONTRIBUTING.md): Development contribution guidelines and organizational standards
+- [Organization Profile](profile/README.md): Organization profile and community information

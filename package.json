@@ -20,13 +20,13 @@
     "bootstrap": "pnpm install --prefer-offline --loglevel warn",
     "build": "pnpm -r run build",
     "bump": "changeset version && pnpm run build && pnpm run fix",
-    "fix": "eslint . --fix && pnpm -r run lint --fix",
-    "lint": "eslint . && pnpm -r run lint",
+    "fix": "eslint --fix",
+    "lint": "eslint",
     "prepare": "husky",
-    "quality-check": "pnpm run type-check && pnpm run lint",
+    "quality-check": "pnpm run type-check && pnpm run lint && pnpm run build && pnpm run test",
     "release": "tsx ./scripts/release.ts",
-    "test": "pnpm -r run test",
-    "type-check": "pnpm -r run type-check"
+    "test": "vitest",
+    "type-check": "tsc --noEmit"
   },
   "lint-staged": {
     "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [

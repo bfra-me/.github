@@ -195,8 +195,8 @@ All automated workflows use the `bfra-me[bot]` GitHub App with scoped tokens:
 - name: Generate Token
   uses: actions/create-github-app-token@v1
   with:
-    app-id: ${{ secrets.BFRA_ME_BOT_APP_ID }}
-    private-key: ${{ secrets.BFRA_ME_BOT_PRIVATE_KEY }}
+    app-id: ${{ secrets.APPLICATION_ID }}
+    private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
 ```
 
 This pattern provides:

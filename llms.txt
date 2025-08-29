@@ -9,9 +9,6 @@ Key features include automated dependency management via Renovate, repository se
 ## Getting Started
 
 - [Main README](README.md): Project overview, reusable workflows, and development setup instructions
-- [Product Requirements](docs/product_requirement_docs.md): Problems solved, core requirements, and success criteria for the repository
-- [Architecture Overview](docs/architecture.md): System design, component relationships, and integration points
-- [Technical Documentation](docs/technical.md): Implementation details, configuration guides, and development environment setup
 
 ## Workflow Documentation
 
@@ -38,6 +35,7 @@ Key features include automated dependency management via Renovate, repository se
 - [ESLint Configuration](eslint.config.ts): Code quality and style enforcement rules
 - [Common Repository Settings](common-settings.yaml): Organization-wide repository configuration template
 - [Workspace Configuration](pnpm-workspace.yaml): Monorepo package management setup
+- [GitHub Copilot Instructions](.github/copilot-instructions.md): Development environment guidance and AI-optimized instructions
 
 ## Security Configuration
 
@@ -45,19 +43,15 @@ Key features include automated dependency management via Renovate, repository se
 - [OpenSSF Scorecard Badge](https://securityscorecards.dev/viewer/?uri=github.com/bfra-me/.github): Current security posture assessment
 - [Renovate Configuration](metadata/renovate.yaml): Dependency update security policies and automation rules
 
-## Task Management
+## Infrastructure Planning
 
-- [Active Context](tasks/active_context.md): Current development focus and priorities
-- [Tasks Plan](tasks/tasks_plan.md): Comprehensive project roadmap, completed tasks, and known issues
-- [Preference Monitoring Implementation](tasks/preference-monitoring-implementation.md): AI preference system implementation tasks
-- [Repository Metrics Implementation](tasks/repository-metrics-implementation.md): Repository health monitoring system tasks
+- [Workflow Validation System](.ai/plan/feature-workflow-validation-system-1.md): Comprehensive validation system for workflow templates ensuring organizational standards compliance
+- [Organization Health Monitoring](.ai/plan/infrastructure-org-health-monitoring-1.md): Centralized monitoring and reporting system for repository health tracking across the organization
 
 ## Optional
 
 - [Release Script](scripts/release.ts): Custom automated release management for multi-package repositories
 - [Renovate Changesets Action](actions/renovate-changesets/): Custom action for integrating dependency updates with changesets
-- [Architectural Decision Records](docs/adr/): Historical design decisions and rationale documentation
-- [Cursor Rules Enhancement Tasks](tasks/cursor-rules-enhancement.md): AI-optimized development guidance system improvements
 - [Changelog](CHANGELOG.md): Version history and release notes
 - [License](LICENSE.md): MIT license terms and conditions
 - [Contributing Guidelines](profile/README.md): Organization profile and contribution standards

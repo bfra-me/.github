@@ -3,5 +3,14 @@
   "compilerOptions": {
     "noEmit": true,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./.github/actions/renovate-changesets"
+    },
+    {
+      "path": "./.github/actions/update-metadata"
+    }
+  ]
 }

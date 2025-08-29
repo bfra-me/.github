@@ -1,6 +1,4 @@
 ---
-'@bfra.me-actions/renovate-changesets': patch
-'@bfra.me-actions/update-metadata': patch
 '@bfra.me/.github': patch
 ---
 

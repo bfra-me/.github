@@ -111,30 +111,12 @@ importers:
         specifier: 10.0.3
         version: 10.0.3
     devDependencies:
-      '@bfra.me/eslint-config':
-        specifier: ^0.28.0
-        version: 0.28.0(@typescript-eslint/eslint-plugin@8.40.0(@typescript-eslint/parser@8.40.0(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2))(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2))(@typescript-eslint/utils@8.40.0(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2))(eslint-config-prettier@10.1.8(eslint@9.34.0(jiti@2.1.2)))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.34.0(jiti@2.1.2)))(eslint@9.34.0(jiti@2.1.2))(prettier@3.6.2))(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
-      '@types/node':
-        specifier: ^22.15.18
-        version: 22.17.2
-      '@vitest/coverage-v8':
-        specifier: ^3.1.4
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.17.2)(jiti@2.1.2)(tsx@4.20.5)(yaml@2.8.1))
-      eslint:
-        specifier: ^9.27.0
-        version: 9.34.0(jiti@2.1.2)
       tsup:
         specifier: 8.5.0
         version: 8.5.0(jiti@2.1.2)(postcss@8.5.6)(tsx@4.20.5)(typescript@5.9.2)(yaml@2.8.1)
-      typescript:
-        specifier: ^5.8.3
-        version: 5.9.2
-      vitest:
-        specifier: ^3.1.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.17.2)(jiti@2.1.2)(tsx@4.20.5)(yaml@2.8.1)
 
   .github/actions/update-metadata:
     dependencies:
@@ -148,30 +130,12 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
     devDependencies:
-      '@bfra.me/eslint-config':
-        specifier: ^0.28.0
-        version: 0.28.0(@typescript-eslint/eslint-plugin@8.40.0(@typescript-eslint/parser@8.40.0(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2))(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2))(@typescript-eslint/utils@8.40.0(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2))(eslint-config-prettier@10.1.8(eslint@9.34.0(jiti@2.1.2)))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.34.0(jiti@2.1.2)))(eslint@9.34.0(jiti@2.1.2))(prettier@3.6.2))(eslint@9.34.0(jiti@2.1.2))(typescript@5.9.2)
       '@types/js-yaml':
         specifier: ^4.0.9
         version: 4.0.9
-      '@types/node':
-        specifier: ^22.15.18
-        version: 22.17.2
-      '@vitest/coverage-v8':
-        specifier: ^3.1.4
-        version: 3.2.4(vitest@3.2.4(@types/debug@4.1.12)(@types/node@22.17.2)(jiti@2.1.2)(tsx@4.20.5)(yaml@2.8.1))
-      eslint:
-        specifier: ^9.27.0
-        version: 9.34.0(jiti@2.1.2)
       tsup:
         specifier: 8.5.0
         version: 8.5.0(jiti@2.1.2)(postcss@8.5.6)(tsx@4.20.5)(typescript@5.9.2)(yaml@2.8.1)
-      typescript:
-        specifier: ^5.8.3
-        version: 5.9.2
-      vitest:
-        specifier: ^3.1.4
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.17.2)(jiti@2.1.2)(tsx@4.20.5)(yaml@2.8.1)
 
 packages:
 

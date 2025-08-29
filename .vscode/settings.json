@@ -60,6 +60,8 @@
         ".github/workflows/update-metadata.yaml"
     ],
 
+    "markdown.validate.referenceLinks.enabled": "ignore",
+
     "prettier.enable": false,
 
     "typescript.enablePromptUseWorkspaceTsdk": true,

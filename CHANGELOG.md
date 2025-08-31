@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.2.0
+### Minor Changes
+
+
+- Change `concurrency` to not cancel in-progress jobs with the same name. ([#1093](https://github.com/bfra-me/.github/pull/1093))
+
+
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.28.0`. ([#1074](https://github.com/bfra-me/.github/pull/1074))
+
 ## 4.1.0
 ### Minor Changes
 

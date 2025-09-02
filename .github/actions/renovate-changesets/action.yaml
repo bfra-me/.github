@@ -16,10 +16,17 @@ inputs:
     required: false
     default: 'false'
   config-file:
-    description: Path to configuration file
+    description: Path to configuration file (JSON or YAML)
     required: false
   config:
     description: Inline configuration (JSON/YAML)
+    required: false
+  default-changeset-type:
+    description: Default changeset type when no specific configuration matches (patch, minor, major)
+    required: false
+    default: patch
+  exclude-patterns:
+    description: File patterns to exclude from changeset generation (comma-separated)
     required: false
   skip-branch-prefix-check:
     description: Skip checking that the branch ref begins with branch-prefix
@@ -43,6 +50,12 @@ outputs:
     description: Number of changesets created
   changeset-files:
     description: List of created changeset files (JSON array)
+  update-type:
+    description: Detected update type (npm, github-actions, docker, etc.)
+  dependencies:
+    description: List of detected dependencies (JSON array)
+  changeset-summary:
+    description: Summary of the changeset content
 
 runs:
   using: node20

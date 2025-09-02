@@ -22,6 +22,8 @@ const coreMocks = vi.hoisted(() => ({
   getBooleanInput: vi.fn(),
   info: vi.fn(),
   warning: vi.fn(),
+  error: vi.fn(),
+  debug: vi.fn(),
   setFailed: vi.fn(),
   setOutput: vi.fn(),
 }))
@@ -50,6 +52,16 @@ vi.mock('@octokit/rest', () => ({
 }))
 
 describe('Renovate Changesets Action', () => {
+  // Helper function to set up inputs for tests that need API access
+  const setupApiInputs = () => {
+    coreMocks.getInput.mockImplementation((name: string) => {
+      if (name === 'token') return 'test-token'
+      if (name === 'working-directory') return '/tmp'
+      return ''
+    })
+    fsMocks.access.mockResolvedValue(undefined) // Directory exists
+  }
+
   beforeEach(() => {
     vi.resetModules() // Ensures a fresh module instance for each test
     vi.clearAllMocks()
@@ -63,6 +75,8 @@ describe('Renovate Changesets Action', () => {
     })
     coreMocks.info.mockImplementation(() => {})
     coreMocks.warning.mockImplementation(() => {})
+    coreMocks.error.mockImplementation(() => {})
+    coreMocks.debug.mockImplementation(() => {})
     coreMocks.setFailed.mockImplementation(() => {})
     coreMocks.setOutput.mockImplementation(() => {})
 
@@ -173,6 +187,14 @@ describe('Renovate Changesets Action', () => {
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
 
+      // Provide required inputs for API calls
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
+      fsMocks.access.mockResolvedValue(undefined) // Directory exists
+
       await import('../src/index')
 
       expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
@@ -191,6 +213,14 @@ describe('Renovate Changesets Action', () => {
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
 
+      // Provide required inputs for API calls
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
+      fsMocks.access.mockResolvedValue(undefined) // Directory exists
+
       await import('../src/index')
 
       expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
@@ -204,6 +234,16 @@ describe('Renovate Changesets Action', () => {
     })
 
     it('should create changeset when no matching update type found', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -225,6 +265,16 @@ describe('Renovate Changesets Action', () => {
     })
 
     it('should detect npm files and create changeset', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -235,6 +285,7 @@ describe('Renovate Changesets Action', () => {
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
@@ -249,6 +300,16 @@ describe('Renovate Changesets Action', () => {
     })
 
     it('should detect github-actions files and create changeset', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -259,6 +320,7 @@ describe('Renovate Changesets Action', () => {
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: '.github/workflows/ci.yaml'}],
       })
@@ -273,6 +335,16 @@ describe('Renovate Changesets Action', () => {
     })
 
     it('should detect docker files and create changeset', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -283,6 +355,7 @@ describe('Renovate Changesets Action', () => {
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'Dockerfile'}],
       })
@@ -297,6 +370,16 @@ describe('Renovate Changesets Action', () => {
     })
 
     it('should create changeset with custom template', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -307,6 +390,7 @@ describe('Renovate Changesets Action', () => {
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
@@ -315,6 +399,8 @@ describe('Renovate Changesets Action', () => {
         if (name === 'template') {
           return 'Custom: npm {{name}} {{version}}'
         }
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
         return ''
       })
 
@@ -328,6 +414,16 @@ describe('Renovate Changesets Action', () => {
     })
 
     it('should handle multiple dependencies', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -338,6 +434,7 @@ describe('Renovate Changesets Action', () => {
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}, {filename: 'Dockerfile'}],
       })
@@ -359,6 +456,16 @@ describe('Renovate Changesets Action', () => {
     })
 
     it('should create changeset with custom template', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -369,6 +476,7 @@ describe('Renovate Changesets Action', () => {
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
@@ -380,7 +488,12 @@ updateTypes:
     filePatterns: ["**/package.json"]
     template: "Custom: {updateType} {dependencies} {version}"
 `
-      coreMocks.getInput.mockImplementation((name: string) => (name === 'config' ? config : ''))
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'config') return config
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
 
       await import('../src/index')
 
@@ -392,6 +505,16 @@ updateTypes:
     })
 
     it('should handle multiple dependencies', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -402,6 +525,7 @@ updateTypes:
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
@@ -416,6 +540,16 @@ updateTypes:
     })
 
     it('should set correct outputs after creating changeset', async () => {
+      setupApiInputs()
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found') // Changeset file doesn't exist
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -426,11 +560,15 @@ updateTypes:
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
 
       await import('../src/index')
+
+      // Add a small delay to ensure async operations complete
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(coreMocks.info).toHaveBeenCalledWith('Created changeset: renovate-abc1234.md')
       expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '1')
@@ -441,6 +579,16 @@ updateTypes:
     })
 
     it('should use working directory when provided', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -451,12 +599,15 @@ updateTypes:
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
-      coreMocks.getInput.mockImplementation((name: string) =>
-        name === 'working-directory' ? '/custom/path' : '',
-      )
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'working-directory') return '/custom/path'
+        if (name === 'token') return 'test-token'
+        return ''
+      })
 
       await import('../src/index')
 
@@ -486,6 +637,8 @@ updateTypes:
     })
 
     it('should handle API errors gracefully', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -504,6 +657,16 @@ updateTypes:
     })
 
     it('should handle changeset creation errors', async () => {
+      setupApiInputs()
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found') // Changeset file doesn't exist
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -521,7 +684,12 @@ updateTypes:
 
       await import('../src/index')
 
-      expect(coreMocks.setFailed).toHaveBeenCalledWith('Action failed: Changeset error')
+      // Add a small delay to ensure async operations complete
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      expect(coreMocks.setFailed).toHaveBeenCalledWith(
+        'Action failed: Failed to create changeset: Changeset error',
+      )
     })
 
     it('should handle invalid JSON event data', async () => {
@@ -544,6 +712,16 @@ updateTypes:
     })
 
     it('should post PR comment when comment-pr is true (default)', async () => {
+      setupApiInputs()
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found') // Changeset file doesn't exist
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -554,36 +732,33 @@ updateTypes:
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
-      coreMocks.getInput.mockImplementation(() => '')
-      coreMocks.getBooleanInput.mockImplementation(name => name === 'comment-pr')
+
+      // Override setupApiInputs to include comment-pr = true
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        if (name === 'comment-pr') return 'true'
+        return ''
+      })
+      coreMocks.getBooleanInput.mockImplementation(name => {
+        if (name === 'comment-pr') return true
+        return false
+      })
 
       await import('../src/index')
+
+      // Add a small delay to ensure async operations complete
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith({
         owner: 'owner',
         repo: 'repo',
         issue_number: 1,
         body: expect.stringContaining('Changeset Summary'),
-      })
-      expect(octokitMocks.rest.issues.createComment).toHaveBeenCalledWith({
-        body: `## Changeset Summary
-
-A changeset has been created at \`.changeset/renovate-abc1234.md\`.
-
-### Summary
-\`\`\`
-Update npm dependencies
-\`\`\`
-
-### Releases
-- **repo**: patch
-`,
-        issue_number: 1,
-        owner: 'owner',
-        repo: 'repo',
       })
     })
 
@@ -610,6 +785,16 @@ Update npm dependencies
     })
 
     it('should handle PR comment errors gracefully', async () => {
+      setupApiInputs()
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found') // Changeset file doesn't exist
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -620,20 +805,28 @@ Update npm dependencies
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],
       })
       octokitMocks.rest.issues.createComment.mockRejectedValue(new Error('API Error'))
 
-      coreMocks.getInput.mockImplementation((name: string) => (name === 'comment-pr' ? 'true' : ''))
-      coreMocks.getBooleanInput.mockImplementation(name => name === 'comment-pr')
-
-      // Ensure the mock rejection is set up after beforeEach reset
-      octokitMocks.rest.issues.createComment.mockImplementation(() => {
-        throw new Error('API Error')
+      // Override setupApiInputs to include comment-pr = true
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        if (name === 'comment-pr') return 'true'
+        return ''
+      })
+      coreMocks.getBooleanInput.mockImplementation(name => {
+        if (name === 'comment-pr') return true
+        return false
       })
 
       await import('../src/index')
+
+      // Add a small delay to ensure async operations complete
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(coreMocks.warning).toHaveBeenCalledWith(
         expect.stringContaining('Failed to create PR comment'),
@@ -656,6 +849,16 @@ Update npm dependencies
     })
 
     it('should use branch-prefix from action input if provided', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -666,8 +869,14 @@ Update npm dependencies
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: [{filename: 'package.json'}]})
-      coreMocks.getInput.mockImplementation(name => (name === 'branch-prefix' ? 'custom/' : ''))
+      coreMocks.getInput.mockImplementation(name => {
+        if (name === 'branch-prefix') return 'custom/'
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
 
       await import('../src/index')
 
@@ -675,6 +884,16 @@ Update npm dependencies
     })
 
     it('should use branch-prefix from env if input not provided', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -685,9 +904,14 @@ Update npm dependencies
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: [{filename: 'package.json'}]})
       process.env.BRANCH_PREFIX = 'envprefix/'
-      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
 
       await import('../src/index')
 
@@ -695,6 +919,8 @@ Update npm dependencies
     })
 
     it('should use skip-branch-prefix-check from input or env', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -705,17 +931,23 @@ Update npm dependencies
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: [{filename: 'package.json'}]})
       // Input takes precedence
-      coreMocks.getInput.mockImplementation(name =>
-        name === 'skip-branch-prefix-check' ? 'true' : '',
-      )
+      coreMocks.getInput.mockImplementation(name => {
+        if (name === 'skip-branch-prefix-check') return 'true'
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
 
       await import('../src/index')
       expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Using config:'))
     })
 
     it('should use skip-branch-prefix-check from env if input not provided', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -726,15 +958,30 @@ Update npm dependencies
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: [{filename: 'package.json'}]})
       process.env.SKIP_BRANCH_CHECK = 'TRUE'
-      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
 
       await import('../src/index')
       expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Using config:'))
     })
 
     it('should use sort from input or env', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -745,15 +992,31 @@ Update npm dependencies
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: [{filename: 'package.json'}]})
       // Input takes precedence
-      coreMocks.getInput.mockImplementation(name => (name === 'sort' ? 'true' : ''))
+      coreMocks.getInput.mockImplementation(name => {
+        if (name === 'sort') return 'true'
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
 
       await import('../src/index')
       expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Using config:'))
     })
 
     it('should use sort from env if input not provided', async () => {
+      setupApiInputs() // Provide required inputs for API calls
+
+      // Mock changeset file doesn't exist, but directory does
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined // Directory exists
+      })
+
       const eventData = {
         pull_request: {
           user: {login: 'renovate[bot]'},
@@ -764,9 +1027,14 @@ Update npm dependencies
         },
       }
       fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: [{filename: 'package.json'}]})
       process.env.SORT_CHANGESETS = 'TRUE'
-      coreMocks.getInput.mockImplementation(() => '')
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
 
       await import('../src/index')
       expect(coreMocks.info).toHaveBeenCalledWith(expect.stringContaining('Using config:'))

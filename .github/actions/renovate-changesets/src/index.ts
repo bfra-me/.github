@@ -61,6 +61,22 @@ async function getConfig(): Promise<Config> {
     core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
   const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
   const commentPR = core.getBooleanInput('comment-pr')
+  const defaultChangesetType = (core.getInput('default-changeset-type') || 'patch') as
+    | 'patch'
+    | 'minor'
+    | 'major'
+
+  // Validate changeset type
+  if (!['patch', 'minor', 'major'].includes(defaultChangesetType)) {
+    throw new Error(
+      `Invalid default-changeset-type: ${defaultChangesetType}. Must be one of: patch, minor, major`,
+    )
+  }
+
+  const excludePatternsInput = core.getInput('exclude-patterns')
+  const excludePatterns = excludePatternsInput
+    ? excludePatternsInput.split(',').map(p => p.trim())
+    : undefined
 
   let config = {
     ...DEFAULT_CONFIG,
@@ -68,22 +84,36 @@ async function getConfig(): Promise<Config> {
     skipBranchPrefixCheck,
     sort,
     commentPR,
+    defaultChangesetType,
+    excludePatterns,
   }
 
   if (configFile) {
     try {
       const fileContent = await fs.readFile(configFile, 'utf8')
       const fileConfig = load(fileContent) as Partial<Config>
-      config = {...config, ...fileConfig}
+      if (fileConfig && typeof fileConfig === 'object') {
+        config = {...config, ...fileConfig}
+        core.info(`Loaded configuration from file: ${configFile}`)
+      } else {
+        core.warning(`Invalid configuration format in file: ${configFile}`)
+      }
     } catch (error) {
-      core.warning(`Failed to read config file ${configFile}: ${error}`)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      core.warning(`Failed to read config file ${configFile}: ${errorMessage}`)
     }
   } else if (configInline) {
     try {
       const inlineConfig = load(configInline) as Partial<Config>
-      config = {...config, ...inlineConfig}
+      if (inlineConfig && typeof inlineConfig === 'object') {
+        config = {...config, ...inlineConfig}
+        core.info('Loaded inline configuration')
+      } else {
+        core.warning('Invalid inline configuration format')
+      }
     } catch (error) {
-      core.warning(`Failed to parse inline config: ${error}`)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      core.warning(`Failed to parse inline config: ${errorMessage}`)
     }
   }
 
@@ -92,6 +122,17 @@ async function getConfig(): Promise<Config> {
 
 function matchesPatterns(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => minimatch(filePath, pattern, {dot: true}))
+}
+
+function isValidBranch(
+  branchName: string,
+  branchPrefix: string,
+  skipBranchPrefixCheck: boolean,
+): boolean {
+  if (skipBranchPrefixCheck) {
+    return true
+  }
+  return branchName.startsWith(branchPrefix)
 }
 
 function detectUpdateType(changedFiles: string[], config: Config): string | undefined {
@@ -162,13 +203,6 @@ function generateChangesetContent(
   return `Update ${updateType} dependencies: ${depList}${version ? ` to \`${version}\`` : ''}`
 }
 
-function isValidBranch(branchName: string, branchPrefix: string, skipCheck: boolean): boolean {
-  if (skipCheck) {
-    return true
-  }
-  return branchName.startsWith(branchPrefix)
-}
-
 function sortChangesetReleases(
   releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
 ): {name: string; type: 'patch' | 'minor' | 'major'}[] {
@@ -232,50 +266,51 @@ async function writeRenovateChangeset(
 ): Promise<string> {
   const changesetDir = path.join(workingDirectory, '.changeset')
 
-  // Get git short SHA for naming
-  const {stdout: shortSha} = await getExecOutput('git', ['rev-parse', '--short', 'HEAD'])
-  const changesetName = `renovate-${shortSha.trim()}.md`
-  const changesetPath = path.join(changesetDir, changesetName)
-
-  // Check if changeset already exists
   try {
-    await fs.access(changesetPath)
-    core.info(`Changeset already exists: ${changesetName}`)
-    return 'existing'
-  } catch {
-    // File doesn't exist, proceed with creation
-  }
+    // Get git short SHA for naming
+    const {stdout: shortSha} = await getExecOutput('git', ['rev-parse', '--short', 'HEAD'])
+    const changesetName = `renovate-${shortSha.trim()}.md`
+    const changesetPath = path.join(changesetDir, changesetName)
 
-  // Ensure .changeset directory exists
-  await fs.mkdir(changesetDir, {recursive: true})
+    // Check if changeset already exists
+    try {
+      await fs.access(changesetPath)
+      core.info(`Changeset already exists: ${changesetName}`)
+      return 'existing'
+    } catch {
+      // File doesn't exist, proceed with creation
+    }
 
-  // Create changeset content
-  const frontmatter = changeset.releases
-    .map(release => `'${release.name}': ${release.type}`)
-    .join('\n')
+    // Ensure .changeset directory exists
+    await fs.mkdir(changesetDir, {recursive: true})
 
-  const content = `---
+    // Create changeset content
+    const frontmatter = changeset.releases
+      .map(release => `'${release.name}': ${release.type}`)
+      .join('\n')
+
+    const content = `---
 ${frontmatter}
 ---
 
 ${changeset.summary}
 `
 
-  // Write the changeset file
-  await fs.writeFile(changesetPath, content, 'utf8')
-  core.info(`Created changeset: ${changesetName}`)
+    // Write the changeset file
+    await fs.writeFile(changesetPath, content, 'utf8')
+    core.info(`Created changeset: ${changesetName}`)
 
-  return changesetName
+    return changesetName
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    core.error(`Failed to create changeset: ${errorMessage}`)
+    throw new Error(`Failed to create changeset: ${errorMessage}`)
+  }
 }
 
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('token')
-    const workingDirectory = core.getInput('working-directory')
-
-    const octokit = new Octokit({auth: token})
-
-    // Get repository and PR information from environment
+    // Get repository and PR information from environment first (like original behavior)
     const repository = process.env.GITHUB_REPOSITORY
     const eventPath = process.env.GITHUB_EVENT_PATH
 
@@ -334,6 +369,27 @@ async function run(): Promise<void> {
       core.setFailed('Could not determine repository owner or name.')
       return
     }
+
+    // Now validate inputs that we actually need for GitHub API and file operations
+    const token = core.getInput('token')
+    const workingDirectory = core.getInput('working-directory')
+
+    if (!token) {
+      throw new Error('GitHub token is required')
+    }
+
+    if (!workingDirectory) {
+      throw new Error('Working directory is required')
+    }
+
+    // Validate working directory exists
+    try {
+      await fs.access(workingDirectory)
+    } catch {
+      throw new Error(`Working directory does not exist: ${workingDirectory}`)
+    }
+
+    const octokit = new Octokit({auth: token})
 
     // Get PR files
     const {data: files} = await octokit.rest.pulls.listFiles({
@@ -406,15 +462,19 @@ async function run(): Promise<void> {
     // Check if a changeset was actually created (not a duplicate)
     const changesetExists = changesetPath !== 'existing'
 
-    if (changesetExists) {
-      // Log message removed to avoid redundancy with writeRenovateChangeset
+    if (!changesetExists) {
       core.info(`Changeset already exists: ${changesetPath}`)
     }
+
+    // Set outputs
     core.setOutput('changesets-created', changesetExists ? '1' : '0')
     core.setOutput(
       'changeset-files',
       JSON.stringify(changesetExists ? [`.changeset/${changesetPath}`] : []),
     )
+    core.setOutput('update-type', updateType || 'dependencies')
+    core.setOutput('dependencies', JSON.stringify(dependencies))
+    core.setOutput('changeset-summary', changesetContent)
 
     // Create PR comment with changeset details if enabled
     if (config.commentPR) {
@@ -429,7 +489,23 @@ async function run(): Promise<void> {
       )
     }
   } catch (error) {
-    core.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`)
+    // Enhanced error handling with detailed error information
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorStack = error instanceof Error ? error.stack : undefined
+
+    core.error(`Action failed: ${errorMessage}`)
+    if (errorStack) {
+      core.debug(`Error stack: ${errorStack}`)
+    }
+
+    // Set error outputs for debugging
+    core.setOutput('changesets-created', '0')
+    core.setOutput('changeset-files', JSON.stringify([]))
+    core.setOutput('update-type', '')
+    core.setOutput('dependencies', JSON.stringify([]))
+    core.setOutput('changeset-summary', '')
+
+    core.setFailed(`Action failed: ${errorMessage}`)
   }
 }
 

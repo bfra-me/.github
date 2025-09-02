@@ -6,6 +6,7 @@ import {getExecOutput} from '@actions/exec'
 import {Octokit} from '@octokit/rest'
 import {load} from 'js-yaml'
 import {minimatch} from 'minimatch'
+import {RenovateParser, type RenovatePRContext} from './renovate-parser.js'
 
 interface Config {
   updateTypes: {
@@ -124,15 +125,35 @@ function matchesPatterns(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => minimatch(filePath, pattern, {dot: true}))
 }
 
+function extractDependenciesFromTitle(title: string): string[] {
+  // Simple extraction from common Renovate patterns
+  const patterns = [/update ([\w\-./@]+)/gi, /bump ([\w\-./@]+)/gi, /deps.*: ([\w\-./@]+)/gi]
+
+  const dependencies: string[] = []
+  for (const pattern of patterns) {
+    const matches = [...title.matchAll(pattern)]
+    for (const match of matches) {
+      if (match[1] && !dependencies.includes(match[1])) {
+        dependencies.push(match[1])
+      }
+    }
+  }
+
+  return dependencies
+}
+
 function isValidBranch(
   branchName: string,
   branchPrefix: string,
   skipBranchPrefixCheck: boolean,
+  parser: RenovateParser,
 ): boolean {
   if (skipBranchPrefixCheck) {
     return true
   }
-  return branchName.startsWith(branchPrefix)
+
+  // Use enhanced parser for branch detection
+  return parser.isRenovateBranch(branchName) || branchName.startsWith(branchPrefix)
 }
 
 function detectUpdateType(changedFiles: string[], config: Config): string | undefined {
@@ -144,32 +165,8 @@ function detectUpdateType(changedFiles: string[], config: Config): string | unde
   return undefined
 }
 
-function extractDependencyInfo(
-  prTitle: string,
-  prBody: string,
-): {dependencies: string[]; version?: string} {
-  const dependencies: string[] = []
-  let version: string | undefined
-
-  // Extract from PR title (Renovate format: "chore(deps): update dependency-name to v1.2.3")
-  const titleMatch = prTitle.match(/update\s+([@\w\-./]+)\s+to\s+v?(\S+)/i)
-  if (titleMatch) {
-    if (titleMatch[1]) {
-      dependencies.push(titleMatch[1])
-    }
-    version = titleMatch[2]
-  }
-
-  // Extract from PR body
-  const bodyDeps = prBody.match(/(?:updates?|upgrade?)\s+\S+/gi)
-  if (bodyDeps) {
-    dependencies.push(...bodyDeps.map(dep => dep.replace(/^(?:updates?|upgrade?)\s+/i, '')))
-  }
-
-  return {dependencies: [...new Set(dependencies)], version}
-}
-
-function generateChangesetContent(
+function generateEnhancedChangesetContent(
+  prContext: RenovatePRContext,
   updateType: string,
   dependencies: string[],
   version: string | undefined,
@@ -188,19 +185,36 @@ function generateChangesetContent(
     sortedDependencies = [...dependencies].sort()
   }
 
-  // Create more descriptive changeset content
+  // Enhanced changeset content based on parsed context
+  let description = ''
+
+  if (prContext.isSecurityUpdate) {
+    description = '🔒 Security update: '
+  } else if (prContext.isGroupedUpdate) {
+    description = '📦 Group update: '
+  }
+
   if (sortedDependencies.length === 0) {
-    return `Update ${updateType} dependencies${version ? ` to ${version}` : ''}`
+    return `${description}Update ${updateType} dependencies${version ? ` to ${version}` : ''}`
   }
 
   if (sortedDependencies.length === 1) {
     const dep = sortedDependencies[0]
-    return `Update ${updateType} dependency \`${dep}\`${version ? ` to \`${version}\`` : ''}`
+    const versionInfo = prContext.dependencies.find(d => d.name === dep)
+    let versionText = ''
+
+    if (versionInfo?.currentVersion && versionInfo?.newVersion) {
+      versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
+    } else if (versionInfo?.newVersion) {
+      versionText = ` to \`${versionInfo.newVersion}\``
+    }
+
+    return `${description}Update ${updateType} dependency \`${dep}\`${versionText}`
   }
 
   // Multiple dependencies
   const depList = sortedDependencies.map(dep => `\`${dep}\``).join(', ')
-  return `Update ${updateType} dependencies: ${depList}${version ? ` to \`${version}\`` : ''}`
+  return `${description}Update ${updateType} dependencies: ${depList}`
 }
 
 function sortChangesetReleases(
@@ -310,6 +324,9 @@ ${changeset.summary}
 
 async function run(): Promise<void> {
   try {
+    // Initialize the enhanced Renovate parser
+    const parser = new RenovateParser()
+
     // Get repository and PR information from environment first (like original behavior)
     const repository = process.env.GITHUB_REPOSITORY
     const eventPath = process.env.GITHUB_EVENT_PATH
@@ -355,6 +372,7 @@ async function run(): Promise<void> {
         branchName,
         config.branchPrefix || 'renovate/',
         config.skipBranchPrefixCheck || false,
+        parser,
       )
     ) {
       core.info(
@@ -402,6 +420,24 @@ async function run(): Promise<void> {
     core.info(`Changed files: ${changedFiles.join(', ')}`)
     core.info(`Using config: ${JSON.stringify(config, null, 2)}`)
 
+    // Use enhanced parser to extract comprehensive PR context
+    const prContext = await parser.extractPRContext(octokit, owner, repo, pr.number, pr)
+
+    core.info(
+      `Parsed PR context: ${JSON.stringify(
+        {
+          isRenovateBot: prContext.isRenovateBot,
+          isGroupedUpdate: prContext.isGroupedUpdate,
+          isSecurityUpdate: prContext.isSecurityUpdate,
+          manager: prContext.manager,
+          updateType: prContext.updateType,
+          dependencyCount: prContext.dependencies.length,
+        },
+        null,
+        2,
+      )}`,
+    )
+
     if (changedFiles.some(file => file.startsWith('.changeset/'))) {
       core.info('Changeset files already exist, skipping changeset creation')
       core.setOutput('changesets-created', '0')
@@ -420,20 +456,54 @@ async function run(): Promise<void> {
       return
     }
 
-    const updateType = detectUpdateType(filteredFiles, config)
-    if (!updateType) {
+    // Use enhanced parsing for more sophisticated update type detection
+    const detectedManager =
+      prContext.manager === 'unknown' ? detectUpdateType(filteredFiles, config) : prContext.manager
+    const updateType = detectedManager || 'dependencies'
+
+    if (!detectedManager) {
       core.info('No matching update type found, using default')
     }
 
-    const settings = updateType ? config.updateTypes[updateType] : undefined
-    const changesetType = settings?.changesetType || config.defaultChangesetType
+    // Determine changeset type based on enhanced analysis
+    let changesetType = config.defaultChangesetType
 
-    const {dependencies, version} = extractDependencyInfo(pr.title, pr.body || '')
-    const changesetContent = generateChangesetContent(
-      updateType || 'dependencies',
-      dependencies,
-      version,
-      settings?.template,
+    if (prContext.isSecurityUpdate) {
+      // Security updates should be at least patch level
+      changesetType = 'patch'
+      core.info('Security update detected, using patch changeset type')
+    } else if (prContext.updateType === 'major') {
+      changesetType = 'major'
+    } else if (prContext.updateType === 'minor') {
+      changesetType = 'minor'
+    } else {
+      // Use configured type for the detected manager
+      const settings = updateType ? config.updateTypes[updateType] : undefined
+      changesetType = settings?.changesetType || config.defaultChangesetType
+    }
+
+    // Generate enhanced changeset content
+    let dependencyNames = prContext.dependencies.map(dep => dep.name)
+
+    // Fallback: If enhanced parser found no dependencies, try to extract from PR title/commit
+    if (dependencyNames.length === 0) {
+      const titleDeps = extractDependenciesFromTitle(pr.title || '')
+      if (titleDeps.length > 0) {
+        dependencyNames = titleDeps
+      } else {
+        // Final fallback: use a generic dependency name based on update type
+        dependencyNames = [updateType === 'npm' ? 'dependencies' : updateType || 'dependencies']
+      }
+    }
+
+    const primaryVersion = prContext.dependencies[0]?.newVersion
+
+    const changesetContent = generateEnhancedChangesetContent(
+      prContext,
+      updateType,
+      dependencyNames,
+      primaryVersion,
+      config.updateTypes[updateType]?.template,
       config.sort,
     )
 
@@ -473,7 +543,7 @@ async function run(): Promise<void> {
       JSON.stringify(changesetExists ? [`.changeset/${changesetPath}`] : []),
     )
     core.setOutput('update-type', updateType || 'dependencies')
-    core.setOutput('dependencies', JSON.stringify(dependencies))
+    core.setOutput('dependencies', JSON.stringify(dependencyNames))
     core.setOutput('changeset-summary', changesetContent)
 
     // Create PR comment with changeset details if enabled

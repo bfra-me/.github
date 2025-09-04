@@ -6,6 +6,7 @@ import {getExecOutput} from '@actions/exec'
 import {Octokit} from '@octokit/rest'
 import {load} from 'js-yaml'
 import {minimatch} from 'minimatch'
+import {GitHubActionsChangeDetector} from './github-actions-change-detector.js'
 import {NPMChangeDetector} from './npm-change-detector.js'
 import {RenovateParser, type RenovatePRContext} from './renovate-parser.js'
 
@@ -473,6 +474,59 @@ async function run(): Promise<void> {
     } else if (['npm', 'pnpm', 'yarn', 'lockfile'].includes(prContext.manager)) {
       core.info(
         'NPM-related update detected, but running in test environment - using standard parsing',
+      )
+    }
+
+    // TASK-015: Use sophisticated GitHub Actions change detector for GitHub Actions updates
+    const actionsDetector = new GitHubActionsChangeDetector()
+
+    // If this is a github-actions-related update, enhance dependency detection with detailed workflow analysis
+    // Skip GitHub Actions detector in test environments due to mocked API limitations
+    if (
+      prContext.manager === 'github-actions' &&
+      !process.env.VITEST &&
+      process.env.NODE_ENV !== 'test'
+    ) {
+      core.info('Detected GitHub Actions update, using enhanced actions change detector')
+      try {
+        const actionsChanges = await actionsDetector.detectChangesFromPR(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          files,
+        )
+
+        if (actionsChanges && actionsChanges.length > 0) {
+          core.info(
+            `GitHub Actions change detector found ${actionsChanges.length} dependency changes`,
+          )
+          // Convert GitHub Actions changes to RenovateDependency format and merge with existing
+          const convertedChanges = actionsChanges.map(change => ({
+            name: change.name,
+            currentVersion: change.currentRef,
+            newVersion: change.newRef,
+            manager: change.manager,
+            updateType: change.updateType,
+            isSecurityUpdate: change.isSecurityUpdate,
+            isGrouped: false, // Will be determined at PR level
+            packageFile: change.workflowFile,
+            scope: change.scope,
+          }))
+          enhancedDependencies = [...enhancedDependencies, ...convertedChanges]
+          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
+        } else {
+          core.info('GitHub Actions change detector found no additional dependency changes')
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        core.warning(
+          `GitHub Actions change detector failed, continuing with original parsing: ${errorMessage}`,
+        )
+      }
+    } else if (prContext.manager === 'github-actions') {
+      core.info(
+        'GitHub Actions update detected, but running in test environment - using standard parsing',
       )
     }
 

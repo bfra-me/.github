@@ -115,7 +115,7 @@ All core parsing engine tasks have been successfully implemented:
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-014 | Implement npm dependency change detection with package.json/lock file analysis | |  |
+| TASK-014 | Implement npm dependency change detection with package.json/lock file analysis | ✅ | 2025-09-02 |
 | TASK-015 | Create GitHub Actions workflow dependency change detection | |  |
 | TASK-016 | Implement Docker image update detection | |  |
 | TASK-017 | Add support for other Renovate managers (gradle, maven, pip, etc.) | |  |

@@ -448,7 +448,7 @@ describe('Renovate Changesets Action', () => {
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining("'repo': patch"),
+        expect.stringContaining("'repo': major"),
         'utf8',
       )
     })
@@ -504,7 +504,7 @@ describe('Renovate Changesets Action', () => {
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining("'repo': patch"),
+        expect.stringContaining("'repo': major"),
         'utf8',
       )
     })

@@ -13,6 +13,7 @@ import {JVMChangeDetector} from './jvm-change-detector.js'
 import {NPMChangeDetector} from './npm-change-detector.js'
 import {PythonChangeDetector} from './python-change-detector.js'
 import {RenovateParser, type RenovatePRContext} from './renovate-parser.js'
+import {SemverImpactAssessor} from './semver-impact-assessor.js'
 
 interface Config {
   updateTypes: {
@@ -844,24 +845,58 @@ async function run(): Promise<void> {
       core.info('No matching update type found, using default')
     }
 
-    // Determine changeset type based on enhanced analysis
-    let changesetType = config.defaultChangesetType
+    // TASK-018: Use sophisticated semver impact assessment algorithm
+    const semverAssessor = new SemverImpactAssessor({
+      securityMinimumPatch: true,
+      majorAsBreaking: true,
+      prereleaseAsLowerImpact: true,
+      defaultChangesetType: config.defaultChangesetType,
+      managerRules: {
+        'github-actions': {
+          defaultImpact: 'patch', // GitHub Actions updates are typically non-breaking
+        },
+        npm: {
+          majorAsBreaking: true,
+        },
+        docker: {
+          defaultImpact: 'patch', // Docker image updates are typically non-breaking to consumers
+        },
+      },
+    })
 
-    if (prContext.isSecurityUpdate) {
-      // Security updates should be at least patch level
-      changesetType = 'patch'
-      core.info('Security update detected, using patch changeset type')
-    } else if (prContext.updateType === 'major') {
-      changesetType = 'major'
-    } else if (prContext.updateType === 'minor') {
-      changesetType = 'minor'
-    } else {
-      // Use configured type for the detected manager
-      const settings = updateType ? config.updateTypes[updateType] : undefined
-      changesetType = settings?.changesetType || config.defaultChangesetType
+    const impactAssessment = semverAssessor.assessImpact(enhancedDependencies)
+
+    core.info(
+      `Semver impact assessment: ${JSON.stringify(
+        {
+          overallImpact: impactAssessment.overallImpact,
+          recommendedChangesetType: impactAssessment.recommendedChangesetType,
+          isSecurityUpdate: impactAssessment.isSecurityUpdate,
+          hasBreakingChanges: impactAssessment.hasBreakingChanges,
+          confidence: impactAssessment.confidence,
+          dependencyCount: impactAssessment.dependencies.length,
+        },
+        null,
+        2,
+      )}`,
+    )
+
+    // Log reasoning for transparency
+    if (impactAssessment.reasoning.length > 0) {
+      core.info(`Assessment reasoning: ${impactAssessment.reasoning.join('; ')}`)
     }
 
-    // Generate enhanced changeset content using enhanced dependencies
+    // Use the sophisticated assessment result
+    const changesetType = impactAssessment.recommendedChangesetType
+
+    // Log individual dependency assessments for debugging
+    for (const depImpact of impactAssessment.dependencies) {
+      core.debug(
+        `Dependency ${depImpact.name}: ${depImpact.versionChange} change, ${depImpact.semverImpact} impact, confidence: ${depImpact.confidence}`,
+      )
+    }
+
+    // Generate enhanced changeset content using sophisticated impact assessment
     let dependencyNames = enhancedDependencies.map(dep => dep.name)
 
     // Fallback: If enhanced parser found no dependencies, try to extract from PR title/commit
@@ -877,7 +912,8 @@ async function run(): Promise<void> {
 
     const primaryVersion = enhancedDependencies[0]?.newVersion
 
-    const changesetContent = generateEnhancedChangesetContent(
+    // Enhanced changeset content generation with impact assessment context
+    let changesetContent = generateEnhancedChangesetContent(
       prContext,
       updateType,
       dependencyNames,
@@ -885,6 +921,21 @@ async function run(): Promise<void> {
       config.updateTypes[updateType]?.template,
       config.sort,
     )
+
+    // Add impact assessment information to changeset content for transparency
+    if (impactAssessment.hasBreakingChanges) {
+      changesetContent +=
+        '\n\n⚠️ **Potentially breaking changes detected** - please review carefully.'
+    }
+
+    if (impactAssessment.isSecurityUpdate) {
+      const securityCount = impactAssessment.dependencies.filter(dep => dep.isSecurityUpdate).length
+      changesetContent += `\n\n🔒 **Security update** - ${securityCount} security-related update(s).`
+    }
+
+    if (impactAssessment.confidence === 'low') {
+      changesetContent += '\n\n⚠️ **Low confidence assessment** - manual review recommended.'
+    }
 
     // Prepare releases for changeset
     let releases = [

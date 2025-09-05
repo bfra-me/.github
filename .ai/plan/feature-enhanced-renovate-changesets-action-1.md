@@ -129,7 +129,7 @@ All core parsing engine tasks have been successfully implemented:
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-021 | Implement changeset file generation using @changesets/write | |  |
+| TASK-021 | Implement changeset file generation using @changesets/write | ✅ | 2025-01-03 |
 | TASK-022 | Create context-aware changeset summaries based on update type | |  |
 | TASK-023 | Implement proper semver bump type determination | |  |
 | TASK-024 | Handle multi-package updates and dependency relationships | |  |

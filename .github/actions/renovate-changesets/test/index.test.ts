@@ -6,6 +6,7 @@ const fsMocks = vi.hoisted(() => ({
   writeFile: vi.fn(),
   mkdir: vi.fn(),
   access: vi.fn(),
+  unlink: vi.fn(),
 }))
 
 vi.mock('node:fs', () => ({
@@ -14,6 +15,7 @@ vi.mock('node:fs', () => ({
     writeFile: fsMocks.writeFile,
     mkdir: fsMocks.mkdir,
     access: fsMocks.access,
+    unlink: fsMocks.unlink,
   },
 }))
 
@@ -50,6 +52,14 @@ const octokitMocks = vi.hoisted(() => ({
 
 vi.mock('@octokit/rest', () => ({
   Octokit: vi.fn(() => octokitMocks),
+}))
+
+const changesetWriteMocks = vi.hoisted(() => ({
+  write: vi.fn(),
+}))
+
+vi.mock('@changesets/write', () => ({
+  default: changesetWriteMocks.write,
 }))
 
 const renovateParserMocks = vi.hoisted(() => ({
@@ -111,10 +121,44 @@ describe('Renovate Changesets Action', () => {
     })
 
     // Mock file system operations
-    fsMocks.readFile.mockImplementation(async () => {})
+    fsMocks.readFile.mockImplementation(async (path: string) => {
+      // Handle different file types
+      if (typeof path === 'string') {
+        if (path.endsWith('github_event.json') || path === process.env.GITHUB_EVENT_PATH) {
+          // Return default event data when reading GitHub event file
+          return JSON.stringify({
+            pull_request: {
+              user: {login: 'renovate[bot]'},
+              number: 1,
+              title: 'test',
+              body: '',
+              head: {ref: 'renovate/some-branch'},
+            },
+          })
+        } else if (path.includes('.changeset/temp-changeset-id.md')) {
+          // Return changeset content when reading the temporary changeset created by @changesets/write
+          return `---
+'repo': patch
+---
+
+Sample changeset content
+`
+        } else if (path.includes('.changeset/')) {
+          // Return changeset content for any other changeset files
+          return `---
+'repo': patch
+---
+
+Sample changeset content
+`
+        }
+      }
+      throw new Error('File not found')
+    })
     fsMocks.writeFile.mockResolvedValue(undefined)
     fsMocks.mkdir.mockResolvedValue(undefined)
     fsMocks.access.mockRejectedValue(new Error('File not found')) // Default to file not existing
+    fsMocks.unlink.mockResolvedValue(undefined)
 
     // Reset octokit mocks
     octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
@@ -135,6 +179,48 @@ describe('Renovate Changesets Action', () => {
       updateType: 'patch',
       manager: 'npm',
       files: [],
+    })
+
+    // Reset @changesets/write mock - should return a unique ID
+    changesetWriteMocks.write.mockResolvedValue('temp-changeset-id')
+
+    // Reset @changesets/write mock
+    const changesetContentMap = new Map<string, string>()
+
+    changesetWriteMocks.write.mockImplementation(
+      async (changeset: any, workingDirectory: string) => {
+        // Simulate @changesets/write creating a file and returning a unique ID
+        const uniqueId = 'mocked-unique-id'
+
+        // Create changeset content similar to what @changesets/write would create
+        const frontmatter = changeset.releases
+          .map((release: any) => `'${release.name}': ${release.type}`)
+          .join('\n')
+
+        const content = `---
+${frontmatter}
+---
+
+${changeset.summary}
+`
+
+        // Store the content for later retrieval when readFile is called
+        const mockPath = `${workingDirectory}/.changeset/${uniqueId}.md`
+        changesetContentMap.set(mockPath, content)
+
+        return uniqueId
+      },
+    )
+
+    // Enhance the readFile mock to handle changeset files created by @changesets/write
+    const originalReadFile = fsMocks.readFile
+    fsMocks.readFile.mockImplementation(async (path: string) => {
+      const content = changesetContentMap.get(path)
+      if (content) {
+        return content
+      }
+      // Fall back to the original mock behavior
+      return originalReadFile(path)
     })
 
     // Clean up env for each test
@@ -357,7 +443,32 @@ describe('Renovate Changesets Action', () => {
           head: {ref: 'renovate/some-branch'},
         },
       }
-      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.readFile.mockImplementation(async (path: string) => {
+        // Handle different file types
+        if (typeof path === 'string') {
+          if (path.endsWith('github_event.json') || path === process.env.GITHUB_EVENT_PATH) {
+            // Return event data when reading GitHub event file
+            return JSON.stringify(eventData)
+          } else if (path.includes('.changeset/temp-changeset-id.md')) {
+            // Return changeset content when reading the temporary changeset created by @changesets/write
+            return `---
+'repo': patch
+---
+
+Sample changeset content
+`
+          } else if (path.includes('.changeset/')) {
+            // Return changeset content for any other changeset files
+            return `---
+'repo': patch
+---
+
+Sample changeset content
+`
+          }
+        }
+        throw new Error('File not found')
+      })
       fsMocks.writeFile.mockResolvedValue(undefined)
       octokitMocks.rest.pulls.listFiles.mockResolvedValue({
         data: [{filename: 'package.json'}],

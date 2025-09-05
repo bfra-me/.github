@@ -56,6 +56,23 @@ outputs:
     description: List of detected dependencies (JSON array)
   changeset-summary:
     description: Summary of the changeset content
+  # TASK-020: Enhanced categorization outputs
+  primary-category:
+    description: Primary update category (major, minor, patch, security)
+  all-categories:
+    description: All update categories present (JSON array)
+  categorization-summary:
+    description: Detailed categorization summary (JSON object)
+  security-updates:
+    description: Number of security-related updates
+  breaking-changes:
+    description: Number of dependencies with breaking changes
+  high-priority-updates:
+    description: Number of high-priority updates
+  average-risk-level:
+    description: Average risk level (0-100 scale)
+  categorization-confidence:
+    description: Confidence in categorization (high, medium, low)
 
 runs:
   using: node20

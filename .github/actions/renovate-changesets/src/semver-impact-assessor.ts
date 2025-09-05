@@ -1,4 +1,6 @@
+import type {BreakingChangeAnalysis} from './breaking-change-detector'
 import type {RenovateDependency, RenovateSecurityType} from './renovate-parser'
+import type {SecurityAnalysis} from './security-vulnerability-detector'
 
 /**
  * Semantic version information
@@ -29,10 +31,13 @@ export interface DependencyImpact {
   isPrerelease: boolean
   confidence: 'high' | 'medium' | 'low'
   reasoning: string[]
+  // TASK-019: Enhanced breaking change and security analysis
+  breakingChangeAnalysis?: BreakingChangeAnalysis
+  securityAnalysis?: SecurityAnalysis
 }
 
 /**
- * Overall impact assessment for multiple dependencies
+ * Enhanced overall impact assessment for multiple dependencies
  */
 export interface ImpactAssessment {
   dependencies: DependencyImpact[]
@@ -44,6 +49,11 @@ export interface ImpactAssessment {
   hasPreleases: boolean
   confidence: 'high' | 'medium' | 'low'
   reasoning: string[]
+  // TASK-019: Enhanced analysis summary
+  totalVulnerabilities: number
+  highSeverityVulnerabilities: number
+  criticalBreakingChanges: number
+  overallRiskScore: number // 0-100
 }
 
 /**
@@ -559,6 +569,11 @@ export class SemverImpactAssessor {
         hasPreleases: false,
         confidence: 'high',
         reasoning: ['No dependencies to assess'],
+        // TASK-019: Enhanced analysis summary
+        totalVulnerabilities: 0,
+        highSeverityVulnerabilities: 0,
+        criticalBreakingChanges: 0,
+        overallRiskScore: 0,
       }
     }
 
@@ -608,6 +623,39 @@ export class SemverImpactAssessor {
 
     reasoning.push(`Overall impact: ${overallImpact}`)
 
+    // TASK-019: Calculate enhanced analysis metrics
+    const totalVulnerabilities = dependencyImpacts.reduce(
+      (sum, dep) => sum + (dep.securityAnalysis?.vulnerabilities.length || 0),
+      0,
+    )
+
+    const highSeverityVulnerabilities = dependencyImpacts.reduce(
+      (sum, dep) =>
+        sum +
+        (dep.securityAnalysis?.vulnerabilities.filter(
+          v => v.severity === 'high' || v.severity === 'critical',
+        ).length || 0),
+      0,
+    )
+
+    const criticalBreakingChanges = dependencyImpacts.reduce(
+      (sum, dep) =>
+        sum +
+        (dep.breakingChangeAnalysis?.indicators.filter(i => i.severity === 'critical').length || 0),
+      0,
+    )
+
+    const overallRiskScore = Math.min(
+      100,
+      dependencyImpacts.reduce(
+        (sum, dep) =>
+          sum +
+          (dep.securityAnalysis?.riskScore || 0) +
+          (dep.breakingChangeAnalysis?.indicators.length || 0) * 10,
+        0,
+      ) / dependencyImpacts.length,
+    )
+
     return {
       dependencies: dependencyImpacts,
       overallImpact,
@@ -618,6 +666,11 @@ export class SemverImpactAssessor {
       hasPreleases,
       confidence,
       reasoning,
+      // TASK-019: Enhanced analysis summary
+      totalVulnerabilities,
+      highSeverityVulnerabilities,
+      criticalBreakingChanges,
+      overallRiskScore,
     }
   }
 }

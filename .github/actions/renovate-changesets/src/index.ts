@@ -8,6 +8,7 @@ import {Octokit} from '@octokit/rest'
 import {load} from 'js-yaml'
 import {minimatch} from 'minimatch'
 import {BreakingChangeDetector} from './breaking-change-detector'
+import {ChangeCategorizationEngine} from './change-categorization-engine'
 import {DockerChangeDetector} from './docker-change-detector'
 import {GitHubActionsChangeDetector} from './github-actions-change-detector'
 import {GoChangeDetector} from './go-change-detector'
@@ -894,6 +895,15 @@ async function run(): Promise<void> {
       core.info('Changeset files already exist, skipping changeset creation')
       core.setOutput('changesets-created', '0')
       core.setOutput('changeset-files', JSON.stringify([]))
+      // TASK-020: Set categorization outputs for early return
+      core.setOutput('primary-category', '')
+      core.setOutput('all-categories', JSON.stringify([]))
+      core.setOutput('categorization-summary', JSON.stringify({}))
+      core.setOutput('security-updates', '0')
+      core.setOutput('breaking-changes', '0')
+      core.setOutput('high-priority-updates', '0')
+      core.setOutput('average-risk-level', '0')
+      core.setOutput('categorization-confidence', 'low')
       return
     }
 
@@ -958,8 +968,60 @@ async function run(): Promise<void> {
       core.info(`Assessment reasoning: ${impactAssessment.reasoning.join('; ')}`)
     }
 
-    // Use the sophisticated assessment result
-    const changesetType = impactAssessment.recommendedChangesetType
+    // TASK-020: Use sophisticated change categorization engine
+    const categorizationEngine = new ChangeCategorizationEngine({
+      securityFirst: true,
+      majorAsHighPriority: true,
+      prereleaseAsLowerPriority: true,
+      managerCategoryRules: {
+        'github-actions': {
+          categoryOverrides: {
+            // GitHub Actions updates are typically safe, even major versions
+            major: 'minor',
+          },
+          riskAdjustment: 0.8, // Lower risk for GitHub Actions
+        },
+        docker: {
+          riskAdjustment: 0.9, // Slightly lower risk for Docker images
+        },
+        npm: {
+          categoryOverrides: {
+            // Keep npm major updates as major due to potential breaking changes
+          },
+          riskAdjustment: 1.1, // Slightly higher risk for npm
+        },
+      },
+    })
+
+    const categorizationResult = categorizationEngine.categorizeChanges(
+      enhancedDependencies,
+      impactAssessment,
+    )
+
+    core.info(
+      `Change categorization: ${JSON.stringify(
+        {
+          primaryCategory: categorizationResult.primaryCategory,
+          allCategories: categorizationResult.allCategories,
+          securityUpdates: categorizationResult.summary.securityUpdates,
+          breakingChanges: categorizationResult.summary.breakingChanges,
+          highPriorityUpdates: categorizationResult.summary.highPriorityUpdates,
+          averageRiskLevel: categorizationResult.summary.averageRiskLevel,
+          confidence: categorizationResult.confidence,
+        },
+        null,
+        2,
+      )}`,
+    )
+
+    // Log categorization reasoning for transparency
+    if (categorizationResult.reasoning.length > 0) {
+      core.info(`Categorization reasoning: ${categorizationResult.reasoning.join('; ')}`)
+    }
+
+    // Use the sophisticated categorization result (fallback to impact assessment)
+    const changesetType =
+      categorizationResult.recommendedChangesetType || impactAssessment.recommendedChangesetType
 
     // Log individual dependency assessments for debugging
     for (const depImpact of impactAssessment.dependencies) {
@@ -1009,6 +1071,27 @@ async function run(): Promise<void> {
       changesetContent += '\n\n⚠️ **Low confidence assessment** - manual review recommended.'
     }
 
+    // TASK-020: Add categorization information to changeset content
+    if (categorizationResult.summary.highPriorityUpdates > 0) {
+      changesetContent += `\n\n📋 **${categorizationResult.summary.highPriorityUpdates} high-priority update(s)** require attention.`
+    }
+
+    if (categorizationResult.summary.averageRiskLevel >= 75) {
+      changesetContent += '\n\n⚠️ **High-risk update** - thorough testing recommended.'
+    } else if (categorizationResult.summary.averageRiskLevel >= 50) {
+      changesetContent += '\n\n🔍 **Medium-risk update** - standard testing recommended.'
+    }
+
+    if (categorizationResult.allCategories.length > 1) {
+      const categoryList = categorizationResult.allCategories.join(', ')
+      changesetContent += `\n\n📊 **Multiple update types**: ${categoryList}`
+    }
+
+    if (categorizationResult.confidence === 'low') {
+      changesetContent +=
+        '\n\n⚠️ **Low categorization confidence** - manual review of update types recommended.'
+    }
+
     // Prepare releases for changeset
     let releases = [
       {
@@ -1048,6 +1131,19 @@ async function run(): Promise<void> {
     core.setOutput('dependencies', JSON.stringify(dependencyNames))
     core.setOutput('changeset-summary', changesetContent)
 
+    // TASK-020: Set categorization outputs
+    core.setOutput('primary-category', categorizationResult.primaryCategory)
+    core.setOutput('all-categories', JSON.stringify(categorizationResult.allCategories))
+    core.setOutput('categorization-summary', JSON.stringify(categorizationResult.summary))
+    core.setOutput('security-updates', categorizationResult.summary.securityUpdates.toString())
+    core.setOutput('breaking-changes', categorizationResult.summary.breakingChanges.toString())
+    core.setOutput(
+      'high-priority-updates',
+      categorizationResult.summary.highPriorityUpdates.toString(),
+    )
+    core.setOutput('average-risk-level', categorizationResult.summary.averageRiskLevel.toString())
+    core.setOutput('categorization-confidence', categorizationResult.confidence)
+
     // Create PR comment with changeset details if enabled
     if (config.commentPR) {
       await createPRComment(
@@ -1076,6 +1172,16 @@ async function run(): Promise<void> {
     core.setOutput('update-type', '')
     core.setOutput('dependencies', JSON.stringify([]))
     core.setOutput('changeset-summary', '')
+
+    // TASK-020: Set categorization error outputs
+    core.setOutput('primary-category', '')
+    core.setOutput('all-categories', JSON.stringify([]))
+    core.setOutput('categorization-summary', JSON.stringify({}))
+    core.setOutput('security-updates', '0')
+    core.setOutput('breaking-changes', '0')
+    core.setOutput('high-priority-updates', '0')
+    core.setOutput('average-risk-level', '0')
+    core.setOutput('categorization-confidence', 'low')
 
     core.setFailed(`Action failed: ${errorMessage}`)
   }

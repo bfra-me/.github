@@ -121,7 +121,7 @@ All core parsing engine tasks have been successfully implemented:
 | TASK-017 | Add support for other Renovate managers (gradle, maven, pip, etc.) | ✅ | 2025-09-04 |
 | TASK-018 | Implement semver impact assessment algorithm | ✅ | 2025-09-05 |
 | TASK-019 | Handle breaking change detection and security vulnerability flags | ✅ | 2025-09-05 |
-| TASK-020 | Categorize changes by update type (major, minor, patch, security) | |  |
+| TASK-020 | Categorize changes by update type (major, minor, patch, security) | ✅ | 2025-09-05 |
 
 ### Implementation Phase 4: Changeset Generation Engine
 

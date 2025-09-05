@@ -6,6 +6,7 @@ import {getExecOutput} from '@actions/exec'
 import {Octokit} from '@octokit/rest'
 import {load} from 'js-yaml'
 import {minimatch} from 'minimatch'
+import {DockerChangeDetector} from './docker-change-detector.js'
 import {GitHubActionsChangeDetector} from './github-actions-change-detector.js'
 import {NPMChangeDetector} from './npm-change-detector.js'
 import {RenovateParser, type RenovatePRContext} from './renovate-parser.js'
@@ -528,6 +529,55 @@ async function run(): Promise<void> {
       core.info(
         'GitHub Actions update detected, but running in test environment - using standard parsing',
       )
+    }
+
+    // TASK-016: Use sophisticated Docker change detector for Docker updates
+    const dockerDetector = new DockerChangeDetector()
+
+    // If this is a docker-related update, enhance dependency detection with detailed file analysis
+    // Skip Docker detector in test environments due to mocked API limitations
+    if (
+      ['docker', 'dockerfile', 'docker-compose'].includes(prContext.manager) &&
+      !process.env.VITEST &&
+      process.env.NODE_ENV !== 'test'
+    ) {
+      core.info('Detected Docker update, using enhanced docker change detector')
+      try {
+        const dockerChanges = await dockerDetector.detectChangesFromPR(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          files,
+        )
+
+        if (dockerChanges && dockerChanges.length > 0) {
+          core.info(`Docker change detector found ${dockerChanges.length} dependency changes`)
+          // Convert Docker changes to RenovateDependency format and merge with existing
+          const convertedChanges = dockerChanges.map(change => ({
+            name: change.name,
+            currentVersion: change.currentTag,
+            newVersion: change.newTag,
+            manager: change.manager,
+            updateType: change.updateType,
+            isSecurityUpdate: change.isSecurityUpdate,
+            isGrouped: false, // Will be determined at PR level
+            packageFile: change.dockerFile,
+            scope: change.scope,
+          }))
+          enhancedDependencies = [...enhancedDependencies, ...convertedChanges]
+          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
+        } else {
+          core.info('Docker change detector found no additional dependency changes')
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        core.warning(
+          `Docker change detector failed, continuing with original parsing: ${errorMessage}`,
+        )
+      }
+    } else if (['docker', 'dockerfile', 'docker-compose'].includes(prContext.manager)) {
+      core.info('Docker update detected, but running in test environment - using standard parsing')
     }
 
     core.info(

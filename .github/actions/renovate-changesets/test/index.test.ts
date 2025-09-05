@@ -740,7 +740,7 @@ Sample changeset content
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining('Update npm dependencies: `test`, `lodash`, `axios`'),
+        expect.stringContaining('Group update for npm dependencies: `test`, `lodash`, `axios`'),
         'utf8',
       )
     })

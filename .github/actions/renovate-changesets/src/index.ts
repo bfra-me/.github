@@ -1,4 +1,3 @@
-import type {RenovatePRContext} from './renovate-parser'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -10,6 +9,7 @@ import {load} from 'js-yaml'
 import {minimatch} from 'minimatch'
 import {BreakingChangeDetector} from './breaking-change-detector'
 import {ChangeCategorizationEngine} from './change-categorization-engine'
+import {ChangesetSummaryGenerator} from './changeset-summary-generator'
 import {DockerChangeDetector} from './docker-change-detector'
 import {GitHubActionsChangeDetector} from './github-actions-change-detector'
 import {GoChangeDetector} from './go-change-detector'
@@ -243,58 +243,6 @@ function detectUpdateType(changedFiles: string[], config: Config): string | unde
     }
   }
   return undefined
-}
-
-function generateEnhancedChangesetContent(
-  prContext: RenovatePRContext,
-  updateType: string,
-  dependencies: string[],
-  version: string | undefined,
-  template?: string,
-  shouldSort = false,
-): string {
-  if (template) {
-    return template
-      .replaceAll('{updateType}', updateType)
-      .replaceAll('{dependencies}', dependencies.join(', '))
-      .replaceAll('{version}', version || 'latest')
-  }
-
-  let sortedDependencies = dependencies
-  if (shouldSort) {
-    sortedDependencies = [...dependencies].sort()
-  }
-
-  // Enhanced changeset content based on parsed context
-  let description = ''
-
-  if (prContext.isSecurityUpdate) {
-    description = '🔒 Security update: '
-  } else if (prContext.isGroupedUpdate) {
-    description = '📦 Group update: '
-  }
-
-  if (sortedDependencies.length === 0) {
-    return `${description}Update ${updateType} dependencies${version ? ` to ${version}` : ''}`
-  }
-
-  if (sortedDependencies.length === 1) {
-    const dep = sortedDependencies[0]
-    const versionInfo = prContext.dependencies.find(d => d.name === dep)
-    let versionText = ''
-
-    if (versionInfo?.currentVersion && versionInfo?.newVersion) {
-      versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
-    } else if (versionInfo?.newVersion) {
-      versionText = ` to \`${versionInfo.newVersion}\``
-    }
-
-    return `${description}Update ${updateType} dependency \`${dep}\`${versionText}`
-  }
-
-  // Multiple dependencies
-  const depList = sortedDependencies.map(dep => `\`${dep}\``).join(', ')
-  return `${description}Update ${updateType} dependencies: ${depList}`
 }
 
 function sortChangesetReleases(
@@ -1079,53 +1027,25 @@ async function run(): Promise<void> {
       }
     }
 
-    const primaryVersion = enhancedDependencies[0]?.newVersion
+    // TASK-022: Use sophisticated context-aware changeset summary generator
+    const summaryGenerator = new ChangesetSummaryGenerator({
+      useEmojis: true,
+      includeVersionDetails: true,
+      includeRiskAssessment: false,
+      includeBreakingChangeWarnings: true,
+      sortDependencies: config.sort || false,
+      maxDependenciesToList: 5,
+    })
 
-    // Enhanced changeset content generation with impact assessment context
-    let changesetContent = generateEnhancedChangesetContent(
+    // Generate context-aware changeset content using sophisticated summary generator
+    const changesetContent = summaryGenerator.generateSummary(
       prContext,
+      impactAssessment,
+      categorizationResult,
       updateType,
       dependencyNames,
-      primaryVersion,
       config.updateTypes[updateType]?.template,
-      config.sort,
     )
-
-    // Add impact assessment information to changeset content for transparency
-    if (impactAssessment.hasBreakingChanges) {
-      changesetContent +=
-        '\n\n⚠️ **Potentially breaking changes detected** - please review carefully.'
-    }
-
-    if (impactAssessment.isSecurityUpdate) {
-      const securityCount = impactAssessment.dependencies.filter(dep => dep.isSecurityUpdate).length
-      changesetContent += `\n\n🔒 **Security update** - ${securityCount} security-related update(s).`
-    }
-
-    if (impactAssessment.confidence === 'low') {
-      changesetContent += '\n\n⚠️ **Low confidence assessment** - manual review recommended.'
-    }
-
-    // TASK-020: Add categorization information to changeset content
-    if (categorizationResult.summary.highPriorityUpdates > 0) {
-      changesetContent += `\n\n📋 **${categorizationResult.summary.highPriorityUpdates} high-priority update(s)** require attention.`
-    }
-
-    if (categorizationResult.summary.averageRiskLevel >= 75) {
-      changesetContent += '\n\n⚠️ **High-risk update** - thorough testing recommended.'
-    } else if (categorizationResult.summary.averageRiskLevel >= 50) {
-      changesetContent += '\n\n🔍 **Medium-risk update** - standard testing recommended.'
-    }
-
-    if (categorizationResult.allCategories.length > 1) {
-      const categoryList = categorizationResult.allCategories.join(', ')
-      changesetContent += `\n\n📊 **Multiple update types**: ${categoryList}`
-    }
-
-    if (categorizationResult.confidence === 'low') {
-      changesetContent +=
-        '\n\n⚠️ **Low categorization confidence** - manual review of update types recommended.'
-    }
 
     // Prepare releases for changeset
     let releases = [

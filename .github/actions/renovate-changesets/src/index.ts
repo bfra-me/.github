@@ -14,6 +14,8 @@ import {DockerChangeDetector} from './docker-change-detector'
 import {GitHubActionsChangeDetector} from './github-actions-change-detector'
 import {GoChangeDetector} from './go-change-detector'
 import {JVMChangeDetector} from './jvm-change-detector'
+import {MultiPackageAnalyzer} from './multi-package-analyzer'
+import {MultiPackageChangesetGenerator} from './multi-package-changeset-generator'
 import {NPMChangeDetector} from './npm-change-detector'
 import {PythonChangeDetector} from './python-change-detector'
 import {RenovateParser} from './renovate-parser'
@@ -1093,6 +1095,49 @@ async function run(): Promise<void> {
     // Use the sophisticated decision engine result
     const changesetType = bumpDecision.bumpType
 
+    // TASK-024: Multi-package analysis and changeset generation
+    core.info('Analyzing multi-package dependencies and relationships')
+
+    const multiPackageAnalyzer = new MultiPackageAnalyzer({
+      workspaceRoot: workingDirectory,
+      detectWorkspaces: true,
+      analyzeInternalDependencies: true,
+      enforceVersionConsistency: true,
+      maxPackagesToAnalyze: 50,
+    })
+
+    // Perform multi-package analysis
+    const multiPackageAnalysis = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
+      enhancedDependencies,
+      changedFiles,
+      octokit,
+      owner,
+      repo,
+      pr.number,
+    )
+
+    core.info(
+      `Multi-package analysis: ${JSON.stringify(
+        {
+          workspacePackages: multiPackageAnalysis.workspacePackages.length,
+          packageRelationships: multiPackageAnalysis.packageRelationships.length,
+          affectedPackages: multiPackageAnalysis.affectedPackages.length,
+          strategy: multiPackageAnalysis.impactAnalysis.changesetStrategy,
+          riskLevel: multiPackageAnalysis.impactAnalysis.riskLevel,
+          createSeparateChangesets: multiPackageAnalysis.recommendations.createSeparateChangesets,
+        },
+        null,
+        2,
+      )}`,
+    )
+
+    // Log detailed analysis reasoning for transparency
+    if (multiPackageAnalysis.recommendations.reasoningChain.length > 0) {
+      core.info(
+        `Multi-package reasoning: ${multiPackageAnalysis.recommendations.reasoningChain.join('; ')}`,
+      )
+    }
+
     // Log individual dependency assessments for debugging
     for (const depImpact of impactAssessment.dependencies) {
       core.debug(
@@ -1134,44 +1179,112 @@ async function run(): Promise<void> {
       config.updateTypes[updateType]?.template,
     )
 
-    // Prepare releases for changeset
-    let releases = [
-      {
-        name: repo,
-        type: changesetType,
-      },
-    ]
-
-    // Sort releases if requested
-    if (config.sort) {
-      releases = sortChangesetReleases(releases)
-    }
-
-    // Generate changeset
-    const changesetPath = await writeRenovateChangeset(
-      {
-        releases,
-        summary: changesetContent,
-      },
+    // TASK-024: Use multi-package changeset generator
+    const multiPackageGenerator = new MultiPackageChangesetGenerator({
       workingDirectory,
+      useOfficialChangesets: true,
+      createSeparateChangesets: multiPackageAnalysis.recommendations.createSeparateChangesets,
+      respectPackageRelationships: true,
+      groupRelatedPackages: true,
+      includeRelationshipInfo: true,
+      maxChangesetsPerPR: 10,
+    })
+
+    // Generate changesets using multi-package analysis
+    const multiPackageResult = await multiPackageGenerator.generateMultiPackageChangesets(
+      enhancedDependencies,
+      prContext,
+      multiPackageAnalysis,
+      changesetContent,
+      changesetType,
     )
 
-    // Check if a changeset was actually created (not a duplicate)
-    const changesetExists = changesetPath !== 'existing'
+    core.info(
+      `Multi-package changeset generation: ${JSON.stringify(
+        {
+          strategy: multiPackageResult.strategy,
+          changesetsCreated: multiPackageResult.changesets.length,
+          filesCreated: multiPackageResult.filesCreated.length,
+          totalPackagesAffected: multiPackageResult.totalPackagesAffected,
+          warnings: multiPackageResult.warnings.length,
+        },
+        null,
+        2,
+      )}`,
+    )
+
+    // Log detailed generation reasoning for transparency
+    if (multiPackageResult.reasoning.length > 0) {
+      core.info(`Multi-package generation reasoning: ${multiPackageResult.reasoning.join('; ')}`)
+    }
+
+    // Log warnings if any
+    for (const warning of multiPackageResult.warnings) {
+      core.warning(warning)
+    }
+
+    // Backward compatibility: If no files were created, fall back to original logic
+    let changesetExists = multiPackageResult.filesCreated.length > 0
+    let changesetPath = 'multi-package'
+    let releases =
+      multiPackageResult.changesets.length > 0 && multiPackageResult.changesets[0]
+        ? multiPackageResult.changesets[0].releases
+        : [{name: repo, type: changesetType}]
 
     if (!changesetExists) {
-      core.info(`Changeset already exists: ${changesetPath}`)
+      core.info(
+        'Multi-package generation created no files, falling back to original changeset logic',
+      )
+
+      // Prepare releases for changeset
+      releases = [
+        {
+          name: repo,
+          type: changesetType,
+        },
+      ]
+
+      // Sort releases if requested
+      if (config.sort) {
+        releases = sortChangesetReleases(releases)
+      }
+
+      // Generate changeset using original logic
+      changesetPath = await writeRenovateChangeset(
+        {
+          releases,
+          summary: changesetContent,
+        },
+        workingDirectory,
+      )
+
+      // Check if a changeset was actually created (not a duplicate)
+      changesetExists = changesetPath !== 'existing'
+
+      if (!changesetExists) {
+        core.info(`Changeset already exists: ${changesetPath}`)
+      }
     }
 
-    // Set outputs
-    core.setOutput('changesets-created', changesetExists ? '1' : '0')
-    core.setOutput(
-      'changeset-files',
-      JSON.stringify(changesetExists ? [`.changeset/${changesetPath}`] : []),
-    )
+    // Set outputs with multi-package awareness
+    core.setOutput('changesets-created', multiPackageResult.filesCreated.length.toString())
+    core.setOutput('changeset-files', JSON.stringify(multiPackageResult.filesCreated))
     core.setOutput('update-type', updateType || 'dependencies')
     core.setOutput('dependencies', JSON.stringify(dependencyNames))
     core.setOutput('changeset-summary', changesetContent)
+
+    // TASK-024: Set multi-package specific outputs
+    core.setOutput('multi-package-strategy', multiPackageResult.strategy)
+    core.setOutput(
+      'workspace-packages-count',
+      multiPackageAnalysis.workspacePackages.length.toString(),
+    )
+    core.setOutput(
+      'package-relationships-count',
+      multiPackageAnalysis.packageRelationships.length.toString(),
+    )
+    core.setOutput('affected-packages', JSON.stringify(multiPackageAnalysis.affectedPackages))
+    core.setOutput('multi-package-reasoning', JSON.stringify(multiPackageResult.reasoning))
 
     // TASK-020: Set categorization outputs
     core.setOutput('primary-category', categorizationResult.primaryCategory)
@@ -1214,6 +1327,13 @@ async function run(): Promise<void> {
     core.setOutput('update-type', '')
     core.setOutput('dependencies', JSON.stringify([]))
     core.setOutput('changeset-summary', '')
+
+    // TASK-024: Set multi-package error outputs
+    core.setOutput('multi-package-strategy', 'single')
+    core.setOutput('workspace-packages-count', '0')
+    core.setOutput('package-relationships-count', '0')
+    core.setOutput('affected-packages', JSON.stringify([]))
+    core.setOutput('multi-package-reasoning', JSON.stringify([]))
 
     // TASK-020: Set categorization error outputs
     core.setOutput('primary-category', '')

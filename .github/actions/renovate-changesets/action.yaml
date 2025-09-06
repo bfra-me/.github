@@ -73,6 +73,17 @@ outputs:
     description: Average risk level (0-100 scale)
   categorization-confidence:
     description: Confidence in categorization (high, medium, low)
+  # TASK-024: Multi-package analysis outputs
+  multi-package-strategy:
+    description: Strategy used for changeset generation (single, multiple, grouped)
+  workspace-packages-count:
+    description: Number of packages detected in the workspace
+  package-relationships-count:
+    description: Number of package relationships analyzed
+  affected-packages:
+    description: List of packages affected by the update (JSON array)
+  multi-package-reasoning:
+    description: Reasoning chain for multi-package decisions (JSON array)
 
 runs:
   using: node20

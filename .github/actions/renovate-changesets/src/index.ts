@@ -18,6 +18,7 @@ import {NPMChangeDetector} from './npm-change-detector'
 import {PythonChangeDetector} from './python-change-detector'
 import {RenovateParser} from './renovate-parser'
 import {SecurityVulnerabilityDetector} from './security-vulnerability-detector'
+import {SemverBumpTypeDecisionEngine} from './semver-bump-decision-engine'
 import {SemverImpactAssessor} from './semver-impact-assessor'
 
 interface Config {
@@ -1002,9 +1003,95 @@ async function run(): Promise<void> {
       core.info(`Categorization reasoning: ${categorizationResult.reasoning.join('; ')}`)
     }
 
-    // Use the sophisticated categorization result (fallback to impact assessment)
-    const changesetType =
-      categorizationResult.recommendedChangesetType || impactAssessment.recommendedChangesetType
+    // TASK-023: Use sophisticated semver bump type decision engine
+    const decisionEngine = new SemverBumpTypeDecisionEngine({
+      defaultBumpType: config.defaultChangesetType,
+      securityTakesPrecedence: true,
+      breakingChangesAlwaysMajor: true,
+      securityMinimumBumps: {
+        low: 'patch',
+        moderate: 'patch',
+        high: 'minor',
+        critical: 'minor',
+      },
+      managerSpecificRules: {
+        'github-actions': {
+          allowDowngrade: true,
+          maxBumpType: 'minor',
+          defaultBumpType: 'patch',
+          majorAsMinor: true,
+        },
+        docker: {
+          allowDowngrade: true,
+          maxBumpType: 'minor',
+          defaultBumpType: 'patch',
+          majorAsMinor: false,
+        },
+        npm: {
+          allowDowngrade: false,
+          maxBumpType: 'major',
+          defaultBumpType: 'patch',
+          majorAsMinor: false,
+        },
+      },
+      riskTolerance: {
+        patchMaxRisk: 20,
+        minorMaxRisk: 50,
+        majorRiskThreshold: 80,
+      },
+      organizationRules: {
+        conservativeMode: true,
+        preferMinorForMajor: true,
+        groupedUpdateHandling: 'conservative',
+        dependencyPatternRules: [
+          {
+            pattern: /^@types\//,
+            maxBumpType: 'patch',
+          },
+          {
+            pattern: /eslint|prettier|typescript/,
+            maxBumpType: 'patch',
+          },
+        ],
+      },
+    })
+
+    const bumpDecision = decisionEngine.decideBumpType({
+      semverImpact: impactAssessment,
+      categorization: categorizationResult,
+      renovateContext: prContext,
+      manager: prContext.manager,
+      isGroupedUpdate: prContext.isGroupedUpdate,
+      dependencyCount: enhancedDependencies.length,
+    })
+
+    core.info(
+      `Bump type decision: ${JSON.stringify(
+        {
+          bumpType: bumpDecision.bumpType,
+          confidence: bumpDecision.confidence,
+          primaryReason: bumpDecision.primaryReason,
+          riskLevel: bumpDecision.riskAssessment.level,
+          riskScore: bumpDecision.riskAssessment.score,
+          overriddenRules: bumpDecision.overriddenRules.length,
+          influencingFactors: bumpDecision.influencingFactors.length,
+        },
+        null,
+        2,
+      )}`,
+    )
+
+    // Log detailed reasoning for transparency
+    if (bumpDecision.reasoningChain.length > 0) {
+      core.info(`Decision reasoning: ${bumpDecision.reasoningChain.join(' → ')}`)
+    }
+
+    if (bumpDecision.overriddenRules.length > 0) {
+      core.info(`Overridden rules: ${bumpDecision.overriddenRules.join('; ')}`)
+    }
+
+    // Use the sophisticated decision engine result
+    const changesetType = bumpDecision.bumpType
 
     // Log individual dependency assessments for debugging
     for (const depImpact of impactAssessment.dependencies) {

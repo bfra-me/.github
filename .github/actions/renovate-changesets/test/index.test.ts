@@ -559,7 +559,7 @@ Sample changeset content
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining("'repo': major"),
+        expect.stringContaining("'repo': minor"),
         'utf8',
       )
     })
@@ -615,7 +615,7 @@ Sample changeset content
 
       expect(fsMocks.writeFile).toHaveBeenCalledWith(
         expect.stringContaining('.changeset/renovate-abc1234.md'),
-        expect.stringContaining("'repo': major"),
+        expect.stringContaining("'repo': minor"),
         'utf8',
       )
     })

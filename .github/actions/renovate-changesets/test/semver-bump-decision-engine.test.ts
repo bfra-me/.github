@@ -299,6 +299,10 @@ describe('SemverBumpTypeDecisionEngine', () => {
           ...createMockFactors().semverImpact,
           recommendedChangesetType: 'major',
         },
+        categorization: {
+          ...createMockFactors().categorization,
+          confidence: 'low', // Low confidence so semver major is preferred
+        },
       })
 
       const result = engine.decideBumpType(factors)
@@ -372,6 +376,10 @@ describe('SemverBumpTypeDecisionEngine', () => {
             },
           ],
           recommendedChangesetType: 'major',
+        },
+        categorization: {
+          ...createMockFactors().categorization,
+          confidence: 'low', // Low confidence so semver major is preferred
         },
       })
 
@@ -566,7 +574,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
           ...createMockFactors().semverImpact,
           hasBreakingChanges: true,
           isSecurityUpdate: true,
-          overallRiskScore: 30,
+          overallRiskScore: 15, // Lower base score to get medium after adjustments
         },
         isGroupedUpdate: true,
         dependencyCount: 3,
@@ -578,7 +586,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
       expect(result.riskAssessment.factors).toContain('breaking changes detected')
       expect(result.riskAssessment.factors).toContain('security update')
       expect(result.riskAssessment.factors).toContain('grouped update')
-      expect(result.riskAssessment.score).toBeGreaterThan(30)
+      expect(result.riskAssessment.score).toBeGreaterThan(15)
     })
   })
 

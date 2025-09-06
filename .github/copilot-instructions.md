@@ -23,10 +23,10 @@ This repository serves as the organizational defaults and templates for the @bfr
 
 ### Core Technologies
 
-- **TypeScript 5.9.2** (strict mode, ESM modules) + **pnpm 10.15.0** (workspaces)
-- **ESLint 9.34.0** (@bfra.me/eslint-config) + **Prettier 3.6.2** (@bfra.me/prettier-config)
+- **TypeScript 5.9.2** (strict mode, ESM modules) + **pnpm 10.15.1** (workspaces)
+- **ESLint 9.35.0** (@bfra.me/eslint-config) + **Prettier 3.6.2** (@bfra.me/prettier-config)
 - **Changesets 2.29.6** (versioning) + **Husky 9.1.7** (pre-commit hooks)
-- **Node.js** version via `.node-version` file
+- **Node.js** version via `.node-version` file (currently Node.js 22)
 
 ### Project Structure
 

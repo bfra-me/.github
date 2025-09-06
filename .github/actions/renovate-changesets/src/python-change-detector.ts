@@ -302,7 +302,7 @@ export class PythonChangeDetector {
       if (line.startsWith('@@')) {
         // Extract line number from hunk header
         const match = line.match(/@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/)
-        if (match) {
+        if (match && match[1]) {
           lineNumber = Number.parseInt(match[1], 10) - 1
         }
         continue
@@ -324,11 +324,14 @@ export class PythonChangeDetector {
           )
 
           if (addedLineIndex !== -1) {
-            const newReq = this.parseRequirementLine(lines[addedLineIndex].slice(1), lineNumber)
-            if (newReq && oldReq.version !== newReq.version) {
-              changes.push(
-                this.createPythonChange(filename, oldReq, newReq, 'requirements', lineNumber),
-              )
+            const addedLine = lines[addedLineIndex]
+            if (addedLine) {
+              const newReq = this.parseRequirementLine(addedLine.slice(1), lineNumber)
+              if (newReq && oldReq.version !== newReq.version) {
+                changes.push(
+                  this.createPythonChange(filename, oldReq, newReq, 'requirements', lineNumber),
+                )
+              }
             }
           }
         }
@@ -527,7 +530,8 @@ export class PythonChangeDetector {
    */
   private parseRequirementLine(line: string, lineNumber: number): RequirementsEntry | null {
     // Remove comments and whitespace
-    const cleanLine = line.split('#')[0].trim()
+    const splitLine = line.split('#')
+    const cleanLine = splitLine[0]?.trim()
     if (!cleanLine || cleanLine.startsWith('#')) {
       return null
     }
@@ -538,7 +542,10 @@ export class PythonChangeDetector {
 
     // Parse package specification (simplified to avoid regex complexity)
     const parts = reqLine.split(/\s*[;#]/) // Split on comment/marker separators
-    const mainPart = parts[0].trim()
+    const mainPart = parts[0]?.trim()
+    if (!mainPart) {
+      return null
+    }
     const markers = parts[1]?.trim()
 
     // Extract package name with optional extras
@@ -548,6 +555,9 @@ export class PythonChangeDetector {
     }
 
     const nameWithExtras = nameMatch[1]
+    if (!nameWithExtras) {
+      return null
+    }
     const versionPart = mainPart.slice(nameWithExtras.length).trim()
 
     // Extract operator and version (simplified approach)
@@ -558,7 +568,9 @@ export class PythonChangeDetector {
       const operatorMatch = versionPart.match(/^([><=!~]+)/)
       if (operatorMatch) {
         operator = operatorMatch[1]
-        version = versionPart.slice(operator.length).trim()
+        if (operator) {
+          version = versionPart.slice(operator.length).trim()
+        }
       } else {
         version = versionPart
       }
@@ -566,6 +578,10 @@ export class PythonChangeDetector {
     const extrasMatch = nameWithExtras.match(/^([^[]+)(?:\[([^\]]+)\])?/)
     const name = extrasMatch?.[1] || nameWithExtras
     const extras = extrasMatch?.[2]?.split(',').map(e => e.trim()) || []
+
+    if (!name) {
+      return null
+    }
 
     return {
       name,

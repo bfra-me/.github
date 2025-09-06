@@ -364,7 +364,7 @@ export class GitHubActionsChangeDetector {
     const inlineVersion = commentMatch ? commentMatch[1] : undefined
 
     // Clean the ref by removing any comment part
-    const ref = fullRef.split('#')[0].trim()
+    const ref = (fullRef || '').split('#')[0]?.trim() || ''
 
     return {
       name: name.trim(),

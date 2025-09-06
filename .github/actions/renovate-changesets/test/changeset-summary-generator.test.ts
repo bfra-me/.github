@@ -804,8 +804,11 @@ describe('ChangesetSummaryGenerator', () => {
     })
 
     it('should handle missing version information gracefully', () => {
-      mockPRContext.dependencies[0].currentVersion = undefined
-      mockPRContext.dependencies[0].newVersion = undefined
+      const firstDep = mockPRContext.dependencies[0]
+      if (firstDep) {
+        firstDep.currentVersion = undefined
+        firstDep.newVersion = undefined
+      }
 
       const summary = generator.generateSummary(
         mockPRContext,

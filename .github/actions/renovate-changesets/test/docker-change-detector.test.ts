@@ -537,8 +537,8 @@ services:
 
       // Should have 2 changes (one for each file) since they're in different files
       expect(changes).toHaveLength(2)
-      expect(changes[0].dockerFile).toBe('Dockerfile')
-      expect(changes[1].dockerFile).toBe('Dockerfile.prod')
+      expect(changes[0]?.dockerFile).toBe('Dockerfile')
+      expect(changes[1]?.dockerFile).toBe('Dockerfile.prod')
     })
   })
 

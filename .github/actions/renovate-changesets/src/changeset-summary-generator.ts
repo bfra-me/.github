@@ -148,56 +148,26 @@ export class ChangesetSummaryGenerator {
       case 'npm':
       case 'pnpm':
       case 'yarn':
-        return this.generateNpmSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          dependencies,
-        )
+        return this.generateNpmSummary(prContext, impactAssessment, dependencies)
 
       case 'github-actions':
-        return this.generateGitHubActionsSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          dependencies,
-        )
+        return this.generateGitHubActionsSummary(prContext, impactAssessment, dependencies)
 
       case 'docker':
       case 'dockerfile':
       case 'docker-compose':
-        return this.generateDockerSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          dependencies,
-        )
+        return this.generateDockerSummary(prContext, impactAssessment, dependencies)
 
       case 'pip':
       case 'pipenv':
-        return this.generatePythonSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          dependencies,
-        )
+        return this.generatePythonSummary(prContext, impactAssessment, dependencies)
 
       case 'gradle':
       case 'maven':
-        return this.generateJvmSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          dependencies,
-        )
+        return this.generateJvmSummary(prContext, impactAssessment, dependencies)
 
       case 'go':
-        return this.generateGoSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          dependencies,
-        )
+        return this.generateGoSummary(prContext, impactAssessment, dependencies)
 
       case 'nuget':
         return this.generateNuGetSummary(
@@ -272,21 +242,10 @@ export class ChangesetSummaryGenerator {
         )
 
       case 'lockfile':
-        return this.generateLockfileSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          dependencies,
-        )
+        return this.generateLockfileSummary(prContext, impactAssessment, dependencies)
 
       default:
-        return this.generateGenericSummary(
-          prContext,
-          impactAssessment,
-          categorizationResult,
-          updateType,
-          dependencies,
-        )
+        return this.generateGenericSummary(prContext, impactAssessment, updateType, dependencies)
     }
   }
 
@@ -296,7 +255,6 @@ export class ChangesetSummaryGenerator {
   private generateNpmSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     dependencies: string[],
   ): string {
     const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
@@ -313,13 +271,7 @@ export class ChangesetSummaryGenerator {
     }
 
     if (prContext.isGroupedUpdate) {
-      return this.generateGroupedUpdateSummary(
-        'npm',
-        sortedDeps,
-        prContext,
-        impactAssessment,
-        emoji,
-      )
+      return this.generateGroupedUpdateSummary('npm', sortedDeps, impactAssessment, emoji)
     }
 
     if (sortedDeps.length === 0) {
@@ -361,7 +313,6 @@ export class ChangesetSummaryGenerator {
   private generateGitHubActionsSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     dependencies: string[],
   ): string {
     const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
@@ -407,7 +358,6 @@ export class ChangesetSummaryGenerator {
   private generateDockerSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     dependencies: string[],
   ): string {
     const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
@@ -453,7 +403,6 @@ export class ChangesetSummaryGenerator {
   private generatePythonSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     dependencies: string[],
   ): string {
     const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
@@ -471,9 +420,13 @@ export class ChangesetSummaryGenerator {
     }
 
     if (sortedDeps.length === 1) {
+      const firstDep = sortedDeps[0]
+      if (!firstDep) {
+        throw new Error('Invalid dependency in array')
+      }
       return this.generateSingleDependencySummary(
         managerName,
-        sortedDeps[0],
+        firstDep,
         prContext,
         impactAssessment,
         emoji,
@@ -497,7 +450,6 @@ export class ChangesetSummaryGenerator {
   private generateJvmSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     dependencies: string[],
   ): string {
     const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
@@ -517,7 +469,7 @@ export class ChangesetSummaryGenerator {
     if (sortedDeps.length === 1) {
       return this.generateSingleDependencySummary(
         managerName,
-        sortedDeps[0],
+        sortedDeps[0] || '',
         prContext,
         impactAssessment,
         emoji,
@@ -541,7 +493,6 @@ export class ChangesetSummaryGenerator {
   private generateGoSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     dependencies: string[],
   ): string {
     const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
@@ -560,7 +511,7 @@ export class ChangesetSummaryGenerator {
     if (sortedDeps.length === 1) {
       return this.generateSingleDependencySummary(
         'Go',
-        sortedDeps[0],
+        sortedDeps[0] || '',
         prContext,
         impactAssessment,
         emoji,
@@ -584,7 +535,6 @@ export class ChangesetSummaryGenerator {
   private generateLockfileSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     dependencies: string[],
   ): string {
     const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
@@ -613,7 +563,6 @@ export class ChangesetSummaryGenerator {
   private generateGenericSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
-    categorizationResult: CategorizationResult,
     updateType: string,
     dependencies: string[],
   ): string {
@@ -631,13 +580,7 @@ export class ChangesetSummaryGenerator {
     }
 
     if (prContext.isGroupedUpdate) {
-      return this.generateGroupedUpdateSummary(
-        updateType,
-        sortedDeps,
-        prContext,
-        impactAssessment,
-        emoji,
-      )
+      return this.generateGroupedUpdateSummary(updateType, sortedDeps, impactAssessment, emoji)
     }
 
     if (sortedDeps.length === 0) {
@@ -647,7 +590,7 @@ export class ChangesetSummaryGenerator {
     if (sortedDeps.length === 1) {
       return this.generateSingleDependencySummary(
         updateType,
-        sortedDeps[0],
+        sortedDeps[0] || '',
         prContext,
         impactAssessment,
         emoji,
@@ -740,7 +683,6 @@ export class ChangesetSummaryGenerator {
   private generateGroupedUpdateSummary(
     managerType: string,
     dependencies: string[],
-    prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
     _emoji: string,
   ): string {

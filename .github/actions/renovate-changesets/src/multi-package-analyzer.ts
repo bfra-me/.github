@@ -82,7 +82,6 @@ export interface MultiPackageAnalysisResult {
  */
 export class MultiPackageAnalyzer {
   private config: MultiPackageAnalysisConfig
-  private packageCache = new Map<string, WorkspacePackage>()
 
   constructor(config: Partial<MultiPackageAnalysisConfig> = {}) {
     this.config = {
@@ -144,7 +143,6 @@ export class MultiPackageAnalyzer {
 
       // Step 5: Generate recommendations
       const recommendations = await this.generateRecommendations(
-        dependencies,
         workspacePackages,
         packageRelationships,
         impactAnalysis,
@@ -541,7 +539,6 @@ export class MultiPackageAnalyzer {
    * Generate recommendations for changeset creation
    */
   private async generateRecommendations(
-    dependencies: RenovateDependency[],
     workspacePackages: WorkspacePackage[],
     relationships: PackageRelationship[],
     impactAnalysis: MultiPackageAnalysisResult['impactAnalysis'],

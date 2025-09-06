@@ -5,11 +5,14 @@ import type {
 } from './multi-package-analyzer'
 import type {RenovateDependency, RenovatePRContext} from './renovate-parser'
 import {promises as fs} from 'node:fs'
+
 import path from 'node:path'
 import process from 'node:process'
 import * as core from '@actions/core'
+
 import {getExecOutput} from '@actions/exec'
 import write from '@changesets/write'
+import {ChangesetDeduplicator} from './changeset-deduplicator'
 
 /**
  * Configuration for multi-package changeset generation
@@ -23,6 +26,20 @@ export interface MultiPackageChangesetConfig {
   packageNameTemplate: string
   includeRelationshipInfo: boolean
   maxChangesetsPerPR: number
+
+  // TASK-026: Deduplication configuration options
+  enableDeduplication: boolean
+  deduplicationConfig?: {
+    enableContentDeduplication: boolean
+    enableSemanticDeduplication: boolean
+    enableChangesetMerging: boolean
+    semanticSimilarityThreshold: number
+    maxMergeCount: number
+    mergeStrategy: 'conservative' | 'aggressive' | 'disabled'
+    preserveMetadata: boolean
+    analyzeExistingChangesets: boolean
+    maxExistingChangesetAge: number
+  }
 }
 
 /**
@@ -72,6 +89,18 @@ export class MultiPackageChangesetGenerator {
       packageNameTemplate: config.packageNameTemplate || 'renovate-{sha}',
       includeRelationshipInfo: config.includeRelationshipInfo ?? true,
       maxChangesetsPerPR: config.maxChangesetsPerPR || 10,
+      enableDeduplication: config.enableDeduplication ?? true,
+      deduplicationConfig: config.deduplicationConfig ?? {
+        enableContentDeduplication: true,
+        enableSemanticDeduplication: true,
+        enableChangesetMerging: true,
+        semanticSimilarityThreshold: 0.8,
+        maxMergeCount: 5,
+        mergeStrategy: 'conservative',
+        preserveMetadata: true,
+        analyzeExistingChangesets: true,
+        maxExistingChangesetAge: 30,
+      },
       ...config,
     }
   }
@@ -127,11 +156,58 @@ export class MultiPackageChangesetGenerator {
         }
       }
 
+      // TASK-026: Apply sophisticated changeset deduplication for grouped updates
+      let finalChangesets = changesets
+      let deduplicationReasoning: string[] = []
+
+      if (this.config.enableDeduplication && changesets.length > 1) {
+        core.info('Applying changeset deduplication for grouped updates')
+
+        const deduplicator = new ChangesetDeduplicator({
+          ...this.config.deduplicationConfig,
+          workingDirectory: this.config.workingDirectory,
+        })
+
+        const deduplicationResult = await deduplicator.deduplicateChangesets(changesets)
+
+        finalChangesets = deduplicationResult.deduplicatedChangesets
+        deduplicationReasoning = deduplicationResult.reasoning
+
+        // Log deduplication statistics
+        core.info(
+          `Deduplication complete: ${deduplicationResult.stats.totalOriginal} → ${deduplicationResult.stats.totalFinal} changesets`,
+        )
+        core.info(
+          `Removed ${deduplicationResult.stats.duplicatesRemoved} duplicates, merged ${deduplicationResult.stats.changesetseMerged} groups`,
+        )
+
+        if (deduplicationResult.warnings.length > 0) {
+          warnings.push(...deduplicationResult.warnings)
+          for (const warning of deduplicationResult.warnings) {
+            core.warning(`Deduplication warning: ${warning}`)
+          }
+        }
+
+        if (deduplicationResult.existingDuplicates.length > 0) {
+          core.info(
+            `Found ${deduplicationResult.existingDuplicates.length} duplicate existing changesets: ${deduplicationResult.existingDuplicates.join(', ')}`,
+          )
+        }
+
+        reasoning.push(...deduplicationReasoning)
+      } else if (this.config.enableDeduplication) {
+        reasoning.push(
+          'Deduplication enabled but only one changeset generated - skipping deduplication',
+        )
+      } else {
+        reasoning.push('Deduplication disabled in configuration')
+      }
+
       // Create the actual changeset files
-      const filesCreated = await this.writeChangesetFiles(changesets)
+      const filesCreated = await this.writeChangesetFiles(finalChangesets)
 
       return {
-        changesets,
+        changesets: finalChangesets,
         strategy,
         totalPackagesAffected: multiPackageAnalysis.affectedPackages.length,
         filesCreated,
@@ -205,7 +281,6 @@ export class MultiPackageChangesetGenerator {
       case 'multiple':
         return this.createMultipleChangesets(
           dependencies,
-          prContext,
           analysis,
           baseChangesetContent,
           changesetType,
@@ -215,7 +290,6 @@ export class MultiPackageChangesetGenerator {
       case 'grouped':
         return this.createGroupedChangesets(
           dependencies,
-          prContext,
           analysis,
           baseChangesetContent,
           changesetType,
@@ -250,12 +324,7 @@ export class MultiPackageChangesetGenerator {
     }))
 
     // Enhance summary with multi-package information
-    const enhancedSummary = this.enhanceChangesetSummary(
-      baseChangesetContent,
-      analysis,
-      dependencies,
-      'single',
-    )
+    const enhancedSummary = this.enhanceChangesetSummary(baseChangesetContent, analysis)
 
     return {
       id: changesetId,
@@ -279,7 +348,6 @@ export class MultiPackageChangesetGenerator {
    */
   private createMultipleChangesets(
     dependencies: RenovateDependency[],
-    prContext: RenovatePRContext,
     analysis: MultiPackageAnalysisResult,
     baseChangesetContent: string,
     changesetType: 'patch' | 'minor' | 'major',
@@ -307,8 +375,6 @@ export class MultiPackageChangesetGenerator {
       const enhancedSummary = this.enhanceChangesetSummary(
         baseChangesetContent,
         analysis,
-        packageDependencies,
-        'multiple',
         packageName,
       )
 
@@ -337,7 +403,6 @@ export class MultiPackageChangesetGenerator {
    */
   private createGroupedChangesets(
     dependencies: RenovateDependency[],
-    prContext: RenovatePRContext,
     analysis: MultiPackageAnalysisResult,
     baseChangesetContent: string,
     changesetType: 'patch' | 'minor' | 'major',
@@ -375,8 +440,6 @@ export class MultiPackageChangesetGenerator {
       const enhancedSummary = this.enhanceChangesetSummary(
         baseChangesetContent,
         analysis,
-        groupDependencies,
-        'grouped',
         undefined,
         group,
       )
@@ -493,8 +556,6 @@ export class MultiPackageChangesetGenerator {
   private enhanceChangesetSummary(
     baseSummary: string,
     analysis: MultiPackageAnalysisResult,
-    dependencies: RenovateDependency[],
-    strategy: string,
     specificPackage?: string,
     packageGroup?: string[],
   ): string {

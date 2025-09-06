@@ -199,6 +199,78 @@ export class ChangesetSummaryGenerator {
           dependencies,
         )
 
+      case 'nuget':
+        return this.generateNuGetSummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'composer':
+        return this.generateComposerSummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'cargo':
+        return this.generateCargoSummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'helm':
+        return this.generateHelmSummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'terraform':
+        return this.generateTerraformSummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'ansible':
+        return this.generateAnsibleSummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'pre-commit':
+        return this.generatePreCommitSummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'gitlabci':
+        return this.generateGitLabCISummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
+      case 'circleci':
+        return this.generateCircleCISummary(
+          prContext,
+          impactAssessment,
+          categorizationResult,
+          dependencies,
+        )
+
       case 'lockfile':
         return this.generateLockfileSummary(
           prContext,
@@ -722,6 +794,420 @@ export class ChangesetSummaryGenerator {
   }
 
   /**
+   * Generate NuGet (.NET) specific changeset summary
+   */
+  private generateNuGetSummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'NuGet',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dependency = sortedDeps[0]
+      if (dependency) {
+        return this.generateSingleDependencySummary(
+          'NuGet',
+          dependency,
+          prContext,
+          impactAssessment,
+          emoji,
+        )
+      }
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      const summary = `${emoji}Update .NET packages: ${depList}`
+
+      return this.addBreakingChangeWarning(summary, impactAssessment)
+    }
+
+    const summary = `${emoji}Update ${sortedDeps.length} .NET packages`
+    return this.addBreakingChangeWarning(summary, impactAssessment)
+  }
+
+  /**
+   * Generate Composer (PHP) specific changeset summary
+   */
+  private generateComposerSummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'Composer',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dependency = sortedDeps[0]
+      if (dependency) {
+        return this.generateSingleDependencySummary(
+          'Composer',
+          dependency,
+          prContext,
+          impactAssessment,
+          emoji,
+        )
+      }
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      const summary = `${emoji}Update PHP dependencies: ${depList}`
+
+      return this.addBreakingChangeWarning(summary, impactAssessment)
+    }
+
+    const summary = `${emoji}Update ${sortedDeps.length} PHP dependencies`
+    return this.addBreakingChangeWarning(summary, impactAssessment)
+  }
+
+  /**
+   * Generate Cargo (Rust) specific changeset summary
+   */
+  private generateCargoSummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'Cargo',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dependency = sortedDeps[0]
+      if (dependency) {
+        return this.generateSingleDependencySummary(
+          'Cargo',
+          dependency,
+          prContext,
+          impactAssessment,
+          emoji,
+        )
+      }
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      const summary = `${emoji}Update Rust crates: ${depList}`
+
+      return this.addBreakingChangeWarning(summary, impactAssessment)
+    }
+
+    const summary = `${emoji}Update ${sortedDeps.length} Rust crates`
+    return this.addBreakingChangeWarning(summary, impactAssessment)
+  }
+
+  /**
+   * Generate Helm specific changeset summary
+   */
+  private generateHelmSummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'Helm',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dep = sortedDeps[0]
+      const versionInfo = prContext.dependencies.find(d => d.name === dep)
+      let versionText = ''
+
+      if (
+        this.config.includeVersionDetails &&
+        versionInfo?.currentVersion &&
+        versionInfo?.newVersion
+      ) {
+        versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
+      }
+
+      return `${emoji}Update Helm chart \`${dep}\`${versionText}`
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      return `${emoji}Update Helm charts: ${depList}`
+    }
+
+    return `${emoji}Update ${sortedDeps.length} Helm charts`
+  }
+
+  /**
+   * Generate Terraform specific changeset summary
+   */
+  private generateTerraformSummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'Terraform',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dep = sortedDeps[0]
+      const versionInfo = prContext.dependencies.find(d => d.name === dep)
+      let versionText = ''
+
+      if (
+        this.config.includeVersionDetails &&
+        versionInfo?.currentVersion &&
+        versionInfo?.newVersion
+      ) {
+        versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
+      }
+
+      return `${emoji}Update Terraform provider \`${dep}\`${versionText}`
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      return `${emoji}Update Terraform providers: ${depList}`
+    }
+
+    return `${emoji}Update ${sortedDeps.length} Terraform providers`
+  }
+
+  /**
+   * Generate Ansible specific changeset summary
+   */
+  private generateAnsibleSummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'Ansible',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dep = sortedDeps[0]
+      const versionInfo = prContext.dependencies.find(d => d.name === dep)
+      let versionText = ''
+
+      if (
+        this.config.includeVersionDetails &&
+        versionInfo?.currentVersion &&
+        versionInfo?.newVersion
+      ) {
+        versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
+      }
+
+      return `${emoji}Update Ansible role \`${dep}\`${versionText}`
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      return `${emoji}Update Ansible roles: ${depList}`
+    }
+
+    return `${emoji}Update ${sortedDeps.length} Ansible roles`
+  }
+
+  /**
+   * Generate pre-commit hooks specific changeset summary
+   */
+  private generatePreCommitSummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'pre-commit',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dep = sortedDeps[0]
+      const versionInfo = prContext.dependencies.find(d => d.name === dep)
+      let versionText = ''
+
+      if (
+        this.config.includeVersionDetails &&
+        versionInfo?.currentVersion &&
+        versionInfo?.newVersion
+      ) {
+        versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
+      }
+
+      return `${emoji}Update pre-commit hook \`${dep}\`${versionText}`
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      return `${emoji}Update pre-commit hooks: ${depList}`
+    }
+
+    return `${emoji}Update ${sortedDeps.length} pre-commit hooks`
+  }
+
+  /**
+   * Generate GitLab CI specific changeset summary
+   */
+  private generateGitLabCISummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'GitLab CI',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dep = sortedDeps[0]
+      const versionInfo = prContext.dependencies.find(d => d.name === dep)
+      let versionText = ''
+
+      if (
+        this.config.includeVersionDetails &&
+        versionInfo?.currentVersion &&
+        versionInfo?.newVersion
+      ) {
+        versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
+      }
+
+      return `${emoji}Update GitLab CI dependency \`${dep}\`${versionText}`
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      return `${emoji}Update GitLab CI dependencies: ${depList}`
+    }
+
+    return `${emoji}Update ${sortedDeps.length} GitLab CI dependencies`
+  }
+
+  /**
+   * Generate CircleCI specific changeset summary
+   */
+  private generateCircleCISummary(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    _categorizationResult: CategorizationResult,
+    dependencies: string[],
+  ): string {
+    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
+    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
+
+    if (prContext.isSecurityUpdate) {
+      return this.generateSecurityUpdateSummary(
+        'CircleCI',
+        sortedDeps,
+        prContext,
+        impactAssessment,
+        emoji,
+      )
+    }
+
+    if (sortedDeps.length === 1) {
+      const dep = sortedDeps[0]
+      const versionInfo = prContext.dependencies.find(d => d.name === dep)
+      let versionText = ''
+
+      if (
+        this.config.includeVersionDetails &&
+        versionInfo?.currentVersion &&
+        versionInfo?.newVersion
+      ) {
+        versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
+      }
+
+      return `${emoji}Update CircleCI orb \`${dep}\`${versionText}`
+    }
+
+    if (sortedDeps.length <= this.config.maxDependenciesToList) {
+      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
+      return `${emoji}Update CircleCI orbs: ${depList}`
+    }
+
+    return `${emoji}Update ${sortedDeps.length} CircleCI orbs`
+  }
+
+  /**
    * Get appropriate emoji for update type
    */
   private getEmojiForUpdate(
@@ -763,6 +1249,24 @@ export class ChangesetSummaryGenerator {
         return '☕ '
       case 'go':
         return '🐹 '
+      case 'nuget':
+        return '💎 '
+      case 'composer':
+        return '🐘 '
+      case 'cargo':
+        return '🦀 '
+      case 'helm':
+        return '⎈ '
+      case 'terraform':
+        return '🏗️ '
+      case 'ansible':
+        return '🤖 '
+      case 'pre-commit':
+        return '🪝 '
+      case 'gitlabci':
+        return '🦊 '
+      case 'circleci':
+        return '🔄 '
       default:
         return '📋 '
     }

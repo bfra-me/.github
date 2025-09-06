@@ -231,13 +231,7 @@ export class BreakingChangeDetector {
     // 3. If GitHub context is available, analyze PR content for additional indicators
     if (octokit && owner && repo && prNumber) {
       try {
-        const prIndicators = await this.analyzePRContentBreaking(
-          dependency,
-          octokit,
-          owner,
-          repo,
-          prNumber,
-        )
+        const prIndicators = await this.analyzePRContentBreaking(octokit, owner, repo, prNumber)
         indicators.push(...prIndicators)
       } catch (error) {
         // Continue without PR analysis if it fails
@@ -380,7 +374,6 @@ export class BreakingChangeDetector {
    * Analyze PR content for breaking change indicators
    */
   private async analyzePRContentBreaking(
-    dependency: RenovateDependency,
     octokit: Octokit,
     owner: string,
     repo: string,
@@ -567,7 +560,7 @@ export class BreakingChangeDetector {
       const byType = indicators.reduce(
         (acc, indicator) => {
           if (!acc[indicator.type]) acc[indicator.type] = 0
-          acc[indicator.type]++
+          acc[indicator.type] = (acc[indicator.type] ?? 0) + 1
           return acc
         },
         {} as Record<string, number>,

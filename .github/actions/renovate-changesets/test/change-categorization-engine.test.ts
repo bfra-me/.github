@@ -124,7 +124,9 @@ describe('ChangeCategorizationEngine', () => {
       expect(result.primaryCategory).toBe('major')
       expect(result.allCategories).toEqual(['major'])
       expect(result.summary.majorUpdates).toBe(1)
-      expect(result.dependencies[0].isHighPriority).toBe(true)
+      expect(result.dependencies).toHaveLength(1)
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.isHighPriority).toBe(true)
       expect(result.recommendedChangesetType).toBe('major')
     })
   })
@@ -157,8 +159,9 @@ describe('ChangeCategorizationEngine', () => {
       expect(result.primaryCategory).toBe('security')
       expect(result.allCategories).toEqual(['security'])
       expect(result.summary.securityUpdates).toBe(1)
-      expect(result.dependencies[0].isHighPriority).toBe(true)
-      expect(result.dependencies[0].riskLevel).toBe('high')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.isHighPriority).toBe(true)
+      expect(firstDep?.riskLevel).toBe('high')
     })
 
     it('should handle critical security updates with elevated risk', () => {
@@ -179,7 +182,8 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].riskLevel).toBe('critical')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.riskLevel).toBe('critical')
       expect(result.summary.averageRiskLevel).toBe(100)
       expect(result.recommendedChangesetType).toBe('minor')
     })
@@ -202,7 +206,8 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].riskLevel).toBe('low')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.riskLevel).toBe('low')
       expect(result.recommendedChangesetType).toBe('patch')
     })
   })
@@ -226,8 +231,9 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].isHighPriority).toBe(true)
-      expect(result.dependencies[0].riskLevel).toBe('high')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.isHighPriority).toBe(true)
+      expect(firstDep?.riskLevel).toBe('high')
       expect(result.summary.breakingChanges).toBe(1)
       expect(result.recommendedChangesetType).toBe('major')
     })
@@ -246,9 +252,10 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].category).toBe('minor')
-      expect(result.dependencies[0].secondaryCategories).toContain('major')
-      expect(result.dependencies[0].isHighPriority).toBe(true)
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.category).toBe('minor')
+      expect(firstDep?.secondaryCategories).toContain('major')
+      expect(firstDep?.isHighPriority).toBe(true)
     })
   })
 
@@ -343,8 +350,9 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].category).toBe('minor')
-      expect(result.dependencies[0].reasoning).toContain(
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.category).toBe('minor')
+      expect(firstDep?.reasoning).toContain(
         'Manager-specific override: github-actions major → minor',
       )
     })
@@ -363,8 +371,9 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].riskLevel).toBe('medium') // Elevated from low
-      expect(result.dependencies[0].reasoning).toContain('Risk adjusted for npm manager')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.riskLevel).toBe('medium') // Elevated from low
+      expect(firstDep?.reasoning).toContain('Risk adjusted for npm manager')
     })
   })
 
@@ -385,8 +394,9 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].isHighPriority).toBe(false)
-      expect(result.dependencies[0].reasoning).toContain('Pre-release version')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.isHighPriority).toBe(false)
+      expect(firstDep?.reasoning).toContain('Pre-release version')
     })
   })
 
@@ -406,9 +416,10 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].confidence).toBe('low') // Lowered due to downgrade
-      expect(result.dependencies[0].riskLevel).toBe('medium') // Elevated due to downgrade
-      expect(result.dependencies[0].reasoning).toContain('Version downgrade detected')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.confidence).toBe('low') // Lowered due to downgrade
+      expect(firstDep?.riskLevel).toBe('medium') // Elevated due to downgrade
+      expect(firstDep?.reasoning).toContain('Version downgrade detected')
     })
   })
 
@@ -488,10 +499,11 @@ describe('ChangeCategorizationEngine', () => {
 
       const result = engine.categorizeChanges(dependencies, assessment)
 
-      expect(result.dependencies[0].category).toBe('security')
-      expect(result.dependencies[0].secondaryCategories).toContain('major')
-      expect(result.dependencies[0].isHighPriority).toBe(true)
-      expect(result.dependencies[0].riskLevel).toBe('critical')
+      const firstDep = result.dependencies[0]
+      expect(firstDep?.category).toBe('security')
+      expect(firstDep?.secondaryCategories).toContain('major')
+      expect(firstDep?.isHighPriority).toBe(true)
+      expect(firstDep?.riskLevel).toBe('critical')
       expect(result.summary.securityUpdates).toBe(1)
       expect(result.summary.breakingChanges).toBe(1)
     })

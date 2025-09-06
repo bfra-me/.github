@@ -268,7 +268,7 @@ export class JVMChangeDetector {
       if (line.startsWith('@@')) {
         // Extract line number from hunk header
         const match = line.match(/@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/)
-        if (match) {
+        if (match && match[1]) {
           lineNumber = Number.parseInt(match[1], 10) - 1
         }
         continue
@@ -290,12 +290,12 @@ export class JVMChangeDetector {
           )
 
           if (addedLineIndex !== -1) {
-            const newDep = this.parseGradleDependencyLine(
-              lines[addedLineIndex].slice(1),
-              lineNumber,
-            )
-            if (newDep && oldDep.version !== newDep.version) {
-              changes.push(this.createJVMChange(filename, oldDep, newDep, 'gradle', lineNumber))
+            const addedLine = lines[addedLineIndex]
+            if (addedLine) {
+              const newDep = this.parseGradleDependencyLine(addedLine.slice(1), lineNumber)
+              if (newDep && oldDep.version !== newDep.version) {
+                changes.push(this.createJVMChange(filename, oldDep, newDep, 'gradle', lineNumber))
+              }
             }
           }
         }
@@ -374,7 +374,7 @@ export class JVMChangeDetector {
     for (const line of lines) {
       if (line.startsWith('@@')) {
         const match = line.match(/@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/)
-        if (match) {
+        if (match && match[1]) {
           lineNumber = Number.parseInt(match[1], 10) - 1
         }
         continue
@@ -396,9 +396,12 @@ export class JVMChangeDetector {
           )
 
           if (addedLineIndex !== -1) {
-            const newProp = this.parsePropertyLine(lines[addedLineIndex].slice(1))
-            if (newProp && oldProp.value !== newProp.value) {
-              changes.push(this.createPropertyChange(filename, oldProp, newProp, lineNumber))
+            const addedLine = lines[addedLineIndex]
+            if (addedLine) {
+              const newProp = this.parsePropertyLine(addedLine.slice(1))
+              if (newProp && oldProp.value !== newProp.value) {
+                changes.push(this.createPropertyChange(filename, oldProp, newProp, lineNumber))
+              }
             }
           }
         }
@@ -426,13 +429,15 @@ export class JVMChangeDetector {
     const stringMatch = cleanLine.match(/^(\w+)\s+['"]([\w.-]+):([\w.-]+):([\w.-]+)['"]/)
     if (stringMatch) {
       const [, configuration, group, name, version] = stringMatch
-      return {
-        configuration,
-        group,
-        name,
-        version,
-        notation: `${group}:${name}:${version}`,
-        line: lineNumber,
+      if (configuration && group && name && version) {
+        return {
+          configuration,
+          group,
+          name,
+          version,
+          notation: `${group}:${name}:${version}`,
+          line: lineNumber,
+        }
       }
     }
 
@@ -442,13 +447,15 @@ export class JVMChangeDetector {
     )
     if (mapMatch) {
       const [, configuration, group, name, version] = mapMatch
-      return {
-        configuration,
-        group,
-        name,
-        version,
-        notation: `${group}:${name}:${version}`,
-        line: lineNumber,
+      if (configuration && group && name && version) {
+        return {
+          configuration,
+          group,
+          name,
+          version,
+          notation: `${group}:${name}:${version}`,
+          line: lineNumber,
+        }
       }
     }
 
@@ -458,12 +465,14 @@ export class JVMChangeDetector {
     )
     if (pluginMatch) {
       const [, id, version] = pluginMatch
-      return {
-        configuration: 'plugin',
-        name: id,
-        version: version || '',
-        notation: version ? `${id}:${version}` : id,
-        line: lineNumber,
+      if (id) {
+        return {
+          configuration: 'plugin',
+          name: id,
+          version: version || '',
+          notation: version ? `${id}:${version}` : id,
+          line: lineNumber,
+        }
       }
     }
 
@@ -500,22 +509,24 @@ export class JVMChangeDetector {
       const parentMatch = content.match(/<parent>(.*?)<\/parent>/s)
       if (parentMatch) {
         const parentContent = parentMatch[1]
-        const parentGroupId = parentContent.match(/<groupId>(.*?)<\/groupId>/)?.[1]
-        const parentArtifactId = parentContent.match(/<artifactId>(.*?)<\/artifactId>/)?.[1]
-        const parentVersion = parentContent.match(/<version>(.*?)<\/version>/)?.[1]
+        if (parentContent) {
+          const parentGroupId = parentContent.match(/<groupId>(.*?)<\/groupId>/)?.[1]
+          const parentArtifactId = parentContent.match(/<artifactId>(.*?)<\/artifactId>/)?.[1]
+          const parentVersion = parentContent.match(/<version>(.*?)<\/version>/)?.[1]
 
-        if (parentGroupId && parentArtifactId && parentVersion) {
-          pom.parent = {
-            groupId: parentGroupId,
-            artifactId: parentArtifactId,
-            version: parentVersion,
+          if (parentGroupId && parentArtifactId && parentVersion) {
+            pom.parent = {
+              groupId: parentGroupId,
+              artifactId: parentArtifactId,
+              version: parentVersion,
+            }
           }
         }
       }
 
       // Extract plugins (simplified)
       const pluginsMatch = content.match(/<plugins>(.*?)<\/plugins>/s)
-      if (pluginsMatch) {
+      if (pluginsMatch && pluginsMatch[1]) {
         pom.build = {plugins: this.extractMavenPlugins(pluginsMatch[1])}
       }
     } catch (error) {
@@ -535,22 +546,26 @@ export class JVMChangeDetector {
     if (!sectionMatch) return dependencies
 
     const sectionContent = sectionMatch[1]
+    if (!sectionContent) return dependencies
+
     const dependencyMatches = sectionContent.matchAll(/<dependency>(.*?)<\/dependency>/gs)
 
     for (const depMatch of dependencyMatches) {
       const depContent = depMatch[1]
-      const groupId = depContent.match(/<groupId>(.*?)<\/groupId>/)?.[1]
-      const artifactId = depContent.match(/<artifactId>(.*?)<\/artifactId>/)?.[1]
-      const version = depContent.match(/<version>(.*?)<\/version>/)?.[1]
-      const scope = depContent.match(/<scope>(.*?)<\/scope>/)?.[1]
+      if (depContent) {
+        const groupId = depContent.match(/<groupId>(.*?)<\/groupId>/)?.[1]
+        const artifactId = depContent.match(/<artifactId>(.*?)<\/artifactId>/)?.[1]
+        const version = depContent.match(/<version>(.*?)<\/version>/)?.[1]
+        const scope = depContent.match(/<scope>(.*?)<\/scope>/)?.[1]
 
-      if (groupId && artifactId) {
-        dependencies.push({
-          groupId,
-          artifactId,
-          version,
-          scope,
-        })
+        if (groupId && artifactId) {
+          dependencies.push({
+            groupId,
+            artifactId,
+            version,
+            scope,
+          })
+        }
       }
     }
 
@@ -569,12 +584,14 @@ export class JVMChangeDetector {
 
     for (const pluginMatch of pluginMatches) {
       const pluginContent = pluginMatch[1]
-      const groupId = pluginContent.match(/<groupId>(.*?)<\/groupId>/)?.[1]
-      const artifactId = pluginContent.match(/<artifactId>(.*?)<\/artifactId>/)?.[1]
-      const version = pluginContent.match(/<version>(.*?)<\/version>/)?.[1]
+      if (pluginContent) {
+        const groupId = pluginContent.match(/<groupId>(.*?)<\/groupId>/)?.[1]
+        const artifactId = pluginContent.match(/<artifactId>(.*?)<\/artifactId>/)?.[1]
+        const version = pluginContent.match(/<version>(.*?)<\/version>/)?.[1]
 
-      if (artifactId) {
-        plugins.push({groupId, artifactId, version})
+        if (artifactId) {
+          plugins.push({groupId, artifactId, version})
+        }
       }
     }
 

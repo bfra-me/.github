@@ -10,6 +10,7 @@ const config: Options = {
   },
   format: 'esm',
   noExternal: Object.keys(packageJson.dependencies),
+  splitting: false,
 }
 
 export default config

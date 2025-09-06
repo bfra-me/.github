@@ -288,6 +288,366 @@ describe('ChangesetSummaryGenerator', () => {
     })
   })
 
+  describe('nuget dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'nuget'
+    })
+
+    it('should generate NuGet dependency summary', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'nuget',
+        ['Newtonsoft.Json'],
+      )
+
+      expect(summary).toContain('💎')
+      expect(summary).toContain('Update NuGet dependency `Newtonsoft.Json`')
+    })
+
+    it('should handle multiple NuGet packages', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'nuget',
+        ['Microsoft.Extensions.Logging', 'Newtonsoft.Json'],
+      )
+
+      expect(summary).toContain('Update .NET packages')
+      expect(summary).toContain('`Microsoft.Extensions.Logging`, `Newtonsoft.Json`')
+    })
+  })
+
+  describe('composer dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'composer'
+    })
+
+    it('should generate Composer dependency summary', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'composer',
+        ['symfony/framework-bundle'],
+      )
+
+      expect(summary).toContain('🐘')
+      expect(summary).toContain('Update Composer dependency `symfony/framework-bundle`')
+    })
+
+    it('should handle multiple PHP packages', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'composer',
+        ['laravel/framework', 'guzzlehttp/guzzle'],
+      )
+
+      expect(summary).toContain('Update PHP dependencies')
+      expect(summary).toContain('`guzzlehttp/guzzle`, `laravel/framework`')
+    })
+  })
+
+  describe('cargo dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'cargo'
+    })
+
+    it('should generate Cargo dependency summary', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'cargo',
+        ['serde'],
+      )
+
+      expect(summary).toContain('🦀')
+      expect(summary).toContain('Update Cargo dependency `serde`')
+    })
+
+    it('should handle multiple Rust crates', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'cargo',
+        ['tokio', 'serde', 'clap'],
+      )
+
+      expect(summary).toContain('Update Rust crates')
+      expect(summary).toContain('`clap`, `serde`, `tokio`')
+    })
+  })
+
+  describe('helm dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'helm'
+      mockPRContext.dependencies = [
+        {
+          name: 'nginx-ingress',
+          currentVersion: '1.0.0',
+          newVersion: '2.0.0',
+          manager: 'helm',
+          updateType: 'major',
+          isSecurityUpdate: false,
+          isGrouped: false,
+        },
+      ]
+    })
+
+    it('should generate Helm chart summary with version details', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'helm',
+        ['nginx-ingress'],
+      )
+
+      expect(summary).toContain('⎈')
+      expect(summary).toContain('Update Helm chart `nginx-ingress`')
+      expect(summary).toContain('from `1.0.0` to `2.0.0`')
+    })
+
+    it('should handle multiple Helm charts', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'helm',
+        ['nginx-ingress', 'prometheus', 'grafana'],
+      )
+
+      expect(summary).toContain('Update Helm charts')
+      expect(summary).toContain('`grafana`, `nginx-ingress`, `prometheus`')
+    })
+  })
+
+  describe('terraform dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'terraform'
+      mockPRContext.dependencies = [
+        {
+          name: 'hashicorp/aws',
+          currentVersion: '4.0.0',
+          newVersion: '5.0.0',
+          manager: 'terraform',
+          updateType: 'major',
+          isSecurityUpdate: false,
+          isGrouped: false,
+        },
+      ]
+    })
+
+    it('should generate Terraform provider summary with version details', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'terraform',
+        ['hashicorp/aws'],
+      )
+
+      expect(summary).toContain('🏗️')
+      expect(summary).toContain('Update Terraform provider `hashicorp/aws`')
+      expect(summary).toContain('from `4.0.0` to `5.0.0`')
+    })
+
+    it('should handle multiple Terraform providers', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'terraform',
+        ['hashicorp/aws', 'hashicorp/azurerm'],
+      )
+
+      expect(summary).toContain('Update Terraform providers')
+      expect(summary).toContain('`hashicorp/aws`, `hashicorp/azurerm`')
+    })
+  })
+
+  describe('ansible dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'ansible'
+      mockPRContext.dependencies = [
+        {
+          name: 'community.general',
+          currentVersion: '1.0.0',
+          newVersion: '2.0.0',
+          manager: 'ansible',
+          updateType: 'major',
+          isSecurityUpdate: false,
+          isGrouped: false,
+        },
+      ]
+    })
+
+    it('should generate Ansible role summary with version details', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'ansible',
+        ['community.general'],
+      )
+
+      expect(summary).toContain('🤖')
+      expect(summary).toContain('Update Ansible role `community.general`')
+      expect(summary).toContain('from `1.0.0` to `2.0.0`')
+    })
+
+    it('should handle multiple Ansible roles', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'ansible',
+        ['community.general', 'ansible.posix'],
+      )
+
+      expect(summary).toContain('Update Ansible roles')
+      expect(summary).toContain('`ansible.posix`, `community.general`')
+    })
+  })
+
+  describe('pre-commit dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'pre-commit'
+      mockPRContext.dependencies = [
+        {
+          name: 'pre-commit/pre-commit-hooks',
+          currentVersion: 'v4.0.0',
+          newVersion: 'v4.1.0',
+          manager: 'pre-commit',
+          updateType: 'minor',
+          isSecurityUpdate: false,
+          isGrouped: false,
+        },
+      ]
+    })
+
+    it('should generate pre-commit hook summary with version details', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'pre-commit',
+        ['pre-commit/pre-commit-hooks'],
+      )
+
+      expect(summary).toContain('🪝')
+      expect(summary).toContain('Update pre-commit hook `pre-commit/pre-commit-hooks`')
+      expect(summary).toContain('from `v4.0.0` to `v4.1.0`')
+    })
+
+    it('should handle multiple pre-commit hooks', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'pre-commit',
+        ['pre-commit/pre-commit-hooks', 'psf/black'],
+      )
+
+      expect(summary).toContain('Update pre-commit hooks')
+      expect(summary).toContain('`pre-commit/pre-commit-hooks`, `psf/black`')
+    })
+  })
+
+  describe('gitlab ci dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'gitlabci'
+      mockPRContext.dependencies = [
+        {
+          name: 'node',
+          currentVersion: '16-alpine',
+          newVersion: '18-alpine',
+          manager: 'gitlabci',
+          updateType: 'major',
+          isSecurityUpdate: false,
+          isGrouped: false,
+        },
+      ]
+    })
+
+    it('should generate GitLab CI dependency summary with version details', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'gitlabci',
+        ['node'],
+      )
+
+      expect(summary).toContain('🦊')
+      expect(summary).toContain('Update GitLab CI dependency `node`')
+      expect(summary).toContain('from `16-alpine` to `18-alpine`')
+    })
+
+    it('should handle multiple GitLab CI dependencies', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'gitlabci',
+        ['node', 'docker', 'alpine'],
+      )
+
+      expect(summary).toContain('Update GitLab CI dependencies')
+      expect(summary).toContain('`alpine`, `docker`, `node`')
+    })
+  })
+
+  describe('circleci dependency summaries', () => {
+    beforeEach(() => {
+      mockPRContext.manager = 'circleci'
+      mockPRContext.dependencies = [
+        {
+          name: 'circleci/node',
+          currentVersion: '16.0.0',
+          newVersion: '18.0.0',
+          manager: 'circleci',
+          updateType: 'major',
+          isSecurityUpdate: false,
+          isGrouped: false,
+        },
+      ]
+    })
+
+    it('should generate CircleCI orb summary with version details', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'circleci',
+        ['circleci/node'],
+      )
+
+      expect(summary).toContain('🔄')
+      expect(summary).toContain('Update CircleCI orb `circleci/node`')
+      expect(summary).toContain('from `16.0.0` to `18.0.0`')
+    })
+
+    it('should handle multiple CircleCI orbs', () => {
+      const summary = generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'circleci',
+        ['circleci/node', 'circleci/aws-cli'],
+      )
+
+      expect(summary).toContain('Update CircleCI orbs')
+      expect(summary).toContain('`circleci/aws-cli`, `circleci/node`')
+    })
+  })
+
   describe('custom template handling', () => {
     it('should use custom template when provided', () => {
       const template = 'Custom: {updateType} {dependencies} {version}'

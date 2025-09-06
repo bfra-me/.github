@@ -10,6 +10,7 @@ import {minimatch} from 'minimatch'
 import {BreakingChangeDetector} from './breaking-change-detector'
 import {ChangeCategorizationEngine} from './change-categorization-engine'
 import {ChangesetSummaryGenerator} from './changeset-summary-generator'
+import {ChangesetTemplateEngine} from './changeset-template-engine'
 import {DockerChangeDetector} from './docker-change-detector'
 import {GitHubActionsChangeDetector} from './github-actions-change-detector'
 import {GoChangeDetector} from './go-change-detector'
@@ -1160,17 +1161,31 @@ async function run(): Promise<void> {
     }
 
     // TASK-022: Use sophisticated context-aware changeset summary generator
-    const summaryGenerator = new ChangesetSummaryGenerator({
-      useEmojis: true,
-      includeVersionDetails: true,
-      includeRiskAssessment: false,
-      includeBreakingChangeWarnings: true,
-      sortDependencies: config.sort || false,
-      maxDependenciesToList: 5,
+    // TASK-027: Initialize with enhanced template engine
+    const templateEngine = new ChangesetTemplateEngine({
+      workingDirectory: process.cwd(),
+      errorHandling: 'fallback',
+      security: {
+        allowFileInclusion: true,
+        allowCodeExecution: false,
+        maxTemplateSize: 1024 * 1024, // 1MB
+        maxRenderTime: 5000, // 5 seconds
+      },
     })
+    const summaryGenerator = new ChangesetSummaryGenerator(
+      {
+        useEmojis: true,
+        includeVersionDetails: true,
+        includeRiskAssessment: false,
+        includeBreakingChangeWarnings: true,
+        sortDependencies: config.sort || false,
+        maxDependenciesToList: 5,
+      },
+      templateEngine,
+    )
 
     // Generate context-aware changeset content using sophisticated summary generator
-    const changesetContent = summaryGenerator.generateSummary(
+    const changesetContent = await summaryGenerator.generateSummary(
       prContext,
       impactAssessment,
       categorizationResult,

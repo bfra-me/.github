@@ -124,8 +124,8 @@ describe('ChangesetSummaryGenerator', () => {
   })
 
   describe('npm dependency summaries', () => {
-    it('should generate basic npm dependency summary', () => {
-      const summary = generator.generateSummary(
+    it('should generate basic npm dependency summary', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -138,13 +138,13 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('from `1.0.0` to `2.0.0`')
     })
 
-    it('should generate security update summary for npm', () => {
+    it('should generate security update summary for npm', async () => {
       mockPRContext.isSecurityUpdate = true
       mockImpactAssessment.isSecurityUpdate = true
       mockImpactAssessment.totalVulnerabilities = 2
       mockImpactAssessment.highSeverityVulnerabilities = 1
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -158,10 +158,10 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('(1 high severity)')
     })
 
-    it('should generate grouped update summary for npm', () => {
+    it('should generate grouped update summary for npm', async () => {
       mockPRContext.isGroupedUpdate = true
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -174,10 +174,10 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('`package-a`, `package-b`, `package-c`')
     })
 
-    it('should generate breaking change warnings for npm', () => {
+    it('should generate breaking change warnings for npm', async () => {
       mockImpactAssessment.hasBreakingChanges = true
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -195,8 +195,8 @@ describe('ChangesetSummaryGenerator', () => {
       mockPRContext.manager = 'github-actions'
     })
 
-    it('should generate GitHub Actions dependency summary', () => {
-      const summary = generator.generateSummary(
+    it('should generate GitHub Actions dependency summary', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -209,8 +209,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('`actions/checkout`')
     })
 
-    it('should handle multiple GitHub Actions dependencies', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple GitHub Actions dependencies', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -228,8 +228,8 @@ describe('ChangesetSummaryGenerator', () => {
       mockPRContext.manager = 'docker'
     })
 
-    it('should generate Docker image summary', () => {
-      const summary = generator.generateSummary(
+    it('should generate Docker image summary', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -241,8 +241,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update Docker image `node`')
     })
 
-    it('should handle multiple Docker images', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple Docker images', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -260,8 +260,8 @@ describe('ChangesetSummaryGenerator', () => {
       mockPRContext.manager = 'pip'
     })
 
-    it('should generate pip dependency summary', () => {
-      const summary = generator.generateSummary(
+    it('should generate pip dependency summary', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -273,10 +273,10 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update pip dependency `requests`')
     })
 
-    it('should handle pipenv manager', () => {
+    it('should handle pipenv manager', async () => {
       mockPRContext.manager = 'pipenv'
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -293,8 +293,8 @@ describe('ChangesetSummaryGenerator', () => {
       mockPRContext.manager = 'nuget'
     })
 
-    it('should generate NuGet dependency summary', () => {
-      const summary = generator.generateSummary(
+    it('should generate NuGet dependency summary', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -306,8 +306,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update NuGet dependency `Newtonsoft.Json`')
     })
 
-    it('should handle multiple NuGet packages', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple NuGet packages', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -325,8 +325,8 @@ describe('ChangesetSummaryGenerator', () => {
       mockPRContext.manager = 'composer'
     })
 
-    it('should generate Composer dependency summary', () => {
-      const summary = generator.generateSummary(
+    it('should generate Composer dependency summary', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -338,8 +338,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update Composer dependency `symfony/framework-bundle`')
     })
 
-    it('should handle multiple PHP packages', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple PHP packages', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -357,8 +357,8 @@ describe('ChangesetSummaryGenerator', () => {
       mockPRContext.manager = 'cargo'
     })
 
-    it('should generate Cargo dependency summary', () => {
-      const summary = generator.generateSummary(
+    it('should generate Cargo dependency summary', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -370,8 +370,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update Cargo dependency `serde`')
     })
 
-    it('should handle multiple Rust crates', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple Rust crates', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -400,8 +400,8 @@ describe('ChangesetSummaryGenerator', () => {
       ]
     })
 
-    it('should generate Helm chart summary with version details', () => {
-      const summary = generator.generateSummary(
+    it('should generate Helm chart summary with version details', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -414,8 +414,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('from `1.0.0` to `2.0.0`')
     })
 
-    it('should handle multiple Helm charts', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple Helm charts', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -444,8 +444,8 @@ describe('ChangesetSummaryGenerator', () => {
       ]
     })
 
-    it('should generate Terraform provider summary with version details', () => {
-      const summary = generator.generateSummary(
+    it('should generate Terraform provider summary with version details', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -458,8 +458,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('from `4.0.0` to `5.0.0`')
     })
 
-    it('should handle multiple Terraform providers', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple Terraform providers', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -488,8 +488,8 @@ describe('ChangesetSummaryGenerator', () => {
       ]
     })
 
-    it('should generate Ansible role summary with version details', () => {
-      const summary = generator.generateSummary(
+    it('should generate Ansible role summary with version details', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -502,8 +502,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('from `1.0.0` to `2.0.0`')
     })
 
-    it('should handle multiple Ansible roles', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple Ansible roles', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -532,8 +532,8 @@ describe('ChangesetSummaryGenerator', () => {
       ]
     })
 
-    it('should generate pre-commit hook summary with version details', () => {
-      const summary = generator.generateSummary(
+    it('should generate pre-commit hook summary with version details', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -546,8 +546,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('from `v4.0.0` to `v4.1.0`')
     })
 
-    it('should handle multiple pre-commit hooks', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple pre-commit hooks', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -576,8 +576,8 @@ describe('ChangesetSummaryGenerator', () => {
       ]
     })
 
-    it('should generate GitLab CI dependency summary with version details', () => {
-      const summary = generator.generateSummary(
+    it('should generate GitLab CI dependency summary with version details', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -590,8 +590,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('from `16-alpine` to `18-alpine`')
     })
 
-    it('should handle multiple GitLab CI dependencies', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple GitLab CI dependencies', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -620,8 +620,8 @@ describe('ChangesetSummaryGenerator', () => {
       ]
     })
 
-    it('should generate CircleCI orb summary with version details', () => {
-      const summary = generator.generateSummary(
+    it('should generate CircleCI orb summary with version details', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -634,8 +634,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('from `16.0.0` to `18.0.0`')
     })
 
-    it('should handle multiple CircleCI orbs', () => {
-      const summary = generator.generateSummary(
+    it('should handle multiple CircleCI orbs', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -649,10 +649,10 @@ describe('ChangesetSummaryGenerator', () => {
   })
 
   describe('custom template handling', () => {
-    it('should use custom template when provided', () => {
+    it('should use custom template when provided', async () => {
       const template = 'Custom: {updateType} {dependencies} {version}'
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -664,11 +664,11 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toBe('Custom: npm test-package 2.0.0')
     })
 
-    it('should interpolate all template variables', () => {
+    it('should interpolate all template variables', async () => {
       const template =
         '{emoji} {updateType}: {dependencies} (risk: {riskLevel}, breaking: {hasBreakingChanges})'
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -680,10 +680,10 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toBe('📦 npm: test-package (risk: medium, breaking: false)')
     })
 
-    it('should handle backward compatibility with {version} placeholder', () => {
+    it('should handle backward compatibility with {version} placeholder', async () => {
       const template = 'Update {dependencies} to {version}'
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -697,10 +697,10 @@ describe('ChangesetSummaryGenerator', () => {
   })
 
   describe('configuration options', () => {
-    it('should respect emoji configuration', () => {
+    it('should respect emoji configuration', async () => {
       const noEmojiGenerator = new ChangesetSummaryGenerator({useEmojis: false})
 
-      const summary = noEmojiGenerator.generateSummary(
+      const summary = await noEmojiGenerator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -712,10 +712,10 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update npm dependency')
     })
 
-    it('should respect version details configuration', () => {
+    it('should respect version details configuration', async () => {
       const noVersionGenerator = new ChangesetSummaryGenerator({includeVersionDetails: false})
 
-      const summary = noVersionGenerator.generateSummary(
+      const summary = await noVersionGenerator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -727,10 +727,10 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update npm dependency `test-package`')
     })
 
-    it('should respect dependency sorting configuration', () => {
+    it('should respect dependency sorting configuration', async () => {
       const sortedGenerator = new ChangesetSummaryGenerator({sortDependencies: true})
 
-      const summary = sortedGenerator.generateSummary(
+      const summary = await sortedGenerator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -741,10 +741,10 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('`alpha`, `beta`, `zebra`')
     })
 
-    it('should respect max dependencies to list configuration', () => {
+    it('should respect max dependencies to list configuration', async () => {
       const limitedGenerator = new ChangesetSummaryGenerator({maxDependenciesToList: 2})
 
-      const summary = limitedGenerator.generateSummary(
+      const summary = await limitedGenerator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -756,13 +756,13 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).not.toContain('`package-a`, `package-b`, `package-c`')
     })
 
-    it('should disable breaking change warnings when configured', () => {
+    it('should disable breaking change warnings when configured', async () => {
       const noWarningsGenerator = new ChangesetSummaryGenerator({
         includeBreakingChangeWarnings: false,
       })
       mockImpactAssessment.hasBreakingChanges = true
 
-      const summary = noWarningsGenerator.generateSummary(
+      const summary = await noWarningsGenerator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -775,11 +775,11 @@ describe('ChangesetSummaryGenerator', () => {
   })
 
   describe('fallback behavior', () => {
-    it('should handle unknown managers gracefully', () => {
+    it('should handle unknown managers gracefully', async () => {
       // @ts-expect-error - Testing unknown manager
       mockPRContext.manager = 'unknown-manager'
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -791,8 +791,8 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update unknown-manager dependency')
     })
 
-    it('should handle empty dependency lists', () => {
-      const summary = generator.generateSummary(
+    it('should handle empty dependency lists', async () => {
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,
@@ -803,14 +803,14 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toBe('📦 Update npm dependencies')
     })
 
-    it('should handle missing version information gracefully', () => {
+    it('should handle missing version information gracefully', async () => {
       const firstDep = mockPRContext.dependencies[0]
       if (firstDep) {
         firstDep.currentVersion = undefined
         firstDep.newVersion = undefined
       }
 
-      const summary = generator.generateSummary(
+      const summary = await generator.generateSummary(
         mockPRContext,
         mockImpactAssessment,
         mockCategorizationResult,

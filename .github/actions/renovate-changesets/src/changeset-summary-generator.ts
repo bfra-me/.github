@@ -8,13 +8,21 @@
  * - Breaking changes vs non-breaking
  * - Manager-specific patterns
  * - Impact assessment and categorization results
+ * - Custom templates and organization-specific formatting (TASK-027)
  *
  * @since 2025-09-05 (TASK-022)
+ * @updated 2025-09-06 (TASK-027) - Added enhanced template engine integration
  */
 
 import type {CategorizationResult} from './change-categorization-engine'
+import type {
+  ChangesetTemplateEngine,
+  EnhancedTemplateContext,
+  TemplateConfig,
+} from './changeset-template-engine'
 import type {RenovatePRContext} from './renovate-parser'
 import type {ImpactAssessment} from './semver-impact-assessor'
+import {env} from 'node:process'
 
 /**
  * Configuration for context-aware summary generation
@@ -73,23 +81,41 @@ export interface TemplateContext {
  */
 export class ChangesetSummaryGenerator {
   private config: SummaryGeneratorConfig
+  private templateEngine?: ChangesetTemplateEngine
 
-  constructor(config: Partial<SummaryGeneratorConfig> = {}) {
+  constructor(
+    config: Partial<SummaryGeneratorConfig> = {},
+    templateEngine?: ChangesetTemplateEngine,
+  ) {
     this.config = {...DEFAULT_SUMMARY_CONFIG, ...config}
+    this.templateEngine = templateEngine
   }
 
   /**
    * Generate a context-aware changeset summary
+   * Enhanced with template engine support (TASK-027)
    */
-  generateSummary(
+  async generateSummary(
     prContext: RenovatePRContext,
     impactAssessment: ImpactAssessment,
     categorizationResult: CategorizationResult,
     updateType: string,
     dependencies: string[],
     template?: string,
-  ): string {
-    // If a custom template is provided, use template-based generation
+  ): Promise<string> {
+    // TASK-027: Enhanced template engine integration
+    if (this.templateEngine) {
+      return this.generateWithTemplateEngine(
+        prContext,
+        impactAssessment,
+        categorizationResult,
+        updateType,
+        dependencies,
+        template,
+      )
+    }
+
+    // Legacy template support (backward compatibility)
     if (template) {
       return this.generateFromTemplate(
         template,
@@ -101,7 +127,7 @@ export class ChangesetSummaryGenerator {
       )
     }
 
-    // Use context-aware generation based on manager type and update characteristics
+    // Default manager-specific generation
     return this.generateContextAwareSummary(
       prContext,
       impactAssessment,
@@ -1322,5 +1348,248 @@ export class ChangesetSummaryGenerator {
       return 'medium'
     }
     return 'low'
+  }
+
+  /**
+   * Generate summary using enhanced template engine (TASK-027)
+   */
+  private async generateWithTemplateEngine(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    categorizationResult: CategorizationResult,
+    updateType: string,
+    dependencies: string[],
+    legacyTemplate?: string,
+  ): Promise<string> {
+    if (!this.templateEngine) {
+      throw new Error('Template engine not available')
+    }
+
+    // Build enhanced template context
+    const enhancedContext = this.buildEnhancedTemplateContext(
+      prContext,
+      impactAssessment,
+      categorizationResult,
+      updateType,
+      dependencies,
+    )
+
+    try {
+      // Try organization templates first
+      const orgResult = await this.templateEngine.createFromOrganization(
+        prContext.manager,
+        updateType,
+        enhancedContext,
+      )
+
+      if (orgResult && orgResult.trim()) {
+        return orgResult
+      }
+
+      // Fallback to legacy template if provided
+      if (legacyTemplate) {
+        const legacyConfig: TemplateConfig = {
+          content: legacyTemplate,
+          format: 'simple',
+        }
+        return await this.templateEngine.renderTemplate(legacyConfig, enhancedContext)
+      }
+
+      // Final fallback to default generation
+      return this.generateContextAwareSummary(
+        prContext,
+        impactAssessment,
+        categorizationResult,
+        updateType,
+        dependencies,
+      )
+    } catch (error) {
+      // Template engine failed, fallback to legacy generation
+      console.warn(`Template engine failed, falling back to legacy generation: ${error}`)
+      return this.generateContextAwareSummary(
+        prContext,
+        impactAssessment,
+        categorizationResult,
+        updateType,
+        dependencies,
+      )
+    }
+  }
+
+  /**
+   * Build enhanced template context (TASK-027)
+   */
+  private buildEnhancedTemplateContext(
+    prContext: RenovatePRContext,
+    impactAssessment: ImpactAssessment,
+    categorizationResult: CategorizationResult,
+    updateType: string,
+    dependencies: string[],
+  ): EnhancedTemplateContext {
+    const now = new Date()
+
+    // Create enhanced dependency list with detailed information
+    const dependencyList = prContext.dependencies.map(dep => ({
+      name: dep.name,
+      currentVersion: dep.currentVersion,
+      newVersion: dep.newVersion,
+      versionRange:
+        dep.currentVersion && dep.newVersion
+          ? `${dep.currentVersion} → ${dep.newVersion}`
+          : undefined,
+      isBreaking: false, // Breaking changes tracked at PR level
+      isSecurity: dep.isSecurityUpdate || false,
+    }))
+
+    // Determine update scope from impact assessment
+    const updateScope = impactAssessment.recommendedChangesetType
+
+    // Extract security severity (convert nullable type to union)
+    const securitySeverity =
+      prContext.dependencies.find(dep => dep.isSecurityUpdate)?.securitySeverity || undefined
+
+    // Build basic context
+    const basicContext = this.buildTemplateContext(
+      prContext,
+      impactAssessment,
+      categorizationResult,
+      updateType,
+      dependencies,
+    )
+
+    // Create helper functions
+    const helpers = this.createEnhancedHelpers()
+
+    // Return enhanced context
+    return {
+      ...basicContext,
+      timestamp: now.toISOString(),
+      date: now.toISOString().split('T')[0] ?? '',
+      packageManager: this.getPackageManagerDisplayName(prContext.manager),
+      ecosystem: this.getEcosystemName(prContext.manager),
+      updateScope,
+      securitySeverity: securitySeverity === null ? undefined : securitySeverity,
+      dependencyList,
+      impact: {
+        overall: impactAssessment.overallImpact,
+        score: impactAssessment.overallRiskScore,
+        confidence:
+          impactAssessment.confidence === 'high'
+            ? 0.9
+            : impactAssessment.confidence === 'medium'
+              ? 0.7
+              : 0.5,
+        hasBreaking: impactAssessment.hasBreakingChanges,
+        hasSecurity: prContext.isSecurityUpdate,
+      },
+      organization: {
+        name: 'bfra.me', // Could be configurable
+        standards: {},
+        branding: {
+          colors: {
+            primary: '#0366d6',
+            success: '#28a745',
+            warning: '#ffc107',
+            danger: '#dc3545',
+          },
+          icons: {},
+        },
+      },
+      repository: {
+        name: env.GITHUB_REPOSITORY?.split('/')[1] || 'unknown',
+        language: 'typescript', // Could be detected
+        framework: 'node', // Could be detected
+        size: 'medium', // Could be calculated
+      },
+      helpers,
+    }
+  }
+
+  /**
+   * Create enhanced helper functions for templates (TASK-027)
+   */
+  private createEnhancedHelpers(): EnhancedTemplateContext['helpers'] {
+    return {
+      formatDate: (date: Date | string, _format = 'YYYY-MM-DD') => {
+        const d = typeof date === 'string' ? new Date(date) : date
+        return d.toISOString().split('T')[0] || ''
+      },
+
+      capitalize: (text: string) => {
+        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+      },
+
+      pluralize: (word: string, count: number) => {
+        return count === 1 ? word : `${word}s`
+      },
+
+      truncate: (text: string, length: number) => {
+        return text.length > length ? `${text.slice(0, length)}...` : text
+      },
+
+      joinWithAnd: (items: string[]) => {
+        if (items.length === 0) return ''
+        if (items.length === 1) return items[0] || ''
+        if (items.length === 2) return `${items[0]} and ${items[1]}`
+        const lastItem = items.at(-1)
+        return `${items.slice(0, -1).join(', ')}, and ${lastItem || ''}`
+      },
+
+      formatVersion: (version: string) => {
+        return version.startsWith('v') ? version : `v${version}`
+      },
+
+      formatSemverBump: (current: string, next: string) => {
+        return `${current} → ${next}`
+      },
+    }
+  }
+
+  /**
+   * Get ecosystem name for template context
+   */
+  private getEcosystemName(manager: string): string {
+    const ecosystemMap: Record<string, string> = {
+      npm: 'node',
+      pnpm: 'node',
+      yarn: 'node',
+      'github-actions': 'github',
+      docker: 'container',
+      pip: 'python',
+      poetry: 'python',
+      pipenv: 'python',
+      maven: 'jvm',
+      gradle: 'jvm',
+      cargo: 'rust',
+      nuget: 'dotnet',
+      composer: 'php',
+      gomod: 'go',
+    }
+
+    return ecosystemMap[manager] || 'unknown'
+  }
+
+  /**
+   * Get package manager display name for template context
+   */
+  private getPackageManagerDisplayName(manager: string): string {
+    const displayNames: Record<string, string> = {
+      npm: 'npm',
+      pnpm: 'pnpm',
+      yarn: 'Yarn',
+      'github-actions': 'GitHub Actions',
+      docker: 'Docker',
+      pip: 'pip',
+      poetry: 'Poetry',
+      pipenv: 'Pipenv',
+      maven: 'Maven',
+      gradle: 'Gradle',
+      cargo: 'Cargo',
+      nuget: 'NuGet',
+      composer: 'Composer',
+      gomod: 'Go modules',
+    }
+
+    return displayNames[manager] || manager
   }
 }

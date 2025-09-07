@@ -15,6 +15,7 @@ import {DockerChangeDetector} from './docker-change-detector'
 import {createGitOperations} from './git-operations'
 import {GitHubActionsChangeDetector} from './github-actions-change-detector'
 import {GoChangeDetector} from './go-change-detector'
+import {createGroupedPRManager} from './grouped-pr-manager'
 import {JVMChangeDetector} from './jvm-change-detector'
 import {MultiPackageAnalyzer} from './multi-package-analyzer'
 import {MultiPackageChangesetGenerator} from './multi-package-changeset-generator'
@@ -1656,6 +1657,61 @@ async function run(): Promise<void> {
         core.setOutput('pr-comment-created', 'false')
         core.setOutput('pr-comment-error', errorMessage)
       }
+    }
+
+    // TASK-034: Handle grouped PR updates if enabled
+    const groupedPRManager = createGroupedPRManager(octokit, owner, repo)
+    try {
+      const groupedPRs = await groupedPRManager.detectGroupedPRs(pr.number, prContext)
+
+      // Set grouped PR detection outputs
+      core.setOutput('grouped-prs-enabled', core.getBooleanInput('update-grouped-prs').toString())
+      core.setOutput('grouped-prs-found', groupedPRs.length.toString())
+
+      if (groupedPRs.length > 1) {
+        core.info(`Found ${groupedPRs.length} PRs in group, updating all PRs`)
+
+        const groupedResult = await groupedPRManager.updateGroupedPRs(
+          groupedPRs,
+          changesetContent,
+          releases,
+          dependencyNames,
+          categorizationResult,
+          multiPackageResult,
+          updatePRDescription,
+          createPRComment,
+          changesetPath,
+        )
+
+        // Set grouped PR update outputs
+        core.setOutput('grouped-prs-updated', groupedResult.updatedPRs.toString())
+        core.setOutput('grouped-prs-failed', groupedResult.failedPRs.toString())
+        core.setOutput('grouped-pr-strategy', groupedResult.groupingStrategy)
+        core.setOutput('grouped-pr-identifier', groupedResult.groupIdentifier || '')
+        core.setOutput('grouped-pr-results', JSON.stringify(groupedResult.prResults))
+
+        if (groupedResult.failedPRs > 0) {
+          core.warning(`${groupedResult.failedPRs} PRs failed to update in grouped operation`)
+        }
+      } else {
+        // No grouped PRs found, set empty outputs
+        core.setOutput('grouped-prs-updated', '0')
+        core.setOutput('grouped-prs-failed', '0')
+        core.setOutput('grouped-pr-strategy', 'none')
+        core.setOutput('grouped-pr-identifier', '')
+        core.setOutput('grouped-pr-results', JSON.stringify([]))
+      }
+    } catch (groupedPRError) {
+      const errorMessage =
+        groupedPRError instanceof Error ? groupedPRError.message : String(groupedPRError)
+      core.warning(`Grouped PR operations failed: ${errorMessage}`)
+
+      // Set error outputs for grouped PRs
+      core.setOutput('grouped-prs-updated', '0')
+      core.setOutput('grouped-prs-failed', '0')
+      core.setOutput('grouped-pr-strategy', 'none')
+      core.setOutput('grouped-pr-identifier', '')
+      core.setOutput('grouped-pr-results', JSON.stringify([]))
     }
   } catch (error) {
     // Enhanced error handling with detailed error information

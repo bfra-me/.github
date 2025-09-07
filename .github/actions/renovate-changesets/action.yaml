@@ -69,6 +69,23 @@ inputs:
     description: Initial retry delay in milliseconds (100-10000)
     required: false
     default: '1000'
+  # TASK-034: Grouped PR update inputs
+  update-grouped-prs:
+    description: Enable updating multiple PRs in grouped updates
+    required: false
+    default: 'false'
+  max-grouped-prs:
+    description: Maximum number of PRs to update in a group (1-50)
+    required: false
+    default: '10'
+  grouped-pr-failure-strategy:
+    description: How to handle failures in grouped updates (continue, stop)
+    required: false
+    default: continue
+  skip-current-pr-in-group:
+    description: Skip updating the current PR when updating grouped PRs to avoid duplicates
+    required: false
+    default: 'true'
 
 outputs:
   changesets-created:
@@ -141,6 +158,21 @@ outputs:
     description: Whether a comment was successfully posted to the PR with changeset details
   pr-comment-error:
     description: Error message if PR comment creation failed
+  # TASK-034: Grouped PR update outputs
+  grouped-prs-enabled:
+    description: Whether grouped PR updates were enabled
+  grouped-prs-found:
+    description: Number of PRs found in the group
+  grouped-prs-updated:
+    description: Number of PRs successfully updated in the group
+  grouped-prs-failed:
+    description: Number of PRs that failed to update in the group
+  grouped-pr-strategy:
+    description: Strategy used for grouping PRs (none, branch-pattern, group-name, dependencies)
+  grouped-pr-identifier:
+    description: Identifier for the group (group name or common prefix)
+  grouped-pr-results:
+    description: Detailed results for each PR operation (JSON array)
 
 runs:
   using: node20

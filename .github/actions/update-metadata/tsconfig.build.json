@@ -10,6 +10,9 @@
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
 
+    // Performance optimizations for incremental builds
+    "assumeChangesOnlyAffectDirectDependencies": true,
+
     // Package-specific output configuration
     "outDir": "dist",
     "rootDir": "src",

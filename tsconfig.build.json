@@ -10,6 +10,9 @@
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo",
 
+    // Performance optimizations for incremental builds
+    "assumeChangesOnlyAffectDirectDependencies": true,
+
     // Output configuration - remove rootDir constraint
     "outDir": "dist",
 

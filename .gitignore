@@ -1,6 +1,7 @@
 node_modules
 tsconfig.tsbuildinfo
 .tsbuildinfo
+.cache/
 .cursor/mcp.json
 !.ai/
 .ai/*

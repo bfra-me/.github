@@ -34,6 +34,7 @@
     "release": "tsx ./scripts/release.ts",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
+    "typescript:audit": "tsx ./scripts/audit-typescript-references.ts",
     "workspace:check": "manypkg check",
     "workspace:export-dot": "tsx ./scripts/workspace-validate.ts --export=dot",
     "workspace:export-json": "tsx ./scripts/workspace-validate.ts --export=json",

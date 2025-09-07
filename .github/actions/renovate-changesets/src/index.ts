@@ -1315,9 +1315,9 @@ async function run(): Promise<void> {
     core.setOutput('average-risk-level', categorizationResult.summary.averageRiskLevel.toString())
     core.setOutput('categorization-confidence', categorizationResult.confidence)
 
-    // TASK-028/029: Commit changeset files back to Renovate branch if enabled
+    // TASK-028/029/030: Commit changeset files back to Renovate branch if enabled
     try {
-      const gitOps = createGitOperations(workingDirectory)
+      const gitOps = createGitOperations(workingDirectory, owner, repo, branchName)
       const commitResult = await gitOps.commitChangesetFiles()
 
       // Set git operation outputs
@@ -1325,6 +1325,9 @@ async function run(): Promise<void> {
       core.setOutput('commit-sha', commitResult.commitSha || '')
       core.setOutput('committed-files', JSON.stringify(commitResult.committedFiles))
       core.setOutput('git-error', commitResult.error || '')
+      // TASK-030: Add push operation outputs
+      core.setOutput('push-success', (commitResult.pushSuccess || false).toString())
+      core.setOutput('push-error', commitResult.pushError || '')
 
       if (commitResult.success && commitResult.committedFiles.length > 0) {
         core.info(
@@ -1342,6 +1345,9 @@ async function run(): Promise<void> {
       core.setOutput('commit-sha', '')
       core.setOutput('committed-files', JSON.stringify([]))
       core.setOutput('git-error', gitErrorMessage)
+      // TASK-030: Add push operation error outputs
+      core.setOutput('push-success', 'false')
+      core.setOutput('push-error', '')
     }
 
     // Create PR comment with changeset details if enabled
@@ -1390,11 +1396,13 @@ async function run(): Promise<void> {
     core.setOutput('average-risk-level', '0')
     core.setOutput('categorization-confidence', 'low')
 
-    // TASK-028/029: Set git operations error outputs
+    // TASK-028/029/030: Set git operations error outputs
     core.setOutput('commit-success', 'false')
     core.setOutput('commit-sha', '')
     core.setOutput('committed-files', JSON.stringify([]))
     core.setOutput('git-error', '')
+    core.setOutput('push-success', 'false')
+    core.setOutput('push-error', '')
 
     core.setFailed(`Action failed: ${errorMessage}`)
   }

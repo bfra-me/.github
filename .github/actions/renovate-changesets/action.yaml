@@ -101,6 +101,11 @@ outputs:
     description: List of committed changeset files (JSON array)
   git-error:
     description: Error message if git operations failed
+  # TASK-030: Push operations outputs
+  push-success:
+    description: Whether changeset files were successfully pushed to the remote branch
+  push-error:
+    description: Error message if push operations failed
 
 runs:
   using: node20

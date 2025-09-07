@@ -19,6 +19,10 @@
   "scripts": {
     "bootstrap": "pnpm install --prefer-offline --loglevel warn",
     "build": "pnpm -r run build",
+    "build:composite": "tsc --build tsconfig.build.json",
+    "build:composite:clean": "tsc --build tsconfig.build.json --clean",
+    "build:composite:force": "tsc --build tsconfig.build.json --force",
+    "build:composite:watch": "tsc --build tsconfig.build.json --watch",
     "build:monitor": "tsx ./scripts/build-performance.ts",
     "build:monitor:build": "tsx ./scripts/build-performance.ts --phase=build",
     "build:monitor:json": "tsx ./scripts/build-performance.ts --format=json",
@@ -34,6 +38,7 @@
     "release": "tsx ./scripts/release.ts",
     "test": "vitest run",
     "type-check": "tsc --noEmit",
+    "type-check:build": "tsc --project tsconfig.build.json --noEmit",
     "typescript:audit": "tsx ./scripts/audit-typescript-references.ts",
     "workspace:check": "manypkg check",
     "workspace:export-dot": "tsx ./scripts/workspace-validate.ts --export=dot",

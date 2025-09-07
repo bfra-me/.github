@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "display": "Renovate Changesets Action - Build Configuration",
+  "extends": "@bfra.me/tsconfig",
+  "compilerOptions": {
+    // Enable composite mode for project references
+    "composite": true,
+
+    // Incremental compilation for better performance
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+
+    // Package-specific output configuration
+    "outDir": "dist",
+    "rootDir": "src",
+
+    // Enable declaration generation for type exports
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Module resolution
+    "moduleResolution": "Bundler",
+    "module": "Preserve",
+    "target": "ES2022",
+
+    // Ensure proper emit (don't disable)
+    "noEmit": false,
+    "emitDeclarationOnly": false
+  },
+
+  // Include only source files for this package
+  "include": ["src/**/*"],
+
+  // Exclude test files and build artifacts
+  "exclude": ["node_modules", "dist", "test/**/*", "**/*.test.ts", "**/*.spec.ts"]
+}

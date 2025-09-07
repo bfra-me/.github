@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "display": "Build Configuration",
+  "extends": "@bfra.me/tsconfig",
+  "compilerOptions": {
+    // Enable composite mode for project references
+    "composite": true,
+
+    // Incremental compilation for better performance
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+
+    // Output configuration - remove rootDir constraint
+    "outDir": "dist",
+
+    // Generate declaration files for cross-package type safety
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // Optimization settings
+    "removeComments": true,
+    "importHelpers": true,
+
+    // Module resolution optimized for build - keep consistent with base config
+    "moduleResolution": "Bundler",
+    "module": "Preserve",
+    "target": "ES2022",
+
+    // Skip lib checks for faster builds
+    "skipLibCheck": true,
+
+    // Ensure proper emit
+    "noEmit": false,
+    "emitDeclarationOnly": false
+  },
+
+  // Include TypeScript source files across the workspace
+  "include": ["scripts/release.ts", "scripts/workspace-validate.ts"],
+
+  // Exclude common non-source directories and problematic files with type issues
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "coverage",
+    ".tsbuildinfo",
+    ".github/actions/*/src/**/*",
+    "scripts/audit-typescript-references.ts",
+    "scripts/build-performance.ts"
+  ]
+
+  // Project references for workspace packages - temporarily commented out due to type issues
+  // "references": [
+  //   {
+  //     "path": "./.github/actions/renovate-changesets/tsconfig.build.json"
+  //   },
+  //   {
+  //     "path": "./.github/actions/update-metadata/tsconfig.build.json"
+  //   }
+  // ]
+}

@@ -7,10 +7,10 @@
   "files": [],
   "references": [
     {
-      "path": "./.github/actions/renovate-changesets"
+      "path": "./.github/actions/renovate-changesets/tsconfig.build.json"
     },
     {
-      "path": "./.github/actions/update-metadata"
+      "path": "./.github/actions/update-metadata/tsconfig.build.json"
     }
   ]
 }

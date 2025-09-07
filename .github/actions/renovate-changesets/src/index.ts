@@ -1579,6 +1579,11 @@ async function run(): Promise<void> {
       // TASK-030: Add push operation outputs
       core.setOutput('push-success', (commitResult.pushSuccess || false).toString())
       core.setOutput('push-error', commitResult.pushError || '')
+      // TASK-032: Add merge conflict handling outputs
+      core.setOutput('conflicts-resolved', (commitResult.conflictsResolved || false).toString())
+      core.setOutput('conflict-resolution', commitResult.conflictResolution || '')
+      core.setOutput('branch-updated', (commitResult.branchUpdated || false).toString())
+      core.setOutput('retry-attempts', (commitResult.retryAttempts || 0).toString())
 
       if (commitResult.success && commitResult.committedFiles.length > 0) {
         core.info(
@@ -1599,6 +1604,11 @@ async function run(): Promise<void> {
       // TASK-030: Add push operation error outputs
       core.setOutput('push-success', 'false')
       core.setOutput('push-error', '')
+      // TASK-032: Add merge conflict handling error outputs
+      core.setOutput('conflicts-resolved', 'false')
+      core.setOutput('conflict-resolution', '')
+      core.setOutput('branch-updated', 'false')
+      core.setOutput('retry-attempts', '0')
     }
 
     // TASK-031: Update PR description with changeset information if enabled

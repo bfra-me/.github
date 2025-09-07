@@ -77,11 +77,31 @@ pnpm run test              # Run test suite with Vitest
 pnpm run release           # Custom multi-package release script
 ```
 
+### Advanced Monorepo Workflows
+```bash
+# Workspace analysis and optimization
+pnpm run workspace:validate        # Comprehensive dependency analysis
+pnpm run workspace:graph           # Visual dependency graph
+pnpm run workspace:check           # manypkg consistency validation
+pnpm run workspace:fix             # Fix workspace inconsistencies
+
+# Build performance monitoring
+pnpm run build:monitor             # Real-time build performance analysis
+pnpm run build:monitor:json        # JSON format for CI integration
+pnpm run build:monitor:markdown    # Markdown reports for documentation
+
+# Package script standardization
+pnpm run workspace:standardize-scripts        # Preview script standardization
+pnpm run workspace:standardize-scripts:apply  # Apply standardization
+```
+
 ### Project Context Commands
 ```bash
 # Check implementation plans and AI specifications
 cat .ai/plan/feature-workflow-validation-system-1.md
 cat .ai/plan/infrastructure-org-health-monitoring-1.md
+cat .ai/plan/architecture-template-federation-system-1.md
+cat .ai/plan/feature-intelligent-workflow-generation-1.md
 
 # Review project development guidelines
 cat .github/instructions/github-actions.instructions.md
@@ -96,6 +116,11 @@ cat llms.txt
 # Review workflow templates and their metadata
 ls workflow-templates/
 cat workflow-templates/*.properties.json
+
+# Analyze workspace structure and dependencies
+pnpm run workspace:export-json      # Export dependency graph as JSON
+pnpm run workspace:export-mermaid   # Generate Mermaid dependency diagram
+pnpm run workspace:export-dot       # Export as DOT format for Graphviz
 ```
 
 ## Custom Internal Actions
@@ -219,10 +244,67 @@ This pattern provides:
 
 **Integration**: These instructions are referenced by AI coding assistants and enforced through automated workflows and code review processes.
 
+### AI Implementation Planning Framework
+**Location**: `.ai/plan/*.md`
+**Purpose**: Structured implementation specifications for complex systems
+**Pattern**: Each plan follows standardized sections:
+- Requirements & Constraints (functional, security, performance)
+- Implementation Steps (phased approach with task tracking)
+- Alternatives (considered approaches with rationale)
+- Dependencies (runtime, development, external services)
+- Files (detailed file structure specifications)
+- Testing (comprehensive test categories and strategies)
+- Risks & Assumptions (identified challenges and dependencies)
+
 ## Monitoring & Validation Systems
 
+### Build Performance Monitoring
+**Location**: `scripts/build-performance.ts`
+**Purpose**: Real-time build performance analysis and optimization insights
+**Key Features**:
+- Multi-phase monitoring (type-check, lint, build, test)
+- Bottleneck detection and parallel execution analysis
+- Historical performance tracking with JSON/Markdown reports
+- Package-specific metrics and dependency impact analysis
+
+**Usage Patterns**:
+```typescript
+// Monitor specific build phase
+pnpm run build:monitor:lint
+pnpm run build:monitor:test
+
+// Generate reports for CI integration
+pnpm run build:monitor:json > build-metrics.json
+pnpm run build:monitor:markdown > BUILD_PERFORMANCE.md
+```
+
+### Workspace Validation System
+**Location**: `scripts/workspace-validate.ts`
+**Purpose**: Comprehensive monorepo consistency and dependency analysis
+**Key Features**:
+- Cross-package dependency validation with conflict detection
+- Workspace structure analysis with visualization export
+- Package script standardization across the monorepo
+- Integration with manypkg for consistency enforcement
+
+**Validation Categories**:
+```typescript
+interface ValidationResult {
+  package: Package
+  issues: ValidationIssue[]     // Critical problems requiring fixes
+  warnings: ValidationWarning[] // Recommendations for improvement
+}
+
+// Dependency analysis with conflict resolution
+interface DependencyAnalysis {
+  versionConflicts: ConflictInfo[]
+  unusedDependencies: UnusedInfo[]
+  dependencyGraph: DependencyGraph
+}
+```
+
 ### Planned Validation System
-**Location**: `.ai/plans/feature-workflow-validation-system-1.md`
+**Location**: `.ai/plan/feature-workflow-validation-system-1.md`
 **Purpose**: Comprehensive validation system for workflow templates
 **Components**:
 - Security pattern validation (action pinning, permissions)
@@ -231,7 +313,7 @@ This pattern provides:
 - GitHub Actions schema compliance
 
 ### Organization Health Monitoring
-**Location**: `.ai/plans/infrastructure-org-health-monitoring-1.md`
+**Location**: `.ai/plan/infrastructure-org-health-monitoring-1.md`
 **Purpose**: Centralized monitoring for repository health
 **Metrics**: OpenSSF Scorecard ratings, dependency vulnerabilities, workflow adoption
 
@@ -249,6 +331,35 @@ This pattern provides:
     "noUnusedLocals": true,
     "noUnusedParameters": true
   }
+}
+```
+
+### Workspace Script Architecture
+**Pattern**: All scripts use `#!/usr/bin/env tsx` for direct TypeScript execution
+**Location**: `scripts/*.ts` - Utility scripts with comprehensive TypeScript interfaces
+**Dependencies**: Leverage `@manypkg/get-packages` for workspace introspection
+
+**Example Script Structure**:
+```typescript
+#!/usr/bin/env tsx
+
+import {getPackages, type Package} from '@manypkg/get-packages'
+
+interface ScriptConfig {
+  // Define structured configuration
+}
+
+interface ScriptResult {
+  // Define result types with validation
+}
+
+// Always include comprehensive error handling
+try {
+  const {packages} = await getPackages(process.cwd())
+  // Script logic with type safety
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error))
+  process.exit(1)
 }
 ```
 
@@ -316,3 +427,35 @@ concurrency:
 - Use manual changeset CLI (creates inconsistent format)
 
 This repository exemplifies organizational automation at scale - study the patterns in `scripts/release.ts`, `actions/renovate-changesets/`, and workflow templates for advanced GitHub ecosystem integration.
+
+## AI-Driven Development Framework
+
+### Implementation Planning Structure
+**Location**: `.ai/plan/`
+**Pattern**: Comprehensive implementation specifications following standardized format:
+
+```markdown
+# [System Name] Implementation Plan
+
+## 1. Requirements & Constraints
+- REQ-XXX: Functional requirements
+- SEC-XXX: Security constraints
+- CON-XXX: Technical constraints
+- GUD-XXX: Guidelines and principles
+- PAT-XXX: Architectural patterns
+
+## 2. Implementation Steps
+### Phase X: [Goal Description]
+| Task | Description | Completed | Date |
+|------|-------------|-----------|------|
+| TASK-XXX | Specific implementation task | | |
+
+## 3. Alternatives - ## 4. Dependencies - ## 5. Files - ## 6. Testing - ## 7. Risks & Assumptions
+```
+
+### Development Workflow Integration
+AI implementation plans integrate with existing development workflows:
+- Follow TypeScript strict mode patterns with ESM modules
+- Use existing build performance monitoring for optimization insights
+- Leverage workspace validation for dependency management
+- Integrate with GitHub App authentication patterns for automation

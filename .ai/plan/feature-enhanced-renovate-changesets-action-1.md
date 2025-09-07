@@ -157,8 +157,8 @@ All core parsing engine tasks have been successfully implemented:
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-035 | Set up Jest/Vitest testing framework with GitHub Actions mocking | |  |
-| TASK-036 | Create unit tests for Renovate parsing logic | |  |
+| TASK-035 | Set up Jest/Vitest testing framework with GitHub Actions mocking | ✅ | 2025-09-07 |
+| TASK-036 | Create unit tests for Renovate parsing logic | ✅ | 2025-09-07 |
 | TASK-037 | Implement integration tests for each supported manager type | |  |
 | TASK-038 | Create test scenarios for grouped updates and security patches | |  |
 | TASK-039 | Add tests for edge cases and error conditions | |  |

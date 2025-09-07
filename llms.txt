@@ -22,7 +22,7 @@ Key features include automated dependency management via Renovate, repository se
 
 ## Workflow Templates
 
-- [Renovate Template](workflow-templates/renovate.yml): Self-hosted dependency update bot configuration
+- [Renovate Template](workflow-templates/renovate.yaml): Self-hosted dependency update bot configuration
 - [Repository Settings Template](workflow-templates/update-repo-settings.yaml): Automated settings management template
 - [Security Scorecard Template](workflow-templates/scorecard.yaml): OpenSSF security assessment template
 - [CodeQL Template](workflow-templates/codeql-analysis.yaml): Static security analysis template
@@ -56,12 +56,30 @@ Key features include automated dependency management via Renovate, repository se
 
 - [Workflow Validation System](.ai/plan/feature-workflow-validation-system-1.md): Comprehensive validation system for workflow templates ensuring organizational standards compliance
 - [Organization Health Monitoring](.ai/plan/infrastructure-org-health-monitoring-1.md): Centralized monitoring and reporting system for repository health tracking across the organization
+- [Template Federation System](.ai/plan/architecture-template-federation-system-1.md): Multi-organization template sharing and versioning system with distributed governance
+- [Cross-Platform Bridge](.ai/plan/architecture-cross-platform-bridge-1.md): Universal workflow translation engine between GitHub Actions, GitLab CI, Azure DevOps, and Jenkins
+- [Production Readiness Validation](.ai/plan/infrastructure-production-readiness-validation-1.md): Comprehensive validation framework for production deployment readiness
+- [Monorepo Build Optimization](.ai/plan/infrastructure-monorepo-build-optimization-1.md): Advanced build optimization and caching strategies for large-scale monorepos
+
+## Feature Implementation Plans
+
+- [Intelligent Workflow Generation](.ai/plan/feature-intelligent-workflow-generation-1.md): AI-driven workflow generation system with template automation and optimization
+- [Astro Starlight Documentation Platform](.ai/plan/feature-astro-starlight-docs-platform-1.md): Modern documentation platform with advanced search and interactive features
+- [Enhanced Renovate Changesets Action](.ai/plan/feature-enhanced-renovate-changesets-action-1.md): Advanced dependency update automation with intelligent changeset generation
+- [Release Testing Infrastructure](.ai/plan/feature-release-testing-infrastructure-1.md): Comprehensive testing framework for release validation and quality assurance
+
+## GitHub Actions Documentation
+
+- [Renovate Changesets Action Documentation](.github/actions/renovate-changesets/README.md): Custom action implementation for dependency update automation
+- [Update Metadata Action Documentation](.github/actions/update-metadata/README.md): Automated metadata management and synchronization action
 
 ## Optional
 
 - [Release Script](scripts/release.ts): Custom automated release management for multi-package repositories
-- [Renovate Changesets Action](actions/renovate-changesets/): Custom action for integrating dependency updates with changesets
+- [Renovate Changesets Action](.github/actions/renovate-changesets/): Custom action for integrating dependency updates with changesets
 - [Changelog](CHANGELOG.md): Version history and release notes
 - [License](LICENSE.md): MIT license terms and conditions
 - [Contributing Guidelines](CONTRIBUTING.md): Development contribution guidelines and organizational standards
 - [Organization Profile](profile/README.md): Organization profile and community information
+- [AI Implementation Notes](.ai/notes/implementation-plan-prompts.md): Development notes and AI-driven planning guidance
+- [VS Code Configuration](.vscode/settings.json): Development environment configuration and extensions

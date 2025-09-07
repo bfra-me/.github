@@ -15,6 +15,14 @@ inputs:
     description: Post a comment on the PR with changeset details
     required: false
     default: 'false'
+  commit-back:
+    description: Automatically commit changeset files back to the Renovate branch
+    required: false
+    default: 'false'
+  commit-message-template:
+    description: Template for commit messages (supports {{count}}, {{files}}, {{file}} placeholders)
+    required: false
+    default: 'chore: add changeset for renovate updates\n\nAdded {{count}} changeset file(s): {{files}}'
   config-file:
     description: Path to configuration file (JSON or YAML)
     required: false
@@ -84,6 +92,15 @@ outputs:
     description: List of packages affected by the update (JSON array)
   multi-package-reasoning:
     description: Reasoning chain for multi-package decisions (JSON array)
+  # TASK-028/029: Git operations outputs
+  commit-success:
+    description: Whether changeset files were successfully committed back to the branch
+  commit-sha:
+    description: SHA of the commit containing changeset files (if committed)
+  committed-files:
+    description: List of committed changeset files (JSON array)
+  git-error:
+    description: Error message if git operations failed
 
 runs:
   using: node20

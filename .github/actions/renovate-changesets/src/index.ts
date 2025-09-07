@@ -12,6 +12,7 @@ import {ChangeCategorizationEngine} from './change-categorization-engine'
 import {ChangesetSummaryGenerator} from './changeset-summary-generator'
 import {ChangesetTemplateEngine} from './changeset-template-engine'
 import {DockerChangeDetector} from './docker-change-detector'
+import {createGitOperations} from './git-operations'
 import {GitHubActionsChangeDetector} from './github-actions-change-detector'
 import {GoChangeDetector} from './go-change-detector'
 import {JVMChangeDetector} from './jvm-change-detector'
@@ -1314,6 +1315,35 @@ async function run(): Promise<void> {
     core.setOutput('average-risk-level', categorizationResult.summary.averageRiskLevel.toString())
     core.setOutput('categorization-confidence', categorizationResult.confidence)
 
+    // TASK-028/029: Commit changeset files back to Renovate branch if enabled
+    try {
+      const gitOps = createGitOperations(workingDirectory)
+      const commitResult = await gitOps.commitChangesetFiles()
+
+      // Set git operation outputs
+      core.setOutput('commit-success', commitResult.success.toString())
+      core.setOutput('commit-sha', commitResult.commitSha || '')
+      core.setOutput('committed-files', JSON.stringify(commitResult.committedFiles))
+      core.setOutput('git-error', commitResult.error || '')
+
+      if (commitResult.success && commitResult.committedFiles.length > 0) {
+        core.info(
+          `Successfully committed ${commitResult.committedFiles.length} changeset files. SHA: ${commitResult.commitSha}`,
+        )
+      } else if (commitResult.error) {
+        core.warning(`Git operations failed: ${commitResult.error}`)
+      }
+    } catch (gitError) {
+      const gitErrorMessage = gitError instanceof Error ? gitError.message : String(gitError)
+      core.warning(`Git operations encountered an error: ${gitErrorMessage}`)
+
+      // Set error outputs
+      core.setOutput('commit-success', 'false')
+      core.setOutput('commit-sha', '')
+      core.setOutput('committed-files', JSON.stringify([]))
+      core.setOutput('git-error', gitErrorMessage)
+    }
+
     // Create PR comment with changeset details if enabled
     if (config.commentPR) {
       await createPRComment(
@@ -1359,6 +1389,12 @@ async function run(): Promise<void> {
     core.setOutput('high-priority-updates', '0')
     core.setOutput('average-risk-level', '0')
     core.setOutput('categorization-confidence', 'low')
+
+    // TASK-028/029: Set git operations error outputs
+    core.setOutput('commit-success', 'false')
+    core.setOutput('commit-sha', '')
+    core.setOutput('committed-files', JSON.stringify([]))
+    core.setOutput('git-error', '')
 
     core.setFailed(`Action failed: ${errorMessage}`)
   }

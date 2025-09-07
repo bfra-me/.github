@@ -520,7 +520,7 @@ export class EnhancedConfigProvider {
 
     let templateConfig: TemplateConfig
 
-    if (frontmatterMatch) {
+    if (frontmatterMatch && frontmatterMatch[1] && frontmatterMatch[2]) {
       // Template has YAML frontmatter metadata
       const metadata = yaml.load(frontmatterMatch[1]) as any
       const templateContent = frontmatterMatch[2]

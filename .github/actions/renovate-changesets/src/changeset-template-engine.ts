@@ -180,23 +180,10 @@ interface ParsedTemplate {
 }
 
 /**
- * Template cache entry
- */
-interface TemplateCache {
-  [key: string]: {
-    parsed: ParsedTemplate
-    timestamp: number
-    accessCount: number
-  }
-}
-
-/**
  * Enhanced template engine for custom changeset templates
  */
 export class ChangesetTemplateEngine {
   private config: TemplateEngineConfig
-  private cache: TemplateCache = {}
-  private helpers: EnhancedTemplateContext['helpers']
 
   constructor(config: TemplateEngineConfig) {
     this.config = {
@@ -211,8 +198,6 @@ export class ChangesetTemplateEngine {
       },
       errorHandling: config.errorHandling || 'fallback',
     }
-
-    this.helpers = this.createHelpers()
   }
 
   /**
@@ -304,7 +289,9 @@ export class ChangesetTemplateEngine {
     // Fallback to base template
     if (!template && orgTemplates.base) {
       const baseKey = Object.keys(orgTemplates.base)[0]
-      template = orgTemplates.base[baseKey]
+      if (baseKey) {
+        template = orgTemplates.base[baseKey]
+      }
     }
 
     // Final fallback
@@ -395,7 +382,9 @@ export class ChangesetTemplateEngine {
         // Extract {{variable}} patterns
         const hbMatches = content.matchAll(/\{\{([^}]+)\}\}/g)
         for (const match of hbMatches) {
-          variables.add(match[1].trim())
+          if (match[1]) {
+            variables.add(match[1].trim())
+          }
         }
         break
       }
@@ -404,7 +393,9 @@ export class ChangesetTemplateEngine {
         // Extract {{variable}} patterns (similar to handlebars for basic variables)
         const mustacheMatches = content.matchAll(/\{\{([^}]+)\}\}/g)
         for (const match of mustacheMatches) {
-          variables.add(match[1].trim())
+          if (match[1]) {
+            variables.add(match[1].trim())
+          }
         }
         break
       }
@@ -414,7 +405,9 @@ export class ChangesetTemplateEngine {
         // Extract {variable} patterns
         const simpleMatches = content.matchAll(/\{([^}]+)\}/g)
         for (const match of simpleMatches) {
-          variables.add(match[1].trim())
+          if (match[1]) {
+            variables.add(match[1].trim())
+          }
         }
         break
       }
@@ -582,44 +575,5 @@ export class ChangesetTemplateEngine {
       context.dependencies.length > 3 ? ` and ${context.dependencies.length - 3} more` : ''
 
     return `${emoji} Update ${manager} dependencies: ${deps}${more}`
-  }
-
-  /**
-   * Create helper functions for templates
-   */
-  private createHelpers(): EnhancedTemplateContext['helpers'] {
-    return {
-      formatDate: (date: Date | string, _format = 'YYYY-MM-DD') => {
-        const d = typeof date === 'string' ? new Date(date) : date
-        return d.toISOString().split('T')[0] // Simple YYYY-MM-DD format
-      },
-
-      capitalize: (text: string) => {
-        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
-      },
-
-      pluralize: (word: string, count: number) => {
-        return count === 1 ? word : `${word}s`
-      },
-
-      truncate: (text: string, length: number) => {
-        return text.length > length ? `${text.slice(0, length)}...` : text
-      },
-
-      joinWithAnd: (items: string[]) => {
-        if (items.length === 0) return ''
-        if (items.length === 1) return items[0]
-        if (items.length === 2) return `${items[0]} and ${items[1]}`
-        return `${items.slice(0, -1).join(', ')}, and ${items.at(-1)}`
-      },
-
-      formatVersion: (version: string) => {
-        return version.startsWith('v') ? version : `v${version}`
-      },
-
-      formatSemverBump: (current: string, next: string) => {
-        return `${current} → ${next}`
-      },
-    }
   }
 }

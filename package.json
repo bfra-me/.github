@@ -37,7 +37,7 @@
     "quality-check": "pnpm run type-check && pnpm run lint && pnpm run build && pnpm run test",
     "release": "tsx ./scripts/release.ts",
     "test": "vitest run",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc --build tsconfig.json",
     "type-check:build": "tsc --project tsconfig.build.json --noEmit",
     "typescript:audit": "tsx ./scripts/audit-typescript-references.ts",
     "workspace:check": "manypkg check",

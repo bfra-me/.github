@@ -49,15 +49,15 @@
     ".github/actions/*/src/**/*",
     "scripts/audit-typescript-references.ts",
     "scripts/build-performance.ts"
-  ]
+  ],
 
-  // Project references for workspace packages - temporarily commented out due to type issues
-  // "references": [
-  //   {
-  //     "path": "./.github/actions/renovate-changesets/tsconfig.build.json"
-  //   },
-  //   {
-  //     "path": "./.github/actions/update-metadata/tsconfig.build.json"
-  //   }
-  // ]
+  // Project references for workspace packages
+  "references": [
+    {
+      "path": "./.github/actions/renovate-changesets/tsconfig.build.json"
+    },
+    {
+      "path": "./.github/actions/update-metadata/tsconfig.build.json"
+    }
+  ]
 }

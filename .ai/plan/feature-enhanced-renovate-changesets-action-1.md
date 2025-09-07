@@ -143,8 +143,8 @@ All core parsing engine tasks have been successfully implemented:
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-028 | Implement Git operations for committing changeset files | |  |
-| TASK-029 | Handle GitHub App authentication for Git operations | |  |
+| TASK-028 | Implement Git operations for committing changeset files | ✅ | 2025-09-07 |
+| TASK-029 | Handle GitHub App authentication for Git operations | ✅ | 2025-09-07 |
 | TASK-030 | Commit changesets back to Renovate branches automatically | |  |
 | TASK-031 | Update PR descriptions with changeset information | |  |
 | TASK-032 | Handle merge conflicts and branch updates gracefully | |  |

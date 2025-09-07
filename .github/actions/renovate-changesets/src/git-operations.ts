@@ -11,6 +11,12 @@ export interface GitConfig {
   commitMessageTemplate: string
   /** Working directory for git operations */
   workingDirectory: string
+  /** Repository owner */
+  owner: string
+  /** Repository name */
+  repo: string
+  /** Branch name to push to (e.g., renovate/npm-typescript-5.x) */
+  branchName: string
 }
 
 export interface CommitResult {
@@ -22,6 +28,10 @@ export interface CommitResult {
   error?: string
   /** List of files that were committed */
   committedFiles: string[]
+  /** Whether the push to remote was successful */
+  pushSuccess?: boolean
+  /** Error message if push failed */
+  pushError?: string
 }
 
 /**
@@ -208,6 +218,76 @@ export class GitOperations {
   }
 
   /**
+   * Setup git remote with authentication token for push operations
+   * TASK-030: Implement automatic commit back to Renovate branches
+   */
+  async setupRemoteWithAuth(): Promise<void> {
+    try {
+      core.info('Setting up authenticated remote for push operations')
+
+      // Get current remote URL to check if it needs authentication setup
+      const {stdout: remoteUrl} = await getExecOutput('git', ['remote', 'get-url', 'origin'], {
+        cwd: this.config.workingDirectory,
+      })
+
+      // If the remote is already using HTTPS with token, we're good
+      if (remoteUrl.includes('x-access-token')) {
+        core.info('Remote already configured with authentication')
+        return
+      }
+
+      // Setup authenticated remote URL
+      const authenticatedUrl = `https://x-access-token:${this.config.token}@github.com/${this.config.owner}/${this.config.repo}.git`
+
+      await getExecOutput('git', ['remote', 'set-url', 'origin', authenticatedUrl], {
+        cwd: this.config.workingDirectory,
+      })
+
+      core.info('Successfully configured authenticated remote')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      core.error(`Failed to setup authenticated remote: ${errorMessage}`)
+      throw new Error(`Remote authentication setup failed: ${errorMessage}`)
+    }
+  }
+
+  /**
+   * Push commits to the remote Renovate branch
+   * TASK-030: Implement automatic commit back to Renovate branches
+   */
+  async pushToRemoteBranch(): Promise<{success: boolean; error?: string}> {
+    try {
+      core.info(`Pushing commits to remote branch: ${this.config.branchName}`)
+
+      // First, setup the authenticated remote
+      await this.setupRemoteWithAuth()
+
+      // Verify we're on the correct branch
+      const {stdout: currentBranch} = await getExecOutput('git', ['branch', '--show-current'], {
+        cwd: this.config.workingDirectory,
+      })
+
+      if (currentBranch.trim() !== this.config.branchName) {
+        core.warning(
+          `Current branch (${currentBranch.trim()}) doesn't match target branch (${this.config.branchName})`,
+        )
+      }
+
+      // Push to the remote branch
+      await getExecOutput('git', ['push', 'origin', `HEAD:${this.config.branchName}`], {
+        cwd: this.config.workingDirectory,
+      })
+
+      core.info(`Successfully pushed commits to remote branch: ${this.config.branchName}`)
+      return {success: true}
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      core.error(`Failed to push to remote branch: ${errorMessage}`)
+      return {success: false, error: errorMessage}
+    }
+  }
+
+  /**
    * Main method to commit changeset files back to the current branch
    * Implements the complete flow: configure user → check changes → stage → commit
    */
@@ -257,6 +337,23 @@ export class GitOperations {
         core.info(
           `Git operations completed successfully. Committed ${result.committedFiles.length} files.`,
         )
+
+        // TASK-030: Push changeset files back to Renovate branch automatically
+        core.info('Attempting to push changeset files to remote branch')
+        const pushResult = await this.pushToRemoteBranch()
+
+        // Update result with push information
+        result.pushSuccess = pushResult.success
+        result.pushError = pushResult.error
+
+        if (pushResult.success) {
+          core.info(
+            `Successfully pushed changeset files to remote branch: ${this.config.branchName}`,
+          )
+        } else {
+          core.warning(`Push to remote branch failed: ${pushResult.error}`)
+          // Note: We don't fail the entire operation if push fails, as the commit was successful
+        }
       } else {
         core.error(`Git operations failed: ${result.error}`)
       }
@@ -304,8 +401,14 @@ export class GitOperations {
 
 /**
  * Create GitOperations instance from action inputs and environment
+ * TASK-030: Updated to include repository and branch information for push operations
  */
-export function createGitOperations(workingDirectory: string): GitOperations {
+export function createGitOperations(
+  workingDirectory: string,
+  owner: string,
+  repo: string,
+  branchName: string,
+): GitOperations {
   const config: GitConfig = {
     token: core.getInput('token') || process.env.GITHUB_TOKEN || '',
     commitBack: core.getBooleanInput('commit-back'),
@@ -313,6 +416,9 @@ export function createGitOperations(workingDirectory: string): GitOperations {
       core.getInput('commit-message-template') ||
       'chore: add changeset for renovate updates\n\nAdded {{count}} changeset file(s): {{files}}',
     workingDirectory,
+    owner,
+    repo,
+    branchName,
   }
 
   // Validate required inputs

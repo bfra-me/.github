@@ -1038,7 +1038,7 @@ updateTypes:
         owner: 'owner',
         repo: 'repo',
         issue_number: 1,
-        body: expect.stringContaining('Changeset Summary'),
+        body: expect.stringContaining('🔄 Changeset Generated'),
       })
     })
 

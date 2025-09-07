@@ -15,6 +15,10 @@ inputs:
     description: Post a comment on the PR with changeset details
     required: false
     default: 'false'
+  update-pr-description:
+    description: Update the PR description with changeset information
+    required: false
+    default: 'false'
   commit-back:
     description: Automatically commit changeset files back to the Renovate branch
     required: false
@@ -106,6 +110,15 @@ outputs:
     description: Whether changeset files were successfully pushed to the remote branch
   push-error:
     description: Error message if push operations failed
+  # TASK-031/033: PR management outputs
+  pr-description-updated:
+    description: Whether the PR description was successfully updated with changeset information
+  pr-description-error:
+    description: Error message if PR description update failed
+  pr-comment-created:
+    description: Whether a comment was successfully posted to the PR with changeset details
+  pr-comment-error:
+    description: Error message if PR comment creation failed
 
 runs:
   using: node20

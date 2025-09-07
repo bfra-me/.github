@@ -39,6 +39,7 @@ interface Config {
   skipBranchPrefixCheck?: boolean
   sort?: boolean
   commentPR?: boolean
+  updatePRDescription?: boolean
 }
 
 const DEFAULT_CONFIG: Config = {
@@ -147,6 +148,7 @@ async function getConfig(): Promise<Config> {
     core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
   const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
   const commentPR = core.getBooleanInput('comment-pr')
+  const updatePRDescription = core.getBooleanInput('update-pr-description')
   const defaultChangesetType = (core.getInput('default-changeset-type') || 'patch') as
     | 'patch'
     | 'minor'
@@ -170,6 +172,7 @@ async function getConfig(): Promise<Config> {
     skipBranchPrefixCheck,
     sort,
     commentPR,
+    updatePRDescription,
     defaultChangesetType,
     excludePatterns,
   }
@@ -257,7 +260,182 @@ function sortChangesetReleases(
 }
 
 /**
- * Creates a comment on a pull request with changeset details
+ * Updates a pull request description with changeset information
+ */
+async function updatePRDescription(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  prNumber: number,
+  changesetContent: string,
+  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+  dependencies: string[],
+  categorizationResult: {
+    primaryCategory: string
+    allCategories: string[]
+    summary: {
+      securityUpdates: number
+      breakingChanges: number
+      highPriorityUpdates: number
+      averageRiskLevel: number
+    }
+    confidence: string
+  },
+  multiPackageResult: {
+    strategy: string
+    reasoning: string[]
+  },
+): Promise<void> {
+  try {
+    // Get current PR to read its description
+    const {data: currentPR} = await octokit.rest.pulls.get({
+      owner,
+      repo,
+      pull_number: prNumber,
+    })
+
+    const originalDescription = currentPR.body || ''
+
+    // Create changeset information section
+    const changesetSection = createChangesetInfoSection(
+      changesetContent,
+      releases,
+      dependencies,
+      categorizationResult,
+      multiPackageResult,
+    )
+
+    // Check if we already have a changeset section
+    const changesetMarker = '<!-- CHANGESET_INFO -->'
+    const changesetEndMarker = '<!-- /CHANGESET_INFO -->'
+
+    let newDescription: string
+
+    if (originalDescription.includes(changesetMarker)) {
+      // Replace existing changeset section
+      const startIndex = originalDescription.indexOf(changesetMarker)
+      const endIndex = originalDescription.indexOf(changesetEndMarker)
+
+      if (endIndex === -1) {
+        // End marker missing, append new section
+        newDescription = `${originalDescription}\n\n${changesetSection}`
+      } else {
+        newDescription =
+          originalDescription.slice(0, startIndex) +
+          changesetSection +
+          originalDescription.slice(endIndex + changesetEndMarker.length)
+      }
+    } else {
+      // Add new changeset section
+      newDescription = `${originalDescription}\n\n${changesetSection}`
+    }
+
+    // Update the PR description
+    await octokit.rest.pulls.update({
+      owner,
+      repo,
+      pull_number: prNumber,
+      body: newDescription,
+    })
+
+    core.info(`Updated PR #${prNumber} description with changeset information`)
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    core.warning(`Failed to update PR description: ${errorMessage}`)
+    throw error
+  }
+}
+
+/**
+ * Creates a formatted changeset information section for PR descriptions
+ */
+function createChangesetInfoSection(
+  changesetContent: string,
+  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+  dependencies: string[],
+  categorizationResult: {
+    primaryCategory: string
+    allCategories: string[]
+    summary: {
+      securityUpdates: number
+      breakingChanges: number
+      highPriorityUpdates: number
+      averageRiskLevel: number
+    }
+    confidence: string
+  },
+  multiPackageResult: {
+    strategy: string
+    reasoning: string[]
+  },
+): string {
+  const sections: string[] = ['<!-- CHANGESET_INFO -->', '## 📋 Changeset Information', '']
+
+  // Summary section
+  sections.push('### Summary')
+  sections.push(changesetContent)
+  sections.push('')
+
+  // Dependencies section
+  if (dependencies.length > 0) {
+    sections.push('### 📦 Dependencies Updated')
+    dependencies.forEach(dep => {
+      sections.push(`- ${dep}`)
+    })
+    sections.push('')
+  }
+
+  // Releases section
+  if (releases.length > 0) {
+    sections.push('### 🚀 Packages to Release')
+    releases.forEach(release => {
+      const icon = release.type === 'major' ? '🔴' : release.type === 'minor' ? '🟡' : '🟢'
+      sections.push(`- ${icon} **${release.name}**: ${release.type}`)
+    })
+    sections.push('')
+  }
+
+  // Categorization information
+  sections.push('### 📊 Update Analysis')
+  sections.push(`- **Primary Category**: ${categorizationResult.primaryCategory}`)
+  sections.push(`- **All Categories**: ${categorizationResult.allCategories.join(', ')}`)
+  sections.push(`- **Confidence**: ${categorizationResult.confidence}`)
+
+  if (categorizationResult.summary.securityUpdates > 0) {
+    sections.push(`- **🔒 Security Updates**: ${categorizationResult.summary.securityUpdates}`)
+  }
+
+  if (categorizationResult.summary.breakingChanges > 0) {
+    sections.push(`- **⚠️ Breaking Changes**: ${categorizationResult.summary.breakingChanges}`)
+  }
+
+  if (categorizationResult.summary.highPriorityUpdates > 0) {
+    sections.push(`- **🔥 High Priority**: ${categorizationResult.summary.highPriorityUpdates}`)
+  }
+
+  sections.push(`- **Risk Level**: ${categorizationResult.summary.averageRiskLevel}/100`)
+  sections.push('')
+
+  // Multi-package strategy
+  if (multiPackageResult.strategy !== 'single') {
+    sections.push('### 🏗️ Multi-Package Strategy')
+    sections.push(`- **Strategy**: ${multiPackageResult.strategy}`)
+    if (multiPackageResult.reasoning.length > 0) {
+      sections.push('- **Reasoning**:')
+      multiPackageResult.reasoning.forEach(reason => {
+        sections.push(`  - ${reason}`)
+      })
+    }
+    sections.push('')
+  }
+
+  sections.push('<!-- /CHANGESET_INFO -->')
+
+  return sections.join('\n')
+}
+
+/**
+ * Creates a comment on a pull request with detailed changeset information
  */
 async function createPRComment(
   octokit: Octokit,
@@ -267,30 +445,102 @@ async function createPRComment(
   changesetContent: string,
   releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
   changesetPath: string,
+  dependencies: string[],
+  categorizationResult: {
+    primaryCategory: string
+    allCategories: string[]
+    summary: {
+      securityUpdates: number
+      breakingChanges: number
+      highPriorityUpdates: number
+      averageRiskLevel: number
+    }
+    confidence: string
+  },
+  multiPackageResult: {
+    strategy: string
+    reasoning: string[]
+  },
 ): Promise<void> {
   try {
-    const title = `Changeset Summary`
-    const changesetInfo = `A changeset has been created at \`.changeset/${changesetPath}\`.`
+    const sections: string[] = [
+      '## 🔄 Changeset Generated',
+      '',
+      `📁 **Location**: \`.changeset/${changesetPath}\``,
+      '',
+    ]
 
-    // Format releases in a readable format
-    const formattedReleases = releases
-      .map(release => `- **${release.name}**: ${release.type}`)
-      .join('\n')
+    // Summary section
+    sections.push('### 📝 Summary')
+    sections.push('```')
+    sections.push(changesetContent)
+    sections.push('```')
+    sections.push('')
 
-    const comment = [
-      `## ${title}`,
-      '',
-      changesetInfo,
-      '',
-      '### Summary',
-      '```',
-      changesetContent,
-      '```',
-      '',
-      '### Releases',
-      formattedReleases,
-      '',
-    ].join('\n')
+    // Dependencies section
+    if (dependencies.length > 0) {
+      sections.push('### 📦 Dependencies Updated')
+      dependencies.forEach(dep => {
+        sections.push(`- ${dep}`)
+      })
+      sections.push('')
+    }
+
+    // Releases section
+    if (releases.length > 0) {
+      sections.push('### 🚀 Packages to Release')
+      releases.forEach(release => {
+        const icon = release.type === 'major' ? '🔴' : release.type === 'minor' ? '🟡' : '🟢'
+        sections.push(`- ${icon} **${release.name}**: ${release.type}`)
+      })
+      sections.push('')
+    }
+
+    // Categorization information
+    sections.push('### 📊 Update Analysis')
+    sections.push(`- **Primary Category**: ${categorizationResult.primaryCategory}`)
+    sections.push(`- **All Categories**: ${categorizationResult.allCategories.join(', ')}`)
+    sections.push(`- **Confidence**: ${categorizationResult.confidence}`)
+
+    if (categorizationResult.summary.securityUpdates > 0) {
+      sections.push(`- **🔒 Security Updates**: ${categorizationResult.summary.securityUpdates}`)
+    }
+
+    if (categorizationResult.summary.breakingChanges > 0) {
+      sections.push(`- **⚠️ Breaking Changes**: ${categorizationResult.summary.breakingChanges}`)
+    }
+
+    if (categorizationResult.summary.highPriorityUpdates > 0) {
+      sections.push(`- **🔥 High Priority**: ${categorizationResult.summary.highPriorityUpdates}`)
+    }
+
+    sections.push(`- **Risk Level**: ${categorizationResult.summary.averageRiskLevel}/100`)
+    sections.push('')
+
+    // Multi-package strategy
+    if (multiPackageResult.strategy !== 'single') {
+      sections.push('### 🏗️ Multi-Package Strategy')
+      sections.push(`- **Strategy**: ${multiPackageResult.strategy}`)
+      if (multiPackageResult.reasoning.length > 0) {
+        sections.push('- **Reasoning**:')
+        multiPackageResult.reasoning.forEach(reason => {
+          sections.push(`  - ${reason}`)
+        })
+      }
+      sections.push('')
+    }
+
+    // Helpful information
+    sections.push('### ℹ️ Information')
+    sections.push(
+      '- This changeset was automatically generated by the enhanced Renovate-Changesets action',
+    )
+    sections.push('- The changeset will be used to determine the next version bump when merging')
+    sections.push(
+      '- Review the changeset content above to ensure it accurately describes the changes',
+    )
+
+    const comment = sections.join('\n')
 
     await octokit.rest.issues.createComment({
       owner,
@@ -299,11 +549,12 @@ async function createPRComment(
       body: comment,
     })
 
-    core.info(`Created PR comment with changeset details on PR #${prNumber}`)
+    core.info(`Created enhanced PR comment with detailed changeset information on PR #${prNumber}`)
   } catch (error) {
     core.warning(
       `Failed to create PR comment: ${error instanceof Error ? error.message : String(error)}`,
     )
+    throw error
   }
 }
 
@@ -1350,17 +1601,51 @@ async function run(): Promise<void> {
       core.setOutput('push-error', '')
     }
 
-    // Create PR comment with changeset details if enabled
+    // TASK-031: Update PR description with changeset information if enabled
+    if (config.updatePRDescription) {
+      try {
+        await updatePRDescription(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          changesetContent,
+          releases,
+          dependencyNames,
+          categorizationResult,
+          multiPackageResult,
+        )
+        core.setOutput('pr-description-updated', 'true')
+        core.setOutput('pr-description-error', '')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        core.setOutput('pr-description-updated', 'false')
+        core.setOutput('pr-description-error', errorMessage)
+      }
+    }
+
+    // TASK-033: Create enhanced PR comment with changeset details if enabled
     if (config.commentPR) {
-      await createPRComment(
-        octokit,
-        owner,
-        repo,
-        pr.number,
-        changesetContent,
-        releases,
-        changesetPath,
-      )
+      try {
+        await createPRComment(
+          octokit,
+          owner,
+          repo,
+          pr.number,
+          changesetContent,
+          releases,
+          changesetPath,
+          dependencyNames,
+          categorizationResult,
+          multiPackageResult,
+        )
+        core.setOutput('pr-comment-created', 'true')
+        core.setOutput('pr-comment-error', '')
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        core.setOutput('pr-comment-created', 'false')
+        core.setOutput('pr-comment-error', errorMessage)
+      }
     }
   } catch (error) {
     // Enhanced error handling with detailed error information
@@ -1403,6 +1688,12 @@ async function run(): Promise<void> {
     core.setOutput('git-error', '')
     core.setOutput('push-success', 'false')
     core.setOutput('push-error', '')
+
+    // TASK-031/033: Set PR management error outputs
+    core.setOutput('pr-description-updated', 'false')
+    core.setOutput('pr-description-error', '')
+    core.setOutput('pr-comment-created', 'false')
+    core.setOutput('pr-comment-error', '')
 
     core.setFailed(`Action failed: ${errorMessage}`)
   }

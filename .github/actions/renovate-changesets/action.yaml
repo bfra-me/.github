@@ -56,6 +56,19 @@ inputs:
     description: Working directory
     required: false
     default: .
+  # TASK-032: Merge conflict handling inputs
+  auto-resolve-conflicts:
+    description: Automatically resolve merge conflicts when possible
+    required: false
+    default: 'true'
+  max-retries:
+    description: Maximum number of retry attempts for git operations (0-10)
+    required: false
+    default: '3'
+  retry-delay:
+    description: Initial retry delay in milliseconds (100-10000)
+    required: false
+    default: '1000'
 
 outputs:
   changesets-created:
@@ -110,6 +123,15 @@ outputs:
     description: Whether changeset files were successfully pushed to the remote branch
   push-error:
     description: Error message if push operations failed
+  # TASK-032: Merge conflict handling outputs
+  conflicts-resolved:
+    description: Whether merge conflicts were encountered and resolved automatically
+  conflict-resolution:
+    description: Details about the conflict resolution strategy used
+  branch-updated:
+    description: Whether the remote branch was updated during the operation
+  retry-attempts:
+    description: Number of retry attempts made for git operations
   # TASK-031/033: PR management outputs
   pr-description-updated:
     description: Whether the PR description was successfully updated with changeset information

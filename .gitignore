@@ -12,3 +12,5 @@ tsconfig.tsbuildinfo
 
 # Coverage reports
 .github/actions/*/coverage/
+
+.build-performance/

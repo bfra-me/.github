@@ -19,6 +19,13 @@
   "scripts": {
     "bootstrap": "pnpm install --prefer-offline --loglevel warn",
     "build": "pnpm -r run build",
+    "build:monitor": "tsx ./scripts/build-performance.ts",
+    "build:monitor:build": "tsx ./scripts/build-performance.ts --phase=build",
+    "build:monitor:json": "tsx ./scripts/build-performance.ts --format=json",
+    "build:monitor:lint": "tsx ./scripts/build-performance.ts --phase=lint",
+    "build:monitor:markdown": "tsx ./scripts/build-performance.ts --format=markdown",
+    "build:monitor:test": "tsx ./scripts/build-performance.ts --phase=test",
+    "build:monitor:type-check": "tsx ./scripts/build-performance.ts --phase=type-check",
     "bump": "changeset version && pnpm run build && pnpm run fix",
     "fix": "eslint --fix",
     "lint": "eslint",

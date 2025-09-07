@@ -7,7 +7,7 @@
  * and ensures consistent package configurations across all workspace packages.
  */
 
-import {existsSync, readFileSync} from 'node:fs'
+import {existsSync, readFileSync, writeFileSync} from 'node:fs'
 import {join} from 'node:path'
 import process from 'node:process'
 
@@ -86,6 +86,43 @@ interface WorkspaceHealthReport {
     totalWarnings: number
     packagesWithIssues: number
     healthScore: number
+  }
+}
+
+interface StandardScript {
+  name: string
+  command: string
+  description: string
+  required: boolean
+  condition?: 'hasTypeScript' | 'hasTests' | 'hasBuild' | 'isActionPackage'
+}
+
+interface ScriptStandardizationResult {
+  package: Package
+  currentScripts: Record<string, string>
+  recommendedScripts: Record<string, string>
+  missingScripts: StandardScript[]
+  inconsistentScripts: {script: StandardScript; current: string; recommended: string}[]
+  changes: ScriptChange[]
+}
+
+interface ScriptChange {
+  type: 'add' | 'update' | 'remove'
+  scriptName: string
+  currentValue?: string
+  newValue: string
+  reason: string
+}
+
+interface ScriptStandardizationReport {
+  timestamp: string
+  packages: ScriptStandardizationResult[]
+  summary: {
+    totalPackages: number
+    packagesNeedingChanges: number
+    totalChanges: number
+    totalMissingScripts: number
+    totalInconsistentScripts: number
   }
 }
 
@@ -939,6 +976,267 @@ class WorkspaceValidator {
 
     return mermaid
   }
+
+  // Script Standardization Methods
+  private getStandardScripts(): StandardScript[] {
+    return [
+      {
+        name: 'build',
+        command: 'tsup --minify',
+        description: 'Build the package using tsup with minification',
+        required: true,
+        condition: 'hasTypeScript',
+      },
+      {
+        name: 'lint',
+        command: 'eslint',
+        description: 'Lint the package code using ESLint',
+        required: true,
+        condition: 'hasTypeScript',
+      },
+      {
+        name: 'type-check',
+        command: 'tsc --noEmit',
+        description: 'Type-check the package using TypeScript compiler',
+        required: true,
+        condition: 'hasTypeScript',
+      },
+      {
+        name: 'test',
+        command: 'pnpm -w test --project {{packageName}}',
+        description: 'Run tests for this package using workspace test configuration',
+        required: true,
+        condition: 'hasTests',
+      },
+      {
+        name: 'dev',
+        command: 'tsup --watch',
+        description: 'Development build with watch mode',
+        required: false,
+        condition: 'hasTypeScript',
+      },
+      {
+        name: 'clean',
+        command: 'rm -rf dist',
+        description: 'Clean build artifacts',
+        required: false,
+        condition: 'hasBuild',
+      },
+    ]
+  }
+
+  private checkScriptCondition(
+    condition: StandardScript['condition'],
+    pkg: Package,
+    packageJson: any,
+  ): boolean {
+    // Skip standardization for root workspace package
+    if (
+      pkg.packageJson.name.startsWith('@bfra.me/') &&
+      pkg.packageJson.private &&
+      pkg.dir === this.workspaceRoot
+    ) {
+      return false
+    }
+
+    switch (condition) {
+      case 'hasTypeScript':
+        return (
+          existsSync(join(pkg.dir, 'src')) ||
+          existsSync(join(pkg.dir, 'tsconfig.json')) ||
+          !!packageJson.devDependencies?.typescript ||
+          !!packageJson.dependencies?.typescript
+        )
+      case 'hasTests':
+        return (
+          existsSync(join(pkg.dir, 'test')) ||
+          existsSync(join(pkg.dir, '__tests__')) ||
+          existsSync(join(pkg.dir, '*.test.ts')) ||
+          existsSync(join(pkg.dir, '*.test.js')) ||
+          Object.keys(packageJson.scripts || {}).some(s => s.includes('test'))
+        )
+      case 'hasBuild':
+        return !!packageJson.scripts?.build
+      case 'isActionPackage':
+        return pkg.dir.includes('.github/actions/')
+      default:
+        return true
+    }
+  }
+
+  private generateRecommendedScript(script: StandardScript, pkg: Package): string {
+    let command = script.command
+
+    // Replace placeholders
+    command = command.replace('{{packageName}}', pkg.packageJson.name)
+
+    // Handle action packages specially
+    if (pkg.dir.includes('.github/actions/')) {
+      if (script.name === 'test') {
+        // Action packages use workspace test pattern
+        return `pnpm -w test --project ${pkg.packageJson.name}`
+      }
+      return command
+    }
+
+    return command
+  }
+
+  async standardizePackageScripts(apply = false): Promise<ScriptStandardizationReport> {
+    console.log('🔧 Analyzing package script standardization...')
+
+    const {packages} = await getPackages(this.workspaceRoot)
+    const results: ScriptStandardizationResult[] = []
+    const standardScripts = this.getStandardScripts()
+
+    for (const pkg of packages) {
+      const packageJsonPath = join(pkg.dir, 'package.json')
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'))
+      const currentScripts = packageJson.scripts || {}
+
+      const missingScripts: StandardScript[] = []
+      const inconsistentScripts: {
+        script: StandardScript
+        current: string
+        recommended: string
+      }[] = []
+      const changes: ScriptChange[] = []
+      const recommendedScripts: Record<string, string> = {}
+
+      // Analyze each standard script
+      for (const standardScript of standardScripts) {
+        // Check if condition is met
+        if (
+          standardScript.condition &&
+          !this.checkScriptCondition(standardScript.condition, pkg, packageJson)
+        ) {
+          continue
+        }
+
+        const recommendedCommand = this.generateRecommendedScript(standardScript, pkg)
+        recommendedScripts[standardScript.name] = recommendedCommand
+
+        const currentCommand = currentScripts[standardScript.name]
+
+        if (!currentCommand) {
+          // Missing script
+          if (standardScript.required) {
+            missingScripts.push(standardScript)
+            changes.push({
+              type: 'add',
+              scriptName: standardScript.name,
+              newValue: recommendedCommand,
+              reason: `Required script for ${standardScript.condition || 'all packages'}`,
+            })
+          }
+        } else if (currentCommand !== recommendedCommand) {
+          // Inconsistent script
+          inconsistentScripts.push({
+            script: standardScript,
+            current: currentCommand,
+            recommended: recommendedCommand,
+          })
+
+          // Only suggest changes for exact matches or if it's a clear improvement
+          if (standardScript.required) {
+            changes.push({
+              type: 'update',
+              scriptName: standardScript.name,
+              currentValue: currentCommand,
+              newValue: recommendedCommand,
+              reason: `Standardize to workspace convention`,
+            })
+          }
+        }
+      }
+
+      // Apply changes if requested
+      if (apply && changes.length > 0) {
+        const updatedPackageJson = {...packageJson}
+        updatedPackageJson.scripts = {...currentScripts}
+
+        for (const change of changes) {
+          switch (change.type) {
+            case 'add':
+            case 'update':
+              updatedPackageJson.scripts[change.scriptName] = change.newValue
+              break
+            case 'remove':
+              delete updatedPackageJson.scripts[change.scriptName]
+              break
+          }
+        }
+
+        // Write updated package.json
+        writeFileSync(packageJsonPath, `${JSON.stringify(updatedPackageJson, null, 2)}\n`)
+        console.log(`  ✅ Applied ${changes.length} changes to ${pkg.packageJson.name}`)
+      }
+
+      results.push({
+        package: pkg,
+        currentScripts,
+        recommendedScripts,
+        missingScripts,
+        inconsistentScripts,
+        changes,
+      })
+    }
+
+    const summary = {
+      totalPackages: results.length,
+      packagesNeedingChanges: results.filter(r => r.changes.length > 0).length,
+      totalChanges: results.reduce((sum, r) => sum + r.changes.length, 0),
+      totalMissingScripts: results.reduce((sum, r) => sum + r.missingScripts.length, 0),
+      totalInconsistentScripts: results.reduce((sum, r) => sum + r.inconsistentScripts.length, 0),
+    }
+
+    return {
+      timestamp: new Date().toISOString(),
+      packages: results,
+      summary,
+    }
+  }
+
+  printScriptStandardizationReport(report: ScriptStandardizationReport): void {
+    console.log('\n🔧 PACKAGE SCRIPT STANDARDIZATION REPORT')
+    console.log('='.repeat(55))
+
+    console.log(`\n📊 Summary:`)
+    console.log(`  Total packages: ${report.summary.totalPackages}`)
+    console.log(`  Packages needing changes: ${report.summary.packagesNeedingChanges}`)
+    console.log(`  Total suggested changes: ${report.summary.totalChanges}`)
+    console.log(`  Missing required scripts: ${report.summary.totalMissingScripts}`)
+    console.log(`  Inconsistent scripts: ${report.summary.totalInconsistentScripts}`)
+
+    // Show packages needing changes
+    const packagesNeedingChanges = report.packages.filter(p => p.changes.length > 0)
+
+    if (packagesNeedingChanges.length > 0) {
+      console.log(`\n🔨 Packages Needing Script Changes:`)
+      packagesNeedingChanges.forEach(result => {
+        console.log(`\n  📦 ${result.package.packageJson.name}:`)
+
+        result.changes.forEach(change => {
+          const changeType = change.type.toUpperCase()
+          const icon = change.type === 'add' ? '➕' : change.type === 'update' ? '🔄' : '➖'
+
+          console.log(`    ${icon} ${changeType} "${change.scriptName}":`)
+          if (change.currentValue) {
+            console.log(`      Current:  ${change.currentValue}`)
+          }
+          console.log(`      New:      ${change.newValue}`)
+          console.log(`      Reason:   ${change.reason}`)
+        })
+      })
+
+      console.log(`\n💡 To apply these changes automatically, run:`)
+      console.log(`   pnpm workspace:standardize-scripts --apply`)
+    } else {
+      console.log(`\n✅ All packages have standardized scripts!`)
+    }
+
+    console.log(`\n${'='.repeat(55)}`)
+  }
 }
 
 async function main() {
@@ -954,6 +1252,8 @@ async function main() {
       | 'dot'
       | 'mermaid'
       | undefined
+    const standardizeScripts = args.includes('--standardize-scripts')
+    const applyStandardization = args.includes('--apply')
     const help = args.includes('--help') || args.includes('-h')
 
     if (help) {
@@ -962,18 +1262,41 @@ async function main() {
       console.log('Usage: tsx workspace-validate.ts [options]')
       console.log('')
       console.log('Options:')
-      console.log('  -g, --graph           Show detailed dependency graph analysis')
-      console.log('  -t, --tree            Show dependency tree visualization')
-      console.log('  --export=FORMAT       Export dependency graph (json|dot|mermaid)')
-      console.log('  -h, --help            Show this help message')
+      console.log('  -g, --graph              Show detailed dependency graph analysis')
+      console.log('  -t, --tree               Show dependency tree visualization')
+      console.log('  --export=FORMAT          Export dependency graph (json|dot|mermaid)')
+      console.log('  --standardize-scripts    Analyze and suggest package script standardization')
+      console.log(
+        '  --apply                  Apply script standardization changes (use with --standardize-scripts)',
+      )
+      console.log('  -h, --help               Show this help message')
       console.log('')
       console.log('Examples:')
-      console.log('  tsx workspace-validate.ts                 # Basic validation')
-      console.log('  tsx workspace-validate.ts --graph         # With dependency graph')
-      console.log('  tsx workspace-validate.ts --tree          # With tree visualization')
-      console.log('  tsx workspace-validate.ts --export=json   # Export graph as JSON')
-      console.log('  tsx workspace-validate.ts --export=dot    # Export graph as DOT format')
-      console.log('  tsx workspace-validate.ts --export=mermaid # Export graph as Mermaid')
+      console.log('  tsx workspace-validate.ts                          # Basic validation')
+      console.log('  tsx workspace-validate.ts --graph                  # With dependency graph')
+      console.log('  tsx workspace-validate.ts --tree                   # With tree visualization')
+      console.log('  tsx workspace-validate.ts --export=json            # Export graph as JSON')
+      console.log(
+        '  tsx workspace-validate.ts --export=dot             # Export graph as DOT format',
+      )
+      console.log('  tsx workspace-validate.ts --export=mermaid         # Export graph as Mermaid')
+      console.log(
+        '  tsx workspace-validate.ts --standardize-scripts    # Check script standardization',
+      )
+      console.log(
+        '  tsx workspace-validate.ts --standardize-scripts --apply # Apply script standardization',
+      )
+      return
+    }
+
+    // Handle script standardization
+    if (standardizeScripts) {
+      const standardizationReport = await validator.standardizePackageScripts(applyStandardization)
+      validator.printScriptStandardizationReport(standardizationReport)
+
+      if (standardizationReport.summary.totalChanges > 0 && !applyStandardization) {
+        process.exit(1) // Exit with error if changes are needed but not applied
+      }
       return
     }
 

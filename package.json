@@ -40,6 +40,8 @@
     "workspace:export-mermaid": "tsx ./scripts/workspace-validate.ts --export=mermaid",
     "workspace:fix": "manypkg fix",
     "workspace:graph": "tsx ./scripts/workspace-validate.ts --tree",
+    "workspace:standardize-scripts": "tsx ./scripts/workspace-validate.ts --standardize-scripts",
+    "workspace:standardize-scripts:apply": "tsx ./scripts/workspace-validate.ts --standardize-scripts --apply",
     "workspace:validate": "tsx ./scripts/workspace-validate.ts"
   },
   "lint-staged": {

@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.2.4
+### Patch Changes
+
+
+- Updated dependency `@changesets/cli` to `2.29.7`. ([#1158](https://github.com/bfra-me/.github/pull/1158))
+
 ## 4.2.3
 ### Patch Changes
 

@@ -74,7 +74,7 @@
     "@bfra.me/eslint-config": "0.28.2",
     "@bfra.me/prettier-config": "0.16.1",
     "@bfra.me/tsconfig": "0.12.0",
-    "@changesets/cli": "2.29.6",
+    "@changesets/cli": "2.29.7",
     "@changesets/config": "3.1.1",
     "@changesets/should-skip-package": "0.1.2",
     "@changesets/types": "6.1.0",

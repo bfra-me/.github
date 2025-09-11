@@ -641,7 +641,7 @@ ${changeset.summary}
     throw new Error(`Failed to create changeset: ${errorMessage}`)
   }
 }
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
     // Initialize the enhanced Renovate parser
     const parser = new RenovateParser()

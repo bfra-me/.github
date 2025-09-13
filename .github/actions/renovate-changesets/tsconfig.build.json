@@ -3,33 +3,31 @@
   "display": "Renovate Changesets Action - Build Configuration",
   "extends": "@bfra.me/tsconfig",
   "compilerOptions": {
-    // Enable composite mode for project references
-    "composite": true,
-
     // Incremental compilation for better performance
     "incremental": true,
+    // Enable composite mode for project references
+    "composite": true,
     "tsBuildInfoFile": ".tsbuildinfo",
 
     // Performance optimizations for incremental builds
     "assumeChangesOnlyAffectDirectDependencies": true,
 
-    // Package-specific output configuration
-    "outDir": "dist",
+    "target": "ES2022",
     "rootDir": "src",
 
+    "module": "Preserve",
+    // Module resolution
+    "moduleResolution": "Bundler",
     // Enable declaration generation for type exports
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
 
-    // Module resolution
-    "moduleResolution": "Bundler",
-    "module": "Preserve",
-    "target": "ES2022",
-
+    "emitDeclarationOnly": false,
     // Ensure proper emit (don't disable)
     "noEmit": false,
-    "emitDeclarationOnly": false
+    // Package-specific output configuration
+    "outDir": "dist",
+    "sourceMap": true
   },
 
   // Include only source files for this package

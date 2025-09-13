@@ -3,41 +3,45 @@
   "display": "Build Configuration",
   "extends": "@bfra.me/tsconfig",
   "compilerOptions": {
-    // Enable composite mode for project references
-    "composite": true,
-
     // Incremental compilation for better performance
     "incremental": true,
+    // Enable composite mode for project references
+    "composite": true,
     "tsBuildInfoFile": ".tsbuildinfo",
 
     // Performance optimizations for incremental builds
     "assumeChangesOnlyAffectDirectDependencies": true,
 
-    // Output configuration - remove rootDir constraint
-    "outDir": "dist",
-
+    "target": "ES2022",
+    "module": "Preserve",
+    // Module resolution optimized for build - keep consistent with base config
+    "moduleResolution": "Bundler",
     // Generate declaration files for cross-package type safety
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
 
-    // Optimization settings
-    "removeComments": true,
+    "emitDeclarationOnly": false,
     "importHelpers": true,
-
-    // Module resolution optimized for build - keep consistent with base config
-    "moduleResolution": "Bundler",
-    "module": "Preserve",
-    "target": "ES2022",
-
-    // Skip lib checks for faster builds
-    "skipLibCheck": true,
-
     // Ensure proper emit
     "noEmit": false,
-    "emitDeclarationOnly": false
+    // Output configuration - remove rootDir constraint
+    "outDir": "dist",
+    // Optimization settings
+    "removeComments": true,
+    "sourceMap": true,
+    // Skip lib checks for faster builds
+    "skipLibCheck": true
   },
 
+  // Project references for workspace packages
+  "references": [
+    {
+      "path": "./.github/actions/renovate-changesets/tsconfig.build.json"
+    },
+    {
+      "path": "./.github/actions/update-metadata/tsconfig.build.json"
+    }
+  ],
   // Include TypeScript source files across the workspace
   "include": ["scripts/release.ts", "scripts/workspace-validate.ts"],
 
@@ -52,15 +56,5 @@
     ".github/actions/*/src/**/*",
     "scripts/audit-typescript-references.ts",
     "scripts/build-performance.ts"
-  ],
-
-  // Project references for workspace packages
-  "references": [
-    {
-      "path": "./.github/actions/renovate-changesets/tsconfig.build.json"
-    },
-    {
-      "path": "./.github/actions/update-metadata/tsconfig.build.json"
-    }
   ]
 }

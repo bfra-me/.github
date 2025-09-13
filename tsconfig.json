@@ -1,10 +1,9 @@
 {
   "extends": "@bfra.me/tsconfig",
   "compilerOptions": {
-    "noEmit": true,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+    "noEmit": true
   },
-  "files": [],
   "references": [
     {
       "path": "./.github/actions/renovate-changesets/tsconfig.build.json"
@@ -12,5 +11,6 @@
     {
       "path": "./.github/actions/update-metadata/tsconfig.build.json"
     }
-  ]
+  ],
+  "files": []
 }

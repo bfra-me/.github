@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.2.8
+### Patch Changes
+
+
+- Updated dependency `lint-staged` to `16.2.0`. ([#1189](https://github.com/bfra-me/.github/pull/1189))
+
+
+- Updated dependency `packageManager` to `pnpm@10.17.1`. ([#1193](https://github.com/bfra-me/.github/pull/1193))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.31.1`. ([#1194](https://github.com/bfra-me/.github/pull/1194))
+
 ## 4.2.7
 ### Patch Changes
 

@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.2.9
+### Patch Changes
+
+
+- Updated dependency `lint-staged` to `16.2.1`. ([#1201](https://github.com/bfra-me/.github/pull/1201))
+
+
+- Updated dependency `tsx` to `4.20.6`. ([#1203](https://github.com/bfra-me/.github/pull/1203))
+
 ## 4.2.8
 ### Patch Changes
 

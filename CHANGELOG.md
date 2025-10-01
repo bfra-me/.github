@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.2.10
+### Patch Changes
+
+
+- Updated dependency `@types/node` to `22.18.8`. ([#1220](https://github.com/bfra-me/.github/pull/1220))
+
+
+- Updated dependency `typescript` to `5.9.3`. ([#1216](https://github.com/bfra-me/.github/pull/1216))
+
 ## 4.2.9
 ### Patch Changes
 

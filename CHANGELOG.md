@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.2.11
+### Patch Changes
+
+
+- Updated dependency `packageManager` to `pnpm@10.18.0`. ([#1223](https://github.com/bfra-me/.github/pull/1223))
+
+
+- Updated dependency `eslint` to `9.37.0`. ([#1226](https://github.com/bfra-me/.github/pull/1226))
+
 ## 4.2.10
 ### Patch Changes
 

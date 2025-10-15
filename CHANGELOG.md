@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.2.14
+### Patch Changes
+
+
+- Updated dependency `@types/node` to `22.18.10`. ([#1259](https://github.com/bfra-me/.github/pull/1259))
+
+
+- Updated dependency `packageManager` to `pnpm@10.18.3`. ([#1257](https://github.com/bfra-me/.github/pull/1257))
+
 ## 4.2.13
 ### Patch Changes
 

@@ -88,7 +88,7 @@
     "eslint-plugin-prettier": "5.5.4",
     "glob": "11.0.3",
     "husky": "9.1.7",
-    "jiti": "2.5.1",
+    "jiti": "2.6.1",
     "lint-staged": "16.2.6",
     "mdast-util-to-string": "4.0.0",
     "prettier": "3.6.2",
@@ -108,7 +108,7 @@
       "unrs-resolver"
     ],
     "overrides": {
-      "jiti": "<2.2.0"
+      "jiti": "<2.7.0"
     }
   }
 }

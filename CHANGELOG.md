@@ -1,5 +1,32 @@
 # @bfra.me/.github
 
+## 4.2.19
+### Patch Changes
+
+
+- Updated dependency `@types/node` to `22.18.13`. ([#1313](https://github.com/bfra-me/.github/pull/1313))
+
+
+- Updated dependency `eslint` to `9.39.0`. ([#1311](https://github.com/bfra-me/.github/pull/1311))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.35.0`. ([#1301](https://github.com/bfra-me/.github/pull/1301))
+
+
+- Updated dependency `@types/node` to `24.9.2`. ([#1318](https://github.com/bfra-me/.github/pull/1318))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.35.1`. ([#1303](https://github.com/bfra-me/.github/pull/1303))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.35.2`. ([#1309](https://github.com/bfra-me/.github/pull/1309))
+
+
+- Updated dependency `jiti` to `<2.7.0`. ([#1304](https://github.com/bfra-me/.github/pull/1304))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.34.0`. ([#1299](https://github.com/bfra-me/.github/pull/1299))
+
 ## 4.2.18
 ### Patch Changes
 

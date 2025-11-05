@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.2.20
+### Patch Changes
+
+
+- Updated dependency `eslint` to `9.39.1`. ([#1324](https://github.com/bfra-me/.github/pull/1324))
+
 ## 4.2.19
 ### Patch Changes
 

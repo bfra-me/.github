@@ -1,5 +1,23 @@
 # @bfra.me/.github
 
+## 4.3.0
+### Minor Changes
+
+
+- Upgrade `bfra-me/renovate-action` to v8 (#1332). ([#1335](https://github.com/bfra-me/.github/pull/1335))
+
+
+### Patch Changes
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.7`. ([#1319](https://github.com/bfra-me/.github/pull/1319))
+  Updated dependency `vitest` to `4.0.7`.
+
+- Updated dependency `@bfra.me/eslint-config` to `0.37.0`. ([#1330](https://github.com/bfra-me/.github/pull/1330))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.36.0`. ([#1327](https://github.com/bfra-me/.github/pull/1327))
+
 ## 4.2.20
 ### Patch Changes
 

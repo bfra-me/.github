@@ -35,7 +35,10 @@ const octokitMocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@octokit/rest', () => ({
-  Octokit: vi.fn(() => octokitMocks),
+  Octokit: class {
+    paginate = octokitMocks.paginate
+    repos = octokitMocks.repos
+  },
 }))
 
 vi.mock('js-yaml', () => ({
@@ -45,6 +48,7 @@ vi.mock('js-yaml', () => ({
 describe('update-metadata action', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
+    vi.resetModules()
     process.env.GITHUB_REPOSITORY = 'bfra-me/test-repo'
     fsMocks.mkdir.mockClear()
     fsMocks.writeFile.mockClear()
@@ -53,7 +57,7 @@ describe('update-metadata action', () => {
   })
 
   it('generates metadata', async () => {
-    await import('../src/index')
+    await import('../src/index.js')
     expect(octokitMocks.paginate).toHaveBeenCalled()
     expect(fsMocks.mkdir).toHaveBeenCalledWith(expect.stringContaining('metadata'), {
       recursive: true,

@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.6
+### Patch Changes
+
+
+- Updated dependency `@types/js-yaml` to `4.0.9`. ([#1333](https://github.com/bfra-me/.github/pull/1333))
+
 ## 0.2.5
 ### Patch Changes
 

@@ -100,7 +100,9 @@ const octokitMocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@octokit/rest', () => ({
-  Octokit: vi.fn(() => octokitMocks),
+  Octokit: class {
+    rest = octokitMocks.rest
+  },
 }))
 
 // Mock js-yaml for configuration loading
@@ -115,8 +117,8 @@ vi.mock('minimatch', () => ({
 
 // Mock all the enhanced detector classes to avoid complex dependencies
 vi.mock('../../src/renovate-parser', () => ({
-  RenovateParser: vi.fn().mockImplementation(() => ({
-    extractPRContext: vi.fn().mockResolvedValue({
+  RenovateParser: class {
+    extractPRContext = vi.fn().mockResolvedValue({
       isRenovateBot: true,
       isGroupedUpdate: false,
       isSecurityUpdate: false,
@@ -133,14 +135,14 @@ vi.mock('../../src/renovate-parser', () => ({
           packageFile: 'package.json',
         },
       ],
-    }),
-    isRenovateBranch: vi.fn().mockReturnValue(true),
-  })),
+    })
+    isRenovateBranch = vi.fn().mockReturnValue(true)
+  },
 }))
 
 vi.mock('../../src/multi-package-analyzer', () => ({
-  MultiPackageAnalyzer: vi.fn().mockImplementation(() => ({
-    analyzeMultiPackageUpdate: vi.fn().mockResolvedValue({
+  MultiPackageAnalyzer: class {
+    analyzeMultiPackageUpdate = vi.fn().mockResolvedValue({
       workspacePackages: [],
       packageRelationships: [],
       affectedPackages: [],
@@ -152,26 +154,26 @@ vi.mock('../../src/multi-package-analyzer', () => ({
         createSeparateChangesets: false,
         reasoningChain: [],
       },
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/multi-package-changeset-generator', () => ({
-  MultiPackageChangesetGenerator: vi.fn().mockImplementation(() => ({
-    generateMultiPackageChangesets: vi.fn().mockResolvedValue({
+  MultiPackageChangesetGenerator: class {
+    generateMultiPackageChangesets = vi.fn().mockResolvedValue({
       strategy: 'single',
       changesets: [],
       filesCreated: [],
       totalPackagesAffected: 0,
       warnings: [],
       reasoning: [],
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/semver-impact-assessor', () => ({
-  SemverImpactAssessor: vi.fn().mockImplementation(() => ({
-    assessImpact: vi.fn().mockReturnValue({
+  SemverImpactAssessor: class {
+    assessImpact = vi.fn().mockReturnValue({
       overallImpact: 'minor',
       recommendedChangesetType: 'patch',
       isSecurityUpdate: false,
@@ -179,13 +181,13 @@ vi.mock('../../src/semver-impact-assessor', () => ({
       confidence: 'high',
       dependencies: [],
       reasoning: [],
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/change-categorization-engine', () => ({
-  ChangeCategorizationEngine: vi.fn().mockImplementation(() => ({
-    categorizeChanges: vi.fn().mockReturnValue({
+  ChangeCategorizationEngine: class {
+    categorizeChanges = vi.fn().mockReturnValue({
       primaryCategory: 'dependencies',
       allCategories: ['dependencies'],
       summary: {
@@ -196,13 +198,13 @@ vi.mock('../../src/change-categorization-engine', () => ({
       },
       confidence: 'high',
       reasoning: [],
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/semver-bump-decision-engine', () => ({
-  SemverBumpTypeDecisionEngine: vi.fn().mockImplementation(() => ({
-    decideBumpType: vi.fn().mockReturnValue({
+  SemverBumpTypeDecisionEngine: class {
+    decideBumpType = vi.fn().mockReturnValue({
       bumpType: 'patch',
       confidence: 'high',
       primaryReason: 'Default patch for npm updates',
@@ -213,14 +215,14 @@ vi.mock('../../src/semver-bump-decision-engine', () => ({
       overriddenRules: [],
       influencingFactors: [],
       reasoningChain: [],
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/changeset-summary-generator', () => ({
-  ChangesetSummaryGenerator: vi.fn().mockImplementation(() => ({
-    generateSummary: vi.fn().mockResolvedValue('Update react dependency to v18.3.1'),
-  })),
+  ChangesetSummaryGenerator: class {
+    generateSummary = vi.fn().mockResolvedValue('Update react dependency to v18.3.1')
+  },
 }))
 
 // Mock @changesets/write
@@ -240,74 +242,74 @@ vi.mock('../../src/write-renovate-changeset', () => ({
 
 // Mock the template engine more specifically
 vi.mock('../../src/changeset-template-engine', () => ({
-  ChangesetTemplateEngine: vi.fn().mockImplementation(() => ({
-    buildTemplate: vi.fn().mockReturnValue({
+  ChangesetTemplateEngine: class {
+    buildTemplate = vi.fn().mockReturnValue({
       header: '---\n"@bfra.me/.github": patch\n---\n',
       content: 'Update react dependency to v18.3.1',
       metadata: {
         template: 'dependency-update',
         reasoning: 'Default patch for npm updates',
       },
-    }),
-  })),
+    })
+  },
 }))
 
 // Mock all the enhanced detectors
 vi.mock('../../src/npm-change-detector', () => ({
-  NPMChangeDetector: vi.fn().mockImplementation(() => ({
-    detectChangesFromPR: vi.fn().mockResolvedValue([]),
-  })),
+  NPMChangeDetector: class {
+    detectChangesFromPR = vi.fn().mockResolvedValue([])
+  },
 }))
 
 vi.mock('../../src/github-actions-change-detector', () => ({
-  GitHubActionsChangeDetector: vi.fn().mockImplementation(() => ({
-    detectChangesFromPR: vi.fn().mockResolvedValue([]),
-  })),
+  GitHubActionsChangeDetector: class {
+    detectChangesFromPR = vi.fn().mockResolvedValue([])
+  },
 }))
 
 vi.mock('../../src/docker-change-detector', () => ({
-  DockerChangeDetector: vi.fn().mockImplementation(() => ({
-    detectChangesFromPR: vi.fn().mockResolvedValue([]),
-  })),
+  DockerChangeDetector: class {
+    detectChangesFromPR = vi.fn().mockResolvedValue([])
+  },
 }))
 
 vi.mock('../../src/python-change-detector', () => ({
-  PythonChangeDetector: vi.fn().mockImplementation(() => ({
-    detectChangesFromPR: vi.fn().mockResolvedValue([]),
-  })),
+  PythonChangeDetector: class {
+    detectChangesFromPR = vi.fn().mockResolvedValue([])
+  },
 }))
 
 vi.mock('../../src/jvm-change-detector', () => ({
-  JVMChangeDetector: vi.fn().mockImplementation(() => ({
-    detectChangesFromPR: vi.fn().mockResolvedValue([]),
-  })),
+  JVMChangeDetector: class {
+    detectChangesFromPR = vi.fn().mockResolvedValue([])
+  },
 }))
 
 vi.mock('../../src/go-change-detector', () => ({
-  GoChangeDetector: vi.fn().mockImplementation(() => ({
-    detectChangesFromPR: vi.fn().mockResolvedValue([]),
-  })),
+  GoChangeDetector: class {
+    detectChangesFromPR = vi.fn().mockResolvedValue([])
+  },
 }))
 
 vi.mock('../../src/breaking-change-detector', () => ({
-  BreakingChangeDetector: vi.fn().mockImplementation(() => ({
-    analyzeBreakingChanges: vi.fn().mockResolvedValue({
+  BreakingChangeDetector: class {
+    analyzeBreakingChanges = vi.fn().mockResolvedValue({
       hasBreakingChanges: false,
       overallSeverity: 'low',
       indicators: [],
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/security-vulnerability-detector', () => ({
-  SecurityVulnerabilityDetector: vi.fn().mockImplementation(() => ({
-    analyzeSecurityVulnerabilities: vi.fn().mockResolvedValue({
+  SecurityVulnerabilityDetector: class {
+    analyzeSecurityVulnerabilities = vi.fn().mockResolvedValue({
       hasSecurityIssues: false,
       overallSeverity: 'low',
       vulnerabilities: [],
       riskScore: 0,
-    }),
-  })),
+    })
+  },
 }))
 
 vi.mock('../../src/git-operations', () => ({

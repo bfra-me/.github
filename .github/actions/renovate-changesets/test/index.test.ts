@@ -51,7 +51,9 @@ const octokitMocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@octokit/rest', () => ({
-  Octokit: vi.fn(() => octokitMocks),
+  Octokit: class {
+    rest = octokitMocks.rest
+  },
 }))
 
 const changesetWriteMocks = vi.hoisted(() => ({
@@ -68,7 +70,10 @@ const renovateParserMocks = vi.hoisted(() => ({
 }))
 
 vi.mock('../src/renovate-parser.js', () => ({
-  RenovateParser: vi.fn(() => renovateParserMocks),
+  RenovateParser: class {
+    isRenovateBranch = renovateParserMocks.isRenovateBranch
+    extractPRContext = renovateParserMocks.extractPRContext
+  },
 }))
 
 describe('Renovate Changesets Action', () => {

@@ -1,5 +1,12 @@
 # @bfra.me/.github
 
+## 4.3.2
+### Patch Changes
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.8`. ([#1342](https://github.com/bfra-me/.github/pull/1342))
+  Updated dependency `vitest` to `4.0.8`.
+
 ## 4.3.1
 ### Patch Changes
 

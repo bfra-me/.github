@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.7
+### Patch Changes
+
+
+- Updated dependency `tsup` to `8.5.1`. ([#1361](https://github.com/bfra-me/.github/pull/1361))
+
 ## 0.2.6
 ### Patch Changes
 

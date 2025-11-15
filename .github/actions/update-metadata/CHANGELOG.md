@@ -1,5 +1,11 @@
 # @bfra.me-actions/update-metadata
 
+## 0.1.9
+### Patch Changes
+
+
+- Updated dependency `tsup` to `8.5.1`. ([#1361](https://github.com/bfra-me/.github/pull/1361))
+
 ## 0.1.8
 ### Patch Changes
 

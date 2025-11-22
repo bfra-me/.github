@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.3.5
+### Patch Changes
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.10`. ([#1376](https://github.com/bfra-me/.github/pull/1376))
+  Updated dependency `vitest` to `4.0.10`.
+
+- Updated dependency `lint-staged` to `16.2.7`. ([#1382](https://github.com/bfra-me/.github/pull/1382))
+
 ## 4.3.4
 ### Patch Changes
 

@@ -1,5 +1,26 @@
 # @bfra.me/.github
 
+## 4.3.5
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.41.0`. ([#1386](https://github.com/bfra-me/.github/pull/1386))
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.11`. ([#1383](https://github.com/bfra-me/.github/pull/1383))
+  Updated dependency `vitest` to `4.0.11`.
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.10`. ([#1376](https://github.com/bfra-me/.github/pull/1376))
+  Updated dependency `vitest` to `4.0.10`.
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.12`. ([#1384](https://github.com/bfra-me/.github/pull/1384))
+  Updated dependency `vitest` to `4.0.12`.
+
+- Updated dependency `packageManager` to `pnpm@10.23.0`. ([#1385](https://github.com/bfra-me/.github/pull/1385))
+
+
+- Updated dependency `lint-staged` to `16.2.7`. ([#1382](https://github.com/bfra-me/.github/pull/1382))
+
 ## 4.3.4
 ### Patch Changes
 

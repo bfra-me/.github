@@ -6,11 +6,12 @@ addAssignees: author
 
 # A list of reviewers to be added to PRs (GitHub user name)
 reviewers:
-  - bfra-me/owners
+  - bfra-me[bot]
+  - marcusrbrown
 
 # A number of reviewers added to the PR
 # Set 0 to add all the reviewers (default: 0)
-numberOfReviewers: 1
+numberOfReviewers: 0
 # A list of assignees, overrides reviewers if set
 # assignees:
 #   - assigneeA

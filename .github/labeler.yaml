@@ -7,7 +7,8 @@ dependencies:
       - any-glob-to-any-file:
           - package.json
           - pnpm-lock.yaml
-          - .npmrc
+          - pnpm-workspace.yaml
+          - .node-version
 
 documentation:
   - changed-files:
@@ -19,7 +20,13 @@ documentation:
 github-settings:
   - changed-files:
       - any-glob-to-any-file:
+          - .github/workflows/update-repo-settings.yaml
+          - .github/auto-assign.yaml
+          - .github/labeler.yaml
           - .github/settings.yml
+          - .git-blame-ignore-revs
+          - .gitattributes
+          - .gitignore
           - common-settings.yaml
 
 templates:
@@ -28,6 +35,12 @@ templates:
           - 'workflow-templates/**/*'
           - '.github/PULL_REQUEST_TEMPLATE/**/*'
           - '.github/ISSUE_TEMPLATE/**/*'
+
+renovate:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/workflows/*renovate*.yaml
+          - .github/renovate.json5
 
 scripts:
   - changed-files:
@@ -38,13 +51,16 @@ security:
       - any-glob-to-any-file:
           - SECURITY.md
           - .github/workflows/codeql-analysis.yaml
+          - .github/workflows/container-scan.yaml
           - .github/workflows/dependency-review.yaml
+          - .github/workflows/secret-scan.yaml
           - .github/workflows/scorecard.yaml
+          - .github/gitleaks.toml
 
 typescript:
   - changed-files:
       - any-glob-to-any-file:
           - '**/*.ts'
           - '**/*.tsx'
-          - tsconfig.json
-          - eslint.config.ts
+          - '**/tsconfig.json'
+          - '**/tsconfig.*.json'

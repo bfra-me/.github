@@ -8,10 +8,11 @@ addAssignees: author
 reviewers:
   - bfra-me[bot]
   - marcusrbrown
-
+#
 # A number of reviewers added to the PR
 # Set 0 to add all the reviewers (default: 0)
-numberOfReviewers: 1
+# numberOfReviewers: 1
+
 # A list of assignees, overrides reviewers if set
 # assignees:
 #   - assigneeA

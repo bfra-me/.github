@@ -136,6 +136,7 @@ vi.mock('../../src/renovate-parser', () => ({
         },
       ],
     })
+
     isRenovateBranch = vi.fn().mockReturnValue(true)
   },
 }))

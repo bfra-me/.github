@@ -442,9 +442,9 @@ export class EnhancedConfigProvider {
       if (orgTemplates) {
         const hasAnyTemplates = Boolean(
           orgTemplates.base ||
-            orgTemplates.managers ||
-            orgTemplates.updateTypes ||
-            orgTemplates.fallback,
+          orgTemplates.managers ||
+          orgTemplates.updateTypes ||
+          orgTemplates.fallback,
         )
         if (!hasAnyTemplates) {
           warnings.push('Organization templates configured but no templates found')

@@ -1,5 +1,56 @@
 # @bfra.me/.github
 
+## 4.3.7
+### Patch Changes
+
+
+- Updated dependency `prettier` to `3.7.1`. ([#1413](https://github.com/bfra-me/.github/pull/1413))
+
+
+- Updated dependency `prettier` to `3.7.0`. ([#1412](https://github.com/bfra-me/.github/pull/1412))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.43.0`. ([#1400](https://github.com/bfra-me/.github/pull/1400))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.45.0`. ([#1407](https://github.com/bfra-me/.github/pull/1407))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.44.3`. ([#1406](https://github.com/bfra-me/.github/pull/1406))
+
+
+- Updated dependency `@changesets/cli` to `2.29.8`. ([#1415](https://github.com/bfra-me/.github/pull/1415))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.45.1`. ([#1410](https://github.com/bfra-me/.github/pull/1410))
+
+
+- Updated dependency `@changesets/config` to `3.1.2`. ([#1416](https://github.com/bfra-me/.github/pull/1416))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.44.0`. ([#1403](https://github.com/bfra-me/.github/pull/1403))
+
+
+- Updated dependency `glob` to `13.0.0`. ([#1393](https://github.com/bfra-me/.github/pull/1393))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.44.1`. ([#1404](https://github.com/bfra-me/.github/pull/1404))
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.14`. ([#1402](https://github.com/bfra-me/.github/pull/1402))
+  Updated dependency `vitest` to `4.0.14`.
+
+- Updated dependency `@bfra.me/eslint-config` to `0.44.2`. ([#1405](https://github.com/bfra-me/.github/pull/1405))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.46.0`. ([#1411](https://github.com/bfra-me/.github/pull/1411))
+
+
+- Updated dependency `sort-package-json` to `3.5.0`. ([#1409](https://github.com/bfra-me/.github/pull/1409))
+
+
+- Updated dependency `packageManager` to `pnpm@10.24.0`. ([#1417](https://github.com/bfra-me/.github/pull/1417))
+
 ## 4.3.6
 ### Patch Changes
 

@@ -134,89 +134,213 @@ repository:
 
 # Labels: define labels for Issues and Pull Requests
 labels:
+  - name: a11y
+    color: '#7057ff'
+    description: Accessibility improvements
+
+  - name: accessibility
+    color: '#7057ff'
+    description: Accessibility improvements
+
+  - name: architecture
+    color: '#1d76db'
+    description: Architecture and design changes
+
+  - name: automation
+    color: '#5319e7'
+    description: Automation scripts and workflows
+
   - name: automerge
-    color: 8f4fbc
-    description: Pull request approved for automatic merging
+    color: '#128a0c'
+    description: Automated merge approved
 
   - name: bug
-    color: d73a4a
+    color: '#d73a4a'
     description: "Something isn't working"
 
+  - name: ci-cd
+    color: '#0052cc'
+    description: Continuous Integration and Deployment
+
+  - name: cleanup
+    color: '#fef2c0'
+    description: Code cleanup and organization
+
+  - name: cli-tools
+    color: '#0e8a16'
+    description: Command line tools and utilities
+
+  - name: code-quality
+    color: '#e99695'
+    description: Code quality improvements
+
+  - name: content-transformation
+    color: '#bfd4f2'
+    description: Content transformation and processing
+
+  - name: cta
+    color: '#f9d0c4'
+    description: Call-to-action elements
+
+  - name: data-generation
+    color: '#c2e0c6'
+    description: Data generation utilities
+
   - name: dependencies
-    color: A0BB41
-    description: Changes to dependencies or package management
+    color: '#a0bb41'
+    description: Dependency updates or security alerts
+
+  - name: deployment
+    color: '#d93f0b'
+    description: Deployment related changes
 
   - name: documentation
-    color: 0075ca
+    color: '#0075ca'
     description: Improvements or additions to documentation
 
   - name: duplicate
-    color: cfd3d7
+    color: '#cfd3d7'
     description: This issue or pull request already exists
 
+  - name: e2e
+    color: '#c5def5'
+    description: End-to-end testing
+
+  - name: engagement
+    color: '#d4c5f9'
+    description: User engagement features
+
   - name: enhancement
-    color: a2eeef
+    color: '#a2eeef'
     description: New feature or request
 
+  - name: feature
+    color: '#0e8a16'
+    description: New feature implementation
+
+  - name: github-actions
+    color: '#2088ff'
+    description: GitHub Actions workflows
+
+  - name: github-settings
+    color: '#006b75'
+    description: Changes to repository settings and configuration
+
   - name: good first issue
-    color: 7057ff
+    color: '#7057ff'
     description: Good for newcomers
 
   - name: help wanted
-    color: '008672'
+    color: '#008672'
     description: Extra attention is needed
 
+  - name: implementation-plan
+    color: '#1d76db'
+    description: Planning and design phase for implementation
+
+  - name: infrastructure
+    color: '#006b75'
+    description: Infrastructure and configuration
+
+  - name: integration
+    color: '#1d76db'
+    description: Integration with external services
+
   - name: invalid
-    color: e4e669
-    description: "This doesn't seem right"
+    color: '#e4e669'
+    description: This doesn't seem right
+
+  - name: lighthouse
+    color: '#f44b21'
+    description: Lighthouse performance and quality
+
+  - name: maintainability
+    color: '#bfdadc'
+    description: Code maintainability improvements
 
   - name: major
-    color: b60205
-    description: Major version bump
+    color: '#b60205'
+    description: Major version changes
+
+  - name: metadata
+    color: '#ededed'
+    description: Metadata and configuration changes
 
   - name: minor
-    color: 2729A8
-    description: Minor version bump
+    color: '#fbca04'
+    description: Minor version changes
+
+  - name: package-manager
+    color: '#84b6eb'
+    description: Package manager changes
+
+  - name: packageManager
+    color: '#84b6eb'
+    description: Package manager changes
 
   - name: patch
-    color: 27A89F
-    description: Patch version bump
+    color: '#d4c5f9'
+    description: Patch version changes
+
+  - name: performance
+    color: '#ff6f00'
+    description: Performance improvements
+
+  - name: production
+    color: '#b60205'
+    description: Production environment changes
 
   - name: question
-    color: d876e3
+    color: '#d876e3'
     description: Further information is requested
 
+  - name: refactor
+    color: '#fbca04'
+    description: Code refactoring and improvements
+
   - name: renovate
-    color: dd42f5
-    description: 'Universal dependency update tool <https://mend.io/renovate>'
+    color: '#dd42f5'
+    description: Renovate bot updates
+
+  - name: scripts
+    color: '#5319e7'
+    description: Changes to automation scripts
 
   - name: security
-    color: ff0000
-    description: Security-related changes or fixes
+    color: '#ff0000'
+    description: Security
+
+  - name: sponsors
+    color: '#ea4aaa'
+    description: GitHub Sponsors related
+
+  - name: technical-debt
+    color: '#cc317c'
+    description: Technical debt that needs to be addressed
+
+  - name: templates
+    color: '#fbca04'
+    description: 'Changes to issue, PR, or workflow templates'
+
+  - name: testing
+    color: '#c5def5'
+    description: Testing related changes
+
+  - name: typescript
+    color: '#3178c6'
+    description: Changes to TypeScript code and configuration
+
+  - name: validation
+    color: '#bfdadc'
+    description: Data and input validation
 
   - name: wontfix
-    color: ffffff
+    color: '#ffffff'
     description: This will not be worked on
 
   - name: workflows
     color: 4a94dc
     description: Changes to GitHub Actions workflows
-
-  - name: github-settings
-    color: 006b75
-    description: Changes to repository settings and configuration
-
-  - name: templates
-    color: fbca04
-    description: 'Changes to issue, PR, or workflow templates'
-
-  - name: scripts
-    color: '5319e7'
-    description: Changes to automation scripts
-
-  - name: typescript
-    color: 3178c6
-    description: Changes to TypeScript code and configuration
 
 # Milestones: define milestones for Issues and Pull Requests
 # milestones:

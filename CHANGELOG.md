@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 4.3.8
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.47.0`. ([#1425](https://github.com/bfra-me/.github/pull/1425))
+  Updated dependency `@bfra.me/prettier-config` to `0.16.5`.
+
+- Updated dependency `prettier` to `3.7.3`. ([#1428](https://github.com/bfra-me/.github/pull/1428))
+
+
+- Updated dependency `prettier` to `3.7.2`. ([#1423](https://github.com/bfra-me/.github/pull/1423))
+
+
+- Updated dependency `tsx` to `4.21.0`. ([#1432](https://github.com/bfra-me/.github/pull/1432))
+
 ## 4.3.7
 ### Patch Changes
 

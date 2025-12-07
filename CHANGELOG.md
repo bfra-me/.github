@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 4.3.9
+### Patch Changes
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.15`. ([#1436](https://github.com/bfra-me/.github/pull/1436))
+  Updated dependency `vitest` to `4.0.15`.
+
+- Updated dependency `@bfra.me/eslint-config` to `0.47.1`. ([#1443](https://github.com/bfra-me/.github/pull/1443))
+  Updated dependency `@bfra.me/prettier-config` to `0.16.6`.
+
+- Updated dependency `prettier` to `3.7.4`. ([#1442](https://github.com/bfra-me/.github/pull/1442))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.47.2`. ([#1445](https://github.com/bfra-me/.github/pull/1445))
+
 ## 4.3.8
 ### Patch Changes
 

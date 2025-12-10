@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.3.10
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.47.3`. ([#1448](https://github.com/bfra-me/.github/pull/1448))
+
 ## 4.3.9
 ### Patch Changes
 

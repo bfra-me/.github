@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.3.11
+### Patch Changes
+
+
+- Updated dependency `sort-package-json` to `3.5.1`. ([#1455](https://github.com/bfra-me/.github/pull/1455))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.47.4`. ([#1465](https://github.com/bfra-me/.github/pull/1465))
+
+
+- Updated dependency `packageManager` to `pnpm@10.25.0`. ([#1457](https://github.com/bfra-me/.github/pull/1457))
+
 ## 4.3.10
 ### Patch Changes
 

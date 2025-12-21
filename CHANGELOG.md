@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.3.13
+### Patch Changes
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.16`. ([#1488](https://github.com/bfra-me/.github/pull/1488))
+  Updated dependency `vitest` to `4.0.16`.
+
+- Updated dependency `@bfra.me/eslint-config` to `0.47.5`. ([#1489](https://github.com/bfra-me/.github/pull/1489))
+
+
+- Updated dependency `packageManager` to `pnpm@10.26.0`. ([#1485](https://github.com/bfra-me/.github/pull/1485))
+
 ## 4.3.12
 ### Patch Changes
 

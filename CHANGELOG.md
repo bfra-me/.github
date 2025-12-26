@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.3.15
+### Patch Changes
+
+
+- Updated dependency `packageManager` to `pnpm@10.26.2`. ([#1496](https://github.com/bfra-me/.github/pull/1496))
+
 ## 4.3.14
 ### Patch Changes
 

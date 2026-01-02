@@ -101,7 +101,7 @@
     "unified": "11.0.5",
     "vitest": "4.0.16"
   },
-  "packageManager": "pnpm@10.26.2",
+  "packageManager": "pnpm@10.27.0",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",

@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.3.16
+### Patch Changes
+
+
+- Updated dependency `@types/node` to `24.10.4`. ([#1504](https://github.com/bfra-me/.github/pull/1504))
+
+
+- Updated dependency `packageManager` to `pnpm@10.27.0`. ([#1507](https://github.com/bfra-me/.github/pull/1507))
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.47.7`. ([#1509](https://github.com/bfra-me/.github/pull/1509))
+
 ## 4.3.15
 ### Patch Changes
 

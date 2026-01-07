@@ -1,5 +1,14 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.8
+### Patch Changes
+
+
+- Updated dependency `@actions/core` to `^2.0.0`. ([#1512](https://github.com/bfra-me/.github/pull/1512))
+
+
+- Updated dependency `@actions/exec` to `^2.0.0`. ([#1513](https://github.com/bfra-me/.github/pull/1513))
+
 ## 0.2.7
 ### Patch Changes
 

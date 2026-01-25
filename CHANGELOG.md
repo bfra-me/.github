@@ -1,5 +1,18 @@
 # @bfra.me/.github
 
+## 4.3.19
+### Patch Changes
+
+
+- Updated dependency `prettier` to `3.8.1`. ([#1558](https://github.com/bfra-me/.github/pull/1558))
+
+
+- Updated dependency `packageManager` to `pnpm@10.28.1`. ([#1551](https://github.com/bfra-me/.github/pull/1551))
+
+
+- Updated dependency `@vitest/coverage-v8` to `4.0.18`. ([#1559](https://github.com/bfra-me/.github/pull/1559))
+  Updated dependency `vitest` to `4.0.18`.
+
 ## 4.3.18
 ### Patch Changes
 

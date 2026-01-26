@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.9
+### Patch Changes
+
+
+- Updated dependency `@actions/github` to `^7.0.0`. ([#1564](https://github.com/bfra-me/.github/pull/1564))
+
 ## 0.2.8
 ### Patch Changes
 

@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.3.20
+### Patch Changes
+
+
+- Adjust `update-metadata` steps and PR formatting ([#1561](https://github.com/bfra-me/.github/pull/1561))
+
 ## 4.3.19
 ### Patch Changes
 

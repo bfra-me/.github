@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.3.21
+### Patch Changes
+
+
+- Updated dependency `@types/node` to `24.10.9`. ([#1567](https://github.com/bfra-me/.github/pull/1567))
+
 ## 4.3.20
 ### Patch Changes
 

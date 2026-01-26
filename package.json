@@ -64,9 +64,6 @@
   "lint-staged": {
     "*.{js,json,jsx,md,toml,ts,tsx,yaml,yml}": [
       "eslint --fix"
-    ],
-    "package.json": [
-      "sort-package-json"
     ]
   },
   "prettier": "@bfra.me/prettier-config",
@@ -95,20 +92,10 @@
     "remark": "15.0.1",
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
-    "sort-package-json": "3.6.0",
     "tsx": "4.21.0",
     "typescript": "5.9.3",
     "unified": "11.0.5",
     "vitest": "4.0.18"
   },
-  "packageManager": "pnpm@10.28.1",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "unrs-resolver"
-    ],
-    "overrides": {
-      "jiti": "<2.7.0"
-    }
-  }
+  "packageManager": "pnpm@10.28.1"
 }

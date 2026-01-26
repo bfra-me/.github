@@ -2,6 +2,10 @@ autoInstallPeers: true
 
 ignoreWorkspaceRootCheck: true
 
+onlyBuiltDependencies:
+  - esbuild
+  - unrs-resolver
+
 packages:
   - .
   - .github/actions/*

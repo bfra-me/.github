@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.3.22
+### Patch Changes
+
+
+- Updated dependency `sort-package-json` to `3.6.1`. ([#1574](https://github.com/bfra-me/.github/pull/1574))
+
+
+- Updated dependency `packageManager` to `pnpm@10.28.2`. ([#1573](https://github.com/bfra-me/.github/pull/1573))
+
 ## 4.3.21
 ### Patch Changes
 

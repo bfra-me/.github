@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.3.23
+### Patch Changes
+
+
+- Updated dependency `glob` to `13.0.1`. ([#1585](https://github.com/bfra-me/.github/pull/1585))
+
 ## 4.3.22
 ### Patch Changes
 

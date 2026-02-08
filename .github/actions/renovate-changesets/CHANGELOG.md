@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.10
+### Patch Changes
+
+
+- Updated dependency `minimatch` to `10.1.2`. ([#1586](https://github.com/bfra-me/.github/pull/1586))
+
 ## 0.2.9
 ### Patch Changes
 

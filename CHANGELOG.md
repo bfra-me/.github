@@ -1,5 +1,23 @@
 # @bfra.me/.github
 
+## 4.3.25
+### Patch Changes
+
+
+- Updated dependency `glob` to `13.0.2`. ([#1599](https://github.com/bfra-me/.github/pull/1599))
+
+
+- Updated dependency `@types/node` to `24.10.13`. ([#1601](https://github.com/bfra-me/.github/pull/1601))
+
+
+- Updated dependency `packageManager` to `pnpm@10.29.2`. ([#1594](https://github.com/bfra-me/.github/pull/1594))
+
+
+- Updated dependency `packageManager` to `pnpm@10.29.3`. ([#1600](https://github.com/bfra-me/.github/pull/1600))
+
+
+- Updated dependency `glob` to `13.0.3`. ([#1603](https://github.com/bfra-me/.github/pull/1603))
+
 ## 4.3.24
 ### Patch Changes
 

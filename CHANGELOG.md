@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.3.30
+### Patch Changes
+
+
+- Updated dependency `@bfra.me/eslint-config` to `0.50.1`. ([#1636](https://github.com/bfra-me/.github/pull/1636))
+
+
+- Updated dependency `lint-staged` to `16.3.1`. ([#1646](https://github.com/bfra-me/.github/pull/1646))
+
+
+- Updated dependency `lint-staged` to `16.3.0`. ([#1643](https://github.com/bfra-me/.github/pull/1643))
+
 ## 4.3.29
 ### Patch Changes
 

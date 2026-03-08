@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.3.31
+### Patch Changes
+
+
+- Updated dependency `@changesets/cli` to `2.30.0`. ([#1650](https://github.com/bfra-me/.github/pull/1650))
+
+
+- Updated dependency `lint-staged` to `16.3.2`. ([#1652](https://github.com/bfra-me/.github/pull/1652))
+
+
+- Updated dependency `@changesets/config` to `3.1.3`. ([#1649](https://github.com/bfra-me/.github/pull/1649))
+
 ## 4.3.30
 ### Patch Changes
 

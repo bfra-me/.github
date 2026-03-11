@@ -16,3 +16,4 @@ globs:
   - '!.ai/**'
   - '!.github/copilot-instructions.md'
   - '!.specstory/**'
+  - '!**/AGENTS.md'

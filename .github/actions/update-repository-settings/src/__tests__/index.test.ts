@@ -20,7 +20,9 @@ const {mockGetInput, mockSetFailed, mockInfo, mockLoadConfig, mockApplySettings,
     mockInfo: vi.fn(),
     mockLoadConfig: vi.fn().mockResolvedValue({repository: {description: 'test'}}),
     mockApplySettings: vi.fn().mockResolvedValue(undefined),
-    MockOctokit: vi.fn((_options: {auth: string}) => {}),
+    MockOctokit: vi.fn(function (this: object, _options: {auth: string}) {
+      return this
+    }),
   }))
 
 vi.mock('@actions/core', () => ({

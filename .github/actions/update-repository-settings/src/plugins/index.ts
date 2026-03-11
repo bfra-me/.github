@@ -1,6 +1,14 @@
 import type {Octokit} from '@octokit/rest'
 import type {SettingsConfig} from '../config.js'
 import * as core from '@actions/core'
+import {branchesPlugin} from './branches.js'
+import {collaboratorsPlugin} from './collaborators.js'
+import {environmentsPlugin} from './environments.js'
+import {labelsPlugin} from './labels.js'
+import {milestonesPlugin} from './milestones.js'
+import {repositoryPlugin} from './repository.js'
+import {rulesetsPlugin} from './rulesets.js'
+import {teamsPlugin} from './teams.js'
 
 export type Plugin = (
   octokit: Octokit,
@@ -9,76 +17,15 @@ export type Plugin = (
   config: unknown,
 ) => Promise<void>
 
-async function repositoryPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('repository plugin: not yet implemented')
-}
-
-async function labelsPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('labels plugin: not yet implemented')
-}
-
-async function collaboratorsPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('collaborators plugin: not yet implemented')
-}
-
-async function teamsPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('teams plugin: not yet implemented')
-}
-
-async function milestonesPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('milestones plugin: not yet implemented')
-}
-
-async function branchesPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('branches plugin: not yet implemented')
-}
-
-async function environmentsPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('environments plugin: not yet implemented')
-}
-
-async function rulesetsPlugin(
-  _octokit: Octokit,
-  _owner: string,
-  _repo: string,
-  _config: unknown,
-): Promise<void> {
-  core.info('rulesets plugin: not yet implemented')
+export {
+  branchesPlugin,
+  collaboratorsPlugin,
+  environmentsPlugin,
+  labelsPlugin,
+  milestonesPlugin,
+  repositoryPlugin,
+  rulesetsPlugin,
+  teamsPlugin,
 }
 
 export const PLUGIN_REGISTRY: Record<string, Plugin> = {

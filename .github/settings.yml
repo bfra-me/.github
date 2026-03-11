@@ -17,6 +17,7 @@ branches:
           - CodeQL
           - Container Scan
           - Create Renovate Changeset
+          - Fro Bot
           - GitGuardian Scan
           - License Scan
           - Quality Check

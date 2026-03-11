@@ -1,0 +1,288 @@
+# Fro Bot org-wide autohealing — progressive improvement across all bfra-me repos.
+---
+name: Fro Bot Autoheal (Org)
+
+on:
+  schedule:
+    - cron: '0 5 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: Optional custom prompt (leave empty for default org autoheal)
+        type: string
+        required: false
+        default: ''
+      target-repo:
+        description: Target a specific repo (e.g. "renovate-action"). Leave empty for all.
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fro-bot-autoheal-org
+  cancel-in-progress: false
+
+env:
+  AUTOHEAL_ORG_PROMPT: |
+    Perform org-wide autohealing across all non-archived repositories in the
+    bfra-me GitHub organization. You are running from bfra-me/.github — the
+    org control center. Read its AGENTS.md for org-wide conventions.
+
+    Use `gh` CLI for all cross-repo operations. The provided token has
+    write access across the organization.
+
+    EXECUTION MODEL
+    Process repos serially. For each repo: analyze, apply fixes, move on.
+    Do not keep multiple repos checked out simultaneously. Return to a
+    clean working tree between repos. If a target repo is specified via
+    TARGET_REPO env var, process ONLY that repo.
+
+    DEDUPLICATION (applies globally)
+    Before creating any new PR or issue, search for an existing open
+    bot-authored item for the same root cause in that repo. Reuse or
+    update the existing item instead of creating a duplicate.
+
+    SCOPE CAP
+    Only apply changes that are minimal and reversible. If a fix requires
+    broad refactoring, architecture changes, or many-file edits, skip it
+    and log it under "Needs Human Attention" with context for why.
+
+    DEPENDENCY OWNERSHIP
+    Renovate owns routine dependency/version bumps across bfra-me repos.
+    You may change dependency versions only when remediating a confirmed
+    security advisory (critical/high). Do not create non-security
+    version-bump PRs.
+
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 1: CI HEALTH
+    ═══════════════════════════════════════════════════════════════════
+    For each repo, check the status of the default branch and open PRs:
+    a. Flaky CI: query the last 10 workflow runs on the default branch.
+       If >20% of runs failed, flag the repo and identify the most
+       common failure pattern (test flakiness, timeout, infra issue).
+    b. Failing main: if the latest main branch check is failing, diagnose
+       from the run logs. If the fix is trivial (type error, lint, dep
+       conflict), open a PR in that repo. Otherwise, create an issue.
+    c. Broken PRs: find open PRs with failing checks. For non-dep PRs
+       authored by trusted sources, attempt a fix on the PR branch.
+       Skip PRs that touch CI config, workflows, or lockfiles.
+    d. Stale draft PRs: flag PRs in draft state with no activity >14 days.
+
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 2: SECURITY & CODE SCANNING
+    ═══════════════════════════════════════════════════════════════════
+    For each repo:
+    a. Query Dependabot/Renovate security alerts via `gh api`.
+       For critical/high advisories without an existing remediation PR,
+       create a focused PR in the affected repo.
+    b. Check if CodeQL is configured. If the repo has source code but no
+       CodeQL workflow, open an issue recommending setup.
+    c. Check for secret scanning alerts if accessible. Note findings but
+       do not attempt remediation (flag for human attention).
+    d. Verify GitHub Actions are pinned to full commit SHAs in all
+       workflow files. If floating tags are found, open a PR to pin them.
+
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 3: DEPENDENCY & TOOLING TRENDS
+    ═══════════════════════════════════════════════════════════════════
+    Survey across all repos to identify patterns and drift:
+    a. TypeScript version skew: check tsconfig.json and package.json
+       across repos. Flag repos using an older TypeScript minor than
+       the org standard (set by bfra-me/.github).
+    b. Node.js version: compare .node-version or engines.node across
+       repos. Flag repos behind the org's .node-version.
+    c. pnpm version: compare packageManager fields. Flag repos not
+       matching the org's pnpm version.
+    d. Shared config drift: check if repos extend @bfra.me/eslint-config,
+       @bfra.me/prettier-config, @bfra.me/tsconfig. Flag repos using
+       older versions or alternative configs.
+    e. Renovate config: verify repos reference bfra-me/renovate-config.
+       Flag repos with no Renovate config or using custom presets that
+       diverge from the org standard.
+    Report findings as a trends table. Do NOT auto-upgrade versions
+    across repos — create issues for significant drift instead.
+
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 4: DEVELOPER EXPERIENCE
+    ═══════════════════════════════════════════════════════════════════
+    For each repo:
+    a. Script consistency: verify common scripts exist (build, test,
+       lint, type-check). Flag repos missing expected scripts.
+    b. Pre-commit hooks: check for husky/lint-staged or equivalent
+       setup. Flag repos without pre-commit validation.
+    c. Editor config: verify .editorconfig exists and is consistent
+       with the org standard (120 char limit, 2-space indent).
+    d. IDE integration: check for .vscode/settings.json or equivalent
+       editor config that aligns with org linting/formatting.
+    e. README quality: verify README.md exists and contains at minimum:
+       project description, installation/setup instructions, and usage
+       examples. Flag repos with missing or stub READMEs.
+    f. CONTRIBUTING.md and LICENSE.md: verify presence.
+    For DX gaps, open issues with specific recommendations rather than
+    making changes directly.
+
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 5: ORG PATTERN ADHERENCE
+    ═══════════════════════════════════════════════════════════════════
+    Verify each repo follows bfra-me org standards:
+    a. Required workflows: check that repos have the expected CI
+       workflows from workflow-templates/ in bfra-me/.github. At
+       minimum: a main CI workflow, Renovate config, and repo settings.
+       Flag repos missing required workflows.
+    b. Repo settings: verify .github/settings.yml exists and extends
+       or aligns with the org's common-settings.yaml patterns.
+    c. Branch protection: verify the default branch has protection
+       rules (required checks, no force-push). Flag repos without
+       protection.
+    d. Social branding: check for repo description, topics/tags,
+       and social preview image (via `gh api`). Flag repos missing
+       descriptions or with no topics.
+    e. Documentation: verify docs/ directory or wiki exists for repos
+       with substantial code. Flag repos lacking documentation.
+    f. AGENTS.md: check if repos with >10 source files have an
+       AGENTS.md. Suggest creation for repos without one.
+    g. Labeler config: check for .github/labeler.yaml. Flag repos
+       without automated labeling.
+    For adherence gaps, create a single issue per repo listing all
+    findings rather than one issue per finding.
+
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 6: STALE WORK & UNFINISHED FEATURES
+    ═══════════════════════════════════════════════════════════════════
+    Across all repos:
+    a. Stale issues: find issues with no activity >60 days. Recommend
+       closing, reassigning, or adding context.
+    b. Stale PRs: find PRs with no activity >14 days. Recommend
+       closing, rebasing, or requesting re-review.
+    c. Unfinished features: look for branches matching feature/*,
+       feat/*, wip/* patterns that have not been merged and have no
+       associated open PR. Flag for cleanup or PR creation.
+    d. Orphaned milestones: find open milestones with no open issues.
+    Do NOT close issues, merge PRs, or delete branches. Report only.
+
+    ═══════════════════════════════════════════════════════════════════
+    HARD BOUNDARIES
+    ═══════════════════════════════════════════════════════════════════
+    - Never force-push, rewrite history, or delete branches in any repo.
+    - Never push directly to a default branch. Use PRs for all changes.
+    - Never merge PRs, submit reviews/approvals, or modify branch
+      protection in any repo.
+    - Never modify secrets, org settings, environments, or webhook
+      configurations.
+    - Never make checks pass by disabling tests, deleting assertions,
+      lowering thresholds, or weakening lint/type rules.
+    - Never modify workflow files, CI config, or automation prompts
+      unless fixing a genuine bug with a narrowly scoped change.
+    - If a fix would weaken a guardrail, skip it and log it under
+      "Needs Human Attention".
+    - Respect each repo's own conventions. If a repo has its own
+      AGENTS.md, follow those conventions over org defaults.
+    - Do not create multiple summary issues.
+
+    ═══════════════════════════════════════════════════════════════════
+    PROJECT CONVENTIONS (for code changes in TypeScript repos)
+    ═══════════════════════════════════════════════════════════════════
+    - TypeScript strict mode: no `any`, no `@ts-ignore`
+    - Pure ESM only: no `require()`, no `module.exports`
+    - Actions pinned to commit SHAs with version comment
+    - Changesets created manually in repos that use them
+    - Package manager: pnpm (not npm/yarn)
+    - YAML extension: .yaml, not .yml
+
+    ═══════════════════════════════════════════════════════════════════
+    OUTPUT FORMAT — SINGLE SUMMARY ISSUE
+    ═══════════════════════════════════════════════════════════════════
+    After completing all work, find an existing open issue titled
+    "Org Autohealing Report — YYYY-MM-DD" (using today's UTC date)
+    in bfra-me/.github. If it exists, update its body. If not, create it.
+
+    The issue body MUST use this structure. If a section has no rows, do
+    not emit an empty table — write "None." directly under that heading.
+
+    ## Org Autohealing Report — YYYY-MM-DD (UTC)
+
+    **Repos scanned:** N | **Target:** [all / specific-repo]
+
+    ### CI Health
+    | Repo | Issue | Action | Status |
+    | --- | --- | --- | --- |
+    | repo-name | [flaky CI / failing main / broken PR] | [PR #N / issue #N] | ✅ Fixed / ⚠️ Flagged |
+
+    ### Security & Code Scanning
+    | Repo | Finding | Severity | Action |
+    | --- | --- | --- | --- |
+    | repo-name | [advisory / missing CodeQL / unpinned action] | Critical/High/Med | [PR #N / issue #N] |
+
+    ### Dependency & Tooling Trends
+    | Metric | Org Standard | Repos Behind | Details |
+    | --- | --- | --- | --- |
+    | TypeScript | 5.x.x | repo-a, repo-b | [versions found] |
+    | Node.js | 24.x | repo-c | [version found] |
+    | pnpm | 10.x | — | All current |
+    | Shared configs | @bfra.me/* | repo-d | [missing/outdated] |
+
+    ### Developer Experience
+    | Repo | Gap | Recommendation |
+    | --- | --- | --- |
+    | repo-name | [missing scripts / no hooks / stub README] | [issue #N] |
+
+    ### Org Pattern Adherence
+    | Repo | Missing | Recommendation |
+    | --- | --- | --- |
+    | repo-name | [no CI workflow / no settings.yml / no topics] | [issue #N] |
+
+    ### Stale Work
+    | Repo | Type | Item | Age | Recommendation |
+    | --- | --- | --- | --- | --- |
+    | repo-name | issue/PR/branch | #N or branch-name | N days | close/rebase/review |
+
+    ### Needs Human Attention
+    - [items that could not be auto-fixed, with repo and context]
+
+    Do NOT create multiple issues. Do NOT comment on individual issues.
+    Produce exactly one summary issue per run, in bfra-me/.github.
+
+jobs:
+  resolve-prompt:
+    name: Resolve Org Autoheal Prompt
+    runs-on: ubuntu-latest
+    outputs:
+      prompt: ${{ steps.resolve.outputs.prompt }}
+    steps:
+      - id: resolve
+        env:
+          INPUT_PROMPT: ${{ github.event.inputs.prompt || '' }}
+          DEFAULT_PROMPT: ${{ env.AUTOHEAL_ORG_PROMPT }}
+          TARGET_REPO: ${{ github.event.inputs.target-repo || '' }}
+        run: |
+          delimiter="EOF_$(openssl rand -hex 8)"
+          if [ -n "$INPUT_PROMPT" ]; then
+            {
+              echo "prompt<<$delimiter"
+              echo "$INPUT_PROMPT"
+              echo "$delimiter"
+            } >> "$GITHUB_OUTPUT"
+          else
+            prompt="$DEFAULT_PROMPT"
+            if [ -n "$TARGET_REPO" ]; then
+              prompt="$prompt
+
+          TARGET_REPO=$TARGET_REPO — process ONLY this repository in the bfra-me org."
+            fi
+            {
+              echo "prompt<<$delimiter"
+              echo "$prompt"
+              echo "$delimiter"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+  fro-bot-autoheal-org:
+    name: Fro Bot Autoheal (Org)
+    needs: resolve-prompt
+    uses: ./.github/workflows/fro-bot.yaml
+    secrets: inherit
+    with:
+      prompt: ${{ needs.resolve-prompt.outputs.prompt }}

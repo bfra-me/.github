@@ -1,6 +1,6 @@
 {
   "name": "renovate-changesets",
-  "version": "0.2.9",
+  "version": "0.2.13",
   "private": true,
   "description": "GitHub Action to generate changeset files for Renovate dependency updates",
   "keywords": [
@@ -34,7 +34,7 @@
     "@changesets/write": "^0.4.0",
     "@octokit/rest": "^22.0.0",
     "js-yaml": "^4.1.0",
-    "minimatch": "10.1.1"
+    "minimatch": "10.2.4"
   },
   "devDependencies": {
     "@types/js-yaml": "4.0.9",

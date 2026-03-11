@@ -17,10 +17,8 @@ import type {
   TemplateEngineConfig,
 } from './changeset-template-engine'
 import {readFile} from 'node:fs/promises'
-
 import path from 'node:path'
 import * as core from '@actions/core'
-
 import * as yaml from 'js-yaml'
 
 /**

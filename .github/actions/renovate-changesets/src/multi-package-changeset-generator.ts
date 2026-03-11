@@ -5,11 +5,9 @@ import type {
 } from './multi-package-analyzer'
 import type {RenovateDependency, RenovatePRContext} from './renovate-parser'
 import {promises as fs} from 'node:fs'
-
 import path from 'node:path'
 import process from 'node:process'
 import * as core from '@actions/core'
-
 import {getExecOutput} from '@actions/exec'
 import write from '@changesets/write'
 import {ChangesetDeduplicator} from './changeset-deduplicator'

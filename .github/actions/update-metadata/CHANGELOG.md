@@ -1,5 +1,11 @@
 # @bfra.me-actions/update-metadata
 
+## 0.1.11
+### Patch Changes
+
+
+- Updated dependency `@actions/core` to `^3.0.0`. ([#1669](https://github.com/bfra-me/.github/pull/1669))
+
 ## 0.1.10
 ### Patch Changes
 

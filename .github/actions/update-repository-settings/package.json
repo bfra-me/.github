@@ -1,0 +1,24 @@
+{
+  "name": "@bfra.me/update-repository-settings",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup --minify",
+    "lint": "eslint",
+    "test": "pnpm -w test --project @bfra.me/update-repository-settings",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^6.0.0",
+    "@octokit/rest": "^22.0.0",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "4.0.9",
+    "tsup": "8.5.1"
+  }
+}

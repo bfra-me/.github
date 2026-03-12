@@ -1,0 +1,15 @@
+name: Update Repository Settings
+description: Update repository settings to match the definitions in a settings file.
+branding:
+  icon: settings
+  color: blue
+inputs:
+  token:
+    description: GitHub token with repo write access.
+    required: true
+  settings:
+    description: Path to the settings file.
+    default: .github/settings.yml
+runs:
+  using: node20
+  main: dist/index.js

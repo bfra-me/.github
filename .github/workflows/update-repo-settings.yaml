@@ -27,8 +27,7 @@ jobs:
     name: Update Repository Settings
     runs-on: ubuntu-latest
     steps:
-      - if: github.event_name == 'push'
-        name: Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - id: filter
@@ -54,4 +53,6 @@ jobs:
           GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Update Repository Settings (${{ github.repository }})
-        uses: elstudio/actions-settings@2c3fbed35fa2692a1625b1360de608906fc5c103 # v3-beta
+        uses: ./.github/actions/update-repository-settings
+        with:
+          token: ${{ steps.get-workflow-access-token.outputs.token }}

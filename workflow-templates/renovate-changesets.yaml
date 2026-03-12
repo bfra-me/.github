@@ -1,0 +1,17 @@
+---
+# Create changesets for Renovate dependency updates.
+name: Renovate Changesets
+
+on:
+  merge_group:
+  pull_request_target:
+
+permissions:
+  contents: read
+
+jobs:
+  renovate-changesets:
+    if: github.actor == 'renovate[bot]' || github.actor == 'bfra-me[bot]'
+    name: Renovate Changesets
+    secrets: inherit
+    uses: bfra-me/.github/.github/workflows/renovate-changeset.yaml@v3

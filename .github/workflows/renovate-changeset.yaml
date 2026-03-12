@@ -4,6 +4,7 @@ name: Create Renovate Changeset
 on:
   merge_group:
   pull_request_target:
+  workflow_call:
 
 permissions:
   contents: read
@@ -36,22 +37,10 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-workflow-access-token.outputs.token }}
 
-      - name: 📦 Setup PNPM
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-        with:
-          run_install: false
-
-      - name: 🏆 Setup Node.js
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-        with:
-          cache: pnpm
-          node-version-file: .node-version
-
-      - name: 🧰 Install dependencies
-        env:
-          HUSKY: '0'
-        run: pnpm bootstrap
-
       - id: renovate-changesets
         name: 🖌️ Generate Renovate changesets
-        run: pnpx @scaleway/changesets-renovate
+        uses: bfra-me/.github/.github/actions/renovate-changesets@59d10aff16635f377ea0d2d4623c26b3622de307 # v1.0.0
+        with:
+          token: ${{ steps.get-workflow-access-token.outputs.token }}
+          commit-back: 'true'
+          max-retries: '3'

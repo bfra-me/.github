@@ -96,7 +96,7 @@ jobs:
 
       - name: Create Release PR
         if: steps.check-pr.outputs.pr-exists == 'false' || steps.check-pr.outputs.mergeable == 'false'
-        uses: changesets/action@v1
+        uses: changesets/action@e87c8ed249971350e47fab7515075f44eb134e5b # v1.7.0
         with:
           commit: 'chore: version bump'
           createGithubReleases: false

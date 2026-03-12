@@ -1,7 +1,7 @@
 import type {Octokit as OctokitType} from '@octokit/rest'
 import {Octokit} from '@octokit/rest'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {branchesPlugin} from '../branches.js'
+import {branchesPlugin, cleanupMergedProtection, sanitizeBranchProtection} from '../branches.js'
 
 const mockGetBranchProtection = vi.hoisted(() => vi.fn())
 const mockUpdateBranchProtection = vi.hoisted(() => vi.fn().mockResolvedValue({}))
@@ -96,14 +96,42 @@ describe('branchesPlugin', () => {
     })
   })
 
-  it('preserves existing fields while config overrides and extends protection', async () => {
+  it('sanitizes GET response shape before merging — converts {enabled} to bool, strips urls', async () => {
     mockGetBranchProtection.mockResolvedValueOnce({
       data: {
-        enforce_admins: {enabled: true},
-        required_status_checks: {
-          strict: true,
-          contexts: ['ci'],
+        url: 'https://api.github.com/repos/bfra-me/repo/branches/main/protection',
+        enforce_admins: {
+          url: 'https://api.github.com/repos/bfra-me/repo/branches/main/protection/enforce_admins',
+          enabled: true,
         },
+        required_signatures: {
+          url: 'https://api.github.com/repos/bfra-me/repo/branches/main/protection/required_signatures',
+          enabled: false,
+        },
+        required_status_checks: {
+          url: 'https://api.github.com/repos/bfra-me/repo/branches/main/protection/required_status_checks',
+          strict: true,
+          contexts: ['Renovate', 'Release'],
+          contexts_url:
+            'https://api.github.com/repos/bfra-me/repo/branches/main/protection/required_status_checks/contexts',
+          checks: [
+            {context: 'Renovate', app_id: 15368},
+            {context: 'Release', app_id: 15368},
+          ],
+        },
+        required_pull_request_reviews: {
+          url: 'https://api.github.com/repos/bfra-me/repo/branches/main/protection/required_pull_request_reviews',
+          dismiss_stale_reviews: true,
+          require_code_owner_reviews: false,
+          required_approving_review_count: 0,
+        },
+        required_linear_history: {enabled: true},
+        allow_force_pushes: {enabled: false},
+        allow_deletions: {enabled: false},
+        block_creations: {enabled: false},
+        required_conversation_resolution: {enabled: false},
+        lock_branch: {enabled: false},
+        allow_fork_syncing: {enabled: false},
       },
     })
 
@@ -111,26 +139,40 @@ describe('branchesPlugin', () => {
       {
         name: 'main',
         protection: {
-          required_pull_request_reviews: {
-            required_approving_review_count: 2,
+          required_status_checks: {
+            strict: true,
+            contexts: [],
           },
+          enforce_admins: true,
+          required_pull_request_reviews: {
+            dismiss_stale_reviews: true,
+            require_code_owner_reviews: false,
+            required_approving_review_count: 0,
+          },
+          restrictions: null,
+          required_linear_history: true,
         },
       },
     ])
 
-    expect(mockUpdateBranchProtection).toHaveBeenCalledWith({
-      owner: 'bfra-me',
-      repo: 'repo',
-      branch: 'main',
-      enforce_admins: {enabled: true},
-      required_status_checks: {
-        strict: true,
-        contexts: ['ci'],
-      },
-      required_pull_request_reviews: {
-        required_approving_review_count: 2,
-      },
-    })
+    const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
+
+    expect(call).not.toHaveProperty('url')
+    expect(call.required_status_checks).not.toHaveProperty('url')
+    expect(call.required_status_checks).not.toHaveProperty('contexts_url')
+    expect(call.required_pull_request_reviews).not.toHaveProperty('url')
+    expect(call).not.toHaveProperty('required_signatures')
+
+    expect(call.enforce_admins).toBe(true)
+    expect(call.required_linear_history).toBe(true)
+    expect(call.allow_force_pushes).toBe(false)
+
+    const rsc = call.required_status_checks as Record<string, unknown>
+    expect(rsc).not.toHaveProperty('contexts')
+    expect(rsc.checks).toEqual([
+      {context: 'Renovate', app_id: 15368},
+      {context: 'Release', app_id: 15368},
+    ])
   })
 
   it('passes through required_status_checks.contexts unchanged', async () => {
@@ -260,5 +302,119 @@ describe('branchesPlugin', () => {
     expect(mockWarning).toHaveBeenCalledWith('branches config must be an array, skipping')
     expect(mockGetBranchProtection).not.toHaveBeenCalled()
     expect(mockUpdateBranchProtection).not.toHaveBeenCalled()
+  })
+})
+
+describe('sanitizeBranchProtection', () => {
+  it('converts {enabled} objects to plain booleans and strips url fields', () => {
+    const result = sanitizeBranchProtection({
+      url: 'https://api.github.com/...',
+      enforce_admins: {url: 'https://...', enabled: true},
+      required_linear_history: {enabled: true},
+      allow_force_pushes: {enabled: false},
+      required_signatures: {url: 'https://...', enabled: false},
+    })
+
+    expect(result.enforce_admins).toBe(true)
+    expect(result.required_linear_history).toBe(true)
+    expect(result.allow_force_pushes).toBe(false)
+    expect(result).not.toHaveProperty('url')
+    expect(result).not.toHaveProperty('required_signatures')
+  })
+
+  it('sanitizes required_status_checks — prefers checks over contexts', () => {
+    const result = sanitizeBranchProtection({
+      required_status_checks: {
+        url: 'https://...',
+        strict: true,
+        contexts: ['ci'],
+        contexts_url: 'https://...',
+        checks: [{context: 'ci', app_id: 15368}],
+      },
+    })
+
+    const rsc = result.required_status_checks as Record<string, unknown>
+    expect(rsc).not.toHaveProperty('url')
+    expect(rsc).not.toHaveProperty('contexts_url')
+    expect(rsc).not.toHaveProperty('contexts')
+    expect(rsc.checks).toEqual([{context: 'ci', app_id: 15368}])
+    expect(rsc.strict).toBe(true)
+  })
+
+  it('falls back to contexts when checks is absent', () => {
+    const result = sanitizeBranchProtection({
+      required_status_checks: {
+        strict: true,
+        contexts: ['ci/build'],
+      },
+    })
+
+    const rsc = result.required_status_checks as Record<string, unknown>
+    expect(rsc.contexts).toEqual(['ci/build'])
+    expect(rsc).not.toHaveProperty('checks')
+  })
+
+  it('strips url from required_pull_request_reviews and restrictions', () => {
+    const result = sanitizeBranchProtection({
+      required_pull_request_reviews: {
+        url: 'https://...',
+        dismiss_stale_reviews: true,
+        required_approving_review_count: 1,
+      },
+      restrictions: {
+        url: 'https://...',
+        users: [],
+        teams: [],
+      },
+    })
+
+    expect(result.required_pull_request_reviews).not.toHaveProperty('url')
+    expect(
+      (result.required_pull_request_reviews as Record<string, unknown>).dismiss_stale_reviews,
+    ).toBe(true)
+    expect(result.restrictions).not.toHaveProperty('url')
+  })
+})
+
+describe('cleanupMergedProtection', () => {
+  it('removes contexts when both contexts and checks are present', () => {
+    const result = cleanupMergedProtection({
+      required_status_checks: {
+        strict: true,
+        contexts: [],
+        checks: [{context: 'ci', app_id: -1}],
+      },
+    })
+
+    const rsc = result.required_status_checks as Record<string, unknown>
+    expect(rsc).not.toHaveProperty('contexts')
+    expect(rsc.checks).toEqual([{context: 'ci', app_id: -1}])
+  })
+
+  it('preserves contexts when checks is absent', () => {
+    const result = cleanupMergedProtection({
+      required_status_checks: {
+        strict: true,
+        contexts: ['ci/build'],
+      },
+    })
+
+    const rsc = result.required_status_checks as Record<string, unknown>
+    expect(rsc.contexts).toEqual(['ci/build'])
+  })
+
+  it('strips stray url fields from required_status_checks', () => {
+    const result = cleanupMergedProtection({
+      required_status_checks: {
+        url: 'https://...',
+        contexts_url: 'https://...',
+        strict: true,
+        contexts: ['ci'],
+      },
+    })
+
+    const rsc = result.required_status_checks as Record<string, unknown>
+    expect(rsc).not.toHaveProperty('url')
+    expect(rsc).not.toHaveProperty('contexts_url')
   })
 })

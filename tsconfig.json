@@ -10,6 +10,9 @@
     },
     {
       "path": "./.github/actions/update-metadata/tsconfig.build.json"
+    },
+    {
+      "path": "./.github/actions/update-repository-settings/tsconfig.build.json"
     }
   ],
   "files": []

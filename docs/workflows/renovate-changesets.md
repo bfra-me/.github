@@ -1,179 +1,85 @@
-# Renovate Changesets Action
+# Renovate Changesets Workflow
 
-This document describes the enhanced Renovate Changesets action that automatically generates changeset files for Renovate dependency updates.
+Reusable workflow and org-wide template for automatically generating changeset files on Renovate dependency update PRs.
 
 ## Overview
 
-The `renovate-changesets` action intelligently parses Renovate changes from PR contexts and generates appropriate changeset files. It supports multiple dependency ecosystems including:
+The `renovate-changeset` reusable workflow wraps the [`renovate-changesets` action](../../.github/actions/renovate-changesets/README.md) with the standard bfra-me authentication and git setup. It runs on `pull_request_target` and `merge_group` events, or can be called from other workflows via `workflow_call`.
 
-- **GitHub Actions** - Workflow and action updates
-- **NPM/pnpm** - JavaScript/TypeScript dependencies
-- **Docker** - Container image updates
-- **Python** - pip dependencies
-- **Go** - Go modules
-- **JVM** - Maven/Gradle dependencies
+## Workflow Template
 
-## Features
-
-- **Smart Detection**: Automatically detects update types from changed files
-- **Semver Assessment**: Determines appropriate bump type (patch/minor/major)
-- **Security Awareness**: Flags security-related updates
-- **Multi-package Support**: Handles monorepo updates correctly
-- **Grouped Updates**: Supports Renovate's grouped/batch PRs
-- **Auto-commit**: Optionally commits changesets back to Renovate branches
-- **PR Management**: Can update PR descriptions and post comments
-
-## Usage
-
-### Basic Usage
+Use the org-wide workflow template to adopt this in any `@bfra-me` repository:
 
 ```yaml
-- name: Generate Renovate changesets
-  uses: bfra-me/.github/.github/actions/renovate-changesets@v1
-  with:
-    token: ${{ secrets.GITHUB_TOKEN }}
+name: Renovate Changesets
+
+on:
+  merge_group:
+  pull_request_target:
+
+permissions:
+  contents: read
+
+jobs:
+  renovate-changesets:
+    if: github.actor == 'renovate[bot]' || github.actor == 'bfra-me[bot]'
+    name: Renovate Changesets
+    secrets: inherit
+    uses: bfra-me/.github/.github/workflows/renovate-changeset.yaml@v3
 ```
 
-### With Auto-commit
+The template is available in the GitHub "New workflow" UI for all `@bfra-me` repositories.
 
-```yaml
-- name: Generate Renovate changesets
-  uses: bfra-me/.github/.github/actions/renovate-changesets@v1
-  with:
-    token: ${{ secrets.GITHUB_TOKEN }}
-    commit-back: "true"
-    max-retries: "3"
-```
+### Prerequisites
 
-### Full Configuration
+The calling repository must have these secrets available (typically inherited from the org):
 
-```yaml
-- name: Generate Renovate changesets
-  uses: bfra-me/.github/.github/actions/renovate-changesets@v1
-  with:
-    token: ${{ secrets.GITHUB_TOKEN }}
-    commit-back: "true"
-    comment-pr: "true"
-    update-pr-description: "true"
-    default-changeset-type: patch
-    max-retries: "3"
-```
+| Secret                    | Description                              |
+| ------------------------- | ---------------------------------------- |
+| `APPLICATION_ID`          | GitHub App ID for the `bfra-me[bot]` app |
+| `APPLICATION_PRIVATE_KEY` | Private key for the `bfra-me[bot]` app   |
 
-## Inputs
+When using `secrets: inherit`, org-level secrets are passed automatically.
 
-| Input | Description | Required | Default |
-| --- | --- | --- | --- |
-| `token` | GitHub token for API access | No | `${{ github.token }}` |
-| `branch-prefix` | Renovate branch prefix | No | `renovate/` |
-| `commit-back` | Auto-commit changesets to branch | No | `false` |
-| `comment-pr` | Post comment with changeset details | No | `false` |
-| `update-pr-description` | Update PR description | No | `false` |
-| `default-changeset-type` | Default semver bump type | No | `patch` |
-| `config-file` | Path to configuration file | No | - |
-| `config` | Inline configuration (YAML/JSON) | No | - |
-| `max-retries` | Max retry attempts for git ops | No | `3` |
-| `working-directory` | Working directory | No | `.` |
+## Reusable Workflow Inputs
 
-## Outputs
+The reusable workflow (`renovate-changeset.yaml`) accepts secrets via `workflow_call`:
 
-| Output               | Description                            |
-| -------------------- | -------------------------------------- |
-| `changesets-created` | Number of changesets created           |
-| `changeset-files`    | List of created changeset files (JSON) |
-| `update-type`        | Detected update type                   |
-| `dependencies`       | List of detected dependencies (JSON)   |
-| `commit-success`     | Whether commit succeeded               |
-| `commit-sha`         | SHA of the commit (if committed)       |
+| Secret                    | Required | Description                                  |
+| ------------------------- | -------- | -------------------------------------------- |
+| `APPLICATION_ID`          | Yes      | GitHub App ID for generating tokens          |
+| `APPLICATION_PRIVATE_KEY` | Yes      | GitHub App private key for generating tokens |
 
-## Configuration
+## What It Does
 
-### Inline Configuration
+1. Generates a `bfra-me[bot]` App token for elevated permissions
+2. Configures Git with the bot's identity
+3. Checks out the PR branch with `fetch-depth: 2`
+4. Runs the `renovate-changesets` action with `commit-back: true` to auto-commit generated changesets
 
-```yaml
-- name: Generate Renovate changesets
-  uses: bfra-me/.github/.github/actions/renovate-changesets@v1
-  with:
-    token: ${{ secrets.GITHUB_TOKEN }}
-    config: |
-      updateTypes:
-        github-actions:
-          changesetType: patch
-          filePatterns:
-            - '.github/workflows/**/*.yaml'
-        npm:
-          changesetType: patch
-          filePatterns:
-            - '**/package.json'
-      defaultChangesetType: patch
-```
+## Actor Guard
 
-### Configuration File
-
-Create `.github/renovate-changesets.yaml`:
-
-```yaml
-updateTypes:
-  github-actions:
-    changesetType: patch
-    filePatterns:
-      - ".github/workflows/**/*.yaml"
-      - ".github/actions/**/action.yaml"
-  npm:
-    changesetType: patch
-    filePatterns:
-      - "**/package.json"
-      - "**/pnpm-lock.yaml"
-defaultChangesetType: patch
-```
-
-## Migration from @scaleway/changesets-renovate
-
-This action is a drop-in replacement for `@scaleway/changesets-renovate`:
-
-### Before
-
-```yaml
-- name: Generate Renovate changesets
-  run: pnpx @scaleway/changesets-renovate
-```
-
-### After
-
-```yaml
-- name: Generate Renovate changesets
-  uses: bfra-me/.github/.github/actions/renovate-changesets@v1
-  with:
-    token: ${{ secrets.GITHUB_TOKEN }}
-    commit-back: "true"
-```
+The workflow only runs when the PR actor is `renovate[bot]` or `bfra-me[bot]`. This prevents unnecessary runs on human-authored PRs.
 
 ## Troubleshooting
 
+### Workflow doesn't run on called repos
+
+- Verify the calling workflow uses `secrets: inherit` (or explicitly passes `APPLICATION_ID` and `APPLICATION_PRIVATE_KEY`)
+- Verify the actor check matches your Renovate bot name
+
 ### No changesets created
 
-- Verify the PR is from Renovate (actor must be `renovate[bot]` or your bot)
-- Check that changed files match configured patterns
-- Review action logs for detection details
+- Check that changed files match the action's configured patterns
+- Review the action logs for detection details
+- See the [action README](../../.github/actions/renovate-changesets/README.md) for action-specific configuration and troubleshooting
 
 ### Commit fails
 
-- Ensure `token` has `contents: write` permission
-- Check for merge conflicts (action auto-resolves when possible)
-- Verify branch is not protected
-
-### Rate limiting
-
-- The action handles GitHub API rate limits automatically
-- Use `max-retries` to increase retry attempts
-
-## Best Practices
-
-1. **Use `commit-back: true`** for automatic changeset commits
-2. **Enable `comment-pr: true`** after initial validation
-3. **Pin action to SHA** for security (not floating tags)
-4. **Use GitHub App tokens** for better rate limits and permissions
+- Ensure the App token has `contents: write` permission on the target repo
+- Check for merge conflicts on the PR branch
 
 ## Related
 
+- [Action documentation](../../.github/actions/renovate-changesets/README.md) — inputs, outputs, configuration, and ecosystem support
 - [Renovate Configuration](./renovate.md)
-- [Implementation Plan](/.ai/plan/feature-enhanced-renovate-changesets-action-1.md)

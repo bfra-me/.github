@@ -5,6 +5,13 @@ on:
   merge_group:
   pull_request_target:
   workflow_call:
+    secrets:
+      APPLICATION_ID:
+        description: GitHub App ID for generating tokens
+        required: true
+      APPLICATION_PRIVATE_KEY:
+        description: GitHub App private key for generating tokens
+        required: true
 
 permissions:
   contents: read
@@ -16,7 +23,9 @@ jobs:
       contents: write
       pull-requests: write
     runs-on: ubuntu-latest
-    if: github.repository == 'bfra-me/.github' && ( github.actor == 'bfra-me[bot]' || github.actor == 'renovate[bot]' )
+    if: >-
+      (github.repository == 'bfra-me/.github' || github.event_name == 'workflow_call') &&
+      (github.actor == 'bfra-me[bot]' || github.actor == 'renovate[bot]')
     steps:
       - id: get-workflow-access-token
         name: Get Workflow Access Token

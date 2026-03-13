@@ -562,39 +562,29 @@ export class RenovateParser {
 
   /**
    * TASK-013: Extract dependencies from file changes
+   *
+   * NOTE: File-based dependency extraction is handled by specialized detectors
+   * (NPMChangeDetector, GitHubActionsChangeDetector, etc.) which parse file diffs
+   * to extract actual package names and versions.
+   *
+   * This method returns an empty array because the base implementation intentionally
+   * does not generate synthetic dependency names like "${manager}-dependencies".
+   * The specialized detectors in index.ts are used instead.
    */
   private extractDependenciesFromFiles(
-    files: {filename: string; status: string; additions?: number; deletions?: number}[],
-    defaultManager: RenovateManagerType,
+    _files: {filename: string; status: string; additions?: number; deletions?: number}[],
+    _defaultManager: RenovateManagerType,
   ): RenovateDependency[] {
-    const dependencies: RenovateDependency[] = []
-
-    for (const file of files) {
-      const manager = this.detectManagerFromFilename(file.filename)
-      if (manager !== 'unknown') {
-        // For now, create a basic dependency entry for the file
-        // In a real implementation, we'd parse the file diff to extract specific changes
-        const packageName = this.extractPackageNameFromFilename(file.filename)
-        if (packageName) {
-          dependencies.push({
-            name: packageName,
-            manager: manager || defaultManager,
-            updateType: 'patch',
-            isSecurityUpdate: false,
-            isGrouped: false,
-            packageFile: file.filename,
-          })
-        }
-      }
-    }
-
-    return dependencies
+    return []
   }
 
   /**
    * Detect manager type from filename
+   * Intentionally unused in production but kept for testing purposes.
+   * Tests access this via (parser as any)._detectManagerFromFilename()
    */
-  private detectManagerFromFilename(filename: string): RenovateManagerType {
+  // eslint-disable-next-line @typescript-eslint/class-method-usage
+  private _detectManagerFromFilename(filename: string): RenovateManagerType {
     const filenameLower = filename.toLowerCase()
 
     if (filenameLower.includes('package.json')) return 'npm'
@@ -622,17 +612,10 @@ export class RenovateParser {
     return 'unknown'
   }
 
-  /**
-   * Extract package name from filename
-   */
-  private extractPackageNameFromFilename(filename: string): string | undefined {
-    // For package.json files, we'd need to parse the content to get the name
-    // For now, return a generic name based on the file type
-    const manager = this.detectManagerFromFilename(filename)
-    if (manager !== 'unknown') {
-      return `${manager}-dependencies`
-    }
-    return undefined
+  // Public getter for testing purposes
+  /** @internal Used by tests to access private method */
+  get detectManagerFromFilename() {
+    return this._detectManagerFromFilename.bind(this)
   }
 
   /**

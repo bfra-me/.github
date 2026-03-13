@@ -516,7 +516,7 @@ Includes security fixes and performance improvements.`
     })
 
     describe('extractDependenciesFromFiles', () => {
-      it('should create basic dependencies from file changes', () => {
+      it('should return empty array (file-based extraction disabled to prevent synthetic names)', () => {
         const files = [
           {filename: 'package.json', status: 'modified'},
           {filename: 'Dockerfile', status: 'modified'},
@@ -525,10 +525,12 @@ Includes security fixes and performance improvements.`
 
         const result = (parser as any).extractDependenciesFromFiles(files, 'npm')
 
-        expect(result).toHaveLength(3)
-        expect(result[0].manager).toBe('npm')
-        expect(result[1].manager).toBe('dockerfile')
-        expect(result[2].manager).toBe('pip')
+        // File-based extraction is intentionally disabled to prevent
+        // generating synthetic names like "npm-dependencies" that pollute
+        // the dependency list. Actual package names come from:
+        // - PR title/body parsing
+        // - Specialized detectors (NPMChangeDetector, etc.)
+        expect(result).toHaveLength(0)
       })
     })
   })

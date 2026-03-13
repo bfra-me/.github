@@ -26,6 +26,13 @@ import {SecurityVulnerabilityDetector} from './security-vulnerability-detector'
 import {SemverBumpTypeDecisionEngine} from './semver-bump-decision-engine'
 import {SemverImpactAssessor} from './semver-impact-assessor'
 
+import type {WorkspacePackage} from './multi-package-analyzer'
+
+function getRootPackageName(workspacePackages: WorkspacePackage[], fallbackName: string): string {
+  const rootPackage = workspacePackages.find(pkg => pkg.path === '.' || pkg.path === '')
+  return rootPackage?.name ?? fallbackName
+}
+
 interface Config {
   updateTypes: {
     [key: string]: {
@@ -1497,17 +1504,23 @@ export async function run(): Promise<void> {
     let releases =
       multiPackageResult.changesets.length > 0 && multiPackageResult.changesets[0]
         ? multiPackageResult.changesets[0].releases
-        : [{name: repo, type: changesetType}]
+        : [
+            {
+              name: getRootPackageName(multiPackageAnalysis.workspacePackages, repo),
+              type: changesetType,
+            },
+          ]
 
     if (!changesetExists) {
       core.info(
         'Multi-package generation created no files, falling back to original changeset logic',
       )
 
-      // Prepare releases for changeset
+      // Prepare releases for changeset - use the correct package name from workspace analysis
+      const rootPackageName = getRootPackageName(multiPackageAnalysis.workspacePackages, repo)
       releases = [
         {
-          name: repo,
+          name: rootPackageName,
           type: changesetType,
         },
       ]

@@ -22,14 +22,20 @@
       enabled: false,
     },
     {
-      description: 'Use released versions of renovate-changesets action; disable digest pinning to prevent recursive updates.',
+      description: 'Disable digest-only updates for internal bfra-me/.github actions to stop recursive self-referencing PRs.',
+      matchDepNames: ['bfra-me/.github'],
+      matchUpdateTypes: ['digest'],
+      enabled: false,
+    },
+    {
+      description: 'Track released versions of renovate-changesets action via release tags.',
       matchDepNames: ['bfra-me/.github'],
       matchFileNames: ['.github/workflows/renovate-changeset.yaml'],
       extractVersion: '^renovate-changesets@(?<version>.+)$',
       pinDigests: false,
     },
     {
-      description: 'Use released versions of update-repository-settings action; disable digest pinning to prevent recursive updates.',
+      description: 'Track released versions of update-repository-settings action via release tags.',
       matchDepNames: ['bfra-me/.github'],
       matchFileNames: ['.github/workflows/update-repo-settings.yaml'],
       extractVersion: '^update-repository-settings@(?<version>.+)$',

@@ -1,5 +1,12 @@
 # @bfra.me/.github
 
+## 4.5.4
+### Patch Changes
+
+
+- Fix renovate-changesets parsing for GitHub Actions updates so summaries use the correct manager, ([#1732](https://github.com/bfra-me/.github/pull/1732))
+  dependency names, and version details for action updates like `dorny/paths-filter`.
+
 ## 4.5.3
 ### Patch Changes
 

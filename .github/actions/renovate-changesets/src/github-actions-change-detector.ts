@@ -243,7 +243,7 @@ export class GitHubActionsChangeDetector {
           workflowFile: filename,
           newRef: action.ref,
           manager: 'github-actions',
-          updateType: this.determineUpdateType(action.name, undefined, action.ref),
+          updateType: this.determineUpdateType(undefined, action.ref),
           semverImpact: this.calculateSemverImpact(undefined, action.ref),
           isSecurityUpdate: this.isSecurityRelatedAction(action.name),
           stepName: action.stepName,
@@ -428,7 +428,7 @@ export class GitHubActionsChangeDetector {
           currentRef: baseAction.ref,
           newRef: headAction.ref,
           manager: 'github-actions',
-          updateType: this.determineUpdateType(headAction.name, baseAction.ref, headAction.ref),
+          updateType: this.determineUpdateType(baseAction.ref, headAction.ref),
           semverImpact: this.calculateSemverImpact(baseAction.ref, headAction.ref),
           isSecurityUpdate:
             this.isSecurityRelatedAction(headAction.name) ||
@@ -533,13 +533,9 @@ export class GitHubActionsChangeDetector {
   }
 
   /**
-   * Determine update type based on action and version change
+   * Determine update type based on version change
    */
-  private determineUpdateType(
-    _actionName: string,
-    currentRef?: string,
-    newRef?: string,
-  ): RenovateUpdateType {
+  private determineUpdateType(currentRef?: string, newRef?: string): RenovateUpdateType {
     const semverImpact = this.calculateSemverImpact(currentRef, newRef)
 
     // Map semver impact to Renovate update types

@@ -1162,10 +1162,6 @@ export async function run(): Promise<void> {
     const multiPackageAnalysis = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
       enhancedDependencies,
       changedFiles,
-      octokit,
-      owner,
-      repo,
-      pr.number,
     )
 
     core.info(

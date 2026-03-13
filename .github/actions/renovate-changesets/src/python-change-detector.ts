@@ -440,8 +440,8 @@ export class PythonChangeDetector {
       }
 
       // Parse TOML format
-      const oldPyproject = this.parsePyprojectContent(oldContent)
-      const newPyproject = this.parsePyprojectContent(newContent)
+      const oldPyproject = this.parsePyprojectContent()
+      const newPyproject = this.parsePyprojectContent()
 
       // Compare project dependencies
       if (oldPyproject.project?.dependencies && newPyproject.project?.dependencies) {
@@ -651,7 +651,7 @@ export class PythonChangeDetector {
   /**
    * Parse pyproject.toml content (simplified TOML parsing)
    */
-  private parsePyprojectContent(_content: string): PyprojectToml {
+  private parsePyprojectContent(): PyprojectToml {
     // This is a simplified TOML parser - in production, use a proper TOML library
     // For now, return empty object as a placeholder
     return {}
@@ -689,7 +689,7 @@ export class PythonChangeDetector {
             this.cleanVersion(oldDepInfo.version),
             this.cleanVersion(newDepInfo.version),
           ),
-          isSecurityUpdate: this.isSecurityUpdate(name, oldDepInfo.version, newDepInfo.version),
+          isSecurityUpdate: this.isSecurityUpdate(),
           isEditable: false,
           isExtra: false,
           extras: newDepInfo.extras || [],
@@ -737,7 +737,7 @@ export class PythonChangeDetector {
               this.cleanVersion(oldVersion),
               this.cleanVersion(newVersion),
             ),
-            isSecurityUpdate: this.isSecurityUpdate(name, oldVersion, newVersion),
+            isSecurityUpdate: this.isSecurityUpdate(),
             isEditable: false,
             isExtra: false,
             groupName,
@@ -791,7 +791,7 @@ export class PythonChangeDetector {
             this.cleanVersion(oldDep.version),
             this.cleanVersion(newDep.version),
           ),
-          isSecurityUpdate: this.isSecurityUpdate(newDep.name, oldDep.version, newDep.version),
+          isSecurityUpdate: this.isSecurityUpdate(),
           isEditable: newDep.isEditable,
           isExtra: depType === 'extras',
           extras: newDep.extras,
@@ -831,7 +831,7 @@ export class PythonChangeDetector {
         this.cleanVersion(oldReq.version),
         this.cleanVersion(newReq.version),
       ),
-      isSecurityUpdate: this.isSecurityUpdate(newReq.name, oldReq.version, newReq.version),
+      isSecurityUpdate: this.isSecurityUpdate(),
       isEditable: newReq.isEditable,
       isExtra: false,
       line: lineNumber,
@@ -957,7 +957,7 @@ export class PythonChangeDetector {
   /**
    * Check if this is a security update
    */
-  private isSecurityUpdate(_name: string, _oldVersion?: string, _newVersion?: string): boolean {
+  private isSecurityUpdate(): boolean {
     // Simple heuristic - in production, this would check against security databases
     return false
   }

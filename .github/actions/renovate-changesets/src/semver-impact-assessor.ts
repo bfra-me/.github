@@ -161,7 +161,7 @@ export class SemverImpactAssessor {
     // Apply manager-specific rules
     const managerRule = this.options.managerRules?.[dependency.manager]
     if (managerRule) {
-      semverImpact = this.applyManagerRules(semverImpact, dependency, managerRule)
+      semverImpact = this.applyManagerRules(semverImpact, managerRule)
     }
 
     // Determine confidence level
@@ -432,7 +432,6 @@ export class SemverImpactAssessor {
    */
   private applyManagerRules(
     impact: 'major' | 'minor' | 'patch',
-    _dependency: RenovateDependency,
     rule: NonNullable<ImpactAssessmentOptions['managerRules']>[string],
   ): 'major' | 'minor' | 'patch' {
     // Apply default impact if specified

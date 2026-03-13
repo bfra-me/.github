@@ -1,4 +1,3 @@
-import type {Octokit} from '@octokit/rest'
 import type {RenovateDependency} from './renovate-parser'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
@@ -113,10 +112,6 @@ export class MultiPackageAnalyzer {
   async analyzeMultiPackageUpdate(
     dependencies: RenovateDependency[],
     changedFiles: string[],
-    _octokit?: Octokit,
-    _owner?: string,
-    _repo?: string,
-    _prNumber?: number,
   ): Promise<MultiPackageAnalysisResult> {
     try {
       // Step 1: Discover workspace packages

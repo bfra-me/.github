@@ -398,7 +398,6 @@ export class RenovateParser {
           prData.title,
           prData.body || '',
           commitMessage,
-          files,
           parsedCommit.renovateInfo.manager,
         )
         allDependencies.push(...deps)
@@ -438,7 +437,6 @@ export class RenovateParser {
         prData.title,
         prData.body || '',
         '',
-        files,
         detectedManager,
       )
       allDependencies.push(...fallbackDeps)
@@ -473,7 +471,6 @@ export class RenovateParser {
     prTitle: string,
     prBody: string,
     commitMessage: string,
-    files: PRFileInfo[],
     manager: RenovateManagerType,
   ): RenovateDependency[] {
     const dependencies: RenovateDependency[] = []
@@ -491,10 +488,6 @@ export class RenovateParser {
       const commitDeps = this.parseDependenciesFromText(commitMessage, manager)
       dependencies.push(...commitDeps)
     }
-
-    // TASK-013: Extract version changes from file diffs
-    const fileDeps = this.extractDependenciesFromFiles(files, manager)
-    dependencies.push(...fileDeps)
 
     // Deduplicate dependencies by name
     const uniqueDeps = dependencies.reduce((acc, dep) => {
@@ -579,7 +572,7 @@ export class RenovateParser {
             newVersion: version2 || version1,
             manager: this.detectManagerFromDependencyName(name) || defaultManager,
             updateType: this.detectUpdateTypeFromVersions(version1, version2),
-            isSecurityUpdate: this.isSecurityUpdate(text, name),
+            isSecurityUpdate: this.isSecurityUpdate(text),
             isGrouped: this.isGroupedUpdate(text),
             groupName: this.extractGroupName(text),
             scope: this.extractScope(name),
@@ -630,7 +623,7 @@ export class RenovateParser {
           newVersion: toVersion,
           manager: this.detectManagerFromDependencyName(linkName) || defaultManager,
           updateType: this.detectUpdateTypeFromVersions(fromVersion, toVersion),
-          isSecurityUpdate: this.isSecurityUpdate(text, linkName),
+          isSecurityUpdate: this.isSecurityUpdate(text),
           isGrouped: this.isGroupedUpdate(text),
           groupName: this.extractGroupName(text),
           scope: this.extractScope(linkName),
@@ -639,24 +632,6 @@ export class RenovateParser {
     }
 
     return dependencies
-  }
-
-  /**
-   * TASK-013: Extract dependencies from file changes
-   *
-   * NOTE: File-based dependency extraction is handled by specialized detectors
-   * (NPMChangeDetector, GitHubActionsChangeDetector, etc.) which parse file diffs
-   * to extract actual package names and versions.
-   *
-   * This method returns an empty array because the base implementation intentionally
-   * does not generate synthetic dependency names like "${manager}-dependencies".
-   * The specialized detectors in index.ts are used instead.
-   */
-  private extractDependenciesFromFiles(
-    _files: PRFileInfo[],
-    _defaultManager: RenovateManagerType,
-  ): RenovateDependency[] {
-    return []
   }
 
   private detectManagerFromFiles(files: PRFileInfo[]): RenovateManagerType {
@@ -765,10 +740,7 @@ export class RenovateParser {
     return 'patch'
   }
 
-  /**
-   * TASK-011: Detect security updates
-   */
-  private isSecurityUpdate(text: string, _dependencyName: string): boolean {
+  private isSecurityUpdate(text: string): boolean {
     const textLower = text.toLowerCase()
     return (
       textLower.includes('security') ||

@@ -53,6 +53,6 @@ jobs:
           GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Update Repository Settings (${{ github.repository }})
-        uses: bfra-me/.github/.github/actions/update-repository-settings@a36a0d46898fda58018842c59355e8da49242ce5 # update-repository-settings@0.1.1
+        uses: bfra-me/.github/.github/actions/update-repository-settings@a36a0d46898fda58018842c59355e8da49242ce5 # 0.1.1
         with:
           token: ${{ steps.get-workflow-access-token.outputs.token }}

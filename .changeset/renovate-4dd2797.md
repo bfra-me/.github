@@ -2,4 +2,4 @@
 '@bfra.me/.github': patch
 ---
 
-📦 Update unknown dependencies: lint-staged, npm-dependencies, pnpm-dependencies
+Update dependency `lint-staged` to `16.3.3`

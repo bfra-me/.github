@@ -1,5 +1,5 @@
 ---
-'@bfra.me/renovate-changesets': patch
+'renovate-changesets': patch
 ---
 
 Fix changeset body formatting to remove synthetic dependency names

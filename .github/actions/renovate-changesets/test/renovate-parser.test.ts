@@ -291,7 +291,7 @@ Includes security fixes and performance improvements.`
         expect(result.isRenovateBot).toBe(true)
         expect(result.branchName).toBe('renovate/npm-react-18.x')
         expect(result.prTitle).toBe('chore(deps): update dependency react to v18.0.0')
-        expect(result.manager).toBe('unknown') // Manager detection needs explicit scope or commit pattern
+        expect(result.manager).toBe('npm')
         expect(result.updateType).toBe('patch')
         expect(result.files).toHaveLength(2)
         expect(result.commitMessages).toHaveLength(1)
@@ -354,6 +354,53 @@ Includes security fixes and performance improvements.`
         )
 
         expect(result.isGroupedUpdate).toBe(true)
+      })
+
+      it('should infer github-actions manager and versions from workflow update context', async () => {
+        const prData = {
+          title: 'chore(deps): update dorny/paths-filter action to v4',
+          body: `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| [dorny/paths-filter](https://redirect.github.com/dorny/paths-filter) | action | major | \`v3.0.3\` → \`v4.0.0\` |
+`,
+          user: {login: 'renovate[bot]'},
+          head: {ref: 'renovate/dorny-paths-filter-4.x'},
+        }
+
+        mockedOctokit.rest.pulls.listFiles.mockResolvedValue({
+          data: [
+            createMockPRFile({filename: '.github/workflows/renovate.yaml'}),
+            createMockPRFile({filename: '.github/workflows/update-repo-settings.yaml'}),
+          ],
+        })
+
+        mockedOctokit.rest.pulls.listCommits.mockResolvedValue({
+          data: [
+            createMockCommit({
+              commit: {
+                message: 'chore(deps): update dorny/paths-filter action to v4',
+              },
+            }),
+          ],
+        })
+
+        const result = await parser.extractPRContext(
+          mockedOctokit as any,
+          'test-owner',
+          'test-repo',
+          1,
+          prData,
+        )
+
+        const targetDependency = result.dependencies.find(dep => dep.name === 'dorny/paths-filter')
+
+        expect(result.manager).toBe('github-actions')
+        expect(targetDependency).toBeTruthy()
+        expect(targetDependency?.manager).toBe('unknown')
+        expect(targetDependency?.currentVersion).toBe('3.0.3')
+        expect(targetDependency?.newVersion).toBe('4.0.0')
       })
 
       it('should identify different bot types', async () => {
@@ -436,6 +483,16 @@ Includes security fixes and performance improvements.`
         expect(result.length).toBeGreaterThan(0)
         expect(result[0].name).toBe('pnpm/action-setup')
         expect(result[0].newVersion).toBe('4.4.0')
+      })
+
+      it('should extract GitHub Action dependency when title uses major-only target version', () => {
+        const text = 'chore(deps): update dorny/paths-filter action to v4'
+        const result = (parser as any).parseDependenciesFromText(text, 'github-actions')
+
+        expect(result.length).toBeGreaterThan(0)
+        expect(result[0].name).toBe('dorny/paths-filter')
+        expect(result[0].newVersion).toBe('4')
+        expect(result[0].manager).toBe('github-actions')
       })
 
       it('should detect scoped npm packages', () => {

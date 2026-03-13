@@ -1,5 +1,14 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.17
+### Patch Changes
+
+
+- Fix changeset summary generation for GitHub Actions dependency updates: infer `github-actions` ([#1734](https://github.com/bfra-me/.github/pull/1734))
+  manager from workflow files when title/commit parsing yields `unknown`, support major-only version
+  targets (e.g. `to v4`), extract dependency versions from Renovate markdown tables, and filter
+  spurious tokens like `update` from the dependency list.
+
 ## 0.2.16
 ### Patch Changes
 

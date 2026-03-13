@@ -1,3 +1,4 @@
+import type {WorkspacePackage} from './multi-package-analyzer'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -25,6 +26,11 @@ import {RenovateParser} from './renovate-parser'
 import {SecurityVulnerabilityDetector} from './security-vulnerability-detector'
 import {SemverBumpTypeDecisionEngine} from './semver-bump-decision-engine'
 import {SemverImpactAssessor} from './semver-impact-assessor'
+
+function getRootPackageName(workspacePackages: WorkspacePackage[], fallbackName: string): string {
+  const rootPackage = workspacePackages.find(pkg => pkg.path === '.' || pkg.path === '')
+  return rootPackage?.name ?? fallbackName
+}
 
 interface Config {
   updateTypes: {
@@ -1494,20 +1500,26 @@ export async function run(): Promise<void> {
     // Backward compatibility: If no files were created, fall back to original logic
     let changesetExists = multiPackageResult.filesCreated.length > 0
     let changesetPath = 'multi-package'
+    const rootPackageName = getRootPackageName(multiPackageAnalysis.workspacePackages, repo)
     let releases =
       multiPackageResult.changesets.length > 0 && multiPackageResult.changesets[0]
         ? multiPackageResult.changesets[0].releases
-        : [{name: repo, type: changesetType}]
+        : [
+            {
+              name: rootPackageName,
+              type: changesetType,
+            },
+          ]
 
     if (!changesetExists) {
       core.info(
         'Multi-package generation created no files, falling back to original changeset logic',
       )
 
-      // Prepare releases for changeset
+      // Prepare releases for changeset - use the correct package name from workspace analysis
       releases = [
         {
-          name: repo,
+          name: rootPackageName,
           type: changesetType,
         },
       ]

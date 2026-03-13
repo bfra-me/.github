@@ -2,4 +2,4 @@
 '@bfra.me/.github': patch
 ---
 
-📋 Update unknown dependencies: github-actions-dependencies
+Update `bfra-me/.github` action digest to `16aab9f`

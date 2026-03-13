@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.18
+### Patch Changes
+
+
+- Fix template engine bypassing manager-specific summary generation when no organization templates are configured ([#1739](https://github.com/bfra-me/.github/pull/1739))
+
 ## 0.2.17
 ### Patch Changes
 

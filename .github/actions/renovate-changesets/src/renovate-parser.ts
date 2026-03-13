@@ -64,6 +64,13 @@ export interface RenovateDependency {
   scope?: string
 }
 
+interface PRFileInfo {
+  filename: string
+  status: string
+  additions?: number
+  deletions?: number
+}
+
 /**
  * Parsed Renovate PR context
  */
@@ -421,6 +428,10 @@ export class RenovateParser {
       }
     }
 
+    if (detectedManager === 'unknown') {
+      detectedManager = this.detectManagerFromFiles(files)
+    }
+
     // Fallback dependency extraction from PR title and body
     if (allDependencies.length === 0) {
       const fallbackDeps = this.extractDependenciesFromPR(
@@ -462,7 +473,7 @@ export class RenovateParser {
     prTitle: string,
     prBody: string,
     commitMessage: string,
-    files: {filename: string; status: string; additions?: number; deletions?: number}[],
+    files: PRFileInfo[],
     manager: RenovateManagerType,
   ): RenovateDependency[] {
     const dependencies: RenovateDependency[] = []
@@ -487,11 +498,28 @@ export class RenovateParser {
 
     // Deduplicate dependencies by name
     const uniqueDeps = dependencies.reduce((acc, dep) => {
-      const existing = acc.find(d => d.name === dep.name && d.manager === dep.manager)
+      const existing = acc.find(
+        d =>
+          d.name === dep.name &&
+          (d.manager === dep.manager || d.manager === 'unknown' || dep.manager === 'unknown'),
+      )
       if (existing) {
         // Merge information, preferring non-empty values
-        existing.currentVersion = existing.currentVersion || dep.currentVersion
-        existing.newVersion = existing.newVersion || dep.newVersion
+        const hasSemverLike = (version?: string) => version != null && version.includes('.')
+
+        if (
+          (existing.currentVersion == null && dep.currentVersion != null) ||
+          (!hasSemverLike(existing.currentVersion) && hasSemverLike(dep.currentVersion))
+        ) {
+          existing.currentVersion = dep.currentVersion
+        }
+
+        if (
+          (existing.newVersion == null && dep.newVersion != null) ||
+          (!hasSemverLike(existing.newVersion) && hasSemverLike(dep.newVersion))
+        ) {
+          existing.newVersion = dep.newVersion
+        }
         existing.packageFile = existing.packageFile || dep.packageFile
         existing.scope = existing.scope || dep.scope
         if (dep.isSecurityUpdate) existing.isSecurityUpdate = true
@@ -519,15 +547,25 @@ export class RenovateParser {
     const dependencies: RenovateDependency[] = []
 
     // Enhanced patterns for dependency extraction
+    const versionPattern = String.raw`v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`
     const patterns = [
       // "update dependency @scope/package to v1.2.3"
-      /update\s+(?:dependency\s+)?(@?\w[\w./%-]*)(?:\s+(?:action|package|module|dependency))?\s+(?:to\s+)?v?(\d+\.\d+\.\d+(?:-[\w.]+)?)/gi,
+      new RegExp(
+        String.raw`update\s+(?:dependency\s+)?(@?\w[\w./%-]*)(?:\s+(?:action|package|module|dependency))?\s+(?:to\s+)?${versionPattern}`,
+        'gi',
+      ),
       // "bump @scope/package from 1.0.0 to 1.1.0"
-      /bump\s+(@?\w[\w./%-]*)\s+from\s+v?(\d+\.\d+\.\d+(?:-[\w.]+)?)\s+to\s+v?(\d+\.\d+\.\d+(?:-[\w.]+)?)/gi,
+      new RegExp(
+        String.raw`bump\s+(@?\w[\w./%-]*)\s+from\s+${versionPattern}\s+to\s+${versionPattern}`,
+        'gi',
+      ),
       // "upgrade @scope/package (1.0.0 → 1.1.0)"
-      /upgrade\s+(@?\w[\w./%-]*)\s*\(v?(\d+\.\d+\.\d+(?:-[\w.]+)?)\s*→\s*v?(\d+\.\d+\.\d+(?:-[\w.]+)?)\)/gi,
+      new RegExp(
+        String.raw`upgrade\s+(@?\w[\w./%-]*)\s*\(${versionPattern}\s*→\s*${versionPattern}\)`,
+        'gi',
+      ),
       // "@scope/package (1.0.0 → 1.1.0)" in release notes
-      /(@?\w[\w./%-]*)\s*\(v?(\d+\.\d+\.\d+(?:-[\w.]+)?)\s*→\s*v?(\d+\.\d+\.\d+(?:-[\w.]+)?)\)/gi,
+      new RegExp(String.raw`(@?\w[\w./%-]*)\s*\(${versionPattern}\s*→\s*${versionPattern}\)`, 'gi'),
     ]
 
     for (const pattern of patterns) {
@@ -557,6 +595,49 @@ export class RenovateParser {
       }
     }
 
+    const linkDependencies = this.extractMarkdownLinkDependencies(text, defaultManager)
+    dependencies.push(...linkDependencies)
+
+    return dependencies
+  }
+
+  private extractMarkdownLinkDependencies(
+    text: string,
+    defaultManager: RenovateManagerType,
+  ): RenovateDependency[] {
+    const dependencies: RenovateDependency[] = []
+    const markdownLinkPattern = /\[(@?\w[\w./%-]*)\]\([^)]*\)/g
+    const versionPairPattern =
+      /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`?\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`?/g
+    const versionPairs = [...text.matchAll(versionPairPattern)]
+
+    if (versionPairs.length === 0) {
+      return dependencies
+    }
+
+    const links = [...text.matchAll(markdownLinkPattern)]
+    const pairCount = Math.min(links.length, versionPairs.length)
+
+    for (let index = 0; index < pairCount; index += 1) {
+      const linkName = links[index]?.[1]
+      const fromVersion = versionPairs[index]?.[1]
+      const toVersion = versionPairs[index]?.[2]
+
+      if (linkName != null && fromVersion != null && toVersion != null) {
+        dependencies.push({
+          name: linkName,
+          currentVersion: fromVersion,
+          newVersion: toVersion,
+          manager: this.detectManagerFromDependencyName(linkName) || defaultManager,
+          updateType: this.detectUpdateTypeFromVersions(fromVersion, toVersion),
+          isSecurityUpdate: this.isSecurityUpdate(text, linkName),
+          isGrouped: this.isGroupedUpdate(text),
+          groupName: this.extractGroupName(text),
+          scope: this.extractScope(linkName),
+        })
+      }
+    }
+
     return dependencies
   }
 
@@ -572,10 +653,33 @@ export class RenovateParser {
    * The specialized detectors in index.ts are used instead.
    */
   private extractDependenciesFromFiles(
-    _files: {filename: string; status: string; additions?: number; deletions?: number}[],
+    _files: PRFileInfo[],
     _defaultManager: RenovateManagerType,
   ): RenovateDependency[] {
     return []
+  }
+
+  private detectManagerFromFiles(files: PRFileInfo[]): RenovateManagerType {
+    const counts = new Map<RenovateManagerType, number>()
+
+    for (const file of files) {
+      const manager = this._detectManagerFromFilename(file.filename)
+      if (manager !== 'unknown') {
+        counts.set(manager, (counts.get(manager) ?? 0) + 1)
+      }
+    }
+
+    let selected: RenovateManagerType = 'unknown'
+    let maxCount = 0
+
+    for (const [manager, count] of counts.entries()) {
+      if (count > maxCount) {
+        selected = manager
+        maxCount = count
+      }
+    }
+
+    return selected
   }
 
   /**
@@ -626,7 +730,7 @@ export class RenovateParser {
     if (name.includes('/')) {
       // Could be Docker image or scoped package
       if (name.includes(':')) return 'docker'
-      return 'npm'
+      return undefined
     }
     return undefined
   }

@@ -775,6 +775,21 @@ describe('ChangesetSummaryGenerator', () => {
   })
 
   describe('fallback behavior', () => {
+    it('should use update type when manager is unknown in template context', async () => {
+      mockPRContext.manager = 'unknown'
+
+      const summary = await generator.generateSummary(
+        mockPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'github-actions',
+        ['pnpm/action-setup'],
+        'Update {manager} dependencies: {dependencies}',
+      )
+
+      expect(summary).toBe('Update github-actions dependencies: pnpm/action-setup')
+    })
+
     it('should handle unknown managers gracefully', async () => {
       // @ts-expect-error - Testing unknown manager
       mockPRContext.manager = 'unknown-manager'

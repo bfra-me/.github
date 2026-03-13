@@ -429,6 +429,15 @@ Includes security fixes and performance improvements.`
         }
       })
 
+      it('should extract dependency when title includes type qualifier before version', () => {
+        const text = 'chore(deps): update pnpm/action-setup action to v4.4.0'
+        const result = (parser as any).parseDependenciesFromText(text, 'github-actions')
+
+        expect(result.length).toBeGreaterThan(0)
+        expect(result[0].name).toBe('pnpm/action-setup')
+        expect(result[0].newVersion).toBe('4.4.0')
+      })
+
       it('should detect scoped npm packages', () => {
         const text = 'update dependency @scope/package to v1.0.0'
         const result = (parser as any).parseDependenciesFromText(text, 'npm')

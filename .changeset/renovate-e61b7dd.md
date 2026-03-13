@@ -2,4 +2,4 @@
 '@bfra.me/.github': patch
 ---
 
-📦 Update unknown dependencies: bfra-me/renovate-action, bfra-me/.github, pnpm and 2 more
+📦 Update dependency `bfra-me/renovate-action` to `8.87.6`

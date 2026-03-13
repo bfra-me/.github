@@ -748,6 +748,82 @@ Sample changeset content
       )
       expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '1')
     })
+
+    it('should prefer title dependency for non-grouped PR when body includes release notes', async () => {
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined
+      })
+
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
+
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency bfra-me/renovate-action to v8.87.6',
+          body: `This PR contains the following updates:\n\n- update dependency bfra-me/.github to v0.2.16\n- update dependency pnpm/action-setup to v4.4.0`,
+          head: {ref: 'renovate/bfra-me-renovate-action-8.x'},
+        },
+      }
+
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: '.github/workflows/renovate.yaml'}],
+      })
+      octokitMocks.rest.pulls.listCommits.mockResolvedValue({
+        data: [
+          {
+            commit: {
+              message: 'chore(deps): update dependency bfra-me/renovate-action to v8.87.6',
+            },
+          },
+        ],
+      })
+
+      renovateParserMocks.extractPRContext.mockResolvedValue({
+        dependencies: [
+          {name: 'bfra-me/renovate-action', currentVersion: '8.87.5', newVersion: '8.87.6'},
+        ],
+        isRenovateBot: true,
+        branchName: 'renovate/bfra-me-renovate-action-8.x',
+        prTitle: 'chore(deps): update dependency bfra-me/renovate-action to v8.87.6',
+        prBody:
+          'This PR contains the following updates:\n\n- update dependency bfra-me/.github to v0.2.16\n- update dependency pnpm/action-setup to v4.4.0',
+        commitMessages: ['chore(deps): update dependency bfra-me/renovate-action to v8.87.6'],
+        isGroupedUpdate: false,
+        isSecurityUpdate: false,
+        updateType: 'patch',
+        manager: 'github-actions',
+        files: [
+          {
+            filename: '.github/workflows/renovate.yaml',
+            status: 'modified',
+            additions: 1,
+            deletions: 1,
+          },
+        ],
+      })
+
+      await import('../src/index')
+
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      const dependencyOutputs = coreMocks.setOutput.mock.calls.filter(
+        call => call[0] === 'dependencies',
+      )
+      const lastDependencyOutput = dependencyOutputs.at(-1)
+
+      expect(lastDependencyOutput).toBeDefined()
+      expect(lastDependencyOutput?.[1]).toBe(JSON.stringify(['bfra-me/renovate-action']))
+    })
   })
 
   describe('changeset generation', () => {

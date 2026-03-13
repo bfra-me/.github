@@ -1,5 +1,26 @@
 # @bfra.me/.github
 
+## 4.5.0
+### Minor Changes
+
+
+- Add `update-repository-settings` action replacing `elstudio/actions-settings` with direct Octokit API calls. Fixes `TypeError: this.topics.split is not a function` when `repository.topics` is a YAML array. ([#1675](https://github.com/bfra-me/.github/pull/1675))
+
+
+### Patch Changes
+
+
+- Fix 422 error in update-repository-settings action when applying branch protection by sanitizing GET response shape before PUT. ([#1679](https://github.com/bfra-me/.github/pull/1679))
+
+
+- Updated GitHub Actions dependencies. ([#1687](https://github.com/bfra-me/.github/pull/1687))
+
+
+- Updated dependency `packageManager` to `pnpm@10.32.0`. ([#1686](https://github.com/bfra-me/.github/pull/1686))
+
+
+- Pin changesets/action to SHA e87c8ed249971350e47fab7515075f44eb134e5b # v1.7.0 in auto-release.yaml ([#1680](https://github.com/bfra-me/.github/pull/1680))
+
 ## 4.4.0
 ### Minor Changes
 

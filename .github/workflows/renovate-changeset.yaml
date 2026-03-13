@@ -48,7 +48,7 @@ jobs:
 
       - id: renovate-changesets
         name: 🖌️ Generate Renovate changesets
-        uses: bfra-me/.github/.github/actions/renovate-changesets@0980ccb184fd082cff3528ef8a57d599a26966cb # renovate-changesets@0.2.14
+        uses: ./.github/actions/renovate-changesets
         with:
           token: ${{ steps.get-workflow-access-token.outputs.token }}
           commit-back: 'true'

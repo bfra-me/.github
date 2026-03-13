@@ -1,6 +1,6 @@
 {
-  "name": "@bfra.me/update-repository-settings",
-  "version": "0.1.0",
+  "name": "update-repository-settings",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsup --minify",
     "lint": "eslint",
-    "test": "pnpm -w test --project @bfra.me/update-repository-settings",
+    "test": "pnpm -w test --project update-repository-settings",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {

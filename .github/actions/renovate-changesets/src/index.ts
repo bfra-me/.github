@@ -1,3 +1,4 @@
+import type {WorkspacePackage} from './multi-package-analyzer'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -25,8 +26,6 @@ import {RenovateParser} from './renovate-parser'
 import {SecurityVulnerabilityDetector} from './security-vulnerability-detector'
 import {SemverBumpTypeDecisionEngine} from './semver-bump-decision-engine'
 import {SemverImpactAssessor} from './semver-impact-assessor'
-
-import type {WorkspacePackage} from './multi-package-analyzer'
 
 function getRootPackageName(workspacePackages: WorkspacePackage[], fallbackName: string): string {
   const rootPackage = workspacePackages.find(pkg => pkg.path === '.' || pkg.path === '')

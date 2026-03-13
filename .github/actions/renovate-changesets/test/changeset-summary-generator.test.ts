@@ -7,9 +7,11 @@
 import type {CategorizationResult} from '../src/change-categorization-engine'
 import type {RenovatePRContext} from '../src/renovate-parser'
 import type {ImpactAssessment} from '../src/semver-impact-assessor'
+import process from 'node:process'
 import {beforeEach, describe, expect, it} from 'vitest'
 
 import {ChangesetSummaryGenerator, DEFAULT_SUMMARY_CONFIG} from '../src/changeset-summary-generator'
+import {ChangesetTemplateEngine} from '../src/changeset-template-engine'
 
 describe('ChangesetSummaryGenerator', () => {
   let generator: ChangesetSummaryGenerator
@@ -836,6 +838,209 @@ describe('ChangesetSummaryGenerator', () => {
       expect(summary).toContain('Update npm dependency `test-package`')
       expect(summary).not.toContain('from')
       expect(summary).not.toContain('to')
+    })
+  })
+
+  describe('Template engine bypass regression (PR #1736)', () => {
+    it('should not produce "unknown dependencies" when template engine is active and manager is github-actions', async () => {
+      const templateEngine = new ChangesetTemplateEngine({
+        workingDirectory: process.cwd(),
+        errorHandling: 'fallback',
+      })
+      const generatorWithEngine = new ChangesetSummaryGenerator(
+        {
+          useEmojis: true,
+          includeVersionDetails: true,
+          includeRiskAssessment: false,
+          includeBreakingChangeWarnings: true,
+          sortDependencies: false,
+          maxDependenciesToList: 5,
+        },
+        templateEngine,
+      )
+
+      const ghaPRContext: RenovatePRContext = {
+        dependencies: [
+          {
+            name: 'bfra-me/.github',
+            currentVersion: '0.2.16',
+            newVersion: '0.2.17',
+            manager: 'github-actions',
+            updateType: 'patch',
+            isSecurityUpdate: false,
+            isGrouped: false,
+          },
+        ],
+        isRenovateBot: true,
+        branchName: 'renovate/bfra-me-.github-0.x',
+        prTitle: 'chore(deps): update bfra-me/.github to v0.2.17',
+        prBody:
+          '| [bfra-me/.github](https://github.com/bfra-me/.github) | action | patch | `0.2.16` → `0.2.17` |',
+        commitMessages: ['chore(deps): update bfra-me/.github to v0.2.17'],
+        isGroupedUpdate: false,
+        isSecurityUpdate: false,
+        updateType: 'patch',
+        manager: 'github-actions',
+        files: [
+          {
+            filename: '.github/workflows/renovate-changeset.yaml',
+            status: 'modified',
+            additions: 1,
+            deletions: 1,
+          },
+        ],
+      }
+
+      const ghaImpact: ImpactAssessment = {
+        ...mockImpactAssessment,
+        overallImpact: 'patch',
+        recommendedChangesetType: 'patch',
+        dependencies: [
+          {
+            name: 'bfra-me/.github',
+            currentVersion: '0.2.16',
+            newVersion: '0.2.17',
+            versionChange: 'patch',
+            semverImpact: 'patch',
+            isBreaking: false,
+            isSecurityUpdate: false,
+            isDowngrade: false,
+            isPrerelease: false,
+            confidence: 'high',
+            reasoning: [],
+          },
+        ],
+      }
+
+      const summary = await generatorWithEngine.generateSummary(
+        ghaPRContext,
+        ghaImpact,
+        mockCategorizationResult,
+        'github-actions',
+        ['bfra-me/.github'],
+      )
+
+      expect(summary).not.toContain('unknown')
+      expect(summary).toContain('bfra-me/.github')
+      expect(summary).toContain('GitHub Actions')
+    })
+
+    it('should use generateContextAwareSummary when no organization templates are configured', async () => {
+      const templateEngine = new ChangesetTemplateEngine({
+        workingDirectory: process.cwd(),
+        errorHandling: 'fallback',
+      })
+      const generatorWithEngine = new ChangesetSummaryGenerator(
+        {
+          useEmojis: true,
+          includeVersionDetails: true,
+          includeRiskAssessment: false,
+          includeBreakingChangeWarnings: true,
+          sortDependencies: false,
+          maxDependenciesToList: 5,
+        },
+        templateEngine,
+      )
+
+      const npmPRContext: RenovatePRContext = {
+        ...mockPRContext,
+        manager: 'npm',
+      }
+
+      const summary = await generatorWithEngine.generateSummary(
+        npmPRContext,
+        mockImpactAssessment,
+        mockCategorizationResult,
+        'npm',
+        ['test-package'],
+      )
+
+      expect(summary).not.toContain('unknown')
+      expect(summary).toContain('test-package')
+      expect(summary).toContain('npm')
+    })
+
+    it('should include version information for github-actions deps with template engine', async () => {
+      const templateEngine = new ChangesetTemplateEngine({
+        workingDirectory: process.cwd(),
+        errorHandling: 'fallback',
+      })
+      const generatorWithEngine = new ChangesetSummaryGenerator(
+        {
+          useEmojis: true,
+          includeVersionDetails: true,
+          includeRiskAssessment: false,
+          includeBreakingChangeWarnings: true,
+          sortDependencies: false,
+          maxDependenciesToList: 5,
+        },
+        templateEngine,
+      )
+
+      const ghaPRContext: RenovatePRContext = {
+        dependencies: [
+          {
+            name: 'actions/checkout',
+            currentVersion: '3.0.0',
+            newVersion: '4.0.0',
+            manager: 'github-actions',
+            updateType: 'major',
+            isSecurityUpdate: false,
+            isGrouped: false,
+          },
+        ],
+        isRenovateBot: true,
+        branchName: 'renovate/actions-checkout-4.x',
+        prTitle: 'chore(deps): update actions/checkout to v4',
+        prBody: '',
+        commitMessages: ['chore(deps): update actions/checkout to v4'],
+        isGroupedUpdate: false,
+        isSecurityUpdate: false,
+        updateType: 'major',
+        manager: 'github-actions',
+        files: [
+          {
+            filename: '.github/workflows/ci.yaml',
+            status: 'modified',
+            additions: 1,
+            deletions: 1,
+          },
+        ],
+      }
+
+      const ghaImpact: ImpactAssessment = {
+        ...mockImpactAssessment,
+        overallImpact: 'major',
+        recommendedChangesetType: 'major',
+        dependencies: [
+          {
+            name: 'actions/checkout',
+            currentVersion: '3.0.0',
+            newVersion: '4.0.0',
+            versionChange: 'major',
+            semverImpact: 'major',
+            isBreaking: false,
+            isSecurityUpdate: false,
+            isDowngrade: false,
+            isPrerelease: false,
+            confidence: 'high',
+            reasoning: [],
+          },
+        ],
+      }
+
+      const summary = await generatorWithEngine.generateSummary(
+        ghaPRContext,
+        ghaImpact,
+        mockCategorizationResult,
+        'github-actions',
+        ['actions/checkout'],
+      )
+
+      expect(summary).toContain('actions/checkout')
+      expect(summary).toContain('3.0.0')
+      expect(summary).toContain('4.0.0')
+      expect(summary).not.toContain('unknown')
     })
   })
 })

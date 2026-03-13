@@ -275,7 +275,7 @@ export class ChangesetTemplateEngine {
   ): Promise<string> {
     const orgTemplates = this.config.organizationTemplates
     if (!orgTemplates) {
-      return this.renderFallbackTemplate(context)
+      return ''
     }
 
     // Try manager-specific template first

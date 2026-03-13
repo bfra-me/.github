@@ -219,9 +219,7 @@ export class PythonChangeDetector {
       } else if (this.isPipfile(filename)) {
         changes.push(...(await this.parsePipfileChanges(octokit, owner, repo, prNumber, filename)))
       } else if (this.isPyprojectToml(filename)) {
-        changes.push(
-          ...(await this.parsePyprojectChanges(octokit, owner, repo, prNumber, filename)),
-        )
+        changes.push(...(await this.parsePyprojectChanges()))
       }
 
       return changes
@@ -383,16 +381,9 @@ export class PythonChangeDetector {
   }
 
   /**
-   * Parse pyproject.toml changes
    * TOML parsing not implemented — requires a proper TOML library
    */
-  private async parsePyprojectChanges(
-    _octokit: Octokit,
-    _owner: string,
-    _repo: string,
-    _prNumber: number,
-    _filename: string,
-  ): Promise<PythonDependencyChange[]> {
+  private async parsePyprojectChanges(): Promise<PythonDependencyChange[]> {
     return []
   }
 

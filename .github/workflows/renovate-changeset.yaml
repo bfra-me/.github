@@ -48,7 +48,11 @@ jobs:
 
       - id: renovate-changesets
         name: 🖌️ Generate Renovate changesets
+<<<<<<< fix/disable-digest-updates-internal-actions
         uses: bfra-me/.github/.github/actions/renovate-changesets@a36a0d46898fda58018842c59355e8da49242ce5 # 0.2.16
+=======
+        uses: bfra-me/.github/.github/actions/renovate-changesets@654731646bc37ca02cd541127d2a586d210707c1 # renovate-changesets@0.2.16
+>>>>>>> main
         with:
           token: ${{ steps.get-workflow-access-token.outputs.token }}
           commit-back: 'true'

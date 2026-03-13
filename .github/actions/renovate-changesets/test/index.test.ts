@@ -824,6 +824,80 @@ Sample changeset content
       expect(lastDependencyOutput).toBeDefined()
       expect(lastDependencyOutput?.[1]).toBe(JSON.stringify(['bfra-me/renovate-action']))
     })
+
+    it('should handle digest update titles without adding generic update token', async () => {
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('.changeset/renovate-abc1234.md')) {
+          throw new Error('File not found')
+        }
+        return undefined
+      })
+
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
+
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 1,
+          title: 'chore(deps): update bfra-me/.github to dac9b0d',
+          body: `This PR contains the following updates:\n\n| Package | Type | Update | Change |\n|---|---|---|---|\n| bfra-me/.github | action | digest | \`2c3d82d\` → \`dac9b0d\` |`,
+          head: {ref: 'renovate/bfra-me-.github-digest'},
+        },
+      }
+
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      fsMocks.writeFile.mockResolvedValue(undefined)
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({
+        data: [{filename: '.github/workflows/renovate-changeset.yaml'}],
+      })
+      octokitMocks.rest.pulls.listCommits.mockResolvedValue({
+        data: [
+          {
+            commit: {
+              message: 'chore(deps): update bfra-me/.github to dac9b0d',
+            },
+          },
+        ],
+      })
+
+      renovateParserMocks.extractPRContext.mockResolvedValue({
+        dependencies: [{name: 'bfra-me/.github', currentVersion: '2c3d82d', newVersion: 'dac9b0d'}],
+        isRenovateBot: true,
+        branchName: 'renovate/bfra-me-.github-digest',
+        prTitle: 'chore(deps): update bfra-me/.github to dac9b0d',
+        prBody:
+          'This PR contains the following updates:\n\n| Package | Type | Update | Change |\n|---|---|---|---|\n| bfra-me/.github | action | digest | `2c3d82d` → `dac9b0d` |',
+        commitMessages: ['chore(deps): update bfra-me/.github to dac9b0d'],
+        isGroupedUpdate: false,
+        isSecurityUpdate: false,
+        updateType: 'patch',
+        manager: 'github-actions',
+        files: [
+          {
+            filename: '.github/workflows/renovate-changeset.yaml',
+            status: 'modified',
+            additions: 1,
+            deletions: 1,
+          },
+        ],
+      })
+
+      await import('../src/index')
+
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      const dependencyOutputs = coreMocks.setOutput.mock.calls.filter(
+        call => call[0] === 'dependencies',
+      )
+      const lastDependencyOutput = dependencyOutputs.at(-1)
+
+      expect(lastDependencyOutput).toBeDefined()
+      expect(lastDependencyOutput?.[1]).toBe(JSON.stringify(['bfra-me/.github']))
+    })
   })
 
   describe('changeset generation', () => {

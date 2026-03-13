@@ -612,8 +612,7 @@ export class RenovateParser {
     return 'unknown'
   }
 
-  // Public getter for testing purposes
-  /** @internal Used by tests to access private method */
+  /** @internal */
   get detectManagerFromFilename() {
     return this._detectManagerFromFilename.bind(this)
   }

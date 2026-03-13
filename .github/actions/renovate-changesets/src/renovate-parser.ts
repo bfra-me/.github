@@ -582,8 +582,8 @@ export class RenovateParser {
    * Detect manager type from filename
    * Intentionally unused in production but kept for testing purposes.
    * Tests access this via (parser as any)._detectManagerFromFilename()
+   * @internal
    */
-  // eslint-disable-next-line @typescript-eslint/class-method-usage
   private _detectManagerFromFilename(filename: string): RenovateManagerType {
     const filenameLower = filename.toLowerCase()
 

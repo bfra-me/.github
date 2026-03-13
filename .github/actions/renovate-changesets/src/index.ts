@@ -753,71 +753,121 @@ export async function run(): Promise<void> {
     // Use enhanced parser to extract comprehensive PR context
     const prContext = await parser.extractPRContext(octokit, owner, repo, pr.number, pr)
 
-    // TASK-014: Use sophisticated NPM change detector for npm/lockfile updates
     const npmDetector = new NPMChangeDetector()
+    const actionsDetector = new GitHubActionsChangeDetector()
+    const dockerDetector = new DockerChangeDetector()
+    const pythonDetector = new PythonChangeDetector()
+    const jvmDetector = new JVMChangeDetector()
+    const goDetector = new GoChangeDetector()
     let enhancedDependencies = prContext.dependencies
 
-    // If this is an npm-related update, enhance dependency detection with detailed package analysis
-    // Skip NPM detector in test environments due to mocked API limitations
-    if (
-      ['npm', 'pnpm', 'yarn', 'lockfile'].includes(prContext.manager) &&
-      !process.env.VITEST &&
-      process.env.NODE_ENV !== 'test'
-    ) {
-      core.info('Detected npm-related update, using enhanced npm change detector')
-      try {
-        const npmChanges = await npmDetector.detectChangesFromPR(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          files,
-        )
-
-        if (npmChanges && npmChanges.length > 0) {
-          core.info(`NPM change detector found ${npmChanges.length} dependency changes`)
-          // Convert NPM changes to RenovateDependency format and merge with existing
-          const convertedChanges = npmChanges.map(change => ({
-            name: change.name,
-            currentVersion: change.currentVersion,
-            newVersion: change.newVersion,
-            manager: change.manager,
-            updateType: change.updateType,
-            isSecurityUpdate: change.isSecurityUpdate,
-            isGrouped: false, // Will be determined at PR level
-            packageFile: change.packageFile,
-            scope: change.scope,
-          }))
-          enhancedDependencies = [...prContext.dependencies, ...convertedChanges]
-          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
-        } else {
-          core.info('NPM change detector found no additional dependency changes')
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        core.warning(
-          `NPM change detector failed, continuing with original parsing: ${errorMessage}`,
-        )
-      }
-    } else if (['npm', 'pnpm', 'yarn', 'lockfile'].includes(prContext.manager)) {
-      core.info(
-        'NPM-related update detected, but running in test environment - using standard parsing',
-      )
+    type RenovateDep = (typeof prContext.dependencies)[number]
+    interface ChangedPRFile {
+      filename: string
+      status: string
+      additions: number
+      deletions: number
     }
 
-    // TASK-015: Use sophisticated GitHub Actions change detector for GitHub Actions updates
-    const actionsDetector = new GitHubActionsChangeDetector()
+    interface DetectorConfig {
+      label: string
+      managers: string[]
+      detector: {
+        detectChangesFromPR: (
+          octokit: Octokit,
+          owner: string,
+          repo: string,
+          pullNumber: number,
+          files: ChangedPRFile[],
+        ) => Promise<unknown[] | null | undefined>
+      }
+      versionField: string
+      newVersionField: string
+      packageFileField: string
+    }
 
-    // If this is a github-actions-related update, enhance dependency detection with detailed workflow analysis
-    // Skip GitHub Actions detector in test environments due to mocked API limitations
-    if (
-      prContext.manager === 'github-actions' &&
-      !process.env.VITEST &&
-      process.env.NODE_ENV !== 'test'
-    ) {
-      core.info('Detected GitHub Actions update, using enhanced actions change detector')
+    function toRenovateDep(change: Record<string, unknown>, config: DetectorConfig): RenovateDep {
+      return {
+        name: change.name as string,
+        currentVersion: change[config.versionField] as string | undefined,
+        newVersion: change[config.newVersionField] as string | undefined,
+        manager: change.manager as RenovateDep['manager'],
+        updateType: change.updateType as RenovateDep['updateType'],
+        isSecurityUpdate: change.isSecurityUpdate as boolean,
+        isGrouped: false,
+        packageFile: change[config.packageFileField] as string | undefined,
+        scope: change.scope as string | undefined,
+      }
+    }
+
+    const detectorConfigs: DetectorConfig[] = [
+      {
+        label: 'NPM',
+        managers: ['npm', 'pnpm', 'yarn', 'lockfile'],
+        detector: npmDetector,
+        versionField: 'currentVersion',
+        newVersionField: 'newVersion',
+        packageFileField: 'packageFile',
+      },
+      {
+        label: 'GitHub Actions',
+        managers: ['github-actions'],
+        detector: actionsDetector,
+        versionField: 'currentRef',
+        newVersionField: 'newRef',
+        packageFileField: 'workflowFile',
+      },
+      {
+        label: 'Docker',
+        managers: ['docker', 'dockerfile', 'docker-compose'],
+        detector: dockerDetector,
+        versionField: 'currentTag',
+        newVersionField: 'newTag',
+        packageFileField: 'dockerFile',
+      },
+      {
+        label: 'Python',
+        managers: ['pip', 'pipenv', 'poetry', 'setuptools', 'pip-compile', 'pip_setup'],
+        detector: pythonDetector,
+        versionField: 'currentVersion',
+        newVersionField: 'newVersion',
+        packageFileField: 'packageFile',
+      },
+      {
+        label: 'JVM',
+        managers: ['gradle', 'maven', 'gradle-wrapper', 'sbt'],
+        detector: jvmDetector,
+        versionField: 'currentVersion',
+        newVersionField: 'newVersion',
+        packageFileField: 'buildFile',
+      },
+      {
+        label: 'Go',
+        managers: ['gomod', 'go', 'golang'],
+        detector: goDetector,
+        versionField: 'currentVersion',
+        newVersionField: 'newVersion',
+        packageFileField: 'modFile',
+      },
+    ]
+
+    for (const config of detectorConfigs) {
+      const managerMatches = config.managers.includes(prContext.manager)
+      if (!managerMatches) continue
+
+      const isTestEnv = Boolean(process.env.VITEST) || process.env.NODE_ENV === 'test'
+      if (isTestEnv) {
+        core.info(
+          `${config.label} update detected, but running in test environment - using standard parsing`,
+        )
+        continue
+      }
+
+      core.info(
+        `Detected ${config.label.toLowerCase()} update, using enhanced ${config.label.toLowerCase()} change detector`,
+      )
       try {
-        const actionsChanges = await actionsDetector.detectChangesFromPR(
+        const changes = await config.detector.detectChangesFromPR(
           octokit,
           owner,
           repo,
@@ -825,237 +875,22 @@ export async function run(): Promise<void> {
           files,
         )
 
-        if (actionsChanges && actionsChanges.length > 0) {
-          core.info(
-            `GitHub Actions change detector found ${actionsChanges.length} dependency changes`,
+        if (changes != null && changes.length > 0) {
+          core.info(`${config.label} change detector found ${changes.length} dependency changes`)
+          const converted = changes.map(change =>
+            toRenovateDep(change as Record<string, unknown>, config),
           )
-          // Convert GitHub Actions changes to RenovateDependency format and merge with existing
-          const convertedChanges = actionsChanges.map(change => ({
-            name: change.name,
-            currentVersion: change.currentRef,
-            newVersion: change.newRef,
-            manager: change.manager,
-            updateType: change.updateType,
-            isSecurityUpdate: change.isSecurityUpdate,
-            isGrouped: false, // Will be determined at PR level
-            packageFile: change.workflowFile,
-            scope: change.scope,
-          }))
-          enhancedDependencies = [...enhancedDependencies, ...convertedChanges]
+          enhancedDependencies = [...enhancedDependencies, ...converted]
           core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
         } else {
-          core.info('GitHub Actions change detector found no additional dependency changes')
+          core.info(`${config.label} change detector found no additional dependency changes`)
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         core.warning(
-          `GitHub Actions change detector failed, continuing with original parsing: ${errorMessage}`,
+          `${config.label} change detector failed, continuing with original parsing: ${errorMessage}`,
         )
       }
-    } else if (prContext.manager === 'github-actions') {
-      core.info(
-        'GitHub Actions update detected, but running in test environment - using standard parsing',
-      )
-    }
-
-    // TASK-016: Use sophisticated Docker change detector for Docker updates
-    const dockerDetector = new DockerChangeDetector()
-
-    // If this is a docker-related update, enhance dependency detection with detailed file analysis
-    // Skip Docker detector in test environments due to mocked API limitations
-    if (
-      ['docker', 'dockerfile', 'docker-compose'].includes(prContext.manager) &&
-      !process.env.VITEST &&
-      process.env.NODE_ENV !== 'test'
-    ) {
-      core.info('Detected Docker update, using enhanced docker change detector')
-      try {
-        const dockerChanges = await dockerDetector.detectChangesFromPR(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          files,
-        )
-
-        if (dockerChanges && dockerChanges.length > 0) {
-          core.info(`Docker change detector found ${dockerChanges.length} dependency changes`)
-          // Convert Docker changes to RenovateDependency format and merge with existing
-          const convertedChanges = dockerChanges.map(change => ({
-            name: change.name,
-            currentVersion: change.currentTag,
-            newVersion: change.newTag,
-            manager: change.manager,
-            updateType: change.updateType,
-            isSecurityUpdate: change.isSecurityUpdate,
-            isGrouped: false, // Will be determined at PR level
-            packageFile: change.dockerFile,
-            scope: change.scope,
-          }))
-          enhancedDependencies = [...enhancedDependencies, ...convertedChanges]
-          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
-        } else {
-          core.info('Docker change detector found no additional dependency changes')
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        core.warning(
-          `Docker change detector failed, continuing with original parsing: ${errorMessage}`,
-        )
-      }
-    } else if (['docker', 'dockerfile', 'docker-compose'].includes(prContext.manager)) {
-      core.info('Docker update detected, but running in test environment - using standard parsing')
-    }
-
-    // TASK-017: Use sophisticated Python change detector for Python package manager updates
-    const pythonDetector = new PythonChangeDetector()
-
-    // If this is a python-related update, enhance dependency detection with detailed package analysis
-    // Skip Python detector in test environments due to mocked API limitations
-    if (
-      ['pip', 'pipenv', 'poetry', 'setuptools', 'pip-compile', 'pip_setup'].includes(
-        prContext.manager,
-      ) &&
-      !process.env.VITEST &&
-      process.env.NODE_ENV !== 'test'
-    ) {
-      core.info('Detected Python package update, using enhanced python change detector')
-      try {
-        const pythonChanges = await pythonDetector.detectChangesFromPR(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          files,
-        )
-
-        if (pythonChanges && pythonChanges.length > 0) {
-          core.info(`Python change detector found ${pythonChanges.length} dependency changes`)
-          // Convert Python changes to RenovateDependency format and merge with existing
-          const convertedChanges = pythonChanges.map(change => ({
-            name: change.name,
-            currentVersion: change.currentVersion,
-            newVersion: change.newVersion,
-            manager: change.manager,
-            updateType: change.updateType,
-            isSecurityUpdate: change.isSecurityUpdate,
-            isGrouped: false, // Will be determined at PR level
-            packageFile: change.packageFile,
-            scope: change.scope,
-          }))
-          enhancedDependencies = [...enhancedDependencies, ...convertedChanges]
-          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
-        } else {
-          core.info('Python change detector found no additional dependency changes')
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        core.warning(
-          `Python change detector failed, continuing with original parsing: ${errorMessage}`,
-        )
-      }
-    } else if (
-      ['pip', 'pipenv', 'poetry', 'setuptools', 'pip-compile', 'pip_setup'].includes(
-        prContext.manager,
-      )
-    ) {
-      core.info('Python update detected, but running in test environment - using standard parsing')
-    }
-
-    // TASK-017: Use sophisticated JVM change detector for Java/Maven/Gradle updates
-    const jvmDetector = new JVMChangeDetector()
-
-    // If this is a JVM-related update, enhance dependency detection with detailed package analysis
-    // Skip JVM detector in test environments due to mocked API limitations
-    if (
-      ['gradle', 'maven', 'gradle-wrapper', 'sbt'].includes(prContext.manager) &&
-      !process.env.VITEST &&
-      process.env.NODE_ENV !== 'test'
-    ) {
-      core.info('Detected JVM package update, using enhanced jvm change detector')
-      try {
-        const jvmChanges = await jvmDetector.detectChangesFromPR(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          files,
-        )
-
-        if (jvmChanges && jvmChanges.length > 0) {
-          core.info(`JVM change detector found ${jvmChanges.length} dependency changes`)
-          // Convert JVM changes to RenovateDependency format and merge with existing
-          const convertedChanges = jvmChanges.map(change => ({
-            name: change.name,
-            currentVersion: change.currentVersion,
-            newVersion: change.newVersion,
-            manager: change.manager,
-            updateType: change.updateType,
-            isSecurityUpdate: change.isSecurityUpdate,
-            isGrouped: false, // Will be determined at PR level
-            packageFile: change.buildFile,
-            scope: change.scope,
-          }))
-          enhancedDependencies = [...enhancedDependencies, ...convertedChanges]
-          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
-        } else {
-          core.info('JVM change detector found no additional dependency changes')
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        core.warning(
-          `JVM change detector failed, continuing with original parsing: ${errorMessage}`,
-        )
-      }
-    } else if (['gradle', 'maven', 'gradle-wrapper', 'sbt'].includes(prContext.manager)) {
-      core.info('JVM update detected, but running in test environment - using standard parsing')
-    }
-
-    // TASK-017: Use sophisticated Go change detector for Go module updates
-    const goDetector = new GoChangeDetector()
-
-    // If this is a go-related update, enhance dependency detection with detailed module analysis
-    // Skip Go detector in test environments due to mocked API limitations
-    if (
-      ['gomod', 'go', 'golang'].includes(prContext.manager) &&
-      !process.env.VITEST &&
-      process.env.NODE_ENV !== 'test'
-    ) {
-      core.info('Detected Go module update, using enhanced go change detector')
-      try {
-        const goChanges = await goDetector.detectChangesFromPR(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          files,
-        )
-
-        if (goChanges && goChanges.length > 0) {
-          core.info(`Go change detector found ${goChanges.length} dependency changes`)
-          // Convert Go changes to RenovateDependency format and merge with existing
-          const convertedChanges = goChanges.map(change => ({
-            name: change.name,
-            currentVersion: change.currentVersion,
-            newVersion: change.newVersion,
-            manager: change.manager,
-            updateType: change.updateType,
-            isSecurityUpdate: change.isSecurityUpdate,
-            isGrouped: false, // Will be determined at PR level
-            packageFile: change.modFile,
-            scope: change.scope,
-          }))
-          enhancedDependencies = [...enhancedDependencies, ...convertedChanges]
-          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
-        } else {
-          core.info('Go change detector found no additional dependency changes')
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        core.warning(`Go change detector failed, continuing with original parsing: ${errorMessage}`)
-      }
-    } else if (['gomod', 'go', 'golang'].includes(prContext.manager)) {
-      core.info('Go update detected, but running in test environment - using standard parsing')
     }
 
     // TASK-019: Enhanced breaking change detection and security vulnerability analysis

@@ -5,7 +5,7 @@ import type {SecurityAnalysis} from './security-vulnerability-detector'
 /**
  * Semantic version information
  */
-export interface SemverInfo {
+interface SemverInfo {
   major: number
   minor: number
   patch: number
@@ -59,7 +59,7 @@ export interface ImpactAssessment {
 /**
  * Options for impact assessment
  */
-export interface ImpactAssessmentOptions {
+interface ImpactAssessmentOptions {
   /**
    * Consider security updates as always requiring at least patch level
    */

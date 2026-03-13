@@ -23,7 +23,7 @@ export interface WorkspacePackage {
 /**
  * Relationship types between packages
  */
-export type PackageRelationshipType =
+type PackageRelationshipType =
   | 'internal-dependency' // One package depends on another in the workspace
   | 'peer-dependency' // Package has peer dependency relationship
   | 'dev-dependency' // Development dependency relationship
@@ -46,7 +46,7 @@ export interface PackageRelationship {
 /**
  * Configuration for multi-package analysis
  */
-export interface MultiPackageAnalysisConfig {
+interface MultiPackageAnalysisConfig {
   workspaceRoot: string
   detectWorkspaces: boolean
   analyzeInternalDependencies: boolean

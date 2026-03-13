@@ -19,6 +19,9 @@ This directory contains comprehensive documentation for all reusable workflows p
 5. [Renovate Configuration](./renovate.md)
    - Manages dependency updates automatically
 
+6. [Renovate Changesets](./renovate-changesets.md)
+   - Automatically generates changesets for Renovate dependency updates
+
 ## Usage Guidelines
 
 ### Getting Started

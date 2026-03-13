@@ -1,0 +1,6 @@
+{
+  "name": "Renovate Changesets",
+  "description": "Automatically generate changesets for Renovate dependency updates.",
+  "iconName": "octicon file-diff",
+  "categories": ["Automation", "Dependency updates", "Changesets"]
+}

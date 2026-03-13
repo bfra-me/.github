@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.15
+### Patch Changes
+
+
+- Fix package name detection in changeset generation. Previously used GitHub repo name (.github) instead of actual workspace package name (@bfra.me/.github). ([#1699](https://github.com/bfra-me/.github/pull/1699))
+
 ## 0.2.14
 ### Patch Changes
 

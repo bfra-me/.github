@@ -1,5 +1,5 @@
 ---
-'@bfra.me/update-repository-settings': patch
+'update-repository-settings': patch
 ---
 
 Updated dependency `@actions/github` to `^9.0.0`.

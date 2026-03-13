@@ -23,13 +23,13 @@
     },
     {
       description: 'Use released versions of renovate-changesets action; disable digest pinning to prevent recursive updates.',
-      matchPackageNames: ['bfra-me/.github/.github/actions/renovate-changesets'],
+      matchDepNames: ['bfra-me/.github/.github/actions/renovate-changesets'],
       extractVersion: '^renovate-changesets@(?<version>.+)$',
       pinDigests: false,
     },
     {
       description: 'Use released versions of update-repository-settings action; disable digest pinning to prevent recursive updates.',
-      matchPackageNames: ['bfra-me/.github/.github/actions/update-repository-settings'],
+      matchDepNames: ['bfra-me/.github/.github/actions/update-repository-settings'],
       extractVersion: '^update-repository-settings@(?<version>.+)$',
       pinDigests: false,
     },

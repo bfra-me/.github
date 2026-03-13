@@ -1,5 +1,26 @@
 # @bfra.me/.github
 
+## 4.5.3
+### Patch Changes
+
+
+- Fix Renovate-generated changeset dependency summaries for single-dependency and digest update PRs. ([#1723](https://github.com/bfra-me/.github/pull/1723))
+
+
+- Fix Renovate config for internal actions: use correct `depName` (`bfra-me/.github`), explicitly disable digest update type to stop recursive self-referencing PRs, and change version comments to bare semver so Renovate can parse `currentValue` for release-based version tracking. ([#1727](https://github.com/bfra-me/.github/pull/1727))
+
+
+- Fix version extraction for internal actions by using `matchDepNames` instead of `matchPackageNames` in `renovate.json5`. For GitHub Actions with subdirectory paths, `depName` includes the full path (e.g., `bfra-me/.github/.github/actions/renovate-changesets`), while `matchPackageNames` only matches the normalized `owner/repo` format. ([#1721](https://github.com/bfra-me/.github/pull/1721))
+
+
+- 📋 Update github-actions dependencies: bfra-me/.github ([#1728](https://github.com/bfra-me/.github/pull/1728))
+
+
+- 📋 Update github-actions dependencies: bfra-me/.github ([#1726](https://github.com/bfra-me/.github/pull/1726))
+
+
+- 📦 Update `bfra-me/.github` action digests (renovate-changesets, update-repository-settings) ([#1724](https://github.com/bfra-me/.github/pull/1724))
+
 ## 4.5.2
 ### Patch Changes
 

@@ -209,11 +209,11 @@ export class SemverBumpTypeDecisionEngine {
     }
 
     // Step 8: Calculate confidence and risk assessment
-    const confidence = this.calculateConfidence(factors, currentDecision, overriddenRules)
+    const confidence = this.calculateConfidence(factors, overriddenRules)
     const riskAssessment = this.calculateRiskAssessment(factors, currentDecision)
 
     // Step 9: Generate primary reason and alternatives
-    const primaryReason = this.generatePrimaryReason(currentDecision, factors, reasoningChain)
+    const primaryReason = this.generatePrimaryReason(currentDecision, factors)
     this.generateAlternatives(factors, currentDecision, alternatives)
 
     reasoningChain.push(`Final decision: ${currentDecision} (confidence: ${confidence})`)
@@ -534,7 +534,6 @@ export class SemverBumpTypeDecisionEngine {
    */
   private calculateConfidence(
     factors: DecisionFactors,
-    _decision: 'patch' | 'minor' | 'major',
     overriddenRules: string[],
   ): 'high' | 'medium' | 'low' {
     let confidence: 'high' | 'medium' | 'low' = 'high'
@@ -620,7 +619,6 @@ export class SemverBumpTypeDecisionEngine {
   private generatePrimaryReason(
     decision: 'patch' | 'minor' | 'major',
     factors: DecisionFactors,
-    _reasoningChain: string[],
   ): string {
     if (factors.semverImpact.isSecurityUpdate) {
       return `${decision} bump for security update affecting ${factors.dependencyCount} dependencies`

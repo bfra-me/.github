@@ -664,11 +664,7 @@ export class JVMChangeDetector {
           manager: 'maven',
           updateType: this.determineUpdateType(oldDep.version, newDep.version),
           semverImpact: this.calculateSemverImpact(oldDep.version, newDep.version),
-          isSecurityUpdate: this.isSecurityUpdate(
-            newDep.artifactId,
-            oldDep.version,
-            newDep.version,
-          ),
+          isSecurityUpdate: this.isSecurityUpdate(),
           isPlugin: false,
           groupId: newDep.groupId,
           artifactId: newDep.artifactId,
@@ -710,11 +706,7 @@ export class JVMChangeDetector {
           manager: 'maven',
           updateType: this.determineUpdateType(oldPlugin.version, newPlugin.version),
           semverImpact: this.calculateSemverImpact(oldPlugin.version, newPlugin.version),
-          isSecurityUpdate: this.isSecurityUpdate(
-            newPlugin.artifactId || '',
-            oldPlugin.version,
-            newPlugin.version,
-          ),
+          isSecurityUpdate: this.isSecurityUpdate(),
           isPlugin: true,
           groupId: newPlugin.groupId,
           artifactId: newPlugin.artifactId,
@@ -749,7 +741,7 @@ export class JVMChangeDetector {
       manager: manager as RenovateManagerType,
       updateType: this.determineUpdateType(oldDep.version, newDep.version),
       semverImpact: this.calculateSemverImpact(oldDep.version, newDep.version),
-      isSecurityUpdate: this.isSecurityUpdate(newDep.name, oldDep.version, newDep.version),
+      isSecurityUpdate: this.isSecurityUpdate(),
       isPlugin: newDep.configuration === 'plugin',
       line: lineNumber,
       groupId: newDep.group,
@@ -779,11 +771,7 @@ export class JVMChangeDetector {
       manager: 'maven',
       updateType: this.determineUpdateType(oldParent.version, newParent.version),
       semverImpact: this.calculateSemverImpact(oldParent.version, newParent.version),
-      isSecurityUpdate: this.isSecurityUpdate(
-        newParent.artifactId,
-        oldParent.version,
-        newParent.version,
-      ),
+      isSecurityUpdate: this.isSecurityUpdate(),
       isPlugin: false,
       groupId: newParent.groupId,
       artifactId: newParent.artifactId,
@@ -812,7 +800,7 @@ export class JVMChangeDetector {
       manager: this.isGradleFile(filename) ? 'gradle' : 'maven',
       updateType: this.determineUpdateType(oldProp.value, newProp.value),
       semverImpact: this.calculateSemverImpact(oldProp.value, newProp.value),
-      isSecurityUpdate: this.isSecurityUpdate(oldProp.key, oldProp.value, newProp.value),
+      isSecurityUpdate: this.isSecurityUpdate(),
       isPlugin: false,
       line: lineNumber,
       isParent: false,
@@ -944,7 +932,7 @@ export class JVMChangeDetector {
   /**
    * Check if this is a security update
    */
-  private isSecurityUpdate(_name: string, _oldVersion?: string, _newVersion?: string): boolean {
+  private isSecurityUpdate(): boolean {
     // Simple heuristic - in production, this would check against security databases
     return false
   }

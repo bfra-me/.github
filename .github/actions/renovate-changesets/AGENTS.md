@@ -8,7 +8,6 @@ Auto-generates changeset files for Renovate dependency update PRs. Supports GitH
 src/
 ├── index.ts                          # Entry point — orchestrates the full flow
 ├── renovate-parser.ts                # Parses Renovate PR metadata (title, body, labels)
-├── enhanced-config-provider.ts       # Resolves action config (inline YAML/JSON or file)
 ├── semver-bump-decision-engine.ts    # Determines patch/minor/major from update context
 ├── semver-impact-assessor.ts         # Assesses downstream impact of version changes
 ├── change-categorization-engine.ts   # Classifies changes by ecosystem and type

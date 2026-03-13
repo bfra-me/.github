@@ -291,7 +291,7 @@ export class GoChangeDetector {
       manager: 'go',
       updateType: this.determineUpdateType(oldMod.version, newMod.version),
       semverImpact: this.calculateSemverImpact(oldMod.version, newMod.version),
-      isSecurityUpdate: this.isSecurityUpdate(newMod.path, oldMod.version, newMod.version),
+      isSecurityUpdate: this.isSecurityUpdate(),
       isIndirect: newMod.indirect || false,
       isReplace: Boolean(newMod.replace),
       line: lineNumber,
@@ -394,7 +394,7 @@ export class GoChangeDetector {
   /**
    * Check if this is a security update
    */
-  private isSecurityUpdate(_name: string, _oldVersion?: string, _newVersion?: string): boolean {
+  private isSecurityUpdate(): boolean {
     // Simple heuristic - in production, this would check against security databases
     return false
   }

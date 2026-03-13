@@ -5,7 +5,7 @@ import type {SecurityAnalysis} from './security-vulnerability-detector'
 /**
  * Semantic version information
  */
-export interface SemverInfo {
+interface SemverInfo {
   major: number
   minor: number
   patch: number
@@ -59,7 +59,7 @@ export interface ImpactAssessment {
 /**
  * Options for impact assessment
  */
-export interface ImpactAssessmentOptions {
+interface ImpactAssessmentOptions {
   /**
    * Consider security updates as always requiring at least patch level
    */
@@ -161,7 +161,7 @@ export class SemverImpactAssessor {
     // Apply manager-specific rules
     const managerRule = this.options.managerRules?.[dependency.manager]
     if (managerRule) {
-      semverImpact = this.applyManagerRules(semverImpact, dependency, managerRule)
+      semverImpact = this.applyManagerRules(semverImpact, managerRule)
     }
 
     // Determine confidence level
@@ -432,7 +432,6 @@ export class SemverImpactAssessor {
    */
   private applyManagerRules(
     impact: 'major' | 'minor' | 'patch',
-    _dependency: RenovateDependency,
     rule: NonNullable<ImpactAssessmentOptions['managerRules']>[string],
   ): 'major' | 'minor' | 'patch' {
     // Apply default impact if specified

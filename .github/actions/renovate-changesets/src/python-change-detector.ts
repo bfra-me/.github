@@ -75,40 +75,6 @@ export interface PipfileLock {
 }
 
 /**
- * pyproject.toml dependency structure
- */
-export interface PyprojectToml {
-  'build-system'?: {
-    requires?: string[]
-    'build-backend'?: string
-  }
-  project?: {
-    name?: string
-    version?: string
-    dependencies?: string[]
-    'optional-dependencies'?: Record<string, string[]>
-    requires_python?: string
-  }
-  tool?: {
-    poetry?: {
-      name?: string
-      version?: string
-      dependencies?: Record<string, string | {version?: string; [key: string]: any}>
-      'dev-dependencies'?: Record<string, string | {version?: string; [key: string]: any}>
-      group?: Record<
-        string,
-        {dependencies?: Record<string, string | {version?: string; [key: string]: any}>}
-      >
-    }
-    setuptools?: {
-      packages?: string[] | Record<string, any>
-    }
-    [key: string]: any
-  }
-  [key: string]: any
-}
-
-/**
  * Detected Python dependency change
  */
 export interface PythonDependencyChange {
@@ -253,9 +219,7 @@ export class PythonChangeDetector {
       } else if (this.isPipfile(filename)) {
         changes.push(...(await this.parsePipfileChanges(octokit, owner, repo, prNumber, filename)))
       } else if (this.isPyprojectToml(filename)) {
-        changes.push(
-          ...(await this.parsePyprojectChanges(octokit, owner, repo, prNumber, filename)),
-        )
+        changes.push(...(await this.parsePyprojectChanges()))
       }
 
       return changes
@@ -417,112 +381,10 @@ export class PythonChangeDetector {
   }
 
   /**
-   * Parse pyproject.toml changes
+   * TOML parsing not implemented — requires a proper TOML library
    */
-  private async parsePyprojectChanges(
-    octokit: Octokit,
-    owner: string,
-    repo: string,
-    prNumber: number,
-    filename: string,
-  ): Promise<PythonDependencyChange[]> {
-    const changes: PythonDependencyChange[] = []
-
-    try {
-      // Get both old and new versions of the file
-      const [oldContent, newContent] = await Promise.all([
-        this.getFileContent(octokit, owner, repo, filename, `refs/pull/${prNumber}/base`),
-        this.getFileContent(octokit, owner, repo, filename, `refs/pull/${prNumber}/head`),
-      ])
-
-      if (!oldContent || !newContent) {
-        return changes
-      }
-
-      // Parse TOML format
-      const oldPyproject = this.parsePyprojectContent(oldContent)
-      const newPyproject = this.parsePyprojectContent(newContent)
-
-      // Compare project dependencies
-      if (oldPyproject.project?.dependencies && newPyproject.project?.dependencies) {
-        changes.push(
-          ...this.comparePyprojectDependencies(
-            filename,
-            oldPyproject.project.dependencies,
-            newPyproject.project.dependencies,
-            'main',
-          ),
-        )
-      }
-
-      // Compare optional dependencies
-      if (
-        oldPyproject.project?.['optional-dependencies'] &&
-        newPyproject.project?.['optional-dependencies']
-      ) {
-        for (const [extra, oldDeps] of Object.entries(
-          oldPyproject.project['optional-dependencies'],
-        )) {
-          const newDeps = newPyproject.project['optional-dependencies'][extra]
-          if (newDeps) {
-            changes.push(
-              ...this.comparePyprojectDependencies(filename, oldDeps, newDeps, 'extras', extra),
-            )
-          }
-        }
-      }
-
-      // Compare Poetry dependencies if present
-      if (oldPyproject.tool?.poetry && newPyproject.tool?.poetry) {
-        const oldPoetry = oldPyproject.tool.poetry
-        const newPoetry = newPyproject.tool.poetry
-
-        if (oldPoetry.dependencies && newPoetry.dependencies) {
-          changes.push(
-            ...this.comparePipfileDependencies(
-              filename,
-              oldPoetry.dependencies,
-              newPoetry.dependencies,
-              'main',
-            ),
-          )
-        }
-
-        if (oldPoetry['dev-dependencies'] && newPoetry['dev-dependencies']) {
-          changes.push(
-            ...this.comparePipfileDependencies(
-              filename,
-              oldPoetry['dev-dependencies'],
-              newPoetry['dev-dependencies'],
-              'dev',
-            ),
-          )
-        }
-
-        // Compare Poetry groups
-        if (oldPoetry.group && newPoetry.group) {
-          for (const [groupName, oldGroup] of Object.entries(oldPoetry.group)) {
-            const newGroup = newPoetry.group[groupName]
-            if (newGroup?.dependencies && oldGroup?.dependencies) {
-              changes.push(
-                ...this.comparePipfileDependencies(
-                  filename,
-                  oldGroup.dependencies,
-                  newGroup.dependencies,
-                  'dev',
-                  groupName,
-                ),
-              )
-            }
-          }
-        }
-      }
-
-      return changes
-    } catch (error) {
-      console.warn(`Error parsing pyproject.toml changes for ${filename}: ${error}`)
-      return changes
-    }
+  private async parsePyprojectChanges(): Promise<PythonDependencyChange[]> {
+    return []
   }
 
   /**
@@ -649,15 +511,6 @@ export class PythonChangeDetector {
   }
 
   /**
-   * Parse pyproject.toml content (simplified TOML parsing)
-   */
-  private parsePyprojectContent(_content: string): PyprojectToml {
-    // This is a simplified TOML parser - in production, use a proper TOML library
-    // For now, return empty object as a placeholder
-    return {}
-  }
-
-  /**
    * Compare Pipfile.lock dependencies
    */
   private comparePipfileLockDependencies(
@@ -689,7 +542,7 @@ export class PythonChangeDetector {
             this.cleanVersion(oldDepInfo.version),
             this.cleanVersion(newDepInfo.version),
           ),
-          isSecurityUpdate: this.isSecurityUpdate(name, oldDepInfo.version, newDepInfo.version),
+          isSecurityUpdate: this.isSecurityUpdate(),
           isEditable: false,
           isExtra: false,
           extras: newDepInfo.extras || [],
@@ -737,67 +590,13 @@ export class PythonChangeDetector {
               this.cleanVersion(oldVersion),
               this.cleanVersion(newVersion),
             ),
-            isSecurityUpdate: this.isSecurityUpdate(name, oldVersion, newVersion),
+            isSecurityUpdate: this.isSecurityUpdate(),
             isEditable: false,
             isExtra: false,
             groupName,
           }
           changes.push(change)
         }
-      }
-    }
-
-    return changes
-  }
-
-  /**
-   * Compare pyproject.toml dependency arrays
-   */
-  private comparePyprojectDependencies(
-    filename: string,
-    oldDeps: string[],
-    newDeps: string[],
-    depType: PythonDependencyType,
-    groupName?: string,
-  ): PythonDependencyChange[] {
-    const changes: PythonDependencyChange[] = []
-
-    // Parse dependency specifications
-    const oldParsed = oldDeps
-      .map(dep => this.parseRequirementLine(dep, 0))
-      .filter(Boolean) as RequirementsEntry[]
-    const newParsed = newDeps
-      .map(dep => this.parseRequirementLine(dep, 0))
-      .filter(Boolean) as RequirementsEntry[]
-
-    // Find changes
-    for (const newDep of newParsed) {
-      const oldDep = oldParsed.find(d => d.name === newDep.name)
-      if (oldDep && oldDep.version !== newDep.version) {
-        const change: PythonDependencyChange = {
-          name: newDep.name,
-          packageFile: filename,
-          dependencyType: depType,
-          currentVersion: this.cleanVersion(oldDep.version),
-          newVersion: this.cleanVersion(newDep.version),
-          currentSpec: oldDep.raw,
-          newSpec: newDep.raw,
-          manager: 'pip',
-          updateType: this.determineUpdateType(
-            this.cleanVersion(oldDep.version),
-            this.cleanVersion(newDep.version),
-          ),
-          semverImpact: this.calculateSemverImpact(
-            this.cleanVersion(oldDep.version),
-            this.cleanVersion(newDep.version),
-          ),
-          isSecurityUpdate: this.isSecurityUpdate(newDep.name, oldDep.version, newDep.version),
-          isEditable: newDep.isEditable,
-          isExtra: depType === 'extras',
-          extras: newDep.extras,
-          groupName,
-        }
-        changes.push(change)
       }
     }
 
@@ -831,7 +630,7 @@ export class PythonChangeDetector {
         this.cleanVersion(oldReq.version),
         this.cleanVersion(newReq.version),
       ),
-      isSecurityUpdate: this.isSecurityUpdate(newReq.name, oldReq.version, newReq.version),
+      isSecurityUpdate: this.isSecurityUpdate(),
       isEditable: newReq.isEditable,
       isExtra: false,
       line: lineNumber,
@@ -957,7 +756,7 @@ export class PythonChangeDetector {
   /**
    * Check if this is a security update
    */
-  private isSecurityUpdate(_name: string, _oldVersion?: string, _newVersion?: string): boolean {
+  private isSecurityUpdate(): boolean {
     // Simple heuristic - in production, this would check against security databases
     return false
   }

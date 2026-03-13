@@ -580,25 +580,6 @@ Includes security fixes and performance improvements.`
         }
       })
     })
-
-    describe('extractDependenciesFromFiles', () => {
-      it('should return empty array (file-based extraction disabled to prevent synthetic names)', () => {
-        const files = [
-          {filename: 'package.json', status: 'modified'},
-          {filename: 'Dockerfile', status: 'modified'},
-          {filename: 'requirements.txt', status: 'modified'},
-        ]
-
-        const result = (parser as any).extractDependenciesFromFiles(files, 'npm')
-
-        // File-based extraction is intentionally disabled to prevent
-        // generating synthetic names like "npm-dependencies" that pollute
-        // the dependency list. Actual package names come from:
-        // - PR title/body parsing
-        // - Specialized detectors (NPMChangeDetector, etc.)
-        expect(result).toHaveLength(0)
-      })
-    })
   })
 
   describe('Security and Grouping Detection (TASK-011)', () => {

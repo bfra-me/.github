@@ -1,4 +1,3 @@
-import type {Octokit} from '@octokit/rest'
 import type {RenovateDependency} from './renovate-parser'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
@@ -24,7 +23,7 @@ export interface WorkspacePackage {
 /**
  * Relationship types between packages
  */
-export type PackageRelationshipType =
+type PackageRelationshipType =
   | 'internal-dependency' // One package depends on another in the workspace
   | 'peer-dependency' // Package has peer dependency relationship
   | 'dev-dependency' // Development dependency relationship
@@ -47,7 +46,7 @@ export interface PackageRelationship {
 /**
  * Configuration for multi-package analysis
  */
-export interface MultiPackageAnalysisConfig {
+interface MultiPackageAnalysisConfig {
   workspaceRoot: string
   detectWorkspaces: boolean
   analyzeInternalDependencies: boolean
@@ -113,10 +112,6 @@ export class MultiPackageAnalyzer {
   async analyzeMultiPackageUpdate(
     dependencies: RenovateDependency[],
     changedFiles: string[],
-    _octokit?: Octokit,
-    _owner?: string,
-    _repo?: string,
-    _prNumber?: number,
   ): Promise<MultiPackageAnalysisResult> {
     try {
       // Step 1: Discover workspace packages

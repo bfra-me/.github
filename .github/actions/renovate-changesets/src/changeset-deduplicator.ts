@@ -7,7 +7,7 @@ import * as core from '@actions/core'
 /**
  * Configuration for changeset deduplication
  */
-export interface ChangesetDeduplicationConfig {
+interface ChangesetDeduplicationConfig {
   /**
    * Enable content-based deduplication (exact content match)
    */
@@ -62,7 +62,7 @@ export interface ChangesetDeduplicationConfig {
 /**
  * Result of deduplication analysis
  */
-export interface DeduplicationResult {
+interface DeduplicationResult {
   /**
    * Original changesets before deduplication
    */

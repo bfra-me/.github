@@ -358,56 +358,52 @@ async function updatePRDescription(
   }
 }
 
-/**
- * Creates a formatted changeset information section for PR descriptions
- */
-function createChangesetInfoSection(
-  changesetContent: string,
-  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+interface CategorizationInfo {
+  primaryCategory: string
+  allCategories: string[]
+  summary: {
+    securityUpdates: number
+    breakingChanges: number
+    highPriorityUpdates: number
+    averageRiskLevel: number
+  }
+  confidence: string
+}
+
+interface MultiPackageInfo {
+  strategy: string
+  reasoning: string[]
+}
+
+interface ReleaseEntry {
+  name: string
+  type: 'patch' | 'minor' | 'major'
+}
+
+function appendSharedChangesetSections(
+  sections: string[],
   dependencies: string[],
-  categorizationResult: {
-    primaryCategory: string
-    allCategories: string[]
-    summary: {
-      securityUpdates: number
-      breakingChanges: number
-      highPriorityUpdates: number
-      averageRiskLevel: number
-    }
-    confidence: string
-  },
-  multiPackageResult: {
-    strategy: string
-    reasoning: string[]
-  },
-): string {
-  const sections: string[] = ['<!-- CHANGESET_INFO -->', '## 📋 Changeset Information', '']
-
-  // Summary section
-  sections.push('### Summary')
-  sections.push(changesetContent)
-  sections.push('')
-
-  // Dependencies section
+  releases: ReleaseEntry[],
+  categorizationResult: CategorizationInfo,
+  multiPackageResult: MultiPackageInfo,
+): void {
   if (dependencies.length > 0) {
     sections.push('### 📦 Dependencies Updated')
-    dependencies.forEach(dep => {
+    for (const dep of dependencies) {
       sections.push(`- ${dep}`)
-    })
+    }
     sections.push('')
   }
 
-  // Releases section
   if (releases.length > 0) {
     sections.push('### 🚀 Packages to Release')
-    releases.forEach(release => {
+    for (const release of releases) {
       const icon = release.type === 'major' ? '🔴' : release.type === 'minor' ? '🟡' : '🟢'
       sections.push(`- ${icon} **${release.name}**: ${release.type}`)
-    })
+    }
     sections.push('')
   }
 
-  // Categorization information
   sections.push('### 📊 Update Analysis')
   sections.push(`- **Primary Category**: ${categorizationResult.primaryCategory}`)
   sections.push(`- **All Categories**: ${categorizationResult.allCategories.join(', ')}`)
@@ -416,11 +412,9 @@ function createChangesetInfoSection(
   if (categorizationResult.summary.securityUpdates > 0) {
     sections.push(`- **🔒 Security Updates**: ${categorizationResult.summary.securityUpdates}`)
   }
-
   if (categorizationResult.summary.breakingChanges > 0) {
     sections.push(`- **⚠️ Breaking Changes**: ${categorizationResult.summary.breakingChanges}`)
   }
-
   if (categorizationResult.summary.highPriorityUpdates > 0) {
     sections.push(`- **🔥 High Priority**: ${categorizationResult.summary.highPriorityUpdates}`)
   }
@@ -428,51 +422,56 @@ function createChangesetInfoSection(
   sections.push(`- **Risk Level**: ${categorizationResult.summary.averageRiskLevel}/100`)
   sections.push('')
 
-  // Multi-package strategy
   if (multiPackageResult.strategy !== 'single') {
     sections.push('### 🏗️ Multi-Package Strategy')
     sections.push(`- **Strategy**: ${multiPackageResult.strategy}`)
     if (multiPackageResult.reasoning.length > 0) {
       sections.push('- **Reasoning**:')
-      multiPackageResult.reasoning.forEach(reason => {
+      for (const reason of multiPackageResult.reasoning) {
         sections.push(`  - ${reason}`)
-      })
+      }
     }
     sections.push('')
   }
+}
+
+function createChangesetInfoSection(
+  changesetContent: string,
+  releases: ReleaseEntry[],
+  dependencies: string[],
+  categorizationResult: CategorizationInfo,
+  multiPackageResult: MultiPackageInfo,
+): string {
+  const sections: string[] = ['<!-- CHANGESET_INFO -->', '## 📋 Changeset Information', '']
+
+  sections.push('### Summary')
+  sections.push(changesetContent)
+  sections.push('')
+
+  appendSharedChangesetSections(
+    sections,
+    dependencies,
+    releases,
+    categorizationResult,
+    multiPackageResult,
+  )
 
   sections.push('<!-- /CHANGESET_INFO -->')
 
   return sections.join('\n')
 }
 
-/**
- * Creates a comment on a pull request with detailed changeset information
- */
 async function createPRComment(
   octokit: Octokit,
   owner: string,
   repo: string,
   prNumber: number,
   changesetContent: string,
-  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
+  releases: ReleaseEntry[],
   changesetPath: string,
   dependencies: string[],
-  categorizationResult: {
-    primaryCategory: string
-    allCategories: string[]
-    summary: {
-      securityUpdates: number
-      breakingChanges: number
-      highPriorityUpdates: number
-      averageRiskLevel: number
-    }
-    confidence: string
-  },
-  multiPackageResult: {
-    strategy: string
-    reasoning: string[]
-  },
+  categorizationResult: CategorizationInfo,
+  multiPackageResult: MultiPackageInfo,
 ): Promise<void> {
   try {
     const sections: string[] = [
@@ -482,67 +481,20 @@ async function createPRComment(
       '',
     ]
 
-    // Summary section
     sections.push('### 📝 Summary')
     sections.push('```')
     sections.push(changesetContent)
     sections.push('```')
     sections.push('')
 
-    // Dependencies section
-    if (dependencies.length > 0) {
-      sections.push('### 📦 Dependencies Updated')
-      dependencies.forEach(dep => {
-        sections.push(`- ${dep}`)
-      })
-      sections.push('')
-    }
+    appendSharedChangesetSections(
+      sections,
+      dependencies,
+      releases,
+      categorizationResult,
+      multiPackageResult,
+    )
 
-    // Releases section
-    if (releases.length > 0) {
-      sections.push('### 🚀 Packages to Release')
-      releases.forEach(release => {
-        const icon = release.type === 'major' ? '🔴' : release.type === 'minor' ? '🟡' : '🟢'
-        sections.push(`- ${icon} **${release.name}**: ${release.type}`)
-      })
-      sections.push('')
-    }
-
-    // Categorization information
-    sections.push('### 📊 Update Analysis')
-    sections.push(`- **Primary Category**: ${categorizationResult.primaryCategory}`)
-    sections.push(`- **All Categories**: ${categorizationResult.allCategories.join(', ')}`)
-    sections.push(`- **Confidence**: ${categorizationResult.confidence}`)
-
-    if (categorizationResult.summary.securityUpdates > 0) {
-      sections.push(`- **🔒 Security Updates**: ${categorizationResult.summary.securityUpdates}`)
-    }
-
-    if (categorizationResult.summary.breakingChanges > 0) {
-      sections.push(`- **⚠️ Breaking Changes**: ${categorizationResult.summary.breakingChanges}`)
-    }
-
-    if (categorizationResult.summary.highPriorityUpdates > 0) {
-      sections.push(`- **🔥 High Priority**: ${categorizationResult.summary.highPriorityUpdates}`)
-    }
-
-    sections.push(`- **Risk Level**: ${categorizationResult.summary.averageRiskLevel}/100`)
-    sections.push('')
-
-    // Multi-package strategy
-    if (multiPackageResult.strategy !== 'single') {
-      sections.push('### 🏗️ Multi-Package Strategy')
-      sections.push(`- **Strategy**: ${multiPackageResult.strategy}`)
-      if (multiPackageResult.reasoning.length > 0) {
-        sections.push('- **Reasoning**:')
-        multiPackageResult.reasoning.forEach(reason => {
-          sections.push(`  - ${reason}`)
-        })
-      }
-      sections.push('')
-    }
-
-    // Helpful information
     sections.push('### ℹ️ Information')
     sections.push(
       '- This changeset was automatically generated by the enhanced Renovate-Changesets action',

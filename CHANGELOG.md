@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 4.5.2
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v4.3.0` to `v4.4.0` ([#1715](https://github.com/bfra-me/.github/pull/1715))
+
+
+- 📋 Update unknown dependencies: github-actions-dependencies ([#1710](https://github.com/bfra-me/.github/pull/1710))
+
+
+- 📦 Update dependency `bfra-me/renovate-action` to `8.87.6` ([#1714](https://github.com/bfra-me/.github/pull/1714))
+
+
+- Avoid recursive self-action update PRs. ([#1717](https://github.com/bfra-me/.github/pull/1717))
+
 ## 4.5.1
 ### Patch Changes
 

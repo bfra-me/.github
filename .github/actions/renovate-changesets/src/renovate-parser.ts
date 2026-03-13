@@ -521,7 +521,7 @@ export class RenovateParser {
     // Enhanced patterns for dependency extraction
     const patterns = [
       // "update dependency @scope/package to v1.2.3"
-      /update\s+(?:dependency\s+)?(@?\w[\w./%-]*)\s+(?:to\s+)?v?(\d+\.\d+\.\d+(?:-[\w.]+)?)/gi,
+      /update\s+(?:dependency\s+)?(@?\w[\w./%-]*)(?:\s+(?:action|package|module|dependency))?\s+(?:to\s+)?v?(\d+\.\d+\.\d+(?:-[\w.]+)?)/gi,
       // "bump @scope/package from 1.0.0 to 1.1.0"
       /bump\s+(@?\w[\w./%-]*)\s+from\s+v?(\d+\.\d+\.\d+(?:-[\w.]+)?)\s+to\s+v?(\d+\.\d+\.\d+(?:-[\w.]+)?)/gi,
       // "upgrade @scope/package (1.0.0 → 1.1.0)"

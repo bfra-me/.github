@@ -1500,12 +1500,13 @@ export async function run(): Promise<void> {
     // Backward compatibility: If no files were created, fall back to original logic
     let changesetExists = multiPackageResult.filesCreated.length > 0
     let changesetPath = 'multi-package'
+    const rootPackageName = getRootPackageName(multiPackageAnalysis.workspacePackages, repo)
     let releases =
       multiPackageResult.changesets.length > 0 && multiPackageResult.changesets[0]
         ? multiPackageResult.changesets[0].releases
         : [
             {
-              name: getRootPackageName(multiPackageAnalysis.workspacePackages, repo),
+              name: rootPackageName,
               type: changesetType,
             },
           ]
@@ -1516,7 +1517,6 @@ export async function run(): Promise<void> {
       )
 
       // Prepare releases for changeset - use the correct package name from workspace analysis
-      const rootPackageName = getRootPackageName(multiPackageAnalysis.workspacePackages, repo)
       releases = [
         {
           name: rootPackageName,

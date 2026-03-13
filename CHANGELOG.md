@@ -1,5 +1,38 @@
 # @bfra.me/.github
 
+## 4.5.1
+### Patch Changes
+
+
+- Use local action reference instead of pinned remote action in renovate-changeset workflow ([#1708](https://github.com/bfra-me/.github/pull/1708))
+  
+  This prevents Renovate from creating PRs on every push to `main` in the `.github` repo.
+  The workflow now uses `./.github/actions/renovate-changesets` (local path) instead of
+  `bfra-me/.github/.github/actions/renovate-changesets@<sha>`.
+
+- Migrate deprecated `contexts` field to `checks` in `common-settings.yaml` branch protection settings ([#1698](https://github.com/bfra-me/.github/pull/1698))
+
+
+- Update `bfra-me/.github` action digest to `49859f7` ([#1707](https://github.com/bfra-me/.github/pull/1707))
+
+
+- Update `bfra-me/.github` action digest to `c33c84c` ([#1703](https://github.com/bfra-me/.github/pull/1703))
+
+
+- Update `bfra-me/.github` action digest to `b1670c0` ([#1706](https://github.com/bfra-me/.github/pull/1706))
+
+
+- Update dependency `lint-staged` to `16.3.3` ([#1693](https://github.com/bfra-me/.github/pull/1693))
+
+
+- Update `bfra-me/.github` action digest to `61be6f0` ([#1704](https://github.com/bfra-me/.github/pull/1704))
+
+
+- Update `bfra-me/.github` action digest to `d6bbf90` ([#1701](https://github.com/bfra-me/.github/pull/1701))
+
+
+- Update `bfra-me/.github` action digest to `16aab9f` ([#1709](https://github.com/bfra-me/.github/pull/1709))
+
 ## 4.5.0
 ### Minor Changes
 

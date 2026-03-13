@@ -1,5 +1,25 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.16
+### Patch Changes
+
+
+- Fix changeset body formatting to remove synthetic dependency names ([#1705](https://github.com/bfra-me/.github/pull/1705))
+  
+  The renovate-changesets action was generating changeset bodies with
+  synthetic dependency names like "npm-dependencies", "pnpm-dependencies",
+  and "github-actions-dependencies" instead of actual package names.
+  
+  This fix:
+  - Disables file-based dependency extraction that generated synthetic names
+  - Adds filtering to remove any remaining synthetic patterns
+  - Ensures only real dependency names from PR title/body parsing appear in changesets
+  
+  This resolves issues where changesets showed:
+  "Update unknown dependencies: lint-staged, npm-dependencies, pnpm-dependencies"
+  When they should show:
+  "Update dependency `lint-staged` to `16.3.3`."
+
 ## 0.2.15
 ### Patch Changes
 

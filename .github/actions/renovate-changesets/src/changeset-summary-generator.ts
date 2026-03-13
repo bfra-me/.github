@@ -1292,10 +1292,11 @@ export class ChangesetSummaryGenerator {
   ): TemplateContext {
     const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
     const primaryDep = prContext.dependencies[0]
+    const resolvedManager = prContext.manager === 'unknown' ? updateType : prContext.manager
 
     return {
       updateType,
-      manager: prContext.manager,
+      manager: resolvedManager,
       dependencies: sortedDeps,
       dependencyCount: sortedDeps.length,
       isSecurityUpdate: prContext.isSecurityUpdate,
@@ -1427,6 +1428,7 @@ export class ChangesetSummaryGenerator {
     dependencies: string[],
   ): EnhancedTemplateContext {
     const now = new Date()
+    const resolvedManager = prContext.manager === 'unknown' ? updateType : prContext.manager
 
     // Create enhanced dependency list with detailed information
     const dependencyList = prContext.dependencies.map(dep => ({
@@ -1465,8 +1467,8 @@ export class ChangesetSummaryGenerator {
       ...basicContext,
       timestamp: now.toISOString(),
       date: now.toISOString().split('T')[0] ?? '',
-      packageManager: this.getPackageManagerDisplayName(prContext.manager),
-      ecosystem: this.getEcosystemName(prContext.manager),
+      packageManager: this.getPackageManagerDisplayName(resolvedManager),
+      ecosystem: this.getEcosystemName(resolvedManager),
       updateScope,
       securitySeverity: securitySeverity === null ? undefined : securitySeverity,
       dependencyList,

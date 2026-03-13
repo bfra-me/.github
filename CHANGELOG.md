@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.5.5
+### Patch Changes
+
+
+- 📦 Update github-actions dependencies: actions/create-github-app-token, minimatch, undici and 8 more ([#1740](https://github.com/bfra-me/.github/pull/1740))
+
+
+- 📋 Update unknown dependencies: bfra-me/.github ([#1736](https://github.com/bfra-me/.github/pull/1736))
+
 ## 4.5.4
 ### Patch Changes
 

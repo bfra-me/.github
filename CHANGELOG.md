@@ -1,5 +1,36 @@
 # @bfra.me/.github
 
+## 4.7.0
+### Minor Changes
+
+
+- ⚠️ Update GitHub Actions workflow dependency `actions/create-github-app-token` from `2.2.2` to `3.0.0` ([#1751](https://github.com/bfra-me/.github/pull/1751))
+
+
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/.github` from `0.1.1` to `0.1.2` ([#1745](https://github.com/bfra-me/.github/pull/1745))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `dorny/paths-filter` from `4.0.0` to `4.0.1` ([#1752](https://github.com/bfra-me/.github/pull/1752))
+
+
+- 📦 Group update for npm dependencies: `pnpm`, `Age` ([#1750](https://github.com/bfra-me/.github/pull/1750))
+
+
+- Add `commitMessageTopic` to Renovate config for action path visibility in PRs and changesets ([#1748](https://github.com/bfra-me/.github/pull/1748))
+  
+  Configure `commitMessageTopic` for `renovate-changesets` and `update-repository-settings` actions
+  so that Renovate PRs and changesets clearly identify the specific action being updated instead of
+  only showing the repository name (`bfra-me/.github`).
+  
+  Before: `chore(deps): update bfra-me/.github to v0.1.2`
+  After: `chore(deps): update action update-repository-settings to v0.1.2`
+  
+  Also update the `renovate-changesets` action parser to correctly extract the action name from PR
+  titles that include the `update action <name>` phrase (produced by `commitMessageTopic`).
+
 ## 4.6.0
 ### Minor Changes
 

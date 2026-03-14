@@ -23,6 +23,7 @@ import type {
 import type {RenovatePRContext} from './renovate-parser'
 import type {ImpactAssessment} from './semver-impact-assessor'
 import type {JsEcosystemSummaryContext} from './summaries/js-ecosystem-summaries'
+import type {JvmEcosystemSummaryContext} from './summaries/jvm-ecosystem-summaries'
 import type {SummaryGeneratorConfig, TemplateContext} from './summary-generator-types'
 import {env} from 'node:process'
 
@@ -31,6 +32,11 @@ import {
   generateGoSummaryLogic,
   generateNpmSummaryLogic,
 } from './summaries/js-ecosystem-summaries'
+import {
+  generateComposerSummaryLogic,
+  generateJvmSummaryLogic,
+  generateNuGetSummaryLogic,
+} from './summaries/jvm-ecosystem-summaries'
 import {DEFAULT_SUMMARY_CONFIG} from './summary-generator-types'
 
 export type {SummaryGeneratorConfig, TemplateContext}
@@ -51,6 +57,17 @@ export class ChangesetSummaryGenerator {
       generateSecurityUpdateSummary: this.generateSecurityUpdateSummary.bind(this),
       generateSingleDependencySummary: this.generateSingleDependencySummary.bind(this),
       getEmojiForUpdate: this.getEmojiForUpdate.bind(this),
+    }
+  }
+
+  private createJvmEcosystemSummaryContext(): JvmEcosystemSummaryContext {
+    return {
+      config: this.config,
+      addBreakingChangeWarning: this.addBreakingChangeWarning.bind(this),
+      generateSecurityUpdateSummary: this.generateSecurityUpdateSummary.bind(this),
+      generateSingleDependencySummary: this.generateSingleDependencySummary.bind(this),
+      getEmojiForUpdate: this.getEmojiForUpdate.bind(this),
+      getJvmManagerDisplayName: this.getJvmManagerDisplayName.bind(this),
     }
   }
 
@@ -319,38 +336,12 @@ export class ChangesetSummaryGenerator {
     impactAssessment: ImpactAssessment,
     dependencies: string[],
   ): string {
-    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
-    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
-    const managerName = this.getJvmManagerDisplayName(prContext.manager)
-
-    if (prContext.isSecurityUpdate) {
-      return this.generateSecurityUpdateSummary(
-        managerName,
-        sortedDeps,
-        prContext,
-        impactAssessment,
-      )
-    }
-
-    if (sortedDeps.length === 1) {
-      return this.generateSingleDependencySummary(
-        managerName,
-        sortedDeps[0] || '',
-        prContext,
-        impactAssessment,
-        emoji,
-      )
-    }
-
-    if (sortedDeps.length <= this.config.maxDependenciesToList) {
-      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-      const summary = `${emoji}Update ${managerName} dependencies: ${depList}`
-
-      return this.addBreakingChangeWarning(summary, impactAssessment)
-    }
-
-    const summary = `${emoji}Update ${sortedDeps.length} ${managerName} dependencies`
-    return this.addBreakingChangeWarning(summary, impactAssessment)
+    return generateJvmSummaryLogic(
+      this.createJvmEcosystemSummaryContext(),
+      prContext,
+      impactAssessment,
+      dependencies,
+    )
   }
 
   /**
@@ -575,35 +566,12 @@ export class ChangesetSummaryGenerator {
     impactAssessment: ImpactAssessment,
     dependencies: string[],
   ): string {
-    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
-    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
-
-    if (prContext.isSecurityUpdate) {
-      return this.generateSecurityUpdateSummary('NuGet', sortedDeps, prContext, impactAssessment)
-    }
-
-    if (sortedDeps.length === 1) {
-      const dependency = sortedDeps[0]
-      if (dependency) {
-        return this.generateSingleDependencySummary(
-          'NuGet',
-          dependency,
-          prContext,
-          impactAssessment,
-          emoji,
-        )
-      }
-    }
-
-    if (sortedDeps.length <= this.config.maxDependenciesToList) {
-      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-      const summary = `${emoji}Update .NET packages: ${depList}`
-
-      return this.addBreakingChangeWarning(summary, impactAssessment)
-    }
-
-    const summary = `${emoji}Update ${sortedDeps.length} .NET packages`
-    return this.addBreakingChangeWarning(summary, impactAssessment)
+    return generateNuGetSummaryLogic(
+      this.createJvmEcosystemSummaryContext(),
+      prContext,
+      impactAssessment,
+      dependencies,
+    )
   }
 
   /**
@@ -614,35 +582,12 @@ export class ChangesetSummaryGenerator {
     impactAssessment: ImpactAssessment,
     dependencies: string[],
   ): string {
-    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
-    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
-
-    if (prContext.isSecurityUpdate) {
-      return this.generateSecurityUpdateSummary('Composer', sortedDeps, prContext, impactAssessment)
-    }
-
-    if (sortedDeps.length === 1) {
-      const dependency = sortedDeps[0]
-      if (dependency) {
-        return this.generateSingleDependencySummary(
-          'Composer',
-          dependency,
-          prContext,
-          impactAssessment,
-          emoji,
-        )
-      }
-    }
-
-    if (sortedDeps.length <= this.config.maxDependenciesToList) {
-      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-      const summary = `${emoji}Update PHP dependencies: ${depList}`
-
-      return this.addBreakingChangeWarning(summary, impactAssessment)
-    }
-
-    const summary = `${emoji}Update ${sortedDeps.length} PHP dependencies`
-    return this.addBreakingChangeWarning(summary, impactAssessment)
+    return generateComposerSummaryLogic(
+      this.createJvmEcosystemSummaryContext(),
+      prContext,
+      impactAssessment,
+      dependencies,
+    )
   }
 
   /**

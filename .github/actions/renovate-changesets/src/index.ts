@@ -15,25 +15,18 @@ import {
   setMultiPackageOutputs,
   setPRManagementOutputs,
 } from './action-outputs'
-import {BreakingChangeDetector} from './breaking-change-detector'
 import {ChangeCategorizationEngine} from './change-categorization-engine'
 import {ChangesetSummaryGenerator} from './changeset-summary-generator'
 import {ChangesetTemplateEngine} from './changeset-template-engine'
 import {writeRenovateChangeset} from './changeset-writer'
-import {DockerChangeDetector} from './docker-change-detector'
+import {runDetectors} from './detector-runner'
 import {createGitOperations} from './git-operations'
-import {GitHubActionsChangeDetector} from './github-actions-change-detector'
-import {GoChangeDetector} from './go-change-detector'
 import {createGroupedPRManager} from './grouped-pr-manager'
-import {JVMChangeDetector} from './jvm-change-detector'
 import {MultiPackageAnalyzer} from './multi-package-analyzer'
 import {MultiPackageChangesetGenerator} from './multi-package-changeset-generator'
-import {NPMChangeDetector} from './npm-change-detector'
 import {createPRComment} from './pr-comment-creator'
 import {updatePRDescription} from './pr-description-updater'
-import {PythonChangeDetector} from './python-change-detector'
 import {RenovateParser} from './renovate-parser'
-import {SecurityVulnerabilityDetector} from './security-vulnerability-detector'
 import {SemverBumpTypeDecisionEngine} from './semver-bump-decision-engine'
 import {SemverImpactAssessor} from './semver-impact-assessor'
 import {
@@ -154,214 +147,14 @@ export async function run(): Promise<void> {
     // Use enhanced parser to extract comprehensive PR context
     const prContext = await parser.extractPRContext(octokit, owner, repo, pr.number, pr)
 
-    const npmDetector = new NPMChangeDetector()
-    const actionsDetector = new GitHubActionsChangeDetector()
-    const dockerDetector = new DockerChangeDetector()
-    const pythonDetector = new PythonChangeDetector()
-    const jvmDetector = new JVMChangeDetector()
-    const goDetector = new GoChangeDetector()
-    let enhancedDependencies = prContext.dependencies
-
-    type RenovateDep = (typeof prContext.dependencies)[number]
-    interface ChangedPRFile {
-      filename: string
-      status: string
-      additions: number
-      deletions: number
-    }
-
-    interface DetectorConfig {
-      label: string
-      managers: string[]
-      detector: {
-        detectChangesFromPR: (
-          octokit: Octokit,
-          owner: string,
-          repo: string,
-          pullNumber: number,
-          files: ChangedPRFile[],
-        ) => Promise<unknown[] | null | undefined>
-      }
-      versionField: string
-      newVersionField: string
-      packageFileField: string
-    }
-
-    function toRenovateDep(change: Record<string, unknown>, config: DetectorConfig): RenovateDep {
-      return {
-        name: change.name as string,
-        currentVersion: change[config.versionField] as string | undefined,
-        newVersion: change[config.newVersionField] as string | undefined,
-        manager: change.manager as RenovateDep['manager'],
-        updateType: change.updateType as RenovateDep['updateType'],
-        isSecurityUpdate: change.isSecurityUpdate as boolean,
-        isGrouped: false,
-        packageFile: change[config.packageFileField] as string | undefined,
-        scope: change.scope as string | undefined,
-      }
-    }
-
-    const detectorConfigs: DetectorConfig[] = [
-      {
-        label: 'NPM',
-        managers: ['npm', 'pnpm', 'yarn', 'lockfile'],
-        detector: npmDetector,
-        versionField: 'currentVersion',
-        newVersionField: 'newVersion',
-        packageFileField: 'packageFile',
-      },
-      {
-        label: 'GitHub Actions',
-        managers: ['github-actions'],
-        detector: actionsDetector,
-        versionField: 'currentRef',
-        newVersionField: 'newRef',
-        packageFileField: 'workflowFile',
-      },
-      {
-        label: 'Docker',
-        managers: ['docker', 'dockerfile', 'docker-compose'],
-        detector: dockerDetector,
-        versionField: 'currentTag',
-        newVersionField: 'newTag',
-        packageFileField: 'dockerFile',
-      },
-      {
-        label: 'Python',
-        managers: ['pip', 'pipenv', 'poetry', 'setuptools', 'pip-compile', 'pip_setup'],
-        detector: pythonDetector,
-        versionField: 'currentVersion',
-        newVersionField: 'newVersion',
-        packageFileField: 'packageFile',
-      },
-      {
-        label: 'JVM',
-        managers: ['gradle', 'maven', 'gradle-wrapper', 'sbt'],
-        detector: jvmDetector,
-        versionField: 'currentVersion',
-        newVersionField: 'newVersion',
-        packageFileField: 'buildFile',
-      },
-      {
-        label: 'Go',
-        managers: ['gomod', 'go', 'golang'],
-        detector: goDetector,
-        versionField: 'currentVersion',
-        newVersionField: 'newVersion',
-        packageFileField: 'modFile',
-      },
-    ]
-
-    for (const config of detectorConfigs) {
-      const managerMatches = config.managers.includes(prContext.manager)
-      if (!managerMatches) continue
-
-      const isTestEnv = Boolean(process.env.VITEST) || process.env.NODE_ENV === 'test'
-      if (isTestEnv) {
-        core.info(
-          `${config.label} update detected, but running in test environment - using standard parsing`,
-        )
-        continue
-      }
-
-      core.info(
-        `Detected ${config.label.toLowerCase()} update, using enhanced ${config.label.toLowerCase()} change detector`,
-      )
-      try {
-        const changes = await config.detector.detectChangesFromPR(
-          octokit,
-          owner,
-          repo,
-          pr.number,
-          files,
-        )
-
-        if (changes != null && changes.length > 0) {
-          core.info(`${config.label} change detector found ${changes.length} dependency changes`)
-          const converted = changes.map(change =>
-            toRenovateDep(change as Record<string, unknown>, config),
-          )
-          enhancedDependencies = [...enhancedDependencies, ...converted]
-          core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
-        } else {
-          core.info(`${config.label} change detector found no additional dependency changes`)
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        core.warning(
-          `${config.label} change detector failed, continuing with original parsing: ${errorMessage}`,
-        )
-      }
-    }
-
-    // TASK-019: Enhanced breaking change detection and security vulnerability analysis
-    core.info('Running enhanced breaking change detection and security vulnerability analysis')
-
-    const breakingChangeDetector = new BreakingChangeDetector()
-    const securityDetector = new SecurityVulnerabilityDetector()
-
-    // Enhanced dependency analysis with breaking change and security detection
-    for (const dependency of enhancedDependencies) {
-      try {
-        // Skip enhanced analysis in test environments due to mocked API limitations
-        if (!process.env.VITEST && process.env.NODE_ENV !== 'test') {
-          // Analyze breaking changes
-          const breakingAnalysis = await breakingChangeDetector.analyzeBreakingChanges(
-            dependency,
-            octokit,
-            owner,
-            repo,
-            pr.number,
-          )
-
-          // Analyze security vulnerabilities
-          const securityAnalysis = await securityDetector.analyzeSecurityVulnerabilities(
-            dependency,
-            octokit,
-            owner,
-            repo,
-            pr.number,
-          )
-
-          // Store enhanced analysis results (these will be used by SemverImpactAssessor)
-          // Note: We'd need to modify the dependency structure to include these
-          // For now, we'll log the results for visibility
-          if (breakingAnalysis.hasBreakingChanges) {
-            core.warning(
-              `Breaking changes detected for ${dependency.name}: ${breakingAnalysis.overallSeverity} severity, ${breakingAnalysis.indicators.length} indicators`,
-            )
-          }
-
-          if (securityAnalysis.hasSecurityIssues) {
-            const securitySummary = `Security issues detected for ${dependency.name}: ${securityAnalysis.overallSeverity} severity, ${securityAnalysis.vulnerabilities.length} vulnerabilities, risk score ${securityAnalysis.riskScore}`
-
-            if (
-              securityAnalysis.overallSeverity === 'critical' ||
-              securityAnalysis.overallSeverity === 'high'
-            ) {
-              core.error(securitySummary)
-            } else {
-              core.warning(securitySummary)
-            }
-          }
-
-          core.debug(
-            `Enhanced analysis for ${dependency.name}: ${JSON.stringify({
-              breakingChanges: breakingAnalysis.hasBreakingChanges,
-              breakingSeverity: breakingAnalysis.overallSeverity,
-              securityIssues: securityAnalysis.hasSecurityIssues,
-              securitySeverity: securityAnalysis.overallSeverity,
-              riskScore: securityAnalysis.riskScore,
-            })}`,
-          )
-        } else {
-          core.debug(`Skipping enhanced analysis for ${dependency.name} in test environment`)
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        core.warning(`Enhanced analysis failed for ${dependency.name}: ${errorMessage}`)
-      }
-    }
+    const {enhancedDependencies} = await runDetectors({
+      octokit,
+      owner,
+      repo,
+      prNumber: pr.number,
+      files,
+      prContext,
+    })
 
     core.info(
       `Parsed PR context: ${JSON.stringify(

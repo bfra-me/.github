@@ -16,7 +16,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 │   ├── actions/
 │   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (21 src files)
 │   │   └── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
-│   ├── workflows/                 # 14 CI/CD workflows for THIS repo
+│   ├── workflows/                 # 18 workflows: CI/CD, Fro Bot agent, Copilot setup
 │   ├── instructions/              # Dev guidelines consumed by AI assistants and code review
 │   └── settings.yml               # Repo settings via Repository Settings App
 ├── workflow-templates/            # Org-wide workflow templates (with .properties.json metadata)
@@ -33,6 +33,8 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 | Task | Location | Notes |
 | --- | --- | --- |
 | Add/edit CI workflow | `.github/workflows/` | Pin actions to SHA. Use `bfra-me[bot]` app auth |
+| Fro Bot agent config | `.github/workflows/fro-bot*.yaml` | Main + repo autoheal + org autoheal. Prompts in env vars |
+| Copilot coding agent | `.github/workflows/copilot-setup-steps.yaml` | Setup steps for Copilot agent. Instructions in `copilot-instructions.md` |
 | Create org workflow template | `workflow-templates/` | Requires matching `.properties.json` |
 | Modify renovate-changesets action | `.github/actions/renovate-changesets/` | Has own AGENTS.md. Build with `pnpm build` |
 | Modify update-metadata action | `.github/actions/update-metadata/` | Has own AGENTS.md |
@@ -88,3 +90,6 @@ pnpm run build:monitor            # Build performance analysis
 - `common-settings.yaml` has deprecated `contexts` field — migrate to `checks`
 - `.github/instructions/` files are consumed by AI tools, not by build system
 - `pnpm` override: `jiti` pinned to `<2.7.0` due to compatibility issue
+- Fro Bot uses `FRO_BOT_PAT` + `OPENCODE_AUTH_JSON` secrets (separate from `bfra-me[bot]` app)
+- Fro Bot org autoheal runs weekdays; repo autoheal runs daily; oversight report runs daily
+- `copilot-instructions.md` references AGENTS.md — keep both in sync

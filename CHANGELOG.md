@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 4.6.0
+### Minor Changes
+
+
+- ⚠️ Update github-actions dependencies: dorny/paths-filter ([#1731](https://github.com/bfra-me/.github/pull/1731))
+
+
+### Patch Changes
+
+
+- Add conditional to skip checkout on non-`push` events. ([#1744](https://github.com/bfra-me/.github/pull/1744))
+
+
+- ⚙️ Update github-actions dependencies: bfra-me/.github ([#1742](https://github.com/bfra-me/.github/pull/1742))
+
 ## 4.5.5
 ### Patch Changes
 

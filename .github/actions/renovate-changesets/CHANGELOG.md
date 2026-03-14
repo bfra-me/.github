@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.19
+### Patch Changes
+
+
+- Fix markdown link extraction pairing Renovate table headers (Age, Confidence) as dependency names ([#1753](https://github.com/bfra-me/.github/pull/1753))
+
 ## 0.2.18
 ### Patch Changes
 

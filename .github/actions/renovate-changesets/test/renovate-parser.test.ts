@@ -738,4 +738,65 @@ Includes security fixes and performance improvements.`
       expect(reactDeps[0].name).toBe('react')
     })
   })
+
+  describe('Markdown link dependency extraction regression (PR #1750)', () => {
+    it('should not extract Renovate table header links as dependency names', () => {
+      const renovateBody = [
+        'This PR contains the following updates:',
+        '',
+        '| Package | Change | [Age](https://docs.renovatebot.com/merge-confidence/) | [Confidence](https://docs.renovatebot.com/merge-confidence/) |',
+        '|---|---|---|---|',
+        '| [pnpm](https://pnpm.io) ([source](https://github.com/pnpm/pnpm)) | [`10.32.0` → `10.32.1`](https://renovatebot.com/diffs/npm/pnpm/10.32.0/10.32.1) | ![age](https://img.example.com) | ![confidence](https://img.example.com) |',
+      ].join('\n')
+
+      const result = (parser as any).parseDependenciesFromText(renovateBody, 'npm')
+      const depNames = result.map((d: any) => d.name)
+
+      expect(depNames).not.toContain('Age')
+      expect(depNames).not.toContain('Confidence')
+      expect(depNames).not.toContain('source')
+      expect(depNames).toContain('pnpm')
+    })
+
+    it('should correctly pair package names with versions in multi-row Renovate tables', () => {
+      const renovateBody = [
+        '| Package | Change | [Age](https://docs.renovatebot.com/merge-confidence/) |',
+        '|---|---|---|',
+        '| [eslint](https://eslint.org) | [`8.0.0` → `9.0.0`](https://diff.url) | ![age](https://img.url) |',
+        '| [@types/node](https://npmjs.com) | [`20.0.0` → `22.0.0`](https://diff.url) | ![age](https://img.url) |',
+      ].join('\n')
+
+      const result = (parser as any).parseDependenciesFromText(renovateBody, 'npm')
+      const depNames = result.map((d: any) => d.name)
+
+      expect(depNames).not.toContain('Age')
+      expect(depNames).toContain('eslint')
+      expect(depNames).toContain('@types/node')
+
+      const eslintDep = result.find((d: any) => d.name === 'eslint')
+      expect(eslintDep?.currentVersion).toBe('8.0.0')
+      expect(eslintDep?.newVersion).toBe('9.0.0')
+
+      const nodeTypesDep = result.find((d: any) => d.name === '@types/node')
+      expect(nodeTypesDep?.currentVersion).toBe('20.0.0')
+      expect(nodeTypesDep?.newVersion).toBe('22.0.0')
+    })
+
+    it('should handle Renovate tables with Adoption and Passing columns', () => {
+      const renovateBody = [
+        '| Package | Change | [Age](https://url) | [Adoption](https://url) | [Passing](https://url) | [Confidence](https://url) |',
+        '|---|---|---|---|---|---|',
+        '| [lodash](https://lodash.com) | [`4.17.20` → `4.17.21`](https://diff) | ![age](img) | ![adoption](img) | ![passing](img) | ![confidence](img) |',
+      ].join('\n')
+
+      const result = (parser as any).parseDependenciesFromText(renovateBody, 'npm')
+      const depNames = result.map((d: any) => d.name)
+
+      expect(depNames).not.toContain('Age')
+      expect(depNames).not.toContain('Adoption')
+      expect(depNames).not.toContain('Passing')
+      expect(depNames).not.toContain('Confidence')
+      expect(depNames).toContain('lodash')
+    })
+  })
 })

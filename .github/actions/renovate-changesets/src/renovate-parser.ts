@@ -320,6 +320,7 @@ export class RenovateParser {
 
     // Patterns for dependency extraction
     const patterns = [
+      /update action ([@\w/.-]+)/gi, // "update action name" (GitHub Actions with commitMessageTopic)
       /update (?:dependency )?([@\w/.-]+)/gi, // "update dependency name" or "update name"
       /bump ([@\w/.-]+)/gi, // "bump name"
       /upgrade ([@\w/.-]+)/gi, // "upgrade name"
@@ -542,6 +543,11 @@ export class RenovateParser {
     // Enhanced patterns for dependency extraction
     const versionPattern = String.raw`v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`
     const patterns = [
+      // "update action <name> to v1.2.3" (internal GitHub Actions with commitMessageTopic prefix)
+      new RegExp(
+        String.raw`update\s+action\s+(@?\w[\w./%-]*)(?:\s+(?:package|module|dependency))?\s+(?:to\s+)?${versionPattern}`,
+        'gi',
+      ),
       // "update dependency @scope/package to v1.2.3"
       new RegExp(
         String.raw`update\s+(?:dependency\s+)?(@?\w[\w./%-]*)(?:\s+(?:action|package|module|dependency))?\s+(?:to\s+)?${versionPattern}`,

@@ -1,7 +1,11 @@
 import {describe, expect, it} from 'vitest'
 
 const extractDependenciesFromTitle = (title: string): string[] => {
-  const patterns = [/update (?:dependency )?([\w\-./@]+)/gi, /bump ([\w\-./@]+)/gi]
+  const patterns = [
+    /update action ([\w\-./@]+)/gi,
+    /update (?:dependency )?(?!action\s)([\w\-./@]+)/gi,
+    /bump ([\w\-./@]+)/gi,
+  ]
 
   const dependencies: string[] = []
   for (const pattern of patterns) {
@@ -41,5 +45,27 @@ describe('extractDependenciesFromTitle fallback logic', () => {
         'chore(deps): update dependency bfra-me/renovate-action to v8.87.6',
       ),
     ).toEqual(['bfra-me/renovate-action'])
+  })
+
+  it('extracts action name when title uses "update action <name>" phrasing (commitMessageTopic)', () => {
+    expect(
+      extractDependenciesFromTitle(
+        'chore(deps): update action update-repository-settings to v0.1.2',
+      ),
+    ).toEqual(['update-repository-settings'])
+  })
+
+  it('extracts renovate-changesets action name from "update action" phrasing', () => {
+    expect(
+      extractDependenciesFromTitle('chore(deps): update action renovate-changesets to v0.2.19'),
+    ).toEqual(['renovate-changesets'])
+  })
+
+  it('does not extract "action" as the dependency name when action keyword is present', () => {
+    expect(
+      extractDependenciesFromTitle(
+        'chore(deps): update action update-repository-settings to v0.1.2',
+      ),
+    ).not.toContain('action')
   })
 })

@@ -33,6 +33,7 @@
       matchFileNames: ['.github/workflows/renovate-changeset.yaml'],
       extractVersion: '^renovate-changesets@(?<version>.+)$',
       pinDigests: false,
+      commitMessageTopic: 'action renovate-changesets',
     },
     {
       description: 'Track released versions of update-repository-settings action via release tags.',
@@ -40,6 +41,7 @@
       matchFileNames: ['.github/workflows/update-repo-settings.yaml'],
       extractVersion: '^update-repository-settings@(?<version>.+)$',
       pinDigests: false,
+      commitMessageTopic: 'action update-repository-settings',
     },
   ],
   postUpgradeTasks: {

@@ -4,6 +4,17 @@ import process from 'node:process'
 import * as core from '@actions/core'
 import {Octokit} from '@octokit/rest'
 import {getConfig} from './action-config'
+import {
+  setCategorizationOutputs,
+  setChangesetOutputs,
+  setEmptyOutputs,
+  setErrorOutputs,
+  setGitOperationOutputs,
+  setGroupedPRErrorOutputs,
+  setGroupedPROutputs,
+  setMultiPackageOutputs,
+  setPRManagementOutputs,
+} from './action-outputs'
 import {BreakingChangeDetector} from './breaking-change-detector'
 import {ChangeCategorizationEngine} from './change-categorization-engine'
 import {ChangesetSummaryGenerator} from './changeset-summary-generator'
@@ -369,17 +380,7 @@ export async function run(): Promise<void> {
 
     if (changedFiles.some(file => file.startsWith('.changeset/'))) {
       core.info('Changeset files already exist, skipping changeset creation')
-      core.setOutput('changesets-created', '0')
-      core.setOutput('changeset-files', JSON.stringify([]))
-      // TASK-020: Set categorization outputs for early return
-      core.setOutput('primary-category', '')
-      core.setOutput('all-categories', JSON.stringify([]))
-      core.setOutput('categorization-summary', JSON.stringify({}))
-      core.setOutput('security-updates', '0')
-      core.setOutput('breaking-changes', '0')
-      core.setOutput('high-priority-updates', '0')
-      core.setOutput('average-risk-level', '0')
-      core.setOutput('categorization-confidence', 'low')
+      setEmptyOutputs()
       return
     }
 
@@ -786,57 +787,50 @@ export async function run(): Promise<void> {
       }
     }
 
-    // Set outputs with multi-package awareness
-    core.setOutput('changesets-created', multiPackageResult.filesCreated.length.toString())
-    core.setOutput('changeset-files', JSON.stringify(multiPackageResult.filesCreated))
-    core.setOutput('update-type', updateType || 'dependencies')
-    core.setOutput('dependencies', JSON.stringify(dependencyNames))
-    core.setOutput('changeset-summary', changesetContent)
+    setChangesetOutputs({
+      changesetsCreated: multiPackageResult.filesCreated.length,
+      changesetFiles: multiPackageResult.filesCreated,
+      updateType: updateType || 'dependencies',
+      dependencies: dependencyNames,
+      changesetSummary: changesetContent,
+    })
 
-    // TASK-024: Set multi-package specific outputs
-    core.setOutput('multi-package-strategy', multiPackageResult.strategy)
-    core.setOutput(
-      'workspace-packages-count',
-      multiPackageAnalysis.workspacePackages.length.toString(),
-    )
-    core.setOutput(
-      'package-relationships-count',
-      multiPackageAnalysis.packageRelationships.length.toString(),
-    )
-    core.setOutput('affected-packages', JSON.stringify(multiPackageAnalysis.affectedPackages))
-    core.setOutput('multi-package-reasoning', JSON.stringify(multiPackageResult.reasoning))
+    setMultiPackageOutputs({
+      strategy: multiPackageResult.strategy,
+      workspacePackagesCount: multiPackageAnalysis.workspacePackages.length,
+      packageRelationshipsCount: multiPackageAnalysis.packageRelationships.length,
+      affectedPackages: multiPackageAnalysis.affectedPackages,
+      reasoning: multiPackageResult.reasoning,
+    })
 
-    // TASK-020: Set categorization outputs
-    core.setOutput('primary-category', categorizationResult.primaryCategory)
-    core.setOutput('all-categories', JSON.stringify(categorizationResult.allCategories))
-    core.setOutput('categorization-summary', JSON.stringify(categorizationResult.summary))
-    core.setOutput('security-updates', categorizationResult.summary.securityUpdates.toString())
-    core.setOutput('breaking-changes', categorizationResult.summary.breakingChanges.toString())
-    core.setOutput(
-      'high-priority-updates',
-      categorizationResult.summary.highPriorityUpdates.toString(),
-    )
-    core.setOutput('average-risk-level', categorizationResult.summary.averageRiskLevel.toString())
-    core.setOutput('categorization-confidence', categorizationResult.confidence)
+    setCategorizationOutputs({
+      primaryCategory: categorizationResult.primaryCategory,
+      allCategories: categorizationResult.allCategories,
+      summary: categorizationResult.summary,
+      securityUpdates: categorizationResult.summary.securityUpdates,
+      breakingChanges: categorizationResult.summary.breakingChanges,
+      highPriorityUpdates: categorizationResult.summary.highPriorityUpdates,
+      averageRiskLevel: categorizationResult.summary.averageRiskLevel,
+      confidence: categorizationResult.confidence,
+    })
 
     // TASK-028/029/030: Commit changeset files back to Renovate branch if enabled
     try {
       const gitOps = createGitOperations(workingDirectory, owner, repo, branchName)
       const commitResult = await gitOps.commitChangesetFiles()
 
-      // Set git operation outputs
-      core.setOutput('commit-success', commitResult.success.toString())
-      core.setOutput('commit-sha', commitResult.commitSha || '')
-      core.setOutput('committed-files', JSON.stringify(commitResult.committedFiles))
-      core.setOutput('git-error', commitResult.error || '')
-      // TASK-030: Add push operation outputs
-      core.setOutput('push-success', (commitResult.pushSuccess || false).toString())
-      core.setOutput('push-error', commitResult.pushError || '')
-      // TASK-032: Add merge conflict handling outputs
-      core.setOutput('conflicts-resolved', (commitResult.conflictsResolved || false).toString())
-      core.setOutput('conflict-resolution', commitResult.conflictResolution || '')
-      core.setOutput('branch-updated', (commitResult.branchUpdated || false).toString())
-      core.setOutput('retry-attempts', (commitResult.retryAttempts || 0).toString())
+      setGitOperationOutputs({
+        commitSuccess: commitResult.success,
+        commitSha: commitResult.commitSha || '',
+        committedFiles: commitResult.committedFiles,
+        gitError: commitResult.error || '',
+        pushSuccess: commitResult.pushSuccess || false,
+        pushError: commitResult.pushError || '',
+        conflictsResolved: commitResult.conflictsResolved || false,
+        conflictResolution: commitResult.conflictResolution || '',
+        branchUpdated: commitResult.branchUpdated || false,
+        retryAttempts: commitResult.retryAttempts || 0,
+      })
 
       if (commitResult.success && commitResult.committedFiles.length > 0) {
         core.info(
@@ -849,19 +843,18 @@ export async function run(): Promise<void> {
       const gitErrorMessage = gitError instanceof Error ? gitError.message : String(gitError)
       core.warning(`Git operations encountered an error: ${gitErrorMessage}`)
 
-      // Set error outputs
-      core.setOutput('commit-success', 'false')
-      core.setOutput('commit-sha', '')
-      core.setOutput('committed-files', JSON.stringify([]))
-      core.setOutput('git-error', gitErrorMessage)
-      // TASK-030: Add push operation error outputs
-      core.setOutput('push-success', 'false')
-      core.setOutput('push-error', '')
-      // TASK-032: Add merge conflict handling error outputs
-      core.setOutput('conflicts-resolved', 'false')
-      core.setOutput('conflict-resolution', '')
-      core.setOutput('branch-updated', 'false')
-      core.setOutput('retry-attempts', '0')
+      setGitOperationOutputs({
+        commitSuccess: false,
+        commitSha: '',
+        committedFiles: [],
+        gitError: gitErrorMessage,
+        pushSuccess: false,
+        pushError: '',
+        conflictsResolved: false,
+        conflictResolution: '',
+        branchUpdated: false,
+        retryAttempts: 0,
+      })
     }
 
     // TASK-031: Update PR description with changeset information if enabled
@@ -878,12 +871,20 @@ export async function run(): Promise<void> {
           categorizationResult,
           multiPackageResult,
         )
-        core.setOutput('pr-description-updated', 'true')
-        core.setOutput('pr-description-error', '')
+        setPRManagementOutputs({
+          prDescriptionUpdated: true,
+          prDescriptionError: '',
+          prCommentCreated: false,
+          prCommentError: '',
+        })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        core.setOutput('pr-description-updated', 'false')
-        core.setOutput('pr-description-error', errorMessage)
+        setPRManagementOutputs({
+          prDescriptionUpdated: false,
+          prDescriptionError: errorMessage,
+          prCommentCreated: false,
+          prCommentError: '',
+        })
       }
     }
 
@@ -902,12 +903,20 @@ export async function run(): Promise<void> {
           categorizationResult,
           multiPackageResult,
         )
-        core.setOutput('pr-comment-created', 'true')
-        core.setOutput('pr-comment-error', '')
+        setPRManagementOutputs({
+          prDescriptionUpdated: false,
+          prDescriptionError: '',
+          prCommentCreated: true,
+          prCommentError: '',
+        })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        core.setOutput('pr-comment-created', 'false')
-        core.setOutput('pr-comment-error', errorMessage)
+        setPRManagementOutputs({
+          prDescriptionUpdated: false,
+          prDescriptionError: '',
+          prCommentCreated: false,
+          prCommentError: errorMessage,
+        })
       }
     }
 
@@ -916,9 +925,7 @@ export async function run(): Promise<void> {
     try {
       const groupedPRs = await groupedPRManager.detectGroupedPRs(pr.number, prContext)
 
-      // Set grouped PR detection outputs
-      core.setOutput('grouped-prs-enabled', core.getBooleanInput('update-grouped-prs').toString())
-      core.setOutput('grouped-prs-found', groupedPRs.length.toString())
+      const groupedPRsEnabled = core.getBooleanInput('update-grouped-prs')
 
       if (groupedPRs.length > 1) {
         core.info(`Found ${groupedPRs.length} PRs in group, updating all PRs`)
@@ -935,35 +942,36 @@ export async function run(): Promise<void> {
           changesetPath,
         )
 
-        // Set grouped PR update outputs
-        core.setOutput('grouped-prs-updated', groupedResult.updatedPRs.toString())
-        core.setOutput('grouped-prs-failed', groupedResult.failedPRs.toString())
-        core.setOutput('grouped-pr-strategy', groupedResult.groupingStrategy)
-        core.setOutput('grouped-pr-identifier', groupedResult.groupIdentifier || '')
-        core.setOutput('grouped-pr-results', JSON.stringify(groupedResult.prResults))
+        setGroupedPROutputs({
+          enabled: groupedPRsEnabled,
+          found: groupedPRs.length,
+          updated: groupedResult.updatedPRs,
+          failed: groupedResult.failedPRs,
+          strategy: groupedResult.groupingStrategy,
+          identifier: groupedResult.groupIdentifier || '',
+          results: groupedResult.prResults,
+        })
 
         if (groupedResult.failedPRs > 0) {
           core.warning(`${groupedResult.failedPRs} PRs failed to update in grouped operation`)
         }
       } else {
-        // No grouped PRs found, set empty outputs
-        core.setOutput('grouped-prs-updated', '0')
-        core.setOutput('grouped-prs-failed', '0')
-        core.setOutput('grouped-pr-strategy', 'none')
-        core.setOutput('grouped-pr-identifier', '')
-        core.setOutput('grouped-pr-results', JSON.stringify([]))
+        setGroupedPROutputs({
+          enabled: groupedPRsEnabled,
+          found: groupedPRs.length,
+          updated: 0,
+          failed: 0,
+          strategy: 'none',
+          identifier: '',
+          results: [],
+        })
       }
     } catch (groupedPRError) {
       const errorMessage =
         groupedPRError instanceof Error ? groupedPRError.message : String(groupedPRError)
       core.warning(`Grouped PR operations failed: ${errorMessage}`)
 
-      // Set error outputs for grouped PRs
-      core.setOutput('grouped-prs-updated', '0')
-      core.setOutput('grouped-prs-failed', '0')
-      core.setOutput('grouped-pr-strategy', 'none')
-      core.setOutput('grouped-pr-identifier', '')
-      core.setOutput('grouped-pr-results', JSON.stringify([]))
+      setGroupedPRErrorOutputs()
     }
   } catch (error) {
     // Enhanced error handling with detailed error information
@@ -975,43 +983,7 @@ export async function run(): Promise<void> {
       core.debug(`Error stack: ${errorStack}`)
     }
 
-    // Set error outputs for debugging
-    core.setOutput('changesets-created', '0')
-    core.setOutput('changeset-files', JSON.stringify([]))
-    core.setOutput('update-type', '')
-    core.setOutput('dependencies', JSON.stringify([]))
-    core.setOutput('changeset-summary', '')
-
-    // TASK-024: Set multi-package error outputs
-    core.setOutput('multi-package-strategy', 'single')
-    core.setOutput('workspace-packages-count', '0')
-    core.setOutput('package-relationships-count', '0')
-    core.setOutput('affected-packages', JSON.stringify([]))
-    core.setOutput('multi-package-reasoning', JSON.stringify([]))
-
-    // TASK-020: Set categorization error outputs
-    core.setOutput('primary-category', '')
-    core.setOutput('all-categories', JSON.stringify([]))
-    core.setOutput('categorization-summary', JSON.stringify({}))
-    core.setOutput('security-updates', '0')
-    core.setOutput('breaking-changes', '0')
-    core.setOutput('high-priority-updates', '0')
-    core.setOutput('average-risk-level', '0')
-    core.setOutput('categorization-confidence', 'low')
-
-    // TASK-028/029/030: Set git operations error outputs
-    core.setOutput('commit-success', 'false')
-    core.setOutput('commit-sha', '')
-    core.setOutput('committed-files', JSON.stringify([]))
-    core.setOutput('git-error', '')
-    core.setOutput('push-success', 'false')
-    core.setOutput('push-error', '')
-
-    // TASK-031/033: Set PR management error outputs
-    core.setOutput('pr-description-updated', 'false')
-    core.setOutput('pr-description-error', '')
-    core.setOutput('pr-comment-created', 'false')
-    core.setOutput('pr-comment-error', '')
+    setErrorOutputs()
 
     core.setFailed(`Action failed: ${errorMessage}`)
   }

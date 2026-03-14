@@ -22,9 +22,15 @@ import type {
 } from './changeset-template-engine'
 import type {RenovatePRContext} from './renovate-parser'
 import type {ImpactAssessment} from './semver-impact-assessor'
+import type {JsEcosystemSummaryContext} from './summaries/js-ecosystem-summaries'
 import type {SummaryGeneratorConfig, TemplateContext} from './summary-generator-types'
 import {env} from 'node:process'
 
+import {
+  generateGitHubActionsSummaryLogic,
+  generateGoSummaryLogic,
+  generateNpmSummaryLogic,
+} from './summaries/js-ecosystem-summaries'
 import {DEFAULT_SUMMARY_CONFIG} from './summary-generator-types'
 
 export type {SummaryGeneratorConfig, TemplateContext}
@@ -36,6 +42,17 @@ export {DEFAULT_SUMMARY_CONFIG}
 export class ChangesetSummaryGenerator {
   private config: SummaryGeneratorConfig
   private templateEngine?: ChangesetTemplateEngine
+
+  private createJsEcosystemSummaryContext(): JsEcosystemSummaryContext {
+    return {
+      config: this.config,
+      addBreakingChangeWarning: this.addBreakingChangeWarning.bind(this),
+      generateGroupedUpdateSummary: this.generateGroupedUpdateSummary.bind(this),
+      generateSecurityUpdateSummary: this.generateSecurityUpdateSummary.bind(this),
+      generateSingleDependencySummary: this.generateSingleDependencySummary.bind(this),
+      getEmojiForUpdate: this.getEmojiForUpdate.bind(this),
+    }
+  }
 
   constructor(
     config: Partial<SummaryGeneratorConfig> = {},
@@ -185,48 +202,12 @@ export class ChangesetSummaryGenerator {
     impactAssessment: ImpactAssessment,
     dependencies: string[],
   ): string {
-    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
-    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
-
-    if (prContext.isSecurityUpdate) {
-      return this.generateSecurityUpdateSummary('npm', sortedDeps, prContext, impactAssessment)
-    }
-
-    if (prContext.isGroupedUpdate) {
-      return this.generateGroupedUpdateSummary('npm', sortedDeps, impactAssessment)
-    }
-
-    if (sortedDeps.length === 0) {
-      return `${emoji}Update npm dependencies`
-    }
-
-    if (sortedDeps.length === 1) {
-      const dependency = sortedDeps[0]
-      if (dependency) {
-        return this.generateSingleDependencySummary(
-          'npm',
-          dependency,
-          prContext,
-          impactAssessment,
-          emoji,
-        )
-      }
-    }
-
-    if (sortedDeps.length <= this.config.maxDependenciesToList) {
-      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-      const summary = `${emoji}Update npm dependencies: ${depList}`
-
-      if (impactAssessment.hasBreakingChanges && this.config.includeBreakingChangeWarnings) {
-        return `${summary}\n\n⚠️ **Breaking Changes**: This update includes breaking changes that may require code modifications.`
-      }
-
-      return summary
-    }
-
-    // Many dependencies - summarize
-    const summary = `${emoji}Update ${sortedDeps.length} npm dependencies`
-    return this.addBreakingChangeWarning(summary, impactAssessment)
+    return generateNpmSummaryLogic(
+      this.createJsEcosystemSummaryContext(),
+      prContext,
+      impactAssessment,
+      dependencies,
+    )
   }
 
   /**
@@ -237,40 +218,12 @@ export class ChangesetSummaryGenerator {
     impactAssessment: ImpactAssessment,
     dependencies: string[],
   ): string {
-    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
-    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
-
-    if (prContext.isSecurityUpdate) {
-      return this.generateSecurityUpdateSummary(
-        'GitHub Actions',
-        sortedDeps,
-        prContext,
-        impactAssessment,
-      )
-    }
-
-    if (sortedDeps.length === 1) {
-      const dep = sortedDeps[0]
-      const versionInfo = prContext.dependencies.find(d => d.name === dep)
-      let versionText = ''
-
-      if (
-        this.config.includeVersionDetails &&
-        versionInfo?.currentVersion &&
-        versionInfo?.newVersion
-      ) {
-        versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
-      }
-
-      return `${emoji}Update GitHub Actions workflow dependency \`${dep}\`${versionText}`
-    }
-
-    if (sortedDeps.length <= this.config.maxDependenciesToList) {
-      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-      return `${emoji}Update GitHub Actions workflow dependencies: ${depList}`
-    }
-
-    return `${emoji}Update ${sortedDeps.length} GitHub Actions workflow dependencies`
+    return generateGitHubActionsSummaryLogic(
+      this.createJsEcosystemSummaryContext(),
+      prContext,
+      impactAssessment,
+      dependencies,
+    )
   }
 
   /**
@@ -408,32 +361,12 @@ export class ChangesetSummaryGenerator {
     impactAssessment: ImpactAssessment,
     dependencies: string[],
   ): string {
-    const emoji = this.getEmojiForUpdate(prContext, impactAssessment)
-    const sortedDeps = this.config.sortDependencies ? [...dependencies].sort() : dependencies
-
-    if (prContext.isSecurityUpdate) {
-      return this.generateSecurityUpdateSummary('Go', sortedDeps, prContext, impactAssessment)
-    }
-
-    if (sortedDeps.length === 1) {
-      return this.generateSingleDependencySummary(
-        'Go',
-        sortedDeps[0] || '',
-        prContext,
-        impactAssessment,
-        emoji,
-      )
-    }
-
-    if (sortedDeps.length <= this.config.maxDependenciesToList) {
-      const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-      const summary = `${emoji}Update Go modules: ${depList}`
-
-      return this.addBreakingChangeWarning(summary, impactAssessment)
-    }
-
-    const summary = `${emoji}Update ${sortedDeps.length} Go modules`
-    return this.addBreakingChangeWarning(summary, impactAssessment)
+    return generateGoSummaryLogic(
+      this.createJsEcosystemSummaryContext(),
+      prContext,
+      impactAssessment,
+      dependencies,
+    )
   }
 
   /**

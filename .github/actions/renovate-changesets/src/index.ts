@@ -220,20 +220,18 @@ function matchesPatterns(filePath: string, patterns: string[]): boolean {
   return patterns.some(pattern => minimatch(filePath, pattern, {dot: true}))
 }
 
-function extractDependenciesFromTitle(title: string): string[] {
-  // Simple extraction from common Renovate patterns
-  const patterns = [/update (?:dependency )?([\w\-./@]+)/gi, /bump ([\w\-./@]+)/gi]
-  const ignoredTokens = new Set(['update', 'dependency', 'dependencies', 'group'])
+export function extractDependenciesFromTitle(title: string): string[] {
+  const patterns = [
+    /update action ([\w\-./@]+)/gi,
+    /update (?:dependency )?(?!action\s)([\w\-./@]+)/gi,
+    /bump ([\w\-./@]+)/gi,
+  ]
 
   const dependencies: string[] = []
   for (const pattern of patterns) {
     const matches = [...title.matchAll(pattern)]
     for (const match of matches) {
-      if (
-        match[1] &&
-        !ignoredTokens.has(match[1].toLowerCase()) &&
-        !dependencies.includes(match[1])
-      ) {
+      if (match[1] && !dependencies.includes(match[1])) {
         dependencies.push(match[1])
       }
     }

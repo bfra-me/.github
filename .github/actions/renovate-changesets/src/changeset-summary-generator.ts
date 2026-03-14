@@ -22,59 +22,13 @@ import type {
 } from './changeset-template-engine'
 import type {RenovatePRContext} from './renovate-parser'
 import type {ImpactAssessment} from './semver-impact-assessor'
+import type {SummaryGeneratorConfig, TemplateContext} from './summary-generator-types'
 import {env} from 'node:process'
 
-/**
- * Configuration for context-aware summary generation
- */
-export interface SummaryGeneratorConfig {
-  /** Include emoji prefixes for different types of updates */
-  useEmojis: boolean
-  /** Include version details in summaries */
-  includeVersionDetails: boolean
-  /** Include risk assessment information */
-  includeRiskAssessment: boolean
-  /** Include breaking change warnings */
-  includeBreakingChangeWarnings: boolean
-  /** Sort dependencies alphabetically */
-  sortDependencies: boolean
-  /** Maximum number of dependencies to list individually before summarizing */
-  maxDependenciesToList: number
-  /** Custom templates for specific scenarios */
-  customTemplates?: {
-    [key: string]: string
-  }
-}
+import {DEFAULT_SUMMARY_CONFIG} from './summary-generator-types'
 
-/**
- * Default configuration for summary generation
- */
-export const DEFAULT_SUMMARY_CONFIG: SummaryGeneratorConfig = {
-  useEmojis: true,
-  includeVersionDetails: true,
-  includeRiskAssessment: false,
-  includeBreakingChangeWarnings: true,
-  sortDependencies: true,
-  maxDependenciesToList: 5,
-}
-
-/**
- * Template variables that can be used in custom templates
- */
-export interface TemplateContext {
-  updateType: string
-  manager: string
-  dependencies: string[]
-  dependencyCount: number
-  isSecurityUpdate: boolean
-  isGroupedUpdate: boolean
-  hasBreakingChanges: boolean
-  primaryVersion?: string
-  versionRange?: string
-  riskLevel: 'low' | 'medium' | 'high' | 'critical'
-  primaryCategory: string
-  emoji: string
-}
+export type {SummaryGeneratorConfig, TemplateContext}
+export {DEFAULT_SUMMARY_CONFIG}
 
 /**
  * Context-aware changeset summary generator

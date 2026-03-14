@@ -1,4 +1,3 @@
-import type {Config} from './action-config'
 import type {WorkspacePackage} from './multi-package-analyzer'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
@@ -7,7 +6,6 @@ import * as core from '@actions/core'
 import {getExecOutput} from '@actions/exec'
 import write from '@changesets/write'
 import {Octokit} from '@octokit/rest'
-import {minimatch} from 'minimatch'
 import {getConfig} from './action-config'
 import {BreakingChangeDetector} from './breaking-change-detector'
 import {ChangeCategorizationEngine} from './change-categorization-engine'
@@ -27,66 +25,21 @@ import {RenovateParser} from './renovate-parser'
 import {SecurityVulnerabilityDetector} from './security-vulnerability-detector'
 import {SemverBumpTypeDecisionEngine} from './semver-bump-decision-engine'
 import {SemverImpactAssessor} from './semver-impact-assessor'
+import {
+  detectUpdateType,
+  extractDependenciesFromTitle,
+  isValidBranch,
+  matchesPatterns,
+  sortChangesetReleases,
+} from './utils'
 
 export type {Config} from './action-config'
 export {DEFAULT_CONFIG, getConfig} from './action-config'
+export {extractDependenciesFromTitle} from './utils'
 
 function getRootPackageName(workspacePackages: WorkspacePackage[], fallbackName: string): string {
   const rootPackage = workspacePackages.find(pkg => pkg.path === '.' || pkg.path === '')
   return rootPackage?.name ?? fallbackName
-}
-
-function matchesPatterns(filePath: string, patterns: string[]): boolean {
-  return patterns.some(pattern => minimatch(filePath, pattern, {dot: true}))
-}
-
-export function extractDependenciesFromTitle(title: string): string[] {
-  const patterns = [
-    /update action ([\w\-./@]+)/gi,
-    /update (?:dependency )?(?!action\s)([\w\-./@]+)/gi,
-    /bump ([\w\-./@]+)/gi,
-  ]
-
-  const dependencies: string[] = []
-  for (const pattern of patterns) {
-    const matches = [...title.matchAll(pattern)]
-    for (const match of matches) {
-      if (match[1] && !dependencies.includes(match[1])) {
-        dependencies.push(match[1])
-      }
-    }
-  }
-
-  return dependencies
-}
-
-function isValidBranch(
-  branchName: string,
-  branchPrefix: string,
-  skipBranchPrefixCheck: boolean,
-  parser: RenovateParser,
-): boolean {
-  if (skipBranchPrefixCheck) {
-    return true
-  }
-
-  // Use enhanced parser for branch detection
-  return parser.isRenovateBranch(branchName) || branchName.startsWith(branchPrefix)
-}
-
-function detectUpdateType(changedFiles: string[], config: Config): string | undefined {
-  for (const [updateType, settings] of Object.entries(config.updateTypes)) {
-    if (changedFiles.some(file => matchesPatterns(file, settings.filePatterns))) {
-      return updateType
-    }
-  }
-  return undefined
-}
-
-function sortChangesetReleases(
-  releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
-): {name: string; type: 'patch' | 'minor' | 'major'}[] {
-  return [...releases].sort((a, b) => a.name.localeCompare(b.name))
 }
 
 /**

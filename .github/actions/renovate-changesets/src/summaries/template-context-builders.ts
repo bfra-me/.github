@@ -8,7 +8,6 @@ import type {RenovatePRContext} from '../renovate-parser'
 import type {ImpactAssessment} from '../semver-impact-assessor'
 import type {SummaryGeneratorConfig, TemplateContext} from '../summary-generator-types'
 import {env} from 'node:process'
-
 import {
   determineRiskLevel,
   getEcosystemName,
@@ -17,7 +16,6 @@ import {
 } from './summary-helpers'
 
 type TemplateBuilderConfig = Pick<SummaryGeneratorConfig, 'sortDependencies' | 'useEmojis'>
-
 export function buildTemplateContext(
   prContext: RenovatePRContext,
   impactAssessment: ImpactAssessment,
@@ -48,7 +46,6 @@ export function buildTemplateContext(
     emoji: getEmojiForUpdate(prContext, impactAssessment, config.useEmojis).trim(),
   }
 }
-
 export function interpolateTemplate(template: string, context: TemplateContext): string {
   const replacements: [string, string][] = [
     ['{updateType}', context.updateType],
@@ -67,7 +64,6 @@ export function interpolateTemplate(template: string, context: TemplateContext):
   ]
   return replacements.reduce((result, [token, value]) => result.split(token).join(value), template)
 }
-
 export async function generateWithTemplateEngine(
   templateEngine: ChangesetTemplateEngine | undefined,
   prContext: RenovatePRContext,
@@ -106,13 +102,10 @@ export async function generateWithTemplateEngine(
       enhancedContext,
     )
     if (orgResult.trim().length > 0) return orgResult
-
-    if (legacyTemplate) {
-      const legacyConfig: TemplateConfig = {content: legacyTemplate, format: 'simple'}
-      return await templateEngine.renderTemplate(legacyConfig, enhancedContext)
-    }
-
-    return generateContextAwareSummary(prContext, impactAssessment, updateType, dependencies)
+    if (!legacyTemplate)
+      return generateContextAwareSummary(prContext, impactAssessment, updateType, dependencies)
+    const legacyConfig: TemplateConfig = {content: legacyTemplate, format: 'simple'}
+    return await templateEngine.renderTemplate(legacyConfig, enhancedContext)
   } catch (error) {
     console.warn(`Template engine failed, falling back to legacy generation: ${error}`)
     return generateContextAwareSummary(prContext, impactAssessment, updateType, dependencies)
@@ -137,6 +130,12 @@ export function buildEnhancedTemplateContext(
   const resolvedManager = prContext.manager === 'unknown' ? updateType : prContext.manager
   const securitySeverity =
     prContext.dependencies.find(dep => dep.isSecurityUpdate)?.securitySeverity || undefined
+  const confidence =
+    impactAssessment.confidence === 'high'
+      ? 0.9
+      : impactAssessment.confidence === 'medium'
+        ? 0.7
+        : 0.5
 
   return {
     ...buildContext(prContext, impactAssessment, categorizationResult, updateType, dependencies),
@@ -160,12 +159,7 @@ export function buildEnhancedTemplateContext(
     impact: {
       overall: impactAssessment.overallImpact,
       score: impactAssessment.overallRiskScore,
-      confidence:
-        impactAssessment.confidence === 'high'
-          ? 0.9
-          : impactAssessment.confidence === 'medium'
-            ? 0.7
-            : 0.5,
+      confidence,
       hasBreaking: impactAssessment.hasBreakingChanges,
       hasSecurity: prContext.isSecurityUpdate,
     },

@@ -61,7 +61,19 @@ export async function collaboratorsPlugin(
     return
   }
 
-  const desiredCollaborators = config.filter(isCollaboratorConfig)
+  const allDesired = config.filter(isCollaboratorConfig)
+  const ownerCollaborators = allDesired.filter(
+    c => c.username.toLowerCase() === owner.toLowerCase(),
+  )
+  if (ownerCollaborators.length > 0) {
+    core.warning(
+      `Skipping collaborator '${owner}': repository owner cannot be added as a collaborator`,
+    )
+  }
+  const desiredCollaborators = allDesired.filter(
+    c => c.username.toLowerCase() !== owner.toLowerCase(),
+  )
+
   const response = await octokit.rest.repos.listCollaborators({
     owner,
     repo,

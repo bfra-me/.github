@@ -118,6 +118,46 @@ describe('collaboratorsPlugin', () => {
     })
   })
 
+  it('skips the repo owner in desired collaborators with a warning', async () => {
+    mockCollaborators([])
+
+    await collaboratorsPlugin(createOctokit(), 'marcusrbrown', 'repo', [
+      {username: 'marcusrbrown', permission: 'admin'},
+      {username: 'alice', permission: 'push'},
+    ])
+
+    expect(mockWarning).toHaveBeenCalledWith(
+      "Skipping collaborator 'marcusrbrown': repository owner cannot be added as a collaborator",
+    )
+    expect(mockAddCollaborator).toHaveBeenCalledTimes(1)
+    expect(mockAddCollaborator).toHaveBeenCalledWith({
+      owner: 'marcusrbrown',
+      repo: 'repo',
+      username: 'alice',
+      permission: 'push',
+    })
+  })
+
+  it('skips the repo owner case-insensitively', async () => {
+    mockCollaborators([])
+
+    await collaboratorsPlugin(createOctokit(), 'MyOrg', 'repo', [
+      {username: 'myorg', permission: 'admin'},
+      {username: 'bob', permission: 'push'},
+    ])
+
+    expect(mockWarning).toHaveBeenCalledWith(
+      "Skipping collaborator 'MyOrg': repository owner cannot be added as a collaborator",
+    )
+    expect(mockAddCollaborator).toHaveBeenCalledTimes(1)
+    expect(mockAddCollaborator).toHaveBeenCalledWith({
+      owner: 'MyOrg',
+      repo: 'repo',
+      username: 'bob',
+      permission: 'push',
+    })
+  })
+
   it('handles an empty config as a no-op', async () => {
     mockCollaborators([{login: 'bob', role_name: 'push'}])
 

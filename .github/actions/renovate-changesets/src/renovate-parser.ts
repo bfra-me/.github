@@ -605,22 +605,21 @@ export class RenovateParser {
     defaultManager: RenovateManagerType,
   ): RenovateDependency[] {
     const dependencies: RenovateDependency[] = []
-    const markdownLinkPattern = /\[(@?\w[\w./%-]*)\]\([^)]*\)/g
-    const versionPairPattern =
-      /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`?\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`?/g
-    const versionPairs = [...text.matchAll(versionPairPattern)]
+    const linkSource = /\[(@?\w[\w./%-]*)\]\([^)]*\)/.source
+    const versionPairSource =
+      /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`?\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`?/
+        .source
 
-    if (versionPairs.length === 0) {
-      return dependencies
-    }
+    for (const line of text.split('\n')) {
+      const lineVersionPairs = [...line.matchAll(new RegExp(versionPairSource, 'g'))]
+      if (lineVersionPairs.length === 0) continue
 
-    const links = [...text.matchAll(markdownLinkPattern)]
-    const pairCount = Math.min(links.length, versionPairs.length)
+      const lineLinks = [...line.matchAll(new RegExp(linkSource, 'g'))]
+      if (lineLinks.length === 0) continue
 
-    for (let index = 0; index < pairCount; index += 1) {
-      const linkName = links[index]?.[1]
-      const fromVersion = versionPairs[index]?.[1]
-      const toVersion = versionPairs[index]?.[2]
+      const linkName = lineLinks[0]?.[1]
+      const fromVersion = lineVersionPairs[0]?.[1]
+      const toVersion = lineVersionPairs[0]?.[2]
 
       if (linkName != null && fromVersion != null && toVersion != null) {
         dependencies.push({

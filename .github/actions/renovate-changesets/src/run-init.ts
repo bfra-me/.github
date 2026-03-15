@@ -12,7 +12,7 @@ import {isValidBranch} from './utils'
 
 interface PullRequestInfo {
   number: number
-  title?: string
+  title: string
   user: {login: string}
   head?: {ref?: string}
 }

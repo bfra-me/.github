@@ -167,10 +167,8 @@ export async function runDetectors({
             `Breaking changes detected for ${dependency.name}: ${breakingAnalysis.overallSeverity} severity, ${breakingAnalysis.indicators.length} indicators`,
           )
         }
-
         if (securityAnalysis.hasSecurityIssues) {
           const securitySummary = `Security issues detected for ${dependency.name}: ${securityAnalysis.overallSeverity} severity, ${securityAnalysis.vulnerabilities.length} vulnerabilities, risk score ${securityAnalysis.riskScore}`
-
           if (
             securityAnalysis.overallSeverity === 'critical' ||
             securityAnalysis.overallSeverity === 'high'

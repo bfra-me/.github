@@ -34,7 +34,6 @@ export class DockerChangeDetector {
     files: {filename: string; status: string; additions: number; deletions: number}[],
   ): Promise<DockerDependencyChange[]> {
     const changes: DockerDependencyChange[] = []
-
     for (const file of files.filter(candidate => this.isDockerFile(candidate.filename))) {
       try {
         changes.push(
@@ -64,10 +63,7 @@ export class DockerChangeDetector {
         this.getFileContent(octokit, owner, repo, filename, 'base', prNumber),
         this.getFileContent(octokit, owner, repo, filename, 'head', prNumber),
       ])
-      if (baseContent == null || headContent == null) {
-        return []
-      }
-
+      if (baseContent == null || headContent == null) return []
       if (this.isDockerfile(filename)) {
         return this.compareDockerImages(
           this.parseDockerfile(baseContent),
@@ -164,7 +160,6 @@ export class DockerChangeDetector {
     try {
       const isDigestUpdate = isDigest(baseImage.tag) || isDigest(headImage.tag)
       const semverImpact = this.calculateSemverImpact(baseImage.tag, headImage.tag)
-
       return {
         name: getFullImageName(headImage),
         dockerFile: filename,

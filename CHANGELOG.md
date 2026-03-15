@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.8.0
+### Minor Changes
+
+
+- ⚠️ Update GitHub Actions workflow dependency `action` ([#1754](https://github.com/bfra-me/.github/pull/1754))
+
+
+### Patch Changes
+
+
+- 📦 Update npm dependency `@types/node` from `24.10.14` to `24.12.0` ([#1760](https://github.com/bfra-me/.github/pull/1760))
+
 ## 4.7.0
 ### Minor Changes
 

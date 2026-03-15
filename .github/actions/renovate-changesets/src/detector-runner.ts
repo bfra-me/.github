@@ -25,13 +25,11 @@ export interface DetectorRunnerParams {
   files: ChangedPRFile[]
   prContext: RenovatePRContext
 }
-
 function toRenovateDep(
   change: unknown,
   config: {versionField: string; newVersionField: string; packageFileField: string},
 ): RenovatePRContext['dependencies'][number] {
   const dep = change as Record<string, unknown>
-
   return {
     name: dep.name as string,
     currentVersion: dep[config.versionField] as string | undefined,
@@ -44,7 +42,6 @@ function toRenovateDep(
     scope: dep.scope as string | undefined,
   }
 }
-
 export async function runDetectors({
   octokit,
   owner,
@@ -130,7 +127,6 @@ export async function runDetectors({
         prNumber,
         files,
       )
-
       if (changes != null && changes.length > 0) {
         core.info(`${config.label} change detector found ${changes.length} dependency changes`)
         const converted = changes.map(change => toRenovateDep(change, config))
@@ -166,7 +162,6 @@ export async function runDetectors({
           repo,
           prNumber,
         )
-
         if (breakingAnalysis.hasBreakingChanges) {
           core.warning(
             `Breaking changes detected for ${dependency.name}: ${breakingAnalysis.overallSeverity} severity, ${breakingAnalysis.indicators.length} indicators`,
@@ -185,7 +180,6 @@ export async function runDetectors({
             core.warning(securitySummary)
           }
         }
-
         core.debug(
           `Enhanced analysis for ${dependency.name}: ${JSON.stringify({
             breakingChanges: breakingAnalysis.hasBreakingChanges,

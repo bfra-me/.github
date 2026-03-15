@@ -27,7 +27,6 @@ export function buildTemplateContext(
   const sortedDeps = config.sortDependencies ? [...dependencies].sort() : dependencies
   const primaryDep = prContext.dependencies[0]
   const resolvedManager = prContext.manager === 'unknown' ? updateType : prContext.manager
-
   return {
     updateType,
     manager: resolvedManager,

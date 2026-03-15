@@ -1,5 +1,18 @@
 # @bfra.me/.github
 
+## 5.0.0
+### Major Changes
+
+
+- ⚠️ Update dependencies dependency `bfra-me/.github` from `1.0.0` to `4.8.0` ([#1689](https://github.com/bfra-me/.github/pull/1689))
+  
+  ⚠️ **Breaking Changes**: This update includes breaking changes that may require code modifications.
+
+### Patch Changes
+
+
+- 📦 Update 10 GitHub Actions workflow dependencies ([#1764](https://github.com/bfra-me/.github/pull/1764))
+
 ## 4.8.0
 ### Minor Changes
 

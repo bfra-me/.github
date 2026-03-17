@@ -32,23 +32,24 @@ export async function extractPRContext(
   })
 
   const commitMessages = commits.map(commit => commit.commit.message)
-  const dependencies = [] as RenovatePRContext['dependencies']
-  let isGroupedUpdate = false
-  let isSecurityUpdate = false
   let detectedManager: RenovatePRContext['manager'] = 'unknown'
   let detectedUpdateType: RenovatePRContext['updateType'] = 'patch'
+
+  const titleBodyDeps = extractDependenciesFromPR(prData.title, prData.body ?? '', '', 'unknown')
+
+  const commitOnlyDeps: RenovatePRContext['dependencies'] = []
+  let hasSecuritySignal = false
 
   for (const commitMessage of commitMessages) {
     const parsedCommit = parseCommitMessage(commitMessage)
     if (parsedCommit.renovateInfo != null) {
-      dependencies.push(
-        ...extractDependenciesFromPR(
-          prData.title,
-          prData.body ?? '',
-          commitMessage,
-          parsedCommit.renovateInfo.manager,
-        ),
+      const commitDeps = extractDependenciesFromPR(
+        '',
+        '',
+        commitMessage,
+        parsedCommit.renovateInfo.manager,
       )
+      commitOnlyDeps.push(...commitDeps)
 
       if (parsedCommit.renovateInfo.manager !== 'unknown') {
         detectedManager = parsedCommit.renovateInfo.manager
@@ -57,21 +58,9 @@ export async function extractPRContext(
       detectedUpdateType = parsedCommit.renovateInfo.updateType
     }
 
-    const commitMessageLower = commitMessage.toLowerCase()
-    if (
-      commitMessageLower.includes('security') ||
-      commitMessageLower.includes('vulnerability') ||
-      commitMessageLower.includes('cve-')
-    ) {
-      isSecurityUpdate = true
-    }
-
-    if (
-      commitMessageLower.includes('group') ||
-      prData.title.toLowerCase().includes('group') ||
-      dependencies.length > 1
-    ) {
-      isGroupedUpdate = true
+    const lower = commitMessage.toLowerCase()
+    if (lower.includes('security') || lower.includes('vulnerability') || lower.includes('cve-')) {
+      hasSecuritySignal = true
     }
   }
 
@@ -79,14 +68,22 @@ export async function extractPRContext(
     detectedManager = detectManagerFromFiles(files)
   }
 
-  if (dependencies.length === 0) {
-    dependencies.push(
-      ...extractDependenciesFromPR(prData.title, prData.body ?? '', '', detectedManager),
-    )
-  }
+  const mergedDeps = deduplicateDependencies([...titleBodyDeps, ...commitOnlyDeps])
+  const canonicalDeps =
+    mergedDeps.length > 0
+      ? mergedDeps
+      : extractDependenciesFromPR(prData.title, prData.body ?? '', '', detectedManager)
+
+  const validatedDeps = filterPhantomDependencies(canonicalDeps, files, prData.title)
+
+  const isSecurityUpdate = hasSecuritySignal || validatedDeps.some(d => d.isSecurityUpdate)
+  const hasGroupSignal =
+    commitMessages.some(m => m.toLowerCase().includes('group')) ||
+    prData.title.toLowerCase().includes('group')
+  const isGroupedUpdate = hasGroupSignal || validatedDeps.length > 1
 
   return {
-    dependencies,
+    dependencies: validatedDeps,
     isRenovateBot: ['renovate[bot]', 'bfra-me[bot]', 'dependabot[bot]'].includes(prData.user.login),
     branchName: prData.head?.ref ?? '',
     prTitle: prData.title,
@@ -103,4 +100,55 @@ export async function extractPRContext(
       deletions: file.deletions,
     })),
   }
+}
+
+function deduplicateDependencies(
+  deps: RenovatePRContext['dependencies'],
+): RenovatePRContext['dependencies'] {
+  return deps.reduce<RenovatePRContext['dependencies']>((acc, dep) => {
+    const existing = acc.find(d => d.name === dep.name)
+    if (existing == null) {
+      acc.push(dep)
+    } else {
+      if (dep.currentVersion != null && existing.currentVersion == null) {
+        existing.currentVersion = dep.currentVersion
+      }
+      if (dep.newVersion != null && existing.newVersion == null) {
+        existing.newVersion = dep.newVersion
+      }
+      if (existing.manager === 'unknown' && dep.manager !== 'unknown') {
+        existing.manager = dep.manager
+      }
+      if (existing.updateType === 'patch' && dep.updateType !== 'patch') {
+        existing.updateType = dep.updateType
+      }
+      existing.packageFile = existing.packageFile || dep.packageFile
+      existing.scope = existing.scope || dep.scope
+      if (dep.isSecurityUpdate) existing.isSecurityUpdate = true
+      if (dep.isGrouped) existing.isGrouped = true
+      existing.groupName = existing.groupName ?? dep.groupName
+      existing.securitySeverity = existing.securitySeverity ?? dep.securitySeverity
+    }
+    return acc
+  }, [])
+}
+
+function filterPhantomDependencies(
+  dependencies: RenovatePRContext['dependencies'],
+  files: {filename: string; patch?: string}[],
+  prTitle: string,
+): RenovatePRContext['dependencies'] {
+  const hasAnyMissingPatch = files.some(f => f.patch == null || f.patch.length === 0)
+  const allPatches = files.map(f => f.patch ?? '').join('\n')
+  if (allPatches.length === 0 || hasAnyMissingPatch) return dependencies
+
+  const titleLower = prTitle.toLowerCase()
+  const patchesLower = allPatches.toLowerCase()
+
+  return dependencies.filter(dep => {
+    const nameLower = dep.name.toLowerCase()
+    if (titleLower.includes(nameLower)) return true
+    if (patchesLower.includes(nameLower)) return true
+    return false
+  })
 }

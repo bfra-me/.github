@@ -130,7 +130,25 @@ export async function runDetectors({
       if (changes != null && changes.length > 0) {
         core.info(`${config.label} change detector found ${changes.length} dependency changes`)
         const converted = changes.map(change => toRenovateDep(change, config))
-        enhancedDependencies = [...enhancedDependencies, ...converted]
+        for (const dep of converted) {
+          const existingIndex = enhancedDependencies.findIndex(d => d.name === dep.name)
+          if (existingIndex === -1) {
+            enhancedDependencies = [...enhancedDependencies, dep]
+          } else {
+            const existing = enhancedDependencies[existingIndex]
+            if (existing != null) {
+              enhancedDependencies[existingIndex] = {
+                ...existing,
+                ...dep,
+                scope: dep.scope ?? existing.scope,
+                groupName: dep.groupName ?? existing.groupName,
+                isSecurityUpdate: dep.isSecurityUpdate || existing.isSecurityUpdate,
+                isGrouped: dep.isGrouped || existing.isGrouped,
+                securitySeverity: dep.securitySeverity ?? existing.securitySeverity,
+              }
+            }
+          }
+        }
         core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)
       } else {
         core.info(`${config.label} change detector found no additional dependency changes`)

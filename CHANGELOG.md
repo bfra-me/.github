@@ -1,5 +1,32 @@
 # @bfra.me/.github
 
+## 4.8.1
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.32.6` to `4.33.0` ([#1768](https://github.com/bfra-me/.github/pull/1768))
+
+
+- 📦 Update npm dependency `pnpm` ([#1767](https://github.com/bfra-me/.github/pull/1767))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `0.30.6` to `0.30.8` ([#1757](https://github.com/bfra-me/.github/pull/1757))
+
+
+- 📦 Update npm dependency `lint-staged` from `16.3.4` to `16.4.0` ([#1778](https://github.com/bfra-me/.github/pull/1778))
+
+
+- 📦 Update npm dependency `lint-staged` from `16.3.3` to `16.3.4` ([#1777](https://github.com/bfra-me/.github/pull/1777))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `8.87.7` to `8.87.8` ([#1766](https://github.com/bfra-me/.github/pull/1766))
+
+
+- 📦 Update 6 GitHub Actions workflow dependencies ([#1769](https://github.com/bfra-me/.github/pull/1769))
+
+
+- 📦 Update 10 GitHub Actions workflow dependencies ([#1764](https://github.com/bfra-me/.github/pull/1764))
+
 ## 4.8.0
 ### Minor Changes
 

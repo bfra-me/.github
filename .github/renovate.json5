@@ -1,6 +1,9 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
-  extends: ['github>bfra-me/renovate-config#5.2.0'],
+  extends: [
+    'github>bfra-me/renovate-config#5.2.0',
+    'github>bfra-me/renovate-config:fro-bot.json5#5.2.0',
+  ],
   automergeType: 'pr',
   packageRules: [
     {
@@ -33,7 +36,7 @@
       matchFileNames: ['.github/workflows/renovate-changeset.yaml'],
       extractVersion: '^renovate-changesets@(?<version>.+)$',
       pinDigests: false,
-      commitMessageTopic: 'action renovate-changesets',
+      commitMessageTopic: 'renovate-changesets action',
     },
     {
       description: 'Track released versions of update-repository-settings action via release tags.',
@@ -41,7 +44,7 @@
       matchFileNames: ['.github/workflows/update-repo-settings.yaml'],
       extractVersion: '^update-repository-settings@(?<version>.+)$',
       pinDigests: false,
-      commitMessageTopic: 'action update-repository-settings',
+      commitMessageTopic: 'update-repository-settings action',
     },
   ],
   postUpgradeTasks: {

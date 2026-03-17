@@ -10,6 +10,22 @@ import {
 } from './renovate-update-classifier.js'
 
 const VERSION_PATTERN = String.raw`v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`
+const VERSION_TOKEN = String.raw`v?\d+(?:\.\d+){0,2}(?:-[\w.]+)?`
+const OPTIONAL_BACKTICKS = '`?'
+const VERSION_ARROW_PATTERN = new RegExp(
+  String.raw`${OPTIONAL_BACKTICKS}${VERSION_TOKEN}${OPTIONAL_BACKTICKS}\s*(?:→|->)\s*${OPTIONAL_BACKTICKS}${VERSION_TOKEN}${OPTIONAL_BACKTICKS}`,
+  'i',
+)
+const VERSION_REFERENCE_PATTERN = new RegExp(
+  `${OPTIONAL_BACKTICKS}${VERSION_TOKEN}${OPTIONAL_BACKTICKS}`,
+  'i',
+)
+const BODY_FOOTER_MARKERS = [
+  '---\n\n### Release Notes',
+  '---\n\n### Configuration',
+  '---\n### Release Notes',
+  '---\n### Configuration',
+] as const
 const TEXT_PATTERNS = [
   new RegExp(
     String.raw`update\s+action\s+(@?\w[\w./%-]*)(?:\s+(?:package|module|dependency))?\s+(?:to\s+)?${VERSION_PATTERN}`,
@@ -36,9 +52,10 @@ export function extractDependenciesFromPR(
   commitMessage: string,
   manager: RenovateManagerType,
 ): RenovateDependency[] {
+  const structuredBody = extractStructuredBodySections(prBody)
   const dependencies = [
     ...parseDependenciesFromText(prTitle, manager),
-    ...parseDependenciesFromText(prBody, manager),
+    ...parseDependenciesFromText(structuredBody, manager),
     ...(commitMessage.length > 0 ? parseDependenciesFromText(commitMessage, manager) : []),
   ]
 
@@ -75,6 +92,24 @@ export function extractDependenciesFromPR(
 
     return acc
   }, [])
+}
+
+export function extractStructuredBodySections(body: string): string {
+  const normalizedBody = body.replaceAll('\r\n', '\n')
+  const cutoffIndexes = [
+    ...BODY_FOOTER_MARKERS.map(marker => normalizedBody.indexOf(marker)),
+    normalizedBody.search(/<details\b/i),
+  ].filter(index => index >= 0)
+  const topSection =
+    cutoffIndexes.length > 0
+      ? normalizedBody.slice(0, Math.min(...cutoffIndexes))
+      : normalizedBody.replaceAll(/<details>[\s\S]*?<\/details>/gi, '')
+
+  return topSection
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => isStructuredDependencyLine(line))
+    .join('\n')
 }
 
 export function parseDependenciesFromText(
@@ -152,6 +187,19 @@ function extractMarkdownLinkDependencies(
   }
 
   return dependencies
+}
+
+function isStructuredDependencyLine(line: string): boolean {
+  if (line.length === 0) return false
+  if (line.includes('|')) return VERSION_ARROW_PATTERN.test(line)
+  if (!/^[*+-]\s+/u.test(line)) return false
+
+  const bulletContent = line.replace(/^[*+-]\s+/u, '')
+  return VERSION_ARROW_PATTERN.test(bulletContent) || isDependencyUpdateBullet(bulletContent)
+}
+
+function isDependencyUpdateBullet(line: string): boolean {
+  return /^(?:update|bump|upgrade)\b/i.test(line) && VERSION_REFERENCE_PATTERN.test(line)
 }
 
 function shouldPreferVersion(existing?: string, candidate?: string): boolean {

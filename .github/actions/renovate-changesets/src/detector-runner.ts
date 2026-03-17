@@ -135,7 +135,18 @@ export async function runDetectors({
           if (existingIndex === -1) {
             enhancedDependencies = [...enhancedDependencies, dep]
           } else {
-            enhancedDependencies[existingIndex] = dep
+            const existing = enhancedDependencies[existingIndex]
+            if (existing != null) {
+              enhancedDependencies[existingIndex] = {
+                ...existing,
+                ...dep,
+                scope: dep.scope ?? existing.scope,
+                groupName: dep.groupName ?? existing.groupName,
+                isSecurityUpdate: dep.isSecurityUpdate || existing.isSecurityUpdate,
+                isGrouped: dep.isGrouped || existing.isGrouped,
+                securitySeverity: dep.securitySeverity ?? existing.securitySeverity,
+              }
+            }
           }
         }
         core.info(`Enhanced dependency list: ${enhancedDependencies.map(d => d.name).join(', ')}`)

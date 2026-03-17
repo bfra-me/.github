@@ -1,5 +1,5 @@
 ---
-'@bfra.me/.github': patch
+'renovate-changesets': patch
 ---
 
 Fix phantom dependency extraction and duplicates in renovate-changesets action

@@ -224,3 +224,143 @@ describe('isGroupedUpdate after phantom filtering', () => {
     expect(context.isGroupedUpdate).toBe(true)
   })
 })
+
+describe('manager preservation through deduplication', () => {
+  it('should default to provided manager when name inference fails', () => {
+    const titleDeps = extractDependenciesFromPR(
+      'chore(deps): update dependency react to v19',
+      '',
+      '',
+      'unknown',
+    )
+    expect(titleDeps.length).toBeGreaterThan(0)
+    expect(titleDeps[0]?.manager).toBe('unknown')
+  })
+
+  it('should use provided manager when explicitly set', () => {
+    const deps = extractDependenciesFromPR(
+      'chore(deps): update dependency react to v19',
+      '',
+      '',
+      'npm',
+    )
+    expect(deps.length).toBeGreaterThan(0)
+    expect(deps[0]?.manager).toBe('npm')
+  })
+
+  it('should upgrade unknown manager from commit-derived deps', async () => {
+    mockedOctokit.rest.pulls.get.mockResolvedValue({
+      data: {base: {sha: 'base'}, head: {sha: 'head'}},
+    } as any)
+    mockedOctokit.rest.repos.getContent.mockRejectedValue(new Error('not found'))
+    mockedOctokit.rest.pulls.listFiles.mockResolvedValue({
+      data: [
+        createMockPRFile({
+          filename: 'package.json',
+          patch: '@@ -1 +1 @@\n-"react": "^18.0.0"\n+"react": "^19.0.0"',
+        }),
+      ],
+    } as any)
+    mockedOctokit.rest.pulls.listCommits.mockResolvedValue({
+      data: [createMockCommit({commit: {message: 'chore(npm): update dependency react to v19'}})],
+    } as any)
+
+    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+      title: 'chore(deps): update dependency react to v19',
+      user: {login: 'renovate[bot]'},
+      head: {ref: 'renovate/react-19.x'},
+    })
+
+    const reactDep = context.dependencies.find(d => d.name === 'react')
+    expect(reactDep).toBeDefined()
+    expect(reactDep?.manager).not.toBe('unknown')
+  })
+})
+
+describe('phantom filter with partial patch availability', () => {
+  it('should fail open when any file lacks a patch field', async () => {
+    mockedOctokit.rest.pulls.get.mockResolvedValue({
+      data: {base: {sha: 'base'}, head: {sha: 'head'}},
+    } as any)
+    mockedOctokit.rest.repos.getContent.mockRejectedValue(new Error('not found'))
+    mockedOctokit.rest.pulls.listFiles.mockResolvedValue({
+      data: [
+        createMockPRFile({filename: 'package.json', patch: undefined}),
+        createMockPRFile({
+          filename: 'pnpm-lock.yaml',
+          patch: '@@ -1 +1 @@\n+some-unrelated-content',
+        }),
+      ],
+    } as any)
+    mockedOctokit.rest.pulls.listCommits.mockResolvedValue({
+      data: [createMockCommit({commit: {message: 'chore(npm): update dependency react to v19'}})],
+    } as any)
+
+    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+      title: 'chore(deps): update dependency react to v19',
+      body: 'Updates react from 18 to 19',
+      user: {login: 'renovate[bot]'},
+      head: {ref: 'renovate/react-19.x'},
+    })
+
+    expect(context.dependencies.length).toBeGreaterThan(0)
+    expect(context.dependencies.some(d => d.name === 'react')).toBe(true)
+  })
+
+  it('should fail open when a file has an empty patch string', async () => {
+    mockedOctokit.rest.pulls.get.mockResolvedValue({
+      data: {base: {sha: 'base'}, head: {sha: 'head'}},
+    } as any)
+    mockedOctokit.rest.repos.getContent.mockRejectedValue(new Error('not found'))
+    mockedOctokit.rest.pulls.listFiles.mockResolvedValue({
+      data: [
+        createMockPRFile({filename: 'package.json', patch: ''}),
+        createMockPRFile({filename: 'other.yaml', patch: '@@ -1 +1 @@\n+unrelated'}),
+      ],
+    } as any)
+    mockedOctokit.rest.pulls.listCommits.mockResolvedValue({
+      data: [createMockCommit({commit: {message: 'chore(npm): update dependency react to v19'}})],
+    } as any)
+
+    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+      title: 'chore(deps): update dependency react to v19',
+      user: {login: 'renovate[bot]'},
+      head: {ref: 'renovate/react-19.x'},
+    })
+
+    expect(context.dependencies.length).toBeGreaterThan(0)
+  })
+
+  it('should still filter phantoms when all files have patches', async () => {
+    mockedOctokit.rest.pulls.get.mockResolvedValue({
+      data: {base: {sha: 'base'}, head: {sha: 'head'}},
+    } as any)
+    mockedOctokit.rest.repos.getContent.mockRejectedValue(new Error('not found'))
+    mockedOctokit.rest.pulls.listFiles.mockResolvedValue({
+      data: [
+        createMockPRFile({
+          filename: '.github/workflows/ci.yaml',
+          patch:
+            '@@ -1 +1 @@\n-uses: bfra-me/renovate-action@old\n+uses: bfra-me/renovate-action@new',
+        }),
+      ],
+    } as any)
+    mockedOctokit.rest.pulls.listCommits.mockResolvedValue({
+      data: [
+        createMockCommit({
+          commit: {message: 'chore(github-actions): update bfra-me/renovate-action to v9'},
+        }),
+      ],
+    } as any)
+
+    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+      title: 'chore(deps): update bfra-me/renovate-action to v9',
+      body: pr1770Body,
+      user: {login: 'renovate[bot]'},
+      head: {ref: 'renovate/bfra-me-renovate-action-9.x'},
+    })
+
+    expect(context.dependencies.some(d => d.name === 'bfra-me/renovate-action')).toBe(true)
+    expect(context.dependencies.some(d => d.name === 'github/codeql-action')).toBe(false)
+  })
+})

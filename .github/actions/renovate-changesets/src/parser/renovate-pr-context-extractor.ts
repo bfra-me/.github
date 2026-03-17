@@ -116,6 +116,12 @@ function deduplicateDependencies(
       if (dep.newVersion != null && existing.newVersion == null) {
         existing.newVersion = dep.newVersion
       }
+      if (existing.manager === 'unknown' && dep.manager !== 'unknown') {
+        existing.manager = dep.manager
+      }
+      if (existing.updateType === 'patch' && dep.updateType !== 'patch') {
+        existing.updateType = dep.updateType
+      }
       existing.packageFile = existing.packageFile || dep.packageFile
       existing.scope = existing.scope || dep.scope
       if (dep.isSecurityUpdate) existing.isSecurityUpdate = true
@@ -132,8 +138,9 @@ function filterPhantomDependencies(
   files: {filename: string; patch?: string}[],
   prTitle: string,
 ): RenovatePRContext['dependencies'] {
+  const hasAnyMissingPatch = files.some(f => f.patch == null || f.patch.length === 0)
   const allPatches = files.map(f => f.patch ?? '').join('\n')
-  if (allPatches.length === 0) return dependencies
+  if (allPatches.length === 0 || hasAnyMissingPatch) return dependencies
 
   const titleLower = prTitle.toLowerCase()
   const patchesLower = allPatches.toLowerCase()

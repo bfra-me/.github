@@ -33,7 +33,6 @@ export async function extractPRContext(
 
   const commitMessages = commits.map(commit => commit.commit.message)
   const dependencies = [] as RenovatePRContext['dependencies']
-  let isGroupedUpdate = false
   let isSecurityUpdate = false
   let detectedManager: RenovatePRContext['manager'] = 'unknown'
   let detectedUpdateType: RenovatePRContext['updateType'] = 'patch'
@@ -65,14 +64,6 @@ export async function extractPRContext(
     ) {
       isSecurityUpdate = true
     }
-
-    if (
-      commitMessageLower.includes('group') ||
-      prData.title.toLowerCase().includes('group') ||
-      dependencies.length > 1
-    ) {
-      isGroupedUpdate = true
-    }
   }
 
   if (detectedManager === 'unknown') {
@@ -85,14 +76,21 @@ export async function extractPRContext(
     )
   }
 
+  const validatedDeps = filterPhantomDependencies(dependencies, files, prData.title)
+
+  const hasGroupSignal =
+    commitMessages.some(m => m.toLowerCase().includes('group')) ||
+    prData.title.toLowerCase().includes('group')
+  const validatedIsGrouped = hasGroupSignal || validatedDeps.length > 1
+
   return {
-    dependencies,
+    dependencies: validatedDeps,
     isRenovateBot: ['renovate[bot]', 'bfra-me[bot]', 'dependabot[bot]'].includes(prData.user.login),
     branchName: prData.head?.ref ?? '',
     prTitle: prData.title,
     prBody: prData.body ?? '',
     commitMessages,
-    isGroupedUpdate,
+    isGroupedUpdate: validatedIsGrouped,
     isSecurityUpdate,
     updateType: detectedUpdateType,
     manager: detectedManager,
@@ -103,4 +101,19 @@ export async function extractPRContext(
       deletions: file.deletions,
     })),
   }
+}
+
+function filterPhantomDependencies(
+  dependencies: RenovatePRContext['dependencies'],
+  files: {filename: string; patch?: string}[],
+  prTitle: string,
+): RenovatePRContext['dependencies'] {
+  const allPatches = files.map(f => f.patch ?? '').join('\n')
+  if (allPatches.length === 0) return dependencies
+
+  return dependencies.filter(dep => {
+    if (prTitle.includes(dep.name)) return true
+    if (allPatches.includes(dep.name)) return true
+    return false
+  })
 }

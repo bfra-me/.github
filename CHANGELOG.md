@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.9.0
+### Minor Changes
+
+
+- 📦 Update GitHub Actions workflow dependencies: `renovate-changesets`, `bfra-me/.github`, `bfra-me/.github/.github/actions/renovate-changesets` ([#1780](https://github.com/bfra-me/.github/pull/1780))
+
+
+### Patch Changes
+
+
+- 📋 Update dependencies dependency `bfra-me/.github` from `4.8.0` to `4.8.1` ([#1779](https://github.com/bfra-me/.github/pull/1779))
+
 ## 4.8.1
 ### Patch Changes
 

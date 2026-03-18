@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.10.0
+### Minor Changes
+
+
+- 🔒 Security update for GitHub Actions dependencies: `renovate-changesets`, `bfra-me/.github`, `bfra-me/.github/.github/actions/renovate-changesets` ([#1784](https://github.com/bfra-me/.github/pull/1784))
+
+
+### Patch Changes
+
+
+- 🔒 Security update for github-actions dependency `bfra-me/.github` from `4.8.1` to `4.9.0` ([#1785](https://github.com/bfra-me/.github/pull/1785))
+
 ## 4.9.0
 ### Minor Changes
 

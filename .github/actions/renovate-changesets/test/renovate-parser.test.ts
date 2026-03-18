@@ -513,6 +513,14 @@ Includes security fixes and performance improvements.`
         expect(result[0].securitySeverity).toBeTypeOf('object') // null is typeof 'object'
       })
 
+      it('should not flag OpenSSF Scorecard badge URLs as security update', () => {
+        const text =
+          '| [bfra-me/renovate-action](https://github.com/bfra-me/renovate-action) | action | major | `8.87.9` → `9.0.0` | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/bfra-me/renovate-action/badge)](https://securityscorecards.dev/viewer/?uri=github.com/bfra-me/renovate-action) |'
+        const result = (parser as any).parseDependenciesFromText(text, 'github-actions')
+
+        expect(result[0].isSecurityUpdate).toBe(false)
+      })
+
       it('should detect grouped updates', () => {
         const text = 'update dependency group: all non-major dependencies'
         // Note: This tests the grouping logic, actual dependency extraction may vary

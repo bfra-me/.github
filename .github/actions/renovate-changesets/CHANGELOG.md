@@ -1,5 +1,17 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.22
+### Patch Changes
+
+
+- Fix literal `\n` escape sequences in commit messages by converting them to actual newlines after template placeholder replacement ([#1789](https://github.com/bfra-me/.github/pull/1789))
+
+
+- Fix false security classification triggered by OpenSSF Scorecard badge URLs in Renovate PR bodies ([#1791](https://github.com/bfra-me/.github/pull/1791))
+  
+  - Strip URLs and markdown link targets from PR content before checking security keywords
+  - Prevents badge URLs like `securityscorecards.dev` from triggering false positives
+
 ## 0.2.21
 ### Patch Changes
 

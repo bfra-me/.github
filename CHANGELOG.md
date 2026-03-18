@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.10.1
+### Patch Changes
+
+
+- 🔒 Security update for github-actions dependency `bfra-me/.github` from `4.9.0` to `4.10.0` ([#1788](https://github.com/bfra-me/.github/pull/1788))
+
 ## 4.10.0
 ### Minor Changes
 

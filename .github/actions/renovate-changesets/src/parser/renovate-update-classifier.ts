@@ -31,7 +31,10 @@ export function detectUpdateTypeFromVersions(
 }
 
 export function isSecurityUpdate(text: string): boolean {
-  const textLower = text.toLowerCase()
+  const stripped = text
+    .replaceAll(/https?:\/\/\S+/g, '')
+    .replaceAll(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .toLowerCase()
   return [
     'security',
     'vulnerability',
@@ -41,7 +44,7 @@ export function isSecurityUpdate(text: string): boolean {
     'advisory',
     'critical',
     'high severity',
-  ].some(indicator => textLower.includes(indicator))
+  ].some(indicator => stripped.includes(indicator))
 }
 
 export function isGroupedUpdate(text: string): boolean {

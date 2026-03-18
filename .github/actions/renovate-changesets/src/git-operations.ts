@@ -181,7 +181,7 @@ export class GitOperations {
       message = message.replace('{{file}}', `${changesetFiles.length} files`)
     }
 
-    return message
+    return message.replaceAll(String.raw`\n`, '\n')
   }
 
   /**

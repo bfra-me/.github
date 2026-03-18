@@ -29,6 +29,8 @@ export const DEFAULT_CONFIG: Config = {
         '.github/workflows/**/*.yml',
         '.github/actions/**/action.yaml',
         '.github/actions/**/action.yml',
+        'workflow-templates/**/*.yaml',
+        'workflow-templates/**/*.yml',
       ],
     },
     npm: {

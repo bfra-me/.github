@@ -38,7 +38,11 @@ export function generateSingleDependencySummary(
     config.includeVersionDetails && versionInfo?.currentVersion && versionInfo?.newVersion
       ? ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
       : ''
-  const summary = `${emoji}Update ${updateType} ${ecosystem} \`${dep}\`${versionText}`
+  const label =
+    updateType === ecosystem || updateType === 'dependencies'
+      ? ecosystem
+      : `${updateType} ${ecosystem}`
+  const summary = `${emoji}Update ${label} \`${dep}\`${versionText}`
   return addBreakingChangeWarning(summary, impactAssessment, config)
 }
 

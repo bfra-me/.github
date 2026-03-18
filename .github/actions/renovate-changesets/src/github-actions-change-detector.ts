@@ -152,7 +152,7 @@ export class GitHubActionsChangeDetector {
    * Check if a file is a GitHub Actions workflow file
    */
   private isGitHubActionsFile(filename: string): boolean {
-    const workflowPatterns = ['.github/workflows/', '.github/actions/']
+    const workflowPatterns = ['.github/workflows/', '.github/actions/', 'workflow-templates/']
 
     const extensions = ['.yaml', '.yml']
 

@@ -30,10 +30,14 @@ function toRenovateDep(
   config: {versionField: string; newVersionField: string; packageFileField: string},
 ): RenovatePRContext['dependencies'][number] {
   const dep = change as Record<string, unknown>
+  const rawCurrent = dep[config.versionField] as string | undefined
+  const rawNew = dep[config.newVersionField] as string | undefined
+  const baseInline = dep.baseInlineVersionComment as string | undefined
+  const headInline = dep.inlineVersionComment as string | undefined
   return {
     name: dep.name as string,
-    currentVersion: dep[config.versionField] as string | undefined,
-    newVersion: dep[config.newVersionField] as string | undefined,
+    currentVersion: baseInline ?? rawCurrent,
+    newVersion: headInline ?? rawNew,
     manager: dep.manager as RenovatePRContext['dependencies'][number]['manager'],
     updateType: dep.updateType as RenovatePRContext['dependencies'][number]['updateType'],
     isSecurityUpdate: dep.isSecurityUpdate as boolean,

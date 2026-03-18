@@ -81,6 +81,7 @@ export interface GitHubActionsDependencyChange {
   line?: number
   isReusableWorkflow: boolean
   inlineVersionComment?: string
+  baseInlineVersionComment?: string
 }
 
 /**
@@ -422,21 +423,22 @@ export class GitHubActionsChangeDetector {
         changes.push(change)
       } else if (baseAction.ref !== headAction.ref) {
         // Action reference changed
+        const baseVersion = baseAction.inlineVersion ?? baseAction.ref
+        const headVersion = headAction.inlineVersion ?? headAction.ref
         const change: GitHubActionsDependencyChange = {
           name: headAction.name,
           workflowFile: filename,
           currentRef: baseAction.ref,
           newRef: headAction.ref,
           manager: 'github-actions',
-          updateType: this.determineUpdateType(baseAction.ref, headAction.ref),
-          semverImpact: this.calculateSemverImpact(baseAction.ref, headAction.ref),
-          isSecurityUpdate:
-            this.isSecurityRelatedAction(headAction.name) ||
-            this.isSecurityUpdate(baseAction.ref, headAction.ref),
+          updateType: this.determineUpdateType(baseVersion, headVersion),
+          semverImpact: this.calculateSemverImpact(baseVersion, headVersion),
+          isSecurityUpdate: this.isSecurityRelatedAction(headAction.name),
           stepName: headAction.stepName,
           line: headAction.line,
           isReusableWorkflow: this.isReusableWorkflow(headAction.uses),
           inlineVersionComment: headAction.inlineVersion,
+          baseInlineVersionComment: baseAction.inlineVersion,
         }
         changes.push(change)
       }
@@ -567,26 +569,6 @@ export class GitHubActionsChangeDetector {
     ]
 
     return securityActions.some(secAction => actionName.includes(secAction))
-  }
-
-  /**
-   * Check if this is a security update based on version change
-   */
-  private isSecurityUpdate(currentRef: string, newRef: string): boolean {
-    // For now, we'll use a simple heuristic: patch updates to security actions
-    // In a real implementation, this could check CVE databases or release notes
-    const currentVersion = this.parseActionVersion(currentRef)
-    const newVersion = this.parseActionVersion(newRef)
-
-    // If it's a patch update and involves a commit SHA (common for security patches)
-    if (
-      this.calculateSemverImpact(currentRef, newRef) === 'patch' &&
-      (currentVersion.isCommitSha || newVersion.isCommitSha)
-    ) {
-      return true
-    }
-
-    return false
   }
 
   /**

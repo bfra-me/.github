@@ -367,8 +367,14 @@ export class GitHubActionsChangeDetector {
     // Clean the ref by removing any comment part
     const ref = (fullRef || '').split('#')[0]?.trim() || ''
 
+    let cleanName = name.trim()
+    const segments = cleanName.split('/')
+    if (segments.length > 2) {
+      cleanName = segments.at(-1) ?? cleanName
+    }
+
     return {
-      name: name.trim(),
+      name: cleanName,
       ref,
       uses,
       stepName,

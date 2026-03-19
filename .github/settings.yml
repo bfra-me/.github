@@ -12,19 +12,19 @@ branches:
     protection:
       required_status_checks:
         strict: true
-        contexts:
-          - Advanced Security Analysis
-          - CodeQL
-          - Container Scan
-          - Create Renovate Changeset
-          - Fro Bot
-          - GitGuardian Scan
-          - License Scan
-          - Quality Check
-          - Release
-          - Renovate
-          - Review Dependencies
-          - Triage
+        checks:
+          - context: Advanced Security Analysis
+          - context: CodeQL
+          - context: Container Scan
+          - context: Create Renovate Changeset
+          - context: Fro Bot
+          - context: GitGuardian Scan
+          - context: License Scan
+          - context: Quality Check
+          - context: Release
+          - context: Renovate
+          - context: Review Dependencies
+          - context: Triage
 
       enforce_admins: true
       required_pull_request_reviews:

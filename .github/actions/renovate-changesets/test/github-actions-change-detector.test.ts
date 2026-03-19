@@ -73,21 +73,21 @@ describe('GitHubActionsChangeDetector', () => {
       }
     })
 
-    it('should normalize composite action paths to last segment', () => {
+    it('should keep full action path including owner/repo', () => {
       const testCases = [
         {
           uses: 'bfra-me/.github/.github/actions/renovate-changesets@abc123 # 0.2.23',
-          expectedName: 'renovate-changesets',
+          expectedName: 'bfra-me/.github/.github/actions/renovate-changesets',
           expectedInlineVersion: '0.2.23',
         },
         {
           uses: 'owner/repo/src/my-action@abc123 # v1.0.0',
-          expectedName: 'my-action',
+          expectedName: 'owner/repo/src/my-action',
           expectedInlineVersion: 'v1.0.0',
         },
         {
           uses: 'owner/repo/deeply/nested/path/action-name@sha',
-          expectedName: 'action-name',
+          expectedName: 'owner/repo/deeply/nested/path/action-name',
           expectedInlineVersion: undefined,
         },
       ]

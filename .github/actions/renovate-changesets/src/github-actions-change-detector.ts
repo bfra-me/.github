@@ -294,6 +294,24 @@ export class GitHubActionsChangeDetector {
   }
 
   /**
+   * Extract inline version comments from raw YAML content before parsing strips them.
+   * Maps "owner/action@sha" → version from "# version" comments.
+   */
+  private extractInlineVersions(content: string): Map<string, string> {
+    const versions = new Map<string, string>()
+    const pattern = /uses:\s*([^@\s]+)@(\S+)\s+#\s*(v?[\d.]+(?:-[a-zA-Z0-9.-]+)?)/g
+    let match = pattern.exec(content)
+    while (match != null) {
+      const ref = match[2]?.split('#')[0]?.trim() ?? ''
+      if (ref && match[3]) {
+        versions.set(ref, match[3])
+      }
+      match = pattern.exec(content)
+    }
+    return versions
+  }
+
+  /**
    * Parse action references from workflow YAML content
    */
   private async parseActionReferences(
@@ -301,6 +319,7 @@ export class GitHubActionsChangeDetector {
     filename: string,
   ): Promise<ActionReference[]> {
     const actions: ActionReference[] = []
+    const inlineVersions = this.extractInlineVersions(content)
 
     try {
       const workflow = load(content) as WorkflowFile
@@ -316,6 +335,7 @@ export class GitHubActionsChangeDetector {
           if (job.uses && typeof job.uses === 'string') {
             const actionRef = this.parseActionUses(job.uses, jobId)
             if (actionRef) {
+              actionRef.inlineVersion = actionRef.inlineVersion ?? inlineVersions.get(actionRef.ref)
               actions.push(actionRef)
             }
           }
@@ -329,6 +349,8 @@ export class GitHubActionsChangeDetector {
                   step.name || `${jobId}-step-${stepIndex}`,
                 )
                 if (actionRef) {
+                  actionRef.inlineVersion =
+                    actionRef.inlineVersion ?? inlineVersions.get(actionRef.ref)
                   actions.push(actionRef)
                 }
               }
@@ -367,11 +389,7 @@ export class GitHubActionsChangeDetector {
     // Clean the ref by removing any comment part
     const ref = (fullRef || '').split('#')[0]?.trim() || ''
 
-    let cleanName = name.trim()
-    const segments = cleanName.split('/')
-    if (segments.length > 2) {
-      cleanName = segments.at(-1) ?? cleanName
-    }
+    const cleanName = name.trim()
 
     return {
       name: cleanName,

@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {setErrorOutputs} from './action-outputs'
+import {setEmptyOutputs, setErrorOutputs} from './action-outputs'
 import {analyzeRunContext} from './run-analysis'
 import {generateChangesetsFromAnalysis} from './run-generation'
 import {initializeRun} from './run-init'
@@ -9,6 +9,12 @@ export async function run(): Promise<void> {
   try {
     const initialization = await initializeRun()
     if (initialization == null) {
+      return
+    }
+
+    if (initialization.changedFiles.some(file => file.startsWith('.changeset/'))) {
+      core.info('Changeset files already exist, skipping changeset creation')
+      setEmptyOutputs()
       return
     }
 

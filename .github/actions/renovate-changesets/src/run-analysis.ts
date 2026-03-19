@@ -109,9 +109,9 @@ export function analyzeRunContext(
     managerSpecificRules: {
       'github-actions': {
         allowDowngrade: true,
-        maxBumpType: 'minor',
+        maxBumpType: 'patch',
         defaultBumpType: 'patch',
-        majorAsMinor: true,
+        majorAsMinor: false,
       },
       docker: {
         allowDowngrade: true,

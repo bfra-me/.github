@@ -248,14 +248,14 @@ describe('SemverBumpTypeDecisionEngine', () => {
   })
 
   describe('package manager specific rules', () => {
-    it('should apply GitHub Actions manager rules', () => {
+    it('should cap GitHub Actions updates at patch regardless of semver impact', () => {
       const engine = new SemverBumpTypeDecisionEngine({
         managerSpecificRules: {
           'github-actions': {
             allowDowngrade: true,
-            maxBumpType: 'minor',
+            maxBumpType: 'patch',
             defaultBumpType: 'patch',
-            majorAsMinor: true,
+            majorAsMinor: false,
           },
         },
       })
@@ -268,17 +268,43 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
         categorization: {
           ...createMockFactors().categorization,
-          confidence: 'low', // Low confidence so semver major is preferred
+          confidence: 'low',
         },
       })
 
       const result = engine.decideBumpType(factors)
 
-      expect(result.bumpType).toBe('minor') // Major treated as minor for GitHub Actions
+      expect(result.bumpType).toBe('patch')
       expect(result.influencingFactors).toContain('manager-rules-github-actions')
-      expect(result.overriddenRules).toContain(
-        'Downgraded major to minor for github-actions manager',
-      )
+    })
+
+    it('should cap GitHub Actions minor updates at patch', () => {
+      const engine = new SemverBumpTypeDecisionEngine({
+        managerSpecificRules: {
+          'github-actions': {
+            allowDowngrade: true,
+            maxBumpType: 'patch',
+            defaultBumpType: 'patch',
+            majorAsMinor: false,
+          },
+        },
+      })
+
+      const factors = createMockFactors({
+        manager: 'github-actions',
+        semverImpact: {
+          ...createMockFactors().semverImpact,
+          recommendedChangesetType: 'minor',
+        },
+        categorization: {
+          ...createMockFactors().categorization,
+          confidence: 'low',
+        },
+      })
+
+      const result = engine.decideBumpType(factors)
+
+      expect(result.bumpType).toBe('patch')
     })
 
     it('should respect max bump type restrictions', () => {

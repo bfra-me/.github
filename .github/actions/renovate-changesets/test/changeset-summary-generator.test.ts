@@ -137,7 +137,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('📦')
       expect(summary).toContain('Update npm dependency `test-package`')
-      expect(summary).toContain('from `1.0.0` to `2.0.0`')
+      expect(summary).toContain('to v2 (2.0.0)')
     })
 
     it('should generate security update summary for npm', async () => {
@@ -413,7 +413,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('⎈')
       expect(summary).toContain('Update Helm chart `nginx-ingress`')
-      expect(summary).toContain('from `1.0.0` to `2.0.0`')
+      expect(summary).toContain('to v2 (2.0.0)')
     })
 
     it('should handle multiple Helm charts', async () => {
@@ -457,7 +457,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('🏗️')
       expect(summary).toContain('Update Terraform provider `hashicorp/aws`')
-      expect(summary).toContain('from `4.0.0` to `5.0.0`')
+      expect(summary).toContain('to v5 (5.0.0)')
     })
 
     it('should handle multiple Terraform providers', async () => {
@@ -501,7 +501,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('🤖')
       expect(summary).toContain('Update Ansible role `community.general`')
-      expect(summary).toContain('from `1.0.0` to `2.0.0`')
+      expect(summary).toContain('to v2 (2.0.0)')
     })
 
     it('should handle multiple Ansible roles', async () => {
@@ -545,7 +545,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('🪝')
       expect(summary).toContain('Update pre-commit hook `pre-commit/pre-commit-hooks`')
-      expect(summary).toContain('from `v4.0.0` to `v4.1.0`')
+      expect(summary).toContain('to v4 (v4.1.0)')
     })
 
     it('should handle multiple pre-commit hooks', async () => {
@@ -589,7 +589,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('🦊')
       expect(summary).toContain('Update GitLab CI dependency `node`')
-      expect(summary).toContain('from `16-alpine` to `18-alpine`')
+      expect(summary).toContain('`18-alpine`')
     })
 
     it('should handle multiple GitLab CI dependencies', async () => {
@@ -633,7 +633,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('🔄')
       expect(summary).toContain('Update CircleCI orb `circleci/node`')
-      expect(summary).toContain('from `16.0.0` to `18.0.0`')
+      expect(summary).toContain('to v18 (18.0.0)')
     })
 
     it('should handle multiple CircleCI orbs', async () => {
@@ -1038,8 +1038,7 @@ describe('ChangesetSummaryGenerator', () => {
       )
 
       expect(summary).toContain('actions/checkout')
-      expect(summary).toContain('3.0.0')
-      expect(summary).toContain('4.0.0')
+      expect(summary).toContain('to v4 (4.0.0)')
       expect(summary).not.toContain('unknown')
     })
   })

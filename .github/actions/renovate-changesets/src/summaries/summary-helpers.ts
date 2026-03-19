@@ -135,3 +135,32 @@ export function determineRiskLevel(impactAssessment: ImpactAssessment): RiskLeve
   if (impactAssessment.overallRiskScore >= 30) return 'medium'
   return 'low'
 }
+
+function isCommitSha(version: string): boolean {
+  return /^[0-9a-f]{40}$/i.test(version)
+}
+
+export function formatVersionText(
+  currentVersion: string | undefined,
+  newVersion: string | undefined,
+  overallImpact: 'major' | 'minor' | 'patch',
+  includeDetails: boolean,
+): string {
+  if (!includeDetails || newVersion == null) return ''
+  if (isCommitSha(newVersion)) return ''
+
+  if (overallImpact === 'major') {
+    const stripped = newVersion.replace(/^v/i, '')
+    const majorVersion = stripped.split('.')[0]
+    if (majorVersion != null && /^\d+$/.test(majorVersion)) {
+      return ` to v${majorVersion} (${newVersion})`
+    }
+    return ` to \`${newVersion}\``
+  }
+
+  if (currentVersion != null && !isCommitSha(currentVersion)) {
+    return ` from \`${currentVersion}\` to \`${newVersion}\``
+  }
+
+  return ` to \`${newVersion}\``
+}

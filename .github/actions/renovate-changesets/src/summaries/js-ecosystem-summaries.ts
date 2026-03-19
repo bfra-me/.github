@@ -2,6 +2,8 @@ import type {RenovatePRContext} from '../renovate-parser'
 import type {ImpactAssessment} from '../semver-impact-assessor'
 import type {SummaryGeneratorConfig} from '../summary-generator-types'
 
+import {formatVersionText} from './summary-helpers'
+
 export interface JsEcosystemSummaryContext {
   config: Pick<
     SummaryGeneratorConfig,
@@ -102,15 +104,12 @@ export function generateGitHubActionsSummaryLogic(
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0]
     const versionInfo = prContext.dependencies.find(d => d.name === dep)
-    let versionText = ''
-
-    if (
-      ctx.config.includeVersionDetails &&
-      versionInfo?.currentVersion &&
-      versionInfo?.newVersion
-    ) {
-      versionText = ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
-    }
+    const versionText = formatVersionText(
+      versionInfo?.currentVersion,
+      versionInfo?.newVersion,
+      impactAssessment.overallImpact,
+      ctx.config.includeVersionDetails,
+    )
 
     return `${emoji}Update GitHub Actions workflow dependency \`${dep}\`${versionText}`
   }

@@ -2,7 +2,7 @@ import type {RenovatePRContext} from '../renovate-parser'
 import type {ImpactAssessment} from '../semver-impact-assessor'
 import type {SummaryGeneratorConfig} from '../summary-generator-types'
 
-import {getEmojiForUpdate} from './summary-helpers'
+import {formatVersionText, getEmojiForUpdate} from './summary-helpers'
 
 type StructuralConfig = Pick<
   SummaryGeneratorConfig,
@@ -34,10 +34,12 @@ export function generateSingleDependencySummary(
   config: StructuralConfig,
 ): string {
   const versionInfo = prContext.dependencies.find(d => d.name === dep)
-  const versionText =
-    config.includeVersionDetails && versionInfo?.currentVersion && versionInfo?.newVersion
-      ? ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
-      : ''
+  const versionText = formatVersionText(
+    versionInfo?.currentVersion,
+    versionInfo?.newVersion,
+    impactAssessment.overallImpact,
+    config.includeVersionDetails,
+  )
   const label =
     updateType === ecosystem || updateType === 'dependencies'
       ? ecosystem
@@ -61,10 +63,12 @@ export function generateSecurityUpdateSummary(
   if (deps.length === 1) {
     const dep = deps[0] || ''
     const versionInfo = prContext.dependencies.find(d => d.name === dep)
-    const versionText =
-      config.includeVersionDetails && versionInfo?.currentVersion && versionInfo?.newVersion
-        ? ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
-        : ''
+    const versionText = formatVersionText(
+      versionInfo?.currentVersion,
+      versionInfo?.newVersion,
+      impactAssessment.overallImpact,
+      config.includeVersionDetails,
+    )
     let summary = `${securityEmoji}Security update for ${ecosystem} dependency \`${dep}\`${versionText}`
 
     if (impactAssessment.totalVulnerabilities > 0) {

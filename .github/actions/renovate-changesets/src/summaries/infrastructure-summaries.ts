@@ -2,6 +2,8 @@ import type {RenovatePRContext} from '../renovate-parser'
 import type {ImpactAssessment} from '../semver-impact-assessor'
 import type {SummaryGeneratorConfig} from '../summary-generator-types'
 
+import {formatVersionText} from './summary-helpers'
+
 export interface InfrastructureSummaryContext {
   config: Pick<
     SummaryGeneratorConfig,
@@ -25,16 +27,19 @@ export interface InfrastructureSummaryContext {
   getPythonManagerDisplayName: (manager: string) => string
 }
 
-function getVersionText(
-  includeVersionDetails: boolean,
-  dependency: string,
+function getVersionTextForDep(
+  dep: string,
   prContext: RenovatePRContext,
+  impactAssessment: ImpactAssessment,
+  includeDetails: boolean,
 ): string {
-  const versionInfo = prContext.dependencies.find(dep => dep.name === dependency)
-  if (includeVersionDetails && versionInfo?.currentVersion && versionInfo?.newVersion) {
-    return ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
-  }
-  return ''
+  const versionInfo = prContext.dependencies.find(d => d.name === dep)
+  return formatVersionText(
+    versionInfo?.currentVersion,
+    versionInfo?.newVersion,
+    impactAssessment.overallImpact,
+    includeDetails,
+  )
 }
 
 export function generateDockerSummaryLogic(
@@ -52,7 +57,7 @@ export function generateDockerSummaryLogic(
 
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0] || ''
-    return `${emoji}Update Docker image \`${dep}\`${getVersionText(ctx.config.includeVersionDetails, dep, prContext)}`
+    return `${emoji}Update Docker image \`${dep}\`${getVersionTextForDep(dep, prContext, impactAssessment, ctx.config.includeVersionDetails)}`
   }
 
   if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
@@ -156,7 +161,7 @@ export function generateHelmSummaryLogic(
 
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0] || ''
-    return `${emoji}Update Helm chart \`${dep}\`${getVersionText(ctx.config.includeVersionDetails, dep, prContext)}`
+    return `${emoji}Update Helm chart \`${dep}\`${getVersionTextForDep(dep, prContext, impactAssessment, ctx.config.includeVersionDetails)}`
   }
 
   if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
@@ -181,7 +186,7 @@ export function generateTerraformSummaryLogic(
 
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0] || ''
-    return `${emoji}Update Terraform provider \`${dep}\`${getVersionText(ctx.config.includeVersionDetails, dep, prContext)}`
+    return `${emoji}Update Terraform provider \`${dep}\`${getVersionTextForDep(dep, prContext, impactAssessment, ctx.config.includeVersionDetails)}`
   }
 
   if (sortedDeps.length <= ctx.config.maxDependenciesToList) {

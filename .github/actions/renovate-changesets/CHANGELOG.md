@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.25
+### Patch Changes
+
+
+- Restore check for existing changeset files. ([#1809](https://github.com/bfra-me/.github/pull/1809))
+
 ## 0.2.24
 ### Patch Changes
 

@@ -75,6 +75,24 @@ export async function generateChangesetsFromAnalysis(params: {
     )
   }
 
+  for (const enhanced of params.enhancedDependencies) {
+    const existing = params.prContext.dependencies.find(d => d.name === enhanced.name)
+    if (existing != null) {
+      if (
+        enhanced.currentVersion != null &&
+        (existing.currentVersion == null || /^[0-9a-f]{40}$/i.test(existing.currentVersion))
+      ) {
+        existing.currentVersion = enhanced.currentVersion
+      }
+      if (
+        enhanced.newVersion != null &&
+        (existing.newVersion == null || /^[0-9a-f]{40}$/i.test(existing.newVersion))
+      ) {
+        existing.newVersion = enhanced.newVersion
+      }
+    }
+  }
+
   const dependencyNames = resolveDependencyNames(
     params.enhancedDependencies,
     params.prContext.isGroupedUpdate,

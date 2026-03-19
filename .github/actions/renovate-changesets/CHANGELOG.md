@@ -1,5 +1,16 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.23
+### Patch Changes
+
+
+- Improve version display in changeset summaries for major updates and SHA-pinned actions ([#1798](https://github.com/bfra-me/.github/pull/1798))
+  
+  - Major version updates now show `to vN (N.N.N)` format instead of `from X to Y` (e.g., `to v9 (9.0.0)`)
+  - Commit SHA refs are detected and suppressed from version text — only human-readable semver versions are displayed
+  - Minor/patch updates retain the existing `from X to Y` format
+  - Applied consistently across all ecosystem summary generators: npm, GitHub Actions, Go, Docker, Python, Cargo, Helm, Terraform, NuGet, Composer, JVM, Ansible, Pre-commit, GitLab CI, CircleCI
+
 ## 0.2.22
 ### Patch Changes
 

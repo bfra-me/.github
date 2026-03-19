@@ -137,7 +137,7 @@ describe('ChangesetSummaryGenerator', () => {
 
       expect(summary).toContain('📦')
       expect(summary).toContain('Update npm dependency `test-package`')
-      expect(summary).toContain('from `1.0.0` to `2.0.0`')
+      expect(summary).toContain('to v2 (2.0.0)')
     })
 
     it('should generate security update summary for npm', async () => {
@@ -1038,8 +1038,7 @@ describe('ChangesetSummaryGenerator', () => {
       )
 
       expect(summary).toContain('actions/checkout')
-      expect(summary).toContain('3.0.0')
-      expect(summary).toContain('4.0.0')
+      expect(summary).toContain('to v4 (4.0.0)')
       expect(summary).not.toContain('unknown')
     })
   })

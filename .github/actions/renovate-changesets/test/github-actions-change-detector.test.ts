@@ -73,6 +73,37 @@ describe('GitHubActionsChangeDetector', () => {
       }
     })
 
+    it('should normalize composite action paths to last segment', () => {
+      const testCases = [
+        {
+          uses: 'bfra-me/.github/.github/actions/renovate-changesets@abc123 # 0.2.23',
+          expectedName: 'renovate-changesets',
+          expectedInlineVersion: '0.2.23',
+        },
+        {
+          uses: 'owner/repo/src/my-action@abc123 # v1.0.0',
+          expectedName: 'my-action',
+          expectedInlineVersion: 'v1.0.0',
+        },
+        {
+          uses: 'owner/repo/deeply/nested/path/action-name@sha',
+          expectedName: 'action-name',
+          expectedInlineVersion: undefined,
+        },
+      ]
+
+      for (const testCase of testCases) {
+        const result = detectorPrivate.parseActionUses(testCase.uses, 'test-step')
+        expect(result?.name).toBe(testCase.expectedName)
+        expect(result?.inlineVersion).toBe(testCase.expectedInlineVersion)
+      }
+    })
+
+    it('should keep standard 2-segment action names unchanged', () => {
+      const result = detectorPrivate.parseActionUses('actions/checkout@v4', 'test-step')
+      expect(result?.name).toBe('actions/checkout')
+    })
+
     it('should skip local actions', () => {
       const localAction = './local-action'
       const result = detectorPrivate.parseActionUses(localAction, 'test-step')

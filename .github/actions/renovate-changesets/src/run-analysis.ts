@@ -174,6 +174,18 @@ export function analyzeRunContext(
     impactAssessment,
     categorizationResult,
     bumpDecision,
-    changesetType: bumpDecision.bumpType,
+    changesetType: capChangesetType(
+      bumpDecision.bumpType,
+      config.updateTypes[updateType]?.changesetType ?? config.defaultChangesetType,
+    ),
   }
+}
+
+const BUMP_LEVELS = {patch: 0, minor: 1, major: 2} as const
+type BumpLevel = keyof typeof BUMP_LEVELS
+
+function capChangesetType(decided: string, configured: string): 'patch' | 'minor' | 'major' {
+  const decidedLevel = BUMP_LEVELS[decided as BumpLevel] ?? 0
+  const configuredLevel = BUMP_LEVELS[configured as BumpLevel] ?? 0
+  return decidedLevel <= configuredLevel ? (decided as BumpLevel) : (configured as BumpLevel)
 }

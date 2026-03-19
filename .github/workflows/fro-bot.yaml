@@ -12,7 +12,7 @@ on:
   issues:
     types: [opened, edited]
   pull_request:
-    types: [synchronize, ready_for_review, reopened, review_requested]
+    types: [synchronize, ready_for_review, review_requested]
   schedule:
     - cron: '30 15 * * *'
   workflow_dispatch:
@@ -86,44 +86,197 @@ env:
     - Keep findings actionable: file path, impact, and concrete remediation.
 
   SCHEDULE_PROMPT: |
-    Create a single issue titled "Daily Org Oversight Report — YYYY-MM-DD (UTC)"
-    in this repository (bfra-me/.github).
+    Perform daily repository autohealing for bfra-me/.github — the org
+    control center that provides workflows, custom actions, workflow
+    templates, repo settings, and shared configs for the @bfra-me GitHub
+    organization. This is a TypeScript monorepo using pnpm workspaces.
+    Read AGENTS.md for full project conventions before making changes.
 
-    Scope: all repositories in the bfra-me GitHub organization.
-    Use `gh` CLI to query repos, issues, PRs, check runs, and security alerts
-    across the org. Work through every public, non-archived repo.
+    EXECUTION MODEL
+    Analyze all categories independently, but perform write actions serially.
+    Do not keep multiple branches checked out at once. Complete one mutation,
+    return to a clean working tree, then continue.
 
-    Search for an issue with this exact title pattern. If multiple matches
-    exist, use the most recently updated one. If no open issue exists, create
-    it. If the most recent matching issue is closed, reopen it instead of
-    creating a new one.
+    DEDUPLICATION (applies to ALL categories)
+    Before creating any new PR or issue, search for an existing open
+    bot-authored PR/issue for the same root cause. Reuse or update the
+    existing item instead of creating a duplicate.
 
-    Append a new dated section for each run using "## YYYY-MM-DD (UTC)".
-    To keep the issue bounded: after appending today's section, replace any
-    individual daily sections older than 14 days with a single
-    "## Historical Summary" section that lists only the count of prior runs
-    and any items that remained unresolved across those runs. If a Historical
-    Summary already exists, update it in place.
+    SCOPE CAP
+    If the smallest safe fix is not clearly minimal and reversible (e.g.,
+    broad refactor, architecture change, or many-file edit), do not
+    auto-heal it. Open or update an issue and log it under "Needs Human
+    Attention".
 
-    Include links only (no full content duplication). Keep it concise and
-    actionable. Flag items that appear for the first time (not present in
-    the previous dated section) with a ★ marker.
+    DEPENDENCY OWNERSHIP
+    Renovate owns routine dependency/version bumps. You may change dependency
+    versions only when remediating a confirmed security advisory
+    (critical/high) or repairing an existing security-update PR. Do not
+    create non-security version-bump PRs, and do not batch unrelated
+    dependency changes into a security fix. Do NOT modify package.json
+    versions outside category 2 security remediation.
 
-    Sections (in order):
-    - Summary metrics (total repos scanned, new issues since last run,
-      currently open PRs across org, stale issues/PRs count, repos with
-      failing main branch checks, security alerts if accessible)
-    - Critical items (security alerts, main branch failing, broken release
-      pipelines) with repo name, link, and recommended action
-    - Aging PRs (no activity >7 days; stale >14 days) — group by repo
-    - Stale issues (no activity >30 days; recommend next step) — group by repo
-    - Unassigned bugs or high-signal issues (label bug, no assignee)
-    - Repo hotspots (top 3 repos by open PRs, stale items, or failing checks)
-    - Recommended actions (bulleted checklist, prioritized by impact)
-    - Notes (use "data unavailable" for any inaccessible data source)
+    CHANGESET RULES
+    If code changes warrant a changeset, create `.changeset/{name}.md`
+    manually. Do NOT use `pnpm changeset` CLI (it produces inconsistent
+    format). Format:
+    ```
+    ---
+    "@bfra.me/.github": patch
+    ---
+    Description
+    ```
 
-    Do NOT comment on or modify individual issues/PRs. Do NOT apply labels.
-    Do NOT open PRs. This run must produce ONE summary issue only.
+    1. ERRORED PRs
+       Find open PRs with failing CI checks. Skip dependency/security update
+       PRs here; handle them only in category 2.
+       Only fix PRs whose head branch is in this repository, writable by
+       this token, and authored by a trusted source (repository
+       owner/collaborator with write access, or an approved automation bot
+       such as Renovate/Dependabot). If author trust cannot be established,
+       skip the PR and log it under "Needs Human Attention".
+       If the PR touches workflows, automation prompts, package-manager
+       config, lockfiles, or execution scripts, do not run project commands
+       from that branch. Skip it and log why.
+       For each fixable PR:
+       a. Check out the PR branch.
+       b. Read the failing check logs to diagnose the root cause.
+       c. Fix the issue (type errors, lint failures, test regressions,
+          build breaks).
+       d. Rebuild actions if source was changed: `pnpm build` and commit
+          the updated dist/ directory.
+       e. Commit with a clear message and push to the PR branch.
+       f. Comment on the PR explaining what failed and what was fixed.
+
+    2. SECURITY
+       Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
+       - If a security update PR exists but has conflicts or failures,
+         fix and push to that PR branch.
+       - For unaddressed critical/high advisories with no existing PR,
+         create a new PR with the remediation.
+       - Do NOT bulk-update unrelated deps in a security PR.
+       If security advisory/alert data is unavailable to the token or CLI,
+       skip this category and note "security alerts unavailable" under
+       "Needs Human Attention". Do not guess.
+
+    3. ACTION & WORKFLOW INTEGRITY
+       This is the highest-value category for this org control center repo.
+       a. SHA pinning audit: scan all `.github/workflows/*.yaml` AND
+          `workflow-templates/*.yaml` files. Every third-party action must
+          be pinned to a full commit SHA with a version comment
+          (`@<sha> # vX.Y.Z`). Flag and fix any floating tags.
+       b. dist/ freshness: for each action in `.github/actions/*/`, compare
+          the last modification time of `src/` files vs `dist/index.js`.
+          If source is newer than dist, rebuild (`pnpm build` in that
+          action's directory) and commit the updated dist/.
+       c. Workflow template validation: verify every `.yaml` file in
+          `workflow-templates/` has a matching `.properties.json` file.
+          Create missing `.properties.json` files with sensible defaults.
+       d. Action YAML validation: verify `action.yaml` files in
+          `.github/actions/*/` have valid inputs/outputs and point to
+          the correct dist/ entry point.
+
+    4. CODE QUALITY & MONOREPO HEALTH
+       a. Run `pnpm run quality-check` (type-check + lint + build + test).
+          If any step fails, diagnose and fix. This is the same pipeline
+          that runs in CI via main.yaml.
+       b. Verify test coverage meets 80% thresholds for
+          statements/branches/functions/lines. If coverage fails, open
+          or update an issue with the failing metrics.
+       c. Run `pnpm run workspace:validate` to check dependency consistency
+          across workspace packages. Fix any reported issues.
+       d. Check for stale TODO/FIXME/HACK annotations older than 90 days
+          (use git blame). Collect them into a single issue or update an
+          existing "Stale TODOs" issue.
+
+    5. DEVELOPER EXPERIENCE & ORG STANDARDS
+       a. Run `pnpm run lint` and `pnpm run fix` to apply auto-fixable
+          lint/format corrections. Open a PR for all fixes — never commit
+          directly to the default branch.
+       b. Verify AGENTS.md accuracy: check that the directory structure
+          and file counts described in AGENTS.md match reality. If drift
+          is found, open a PR with corrections.
+       c. Verify common-settings.yaml consistency: check for deprecated
+          fields (e.g., `contexts` should be `checks` in branch protection).
+          Open a PR if corrections are needed.
+       d. Check .github/instructions/*.instructions.md files reference
+          current tool versions and patterns.
+
+    Hard boundaries:
+    - Never force-push, rewrite history, or delete branches.
+    - Never push directly to the default branch. Direct pushes are allowed
+      only to an existing non-default PR branch you are repairing under
+      category 1 or category 2.
+    - Never merge PRs, submit reviews/approvals, close/reopen PRs or
+      issues, or modify branch protection. This workflow may only push
+      fixes, open/update PRs, open/update issues, and comment on PRs when
+      a fix was pushed.
+    - Never modify secrets, org settings, environments, or branch
+      protection.
+    - Never make checks pass by disabling tests, deleting failing
+      assertions, lowering coverage thresholds, weakening lint/type rules,
+      or editing workflows/configuration only to suppress failures.
+    - Do not modify .github/workflows/, lint/test/build config, or
+      automation prompt files unless the failing run is caused by a genuine
+      bug in that file, the change is narrowly scoped, and the summary
+      explains why.
+    - If the smallest safe fix would weaken a guardrail or reduce
+      validation, skip it and log it under "Needs Human Attention".
+    - Do not create multiple summary issues.
+
+    Project conventions (MUST follow for code changes):
+    - TypeScript strict mode: no `any`, no `@ts-ignore`, no `@ts-expect-error`
+    - Pure ESM only: no `require()`, no `module.exports`
+    - Actions pinned to commit SHAs with version comment
+    - Changesets created manually (never via CLI)
+    - Package manager: pnpm (not npm/yarn)
+    - YAML extension: .yaml, not .yml
+    - 120 char line limit, 2-space indent
+
+    OUTPUT FORMAT — SINGLE SUMMARY ISSUE
+    After completing all work, find an existing open issue titled
+    "Daily Autohealing Report — YYYY-MM-DD" (using today's UTC date).
+    If it exists, update its body. If not, create it.
+
+    The issue body MUST use this structure. If a section has no rows, do
+    not emit an empty table — write "None." directly under that heading.
+
+    ## Daily Autohealing Report — YYYY-MM-DD (UTC)
+
+    ### Errored PRs
+    | PR | Failure | Fix | Status |
+    | --- | --- | --- | --- |
+    | #N | [root cause] | [what was fixed] | ✅ Fixed / ⚠️ Needs review |
+
+    ### Security
+    | Advisory / PR | Severity | Action Taken |
+    | --- | --- | --- |
+    | [advisory or #N] | Critical/High/Medium | [fix pushed / PR created / skipped] |
+
+    ### Action & Workflow Integrity
+    | Check | Result | Action |
+    | --- | --- | --- |
+    | SHA pinning | ✅ All pinned / ⚠️ N unpinned | [PR #N or details] |
+    | dist/ freshness | ✅ Current / ⚠️ Stale | [rebuilt and committed] |
+    | Template metadata | ✅ Complete / ⚠️ Missing | [created .properties.json] |
+    | Action YAML | ✅ Valid / ⚠️ Issues | [details] |
+
+    ### Code Quality & Monorepo Health
+    | Check | Result | Action |
+    | --- | --- | --- |
+    | quality-check | ✅ Pass / ❌ Fail | [details or #N] |
+    | Test coverage | ✅ Meets 80% / ⚠️ Below | [details or #N] |
+    | Workspace consistency | ✅ Clean / ⚠️ Issues | [details or #N] |
+    | Stale TODOs | N found | [#N or None] |
+
+    ### Developer Experience & Org Standards
+    - [list of each PR or fix with summary link]
+
+    ### Needs Human Attention
+    - [items that could not be auto-fixed, with context]
+
+    Do NOT create multiple issues. Do NOT comment on individual issues.
+    Produce exactly one summary issue per run.
 
 jobs:
   fro-bot:
@@ -203,3 +356,4 @@ jobs:
           model: ${{ vars.FRO_BOT_MODEL }}
           omo-providers: ${{ secrets.OMO_PROVIDERS }}
           prompt: ${{ env.PROMPT }}
+          timeout: 0

@@ -289,6 +289,29 @@ const WORKFLOW_PIN_MAPPINGS: WorkflowPinMapping[] = [
       },
     ],
   },
+  {
+    packageName: '@bfra.me/.github',
+    files: [
+      {
+        path: 'workflow-templates/renovate-changesets.yaml',
+        pattern:
+          /(uses:\s*bfra-me\/\.github\/\.github\/workflows\/renovate-changeset\.yaml@)[a-f0-9]+(\s+#\s*)[\w.]+/g,
+        versionPrefix: 'v',
+      },
+      {
+        path: 'workflow-templates/renovate.yaml',
+        pattern:
+          /(uses:\s*bfra-me\/\.github\/\.github\/workflows\/renovate\.yaml@)[a-f0-9]+(\s+#\s*)[\w.]+/g,
+        versionPrefix: 'v',
+      },
+      {
+        path: 'workflow-templates/update-repo-settings.yaml',
+        pattern:
+          /(uses:\s*bfra-me\/\.github\/\.github\/workflows\/update-repo-settings\.yaml@)[a-f0-9]+(\s+#\s*)[\w.]+/g,
+        versionPrefix: 'v',
+      },
+    ],
+  },
 ]
 
 async function updateInternalWorkflowPins(

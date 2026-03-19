@@ -1,5 +1,19 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.26
+### Patch Changes
+
+
+- Cap changeset type by per-manager config instead of using raw bump decision ([#1817](https://github.com/bfra-me/.github/pull/1817))
+  
+  - The bump decision engine's output (e.g., `minor` for a 4.11→4.12 semver impact) is now capped by the configured `changesetType` for the detected manager (e.g., `patch` for `github-actions`)
+  - Fixes changesets being generated as `minor` when the config specifies `patch` for that update type
+
+- Fix GitHub Actions version detection and dependency naming ([#1814](https://github.com/bfra-me/.github/pull/1814))
+  
+  - Extract inline version comments from raw YAML content before `js-yaml` strips them, enabling correct semver comparison for SHA-pinned actions (e.g., `# 8.87.9` → `# 9.0.0` now correctly detected as major)
+  - Use full action path as dependency name (`owner/repo/path/to/action` for sub-path actions, `owner/repo` for top-level) instead of stripping to last segment
+
 ## 0.2.25
 ### Patch Changes
 

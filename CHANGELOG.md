@@ -1,5 +1,25 @@
 # @bfra.me/.github
 
+## 4.13.0
+### Minor Changes
+
+
+- 📋 Update github-actions dependency `bfra-me/.github` from `4.11.0` to `4.12.1` ([#1807](https://github.com/bfra-me/.github/pull/1807))
+
+
+### Patch Changes
+
+
+- Auto-update internal action SHA pins during release ([#1815](https://github.com/bfra-me/.github/pull/1815))
+  
+  - When `renovate-changesets` or `update-repository-settings` is released, automatically update the SHA pin and version comment in the corresponding workflow file
+  - Eliminates the Renovate follow-up PR that previously updated the SHA pin, which generated an unnecessary patch changeset and extra release cycle
+
+- ⚠️ Update GitHub Actions workflow dependency `pnpm/action-setup` to v5 (5.0.0) ([#1816](https://github.com/bfra-me/.github/pull/1816))
+
+
+- 📦 Update GitHub Actions workflow dependencies: `renovate-changesets` to v0.2.25 ([#1810](https://github.com/bfra-me/.github/pull/1810))
+
 ## 4.12.1
 ### Patch Changes
 

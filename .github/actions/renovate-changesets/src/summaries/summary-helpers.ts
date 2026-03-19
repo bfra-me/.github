@@ -150,8 +150,12 @@ export function formatVersionText(
   if (isCommitSha(newVersion)) return ''
 
   if (overallImpact === 'major') {
-    const majorVersion = newVersion.split('.')[0]
-    return ` to v${majorVersion} (${newVersion})`
+    const stripped = newVersion.replace(/^v/i, '')
+    const majorVersion = stripped.split('.')[0]
+    if (majorVersion != null && /^\d+$/.test(majorVersion)) {
+      return ` to v${majorVersion} (${newVersion})`
+    }
+    return ` to \`${newVersion}\``
   }
 
   if (currentVersion != null && !isCommitSha(currentVersion)) {

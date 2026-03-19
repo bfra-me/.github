@@ -2,6 +2,8 @@ import type {RenovatePRContext} from '../renovate-parser'
 import type {ImpactAssessment} from '../semver-impact-assessor'
 import type {SummaryGeneratorConfig} from '../summary-generator-types'
 
+import {formatVersionText} from './summary-helpers'
+
 export interface CiSummaryContext {
   config: Pick<
     SummaryGeneratorConfig,
@@ -16,16 +18,19 @@ export interface CiSummaryContext {
   getEmojiForUpdate: (prContext: RenovatePRContext, impactAssessment: ImpactAssessment) => string
 }
 
-function getVersionText(
-  includeVersionDetails: boolean,
-  dependency: string,
+function getVersionTextForDep(
+  dep: string,
   prContext: RenovatePRContext,
+  impactAssessment: ImpactAssessment,
+  includeDetails: boolean,
 ): string {
-  const versionInfo = prContext.dependencies.find(dep => dep.name === dependency)
-  if (includeVersionDetails && versionInfo?.currentVersion && versionInfo?.newVersion) {
-    return ` from \`${versionInfo.currentVersion}\` to \`${versionInfo.newVersion}\``
-  }
-  return ''
+  const versionInfo = prContext.dependencies.find(d => d.name === dep)
+  return formatVersionText(
+    versionInfo?.currentVersion,
+    versionInfo?.newVersion,
+    impactAssessment.overallImpact,
+    includeDetails,
+  )
 }
 
 export function generateAnsibleSummaryLogic(
@@ -43,7 +48,7 @@ export function generateAnsibleSummaryLogic(
 
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0] || ''
-    return `${emoji}Update Ansible role \`${dep}\`${getVersionText(ctx.config.includeVersionDetails, dep, prContext)}`
+    return `${emoji}Update Ansible role \`${dep}\`${getVersionTextForDep(dep, prContext, impactAssessment, ctx.config.includeVersionDetails)}`
   }
 
   if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
@@ -68,7 +73,7 @@ export function generatePreCommitSummaryLogic(
 
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0] || ''
-    return `${emoji}Update pre-commit hook \`${dep}\`${getVersionText(ctx.config.includeVersionDetails, dep, prContext)}`
+    return `${emoji}Update pre-commit hook \`${dep}\`${getVersionTextForDep(dep, prContext, impactAssessment, ctx.config.includeVersionDetails)}`
   }
 
   if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
@@ -93,7 +98,7 @@ export function generateGitLabCISummaryLogic(
 
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0] || ''
-    return `${emoji}Update GitLab CI dependency \`${dep}\`${getVersionText(ctx.config.includeVersionDetails, dep, prContext)}`
+    return `${emoji}Update GitLab CI dependency \`${dep}\`${getVersionTextForDep(dep, prContext, impactAssessment, ctx.config.includeVersionDetails)}`
   }
 
   if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
@@ -118,7 +123,7 @@ export function generateCircleCISummaryLogic(
 
   if (sortedDeps.length === 1) {
     const dep = sortedDeps[0] || ''
-    return `${emoji}Update CircleCI orb \`${dep}\`${getVersionText(ctx.config.includeVersionDetails, dep, prContext)}`
+    return `${emoji}Update CircleCI orb \`${dep}\`${getVersionTextForDep(dep, prContext, impactAssessment, ctx.config.includeVersionDetails)}`
   }
 
   if (sortedDeps.length <= ctx.config.maxDependenciesToList) {

@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.13.3
+### Patch Changes
+
+
+- Skip changeset generation for auto-pin SHA update PRs to prevent recursive release cycles ([#1828](https://github.com/bfra-me/.github/pull/1828))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.4.0` to `9.5.0` ([#1830](https://github.com/bfra-me/.github/pull/1830))
+
+
+- 📋 Update github-actions dependency `internal` ([#1827](https://github.com/bfra-me/.github/pull/1827))
+
 ## 4.13.2
 ### Patch Changes
 

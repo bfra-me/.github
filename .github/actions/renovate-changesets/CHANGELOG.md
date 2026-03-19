@@ -1,5 +1,19 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.24
+### Patch Changes
+
+
+- Fix composite action name extraction and cap GitHub Actions changeset type at patch ([#1805](https://github.com/bfra-me/.github/pull/1805))
+  
+  - Normalize composite action references (`owner/repo/path/to/action-name`) to extract just the last path segment as the dependency name, preventing phantom duplicates from full-path vs short-name mismatches
+  - Cap GitHub Actions changeset type at `patch` (matching the configured `changesetType`), preventing minor/major escalation for root package workflow reference updates
+
+- Fix changeset regeneration and version display for major updates ([#1804](https://github.com/bfra-me/.github/pull/1804))
+  
+  - Remove early exit when changeset files already exist on the PR branch, allowing the action to always regenerate with the latest logic
+  - Sync enhanced detector versions (inline version comments like `# 9.0.0`) back into prContext.dependencies before summary generation, fixing missing version text in changeset bodies
+
 ## 0.2.23
 ### Patch Changes
 

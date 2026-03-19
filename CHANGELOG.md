@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.12.0
+### Minor Changes
+
+
+- 📋 Update github-actions dependency `bfra-me/.github` from `4.10.2` to `4.11.0` ([#1802](https://github.com/bfra-me/.github/pull/1802))
+
+
+### Patch Changes
+
+
+- 📦 Update GitHub Actions workflow dependencies: `renovate-changesets`, `bfra-me/.github`, `bfra-me/.github/.github/actions/renovate-changesets` ([#1801](https://github.com/bfra-me/.github/pull/1801))
+
 ## 4.11.0
 ### Minor Changes
 

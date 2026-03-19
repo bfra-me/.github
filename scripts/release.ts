@@ -215,7 +215,7 @@ async function main() {
 
   for (const {pkg, tagName} of releasedPackages) {
     const changelogPath = path.join(pkg.dir, 'CHANGELOG.md')
-    let changelog
+    let changelog: string
     try {
       changelog = await fs.readFile(changelogPath, 'utf8')
     } catch (error) {
@@ -256,6 +256,78 @@ async function main() {
     console.log(`Created release for ${tagName} targetting ${releaseSha}`)
 
     await fs.unlink(notesPath)
+  }
+
+  await updateInternalWorkflowPins(releasedPackages, releaseSha.toString(), cwd)
+}
+
+interface WorkflowPinMapping {
+  packageName: string
+  files: {path: string; pattern: RegExp; versionPrefix: string}[]
+}
+
+const WORKFLOW_PIN_MAPPINGS: WorkflowPinMapping[] = [
+  {
+    packageName: 'renovate-changesets',
+    files: [
+      {
+        path: '.github/workflows/renovate-changeset.yaml',
+        pattern:
+          /(uses:\s*bfra-me\/\.github\/\.github\/actions\/renovate-changesets@)[a-f0-9]+(\s+#\s*)[\w.]+/g,
+        versionPrefix: '',
+      },
+    ],
+  },
+  {
+    packageName: 'update-repository-settings',
+    files: [
+      {
+        path: '.github/workflows/update-repo-settings.yaml',
+        pattern:
+          /(uses:\s*bfra-me\/\.github\/\.github\/actions\/update-repository-settings@)[a-f0-9]+(\s+#\s*)[\w.]+/g,
+        versionPrefix: '',
+      },
+    ],
+  },
+]
+
+async function updateInternalWorkflowPins(
+  releasedPackages: {pkg: Package; tagName: string}[],
+  releaseSha: string,
+  cwd: string,
+) {
+  const updatedFiles: string[] = []
+
+  for (const {pkg} of releasedPackages) {
+    const mapping = WORKFLOW_PIN_MAPPINGS.find(m => m.packageName === pkg.packageJson.name)
+    if (!mapping) continue
+
+    const version = `${mapping.files[0]?.versionPrefix ?? ''}${pkg.packageJson.version}`
+    for (const file of mapping.files) {
+      const filePath = path.join(cwd, file.path)
+      try {
+        const content = await fs.readFile(filePath, 'utf8')
+        const updated = content.replace(file.pattern, `$1${releaseSha}$2${version}`)
+        if (updated !== content) {
+          await fs.writeFile(filePath, updated)
+          updatedFiles.push(file.path)
+          console.log(`Updated ${file.path}: pinned to ${releaseSha} (${version})`)
+        }
+      } catch (error) {
+        if (isErrorWithCode(error, 'ENOENT')) {
+          console.log(`Skipping ${file.path}: file not found`)
+          continue
+        }
+        throw error
+      }
+    }
+  }
+
+  if (updatedFiles.length > 0) {
+    await exec('git', ['add', ...updatedFiles], {cwd})
+    await exec('git', ['commit', '-m', 'chore: update internal action SHA pins [skip ci]'], {cwd})
+    await exec('git', ['push'], {cwd})
+    console.log(`Pushed SHA pin updates for: ${updatedFiles.join(', ')}`)
   }
 }
 

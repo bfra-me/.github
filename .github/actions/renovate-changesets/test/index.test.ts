@@ -561,6 +561,8 @@ Sample changeset content
 
       await import('../src/index')
 
+      await new Promise(resolve => setTimeout(resolve, 10))
+
       // Verify changeset creation through logs and outputs
       expect(coreMocks.info).toHaveBeenCalledWith(
         expect.stringContaining('Multi-package changeset generation:'),
@@ -616,6 +618,8 @@ Sample changeset content
       })
 
       await import('../src/index')
+
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       // Verify changeset creation through logs and outputs
       expect(coreMocks.info).toHaveBeenCalledWith(
@@ -676,6 +680,8 @@ Sample changeset content
       })
 
       await import('../src/index')
+
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       // Verify changeset creation through logs and outputs
       expect(coreMocks.info).toHaveBeenCalledWith(
@@ -741,6 +747,8 @@ Sample changeset content
       })
 
       await import('../src/index')
+
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       // Verify changeset creation through logs and outputs
       expect(coreMocks.info).toHaveBeenCalledWith(

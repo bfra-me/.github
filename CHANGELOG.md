@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.13.5
+### Patch Changes
+
+
+- 📦 Update GitHub Actions workflow dependencies: `update-repository-settings`, `bfra-me/.github` ([#1852](https://github.com/bfra-me/.github/pull/1852))
+
 ## 4.13.4
 ### Patch Changes
 

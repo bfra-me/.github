@@ -30,6 +30,9 @@ export async function branchesPlugin(
     return
   }
 
+  const {data: repoData} = await octokit.rest.repos.get({owner, repo})
+  const isOrganization = repoData.owner.type === 'Organization'
+
   for (const entry of config) {
     if (!isBranchConfig(entry)) {
       core.warning('Invalid branch config entry, skipping')
@@ -53,7 +56,10 @@ export async function branchesPlugin(
       }
     }
 
-    const mergedProtection = cleanupMergedProtection(deepMerge(currentProtection, protection))
+    const mergedProtection = cleanupMergedProtection(
+      deepMerge(currentProtection, protection),
+      isOrganization,
+    )
 
     await octokit.rest.repos.updateBranchProtection({
       owner,
@@ -100,9 +106,13 @@ export function sanitizeBranchProtection(data: Record<string, unknown>): Record<
 /**
  * After deep-merging config over sanitized GET, ensure the result
  * is valid for the PUT endpoint. Primarily resolves the
- * contexts/checks mutual exclusivity constraint.
+ * contexts/checks mutual exclusivity constraint and strips
+ * org-only fields (users/teams) for user-owned repositories.
  */
-export function cleanupMergedProtection(data: Record<string, unknown>): Record<string, unknown> {
+export function cleanupMergedProtection(
+  data: Record<string, unknown>,
+  isOrganization = true,
+): Record<string, unknown> {
   const result = {...data}
 
   if (
@@ -120,6 +130,22 @@ export function cleanupMergedProtection(data: Record<string, unknown>): Record<s
     }
 
     result.required_status_checks = rsc
+  }
+
+  if (!isOrganization) {
+    // GitHub API rejects users/teams in these fields for non-org (user-owned) repos
+    result.restrictions = stripOrgOnlyFields(result.restrictions)
+
+    if (
+      result.required_pull_request_reviews !== null &&
+      typeof result.required_pull_request_reviews === 'object' &&
+      !Array.isArray(result.required_pull_request_reviews)
+    ) {
+      const rprr = {...(result.required_pull_request_reviews as Record<string, unknown>)}
+      rprr.dismissal_restrictions = stripOrgOnlyFields(rprr.dismissal_restrictions)
+      rprr.bypass_pull_request_allowances = stripOrgOnlyFields(rprr.bypass_pull_request_allowances)
+      result.required_pull_request_reviews = rprr
+    }
   }
 
   return result
@@ -165,6 +191,20 @@ function stripUrlFields(value: unknown): Record<string, unknown> | null {
     }
   }
   return result
+}
+
+/**
+ * Remove the `users` and `teams` fields from an object.
+ * These fields are only valid for organization repositories.
+ */
+function stripOrgOnlyFields(value: unknown): unknown {
+  if (value === null || value === undefined || typeof value !== 'object' || Array.isArray(value)) {
+    return value
+  }
+  const obj = {...(value as Record<string, unknown>)}
+  delete obj.users
+  delete obj.teams
+  return obj
 }
 
 function isBranchConfig(value: unknown): value is BranchConfig {

@@ -3,6 +3,7 @@ import {Octokit} from '@octokit/rest'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {branchesPlugin, cleanupMergedProtection, sanitizeBranchProtection} from '../branches.js'
 
+const mockGetRepo = vi.hoisted(() => vi.fn())
 const mockGetBranchProtection = vi.hoisted(() => vi.fn())
 const mockUpdateBranchProtection = vi.hoisted(() => vi.fn().mockResolvedValue({}))
 const mockInfo = vi.hoisted(() => vi.fn())
@@ -12,6 +13,7 @@ vi.mock('@octokit/rest', () => ({
   Octokit: class {
     rest = {
       repos: {
+        get: mockGetRepo,
         getBranchProtection: mockGetBranchProtection,
         updateBranchProtection: mockUpdateBranchProtection,
       },
@@ -28,9 +30,20 @@ function createOctokit(): OctokitType {
   return new Octokit({auth: 'test-token'}) as unknown as OctokitType
 }
 
+/** Helper to mock repos.get returning an organization owner */
+function mockOrgRepo() {
+  mockGetRepo.mockResolvedValueOnce({data: {owner: {type: 'Organization'}}})
+}
+
+/** Helper to mock repos.get returning a user owner */
+function mockUserRepo() {
+  mockGetRepo.mockResolvedValueOnce({data: {owner: {type: 'User'}}})
+}
+
 describe('branchesPlugin', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockGetRepo.mockResolvedValue({data: {owner: {type: 'Organization'}}})
     mockGetBranchProtection.mockResolvedValue({data: {}})
   })
 
@@ -303,6 +316,137 @@ describe('branchesPlugin', () => {
     expect(mockGetBranchProtection).not.toHaveBeenCalled()
     expect(mockUpdateBranchProtection).not.toHaveBeenCalled()
   })
+
+  it('strips users and teams from bypass_pull_request_allowances on user-owned repos', async () => {
+    mockUserRepo()
+    mockGetBranchProtection.mockResolvedValueOnce({
+      data: {
+        required_pull_request_reviews: {
+          required_approving_review_count: 1,
+          bypass_pull_request_allowances: {
+            users: ['maintainer'],
+            teams: ['platform'],
+            apps: ['renovate'],
+          },
+        },
+      },
+    })
+
+    await branchesPlugin(createOctokit(), 'bfra-me', 'repo', [
+      {
+        name: 'main',
+        protection: {
+          required_pull_request_reviews: {
+            required_approving_review_count: 1,
+            bypass_pull_request_allowances: {
+              apps: ['renovate'],
+            },
+          },
+        },
+      },
+    ])
+
+    const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
+    const rprr = call.required_pull_request_reviews as Record<string, unknown>
+    const bpra = rprr.bypass_pull_request_allowances as Record<string, unknown>
+    expect(bpra).not.toHaveProperty('users')
+    expect(bpra).not.toHaveProperty('teams')
+    expect(bpra.apps).toEqual(['renovate'])
+  })
+
+  it('strips users and teams from dismissal_restrictions on user-owned repos', async () => {
+    mockUserRepo()
+    mockGetBranchProtection.mockResolvedValueOnce({
+      data: {
+        required_pull_request_reviews: {
+          dismiss_stale_reviews: true,
+          dismissal_restrictions: {
+            users: ['maintainer'],
+            teams: ['platform'],
+          },
+        },
+      },
+    })
+
+    await branchesPlugin(createOctokit(), 'bfra-me', 'repo', [
+      {
+        name: 'main',
+        protection: {
+          required_pull_request_reviews: {
+            dismiss_stale_reviews: true,
+          },
+        },
+      },
+    ])
+
+    const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
+    const rprr = call.required_pull_request_reviews as Record<string, unknown>
+    const dr = rprr.dismissal_restrictions as Record<string, unknown>
+    expect(dr).not.toHaveProperty('users')
+    expect(dr).not.toHaveProperty('teams')
+  })
+
+  it('strips users and teams from restrictions on user-owned repos', async () => {
+    mockUserRepo()
+    mockGetBranchProtection.mockResolvedValueOnce({
+      data: {
+        restrictions: {
+          users: [],
+          teams: [],
+          apps: ['renovate'],
+        },
+      },
+    })
+
+    await branchesPlugin(createOctokit(), 'bfra-me', 'repo', [
+      {
+        name: 'main',
+        protection: {
+          restrictions: {apps: ['renovate']},
+        },
+      },
+    ])
+
+    const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
+    const restrictions = call.restrictions as Record<string, unknown>
+    expect(restrictions).not.toHaveProperty('users')
+    expect(restrictions).not.toHaveProperty('teams')
+    expect(restrictions.apps).toEqual(['renovate'])
+  })
+
+  it('preserves users and teams in bypass_pull_request_allowances for org repos', async () => {
+    mockOrgRepo()
+
+    await branchesPlugin(createOctokit(), 'bfra-me', 'repo', [
+      {
+        name: 'main',
+        protection: {
+          required_pull_request_reviews: {
+            required_approving_review_count: 1,
+            bypass_pull_request_allowances: {
+              users: ['maintainer'],
+              teams: ['platform'],
+              apps: ['renovate'],
+            },
+          },
+        },
+      },
+    ])
+
+    expect(mockUpdateBranchProtection).toHaveBeenCalledWith({
+      owner: 'bfra-me',
+      repo: 'repo',
+      branch: 'main',
+      required_pull_request_reviews: {
+        required_approving_review_count: 1,
+        bypass_pull_request_allowances: {
+          users: ['maintainer'],
+          teams: ['platform'],
+          apps: ['renovate'],
+        },
+      },
+    })
+  })
 })
 
 describe('sanitizeBranchProtection', () => {
@@ -416,5 +560,88 @@ describe('cleanupMergedProtection', () => {
     const rsc = result.required_status_checks as Record<string, unknown>
     expect(rsc).not.toHaveProperty('url')
     expect(rsc).not.toHaveProperty('contexts_url')
+  })
+
+  it('strips users and teams from restrictions when isOrganization is false', () => {
+    const result = cleanupMergedProtection(
+      {
+        restrictions: {
+          users: ['alice'],
+          teams: ['platform'],
+          apps: ['renovate'],
+        },
+      },
+      false,
+    )
+
+    const restrictions = result.restrictions as Record<string, unknown>
+    expect(restrictions).not.toHaveProperty('users')
+    expect(restrictions).not.toHaveProperty('teams')
+    expect(restrictions.apps).toEqual(['renovate'])
+  })
+
+  it('strips users and teams from bypass_pull_request_allowances when isOrganization is false', () => {
+    const result = cleanupMergedProtection(
+      {
+        required_pull_request_reviews: {
+          bypass_pull_request_allowances: {
+            users: ['maintainer'],
+            teams: ['platform'],
+            apps: ['renovate'],
+          },
+        },
+      },
+      false,
+    )
+
+    const rprr = result.required_pull_request_reviews as Record<string, unknown>
+    const bpra = rprr.bypass_pull_request_allowances as Record<string, unknown>
+    expect(bpra).not.toHaveProperty('users')
+    expect(bpra).not.toHaveProperty('teams')
+    expect(bpra.apps).toEqual(['renovate'])
+  })
+
+  it('strips users and teams from dismissal_restrictions when isOrganization is false', () => {
+    const result = cleanupMergedProtection(
+      {
+        required_pull_request_reviews: {
+          dismiss_stale_reviews: true,
+          dismissal_restrictions: {
+            users: ['maintainer'],
+            teams: ['platform'],
+          },
+        },
+      },
+      false,
+    )
+
+    const rprr = result.required_pull_request_reviews as Record<string, unknown>
+    const dr = rprr.dismissal_restrictions as Record<string, unknown>
+    expect(dr).not.toHaveProperty('users')
+    expect(dr).not.toHaveProperty('teams')
+    expect((rprr as Record<string, unknown>).dismiss_stale_reviews).toBe(true)
+  })
+
+  it('preserves users and teams in restrictions when isOrganization is true', () => {
+    const result = cleanupMergedProtection(
+      {
+        restrictions: {
+          users: ['alice'],
+          teams: ['platform'],
+          apps: ['renovate'],
+        },
+      },
+      true,
+    )
+
+    const restrictions = result.restrictions as Record<string, unknown>
+    expect(restrictions.users).toEqual(['alice'])
+    expect(restrictions.teams).toEqual(['platform'])
+    expect(restrictions.apps).toEqual(['renovate'])
+  })
+
+  it('leaves restrictions null unchanged when isOrganization is false', () => {
+    const result = cleanupMergedProtection({restrictions: null}, false)
+    expect(result.restrictions).toBeNull()
   })
 })

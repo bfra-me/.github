@@ -1,8 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-03-10
-**Commit:** 371e4b5
-**Branch:** main
+**Generated:** 2026-03-20 **Branch:** main
 
 ## OVERVIEW
 
@@ -14,9 +12,10 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 ./
 ├── .github/
 │   ├── actions/
-│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (21 src files)
-│   │   └── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
-│   ├── workflows/                 # 18 workflows: CI/CD, Fro Bot agent, Copilot setup
+│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (96 src files)
+│   │   ├── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
+│   │   └── update-repository-settings/ # Action for updating repository settings (26 src files)
+│   ├── workflows/                 # 17 workflows: CI/CD, Fro Bot agent, Copilot setup
 │   ├── instructions/              # Dev guidelines consumed by AI assistants and code review
 │   └── settings.yml               # Repo settings via Repository Settings App
 ├── workflow-templates/            # Org-wide workflow templates (with .properties.json metadata)
@@ -38,6 +37,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 | Create org workflow template | `workflow-templates/` | Requires matching `.properties.json` |
 | Modify renovate-changesets action | `.github/actions/renovate-changesets/` | Has own AGENTS.md. Build with `pnpm build` |
 | Modify update-metadata action | `.github/actions/update-metadata/` | Has own AGENTS.md |
+| Modify update-repository-settings action | `.github/actions/update-repository-settings/` | Has own AGENTS.md. Build with `pnpm build` |
 | Add/edit automation script | `scripts/` | Use `#!/usr/bin/env tsx`. Follow existing patterns |
 | Change org-wide Renovate config | `metadata/renovate.yaml` | Inherited by all org repos |
 | Change THIS repo's Renovate config | `.github/renovate.json5` | Extends bfra-me/renovate-config |

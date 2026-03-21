@@ -133,8 +133,8 @@ export function cleanupMergedProtection(
   }
 
   if (!isOrganization) {
-    // GitHub API rejects users/teams in these fields for non-org (user-owned) repos
-    result.restrictions = stripOrgOnlyFields(result.restrictions)
+    // GitHub API rejects restrictions entirely for user-owned repos (must be null)
+    result.restrictions = null
 
     if (
       result.required_pull_request_reviews !== null &&
@@ -142,7 +142,8 @@ export function cleanupMergedProtection(
       !Array.isArray(result.required_pull_request_reviews)
     ) {
       const rprr = {...(result.required_pull_request_reviews as Record<string, unknown>)}
-      rprr.dismissal_restrictions = stripOrgOnlyFields(rprr.dismissal_restrictions)
+      // GitHub docs: "Omit this parameter for personal repositories"
+      delete rprr.dismissal_restrictions
       rprr.bypass_pull_request_allowances = stripOrgOnlyFields(rprr.bypass_pull_request_allowances)
       result.required_pull_request_reviews = rprr
     }

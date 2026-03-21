@@ -354,7 +354,7 @@ describe('branchesPlugin', () => {
     expect(bpra.apps).toEqual(['renovate'])
   })
 
-  it('strips users and teams from dismissal_restrictions on user-owned repos', async () => {
+  it('removes dismissal_restrictions entirely on user-owned repos', async () => {
     mockUserRepo()
     mockGetBranchProtection.mockResolvedValueOnce({
       data: {
@@ -363,6 +363,7 @@ describe('branchesPlugin', () => {
           dismissal_restrictions: {
             users: ['maintainer'],
             teams: ['platform'],
+            apps: ['myapp'],
           },
         },
       },
@@ -381,12 +382,10 @@ describe('branchesPlugin', () => {
 
     const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
     const rprr = call.required_pull_request_reviews as Record<string, unknown>
-    const dr = rprr.dismissal_restrictions as Record<string, unknown>
-    expect(dr).not.toHaveProperty('users')
-    expect(dr).not.toHaveProperty('teams')
+    expect(rprr).not.toHaveProperty('dismissal_restrictions')
   })
 
-  it('strips users and teams from restrictions on user-owned repos', async () => {
+  it('forces restrictions to null on user-owned repos', async () => {
     mockUserRepo()
     mockGetBranchProtection.mockResolvedValueOnce({
       data: {
@@ -408,10 +407,7 @@ describe('branchesPlugin', () => {
     ])
 
     const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
-    const restrictions = call.restrictions as Record<string, unknown>
-    expect(restrictions).not.toHaveProperty('users')
-    expect(restrictions).not.toHaveProperty('teams')
-    expect(restrictions.apps).toEqual(['renovate'])
+    expect(call.restrictions).toBeNull()
   })
 
   it('preserves users and teams in bypass_pull_request_allowances for org repos', async () => {
@@ -562,7 +558,7 @@ describe('cleanupMergedProtection', () => {
     expect(rsc).not.toHaveProperty('contexts_url')
   })
 
-  it('strips users and teams from restrictions when isOrganization is false', () => {
+  it('forces restrictions to null when isOrganization is false', () => {
     const result = cleanupMergedProtection(
       {
         restrictions: {
@@ -574,10 +570,7 @@ describe('cleanupMergedProtection', () => {
       false,
     )
 
-    const restrictions = result.restrictions as Record<string, unknown>
-    expect(restrictions).not.toHaveProperty('users')
-    expect(restrictions).not.toHaveProperty('teams')
-    expect(restrictions.apps).toEqual(['renovate'])
+    expect(result.restrictions).toBeNull()
   })
 
   it('strips users and teams from bypass_pull_request_allowances when isOrganization is false', () => {
@@ -601,7 +594,7 @@ describe('cleanupMergedProtection', () => {
     expect(bpra.apps).toEqual(['renovate'])
   })
 
-  it('strips users and teams from dismissal_restrictions when isOrganization is false', () => {
+  it('removes dismissal_restrictions entirely when isOrganization is false', () => {
     const result = cleanupMergedProtection(
       {
         required_pull_request_reviews: {
@@ -609,6 +602,7 @@ describe('cleanupMergedProtection', () => {
           dismissal_restrictions: {
             users: ['maintainer'],
             teams: ['platform'],
+            apps: ['myapp'],
           },
         },
       },
@@ -616,10 +610,8 @@ describe('cleanupMergedProtection', () => {
     )
 
     const rprr = result.required_pull_request_reviews as Record<string, unknown>
-    const dr = rprr.dismissal_restrictions as Record<string, unknown>
-    expect(dr).not.toHaveProperty('users')
-    expect(dr).not.toHaveProperty('teams')
-    expect((rprr as Record<string, unknown>).dismiss_stale_reviews).toBe(true)
+    expect(rprr).not.toHaveProperty('dismissal_restrictions')
+    expect(rprr.dismiss_stale_reviews).toBe(true)
   })
 
   it('preserves users and teams in restrictions when isOrganization is true', () => {

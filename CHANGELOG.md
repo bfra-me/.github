@@ -1,5 +1,43 @@
 # @bfra.me/.github
 
+## 4.13.4
+### Patch Changes
+
+
+- Migrate deprecated `contexts` field to `checks` in branch protection ([#1836](https://github.com/bfra-me/.github/pull/1836))
+  
+  The `contexts` field in branch protection settings is deprecated. This change
+  migrates to the newer `checks` format using the context property.
+  
+  - Update .github/settings.yml to use checks format
+  - Maintain all existing status check requirements
+  - Fixes GitHub API deprecation warning
+  
+  refs: https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection
+
+- ⚙️ Update GitHub Actions workflow dependency `kentaro-m/auto-assign-action` from `v2.0.1` to `v2.0.2` ([#1841](https://github.com/bfra-me/.github/pull/1841))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#1762](https://github.com/bfra-me/.github/pull/1762))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.34.0` to `4.34.1` ([#1845](https://github.com/bfra-me/.github/pull/1845))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.33.0` to `4.34.0` ([#1842](https://github.com/bfra-me/.github/pull/1842))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.6.1` to `9.7.0` ([#1838](https://github.com/bfra-me/.github/pull/1838))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.6.0` to `9.6.1` ([#1834](https://github.com/bfra-me/.github/pull/1834))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.7.0` to `9.8.0` ([#1840](https://github.com/bfra-me/.github/pull/1840))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.5.0` to `9.6.0` ([#1832](https://github.com/bfra-me/.github/pull/1832))
+
 ## 4.13.3
 ### Patch Changes
 

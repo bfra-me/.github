@@ -317,7 +317,7 @@ describe('branchesPlugin', () => {
     expect(mockUpdateBranchProtection).not.toHaveBeenCalled()
   })
 
-  it('strips users and teams from bypass_pull_request_allowances on user-owned repos', async () => {
+  it('removes bypass_pull_request_allowances entirely on user-owned repos', async () => {
     mockUserRepo()
     mockGetBranchProtection.mockResolvedValueOnce({
       data: {
@@ -348,10 +348,7 @@ describe('branchesPlugin', () => {
 
     const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
     const rprr = call.required_pull_request_reviews as Record<string, unknown>
-    const bpra = rprr.bypass_pull_request_allowances as Record<string, unknown>
-    expect(bpra).not.toHaveProperty('users')
-    expect(bpra).not.toHaveProperty('teams')
-    expect(bpra.apps).toEqual(['renovate'])
+    expect(rprr).not.toHaveProperty('bypass_pull_request_allowances')
   })
 
   it('removes dismissal_restrictions entirely on user-owned repos', async () => {
@@ -573,7 +570,7 @@ describe('cleanupMergedProtection', () => {
     expect(result.restrictions).toBeNull()
   })
 
-  it('strips users and teams from bypass_pull_request_allowances when isOrganization is false', () => {
+  it('removes bypass_pull_request_allowances when isOrganization is false', () => {
     const result = cleanupMergedProtection(
       {
         required_pull_request_reviews: {
@@ -588,10 +585,7 @@ describe('cleanupMergedProtection', () => {
     )
 
     const rprr = result.required_pull_request_reviews as Record<string, unknown>
-    const bpra = rprr.bypass_pull_request_allowances as Record<string, unknown>
-    expect(bpra).not.toHaveProperty('users')
-    expect(bpra).not.toHaveProperty('teams')
-    expect(bpra.apps).toEqual(['renovate'])
+    expect(rprr).not.toHaveProperty('bypass_pull_request_allowances')
   })
 
   it('removes dismissal_restrictions entirely when isOrganization is false', () => {

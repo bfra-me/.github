@@ -142,9 +142,9 @@ export function cleanupMergedProtection(
       !Array.isArray(result.required_pull_request_reviews)
     ) {
       const rprr = {...(result.required_pull_request_reviews as Record<string, unknown>)}
-      // GitHub docs: "Omit this parameter for personal repositories"
+      // GitHub API rejects all three sub-fields for personal repositories
       delete rprr.dismissal_restrictions
-      rprr.bypass_pull_request_allowances = stripOrgOnlyFields(rprr.bypass_pull_request_allowances)
+      delete rprr.bypass_pull_request_allowances
       result.required_pull_request_reviews = rprr
     }
   }
@@ -192,20 +192,6 @@ function stripUrlFields(value: unknown): Record<string, unknown> | null {
     }
   }
   return result
-}
-
-/**
- * Remove the `users` and `teams` fields from an object.
- * These fields are only valid for organization repositories.
- */
-function stripOrgOnlyFields(value: unknown): unknown {
-  if (value === null || value === undefined || typeof value !== 'object' || Array.isArray(value)) {
-    return value
-  }
-  const obj = {...(value as Record<string, unknown>)}
-  delete obj.users
-  delete obj.teams
-  return obj
 }
 
 function isBranchConfig(value: unknown): value is BranchConfig {

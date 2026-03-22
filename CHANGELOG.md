@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.13.6
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.8.0` to `9.9.0` ([#1855](https://github.com/bfra-me/.github/pull/1855))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.30.10` to `v0.31.1` ([#1861](https://github.com/bfra-me/.github/pull/1861))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.9.0` to `9.10.0` ([#1857](https://github.com/bfra-me/.github/pull/1857))
+
 ## 4.13.5
 ### Patch Changes
 

@@ -87,7 +87,7 @@ pnpm run build:monitor            # Build performance analysis
 - `dist/` directories are committed for actions (GitHub requires pre-built JS)
 - Root `tsconfig.json` uses `noEmit: true` — type-checking only. Actions have own build configs
 - HACK in `scripts/release.ts`: monorepo root tagged as `{name}@{ver}` format (workaround)
-- `common-settings.yaml` has deprecated `contexts` field — migrate to `checks`
+
 - `.github/instructions/` files are consumed by AI tools, not by build system
 - `pnpm` override: `jiti` pinned to `<2.7.0` due to compatibility issue
 - Fro Bot uses `FRO_BOT_PAT` + `OPENCODE_AUTH_JSON` secrets (separate from `bfra-me[bot]` app)

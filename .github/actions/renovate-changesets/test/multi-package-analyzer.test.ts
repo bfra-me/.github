@@ -1,7 +1,7 @@
 import type {RenovateDependency} from '../src/renovate-parser'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
-import {MultiPackageAnalyzer} from '../src/multi-package-analyzer'
+import {analyzeMultiPackageUpdate} from '../src/multi-package-analyzer'
 
 const fsMocks = vi.hoisted(() => ({
   readFile: vi.fn(),
@@ -24,17 +24,16 @@ vi.mock('node:fs', () => ({
 }))
 
 describe('MultiPackageAnalyzer', () => {
-  let analyzer: MultiPackageAnalyzer
+  const analyzerConfig = {
+    workspaceRoot: '/test',
+    detectWorkspaces: true,
+    analyzeInternalDependencies: true,
+    enforceVersionConsistency: true,
+    maxPackagesToAnalyze: 10,
+  }
 
   beforeEach(() => {
     vi.clearAllMocks()
-    analyzer = new MultiPackageAnalyzer({
-      workspaceRoot: '/test',
-      detectWorkspaces: true,
-      analyzeInternalDependencies: true,
-      enforceVersionConsistency: true,
-      maxPackagesToAnalyze: 10,
-    })
   })
 
   afterEach(() => {
@@ -106,13 +105,10 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
+      const result = await analyzeMultiPackageUpdate(
         dependencies,
         ['packages/app/package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
+        analyzerConfig,
       )
 
       expect(result.workspacePackages).toHaveLength(3) // root + app + lib
@@ -196,13 +192,10 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
+      const result = await analyzeMultiPackageUpdate(
         dependencies,
         ['packages/shared/package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
+        analyzerConfig,
       )
 
       expect(result.workspacePackages).toHaveLength(4) // root + frontend + backend + shared
@@ -281,13 +274,10 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
+      const result = await analyzeMultiPackageUpdate(
         dependencies,
         ['apps/web/package.json', 'apps/api/package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
+        analyzerConfig,
       )
 
       expect(result.workspacePackages).toHaveLength(3) // root + web + api
@@ -318,14 +308,7 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
-        dependencies,
-        ['package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      )
+      const result = await analyzeMultiPackageUpdate(dependencies, ['package.json'], analyzerConfig)
 
       expect(result.workspacePackages).toHaveLength(0)
       expect(result.impactAnalysis.changesetStrategy).toBe('single')
@@ -396,13 +379,10 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
+      const result = await analyzeMultiPackageUpdate(
         dependencies,
         ['packages/ui/package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
+        analyzerConfig,
       )
 
       expect(result.workspacePackages).toHaveLength(3)
@@ -470,14 +450,7 @@ describe('MultiPackageAnalyzer', () => {
         (_, i) => `packages/package${i + 1}/package.json`,
       )
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
-        dependencies,
-        changedFiles,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      )
+      const result = await analyzeMultiPackageUpdate(dependencies, changedFiles, analyzerConfig)
 
       expect(result.workspacePackages).toHaveLength(9) // root + 8 packages
       expect(result.affectedPackages).toHaveLength(8)
@@ -519,14 +492,7 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
-        dependencies,
-        ['package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      )
+      const result = await analyzeMultiPackageUpdate(dependencies, ['package.json'], analyzerConfig)
 
       // Should still work with just the root package
       expect(result.workspacePackages).toHaveLength(1)
@@ -558,14 +524,7 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await analyzer.analyzeMultiPackageUpdate(
-        dependencies,
-        ['package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      )
+      const result = await analyzeMultiPackageUpdate(dependencies, ['package.json'], analyzerConfig)
 
       // Should handle gracefully and return empty workspace
       expect(result.workspacePackages).toHaveLength(0)
@@ -573,10 +532,10 @@ describe('MultiPackageAnalyzer', () => {
     })
 
     it('should respect maxPackagesToAnalyze limit', async () => {
-      const limitedAnalyzer = new MultiPackageAnalyzer({
+      const limitedAnalyzerConfig = {
         workspaceRoot: '/test',
-        maxPackagesToAnalyze: 2, // Limit to 2 packages
-      })
+        maxPackagesToAnalyze: 2,
+      }
 
       fsMocks.access.mockImplementation(async (path: string) => {
         if (path.includes('package.json')) return undefined
@@ -626,13 +585,10 @@ describe('MultiPackageAnalyzer', () => {
         },
       ]
 
-      const result = await limitedAnalyzer.analyzeMultiPackageUpdate(
+      const result = await analyzeMultiPackageUpdate(
         dependencies,
         ['packages/pkg1/package.json'],
-        undefined,
-        undefined,
-        undefined,
-        undefined,
+        limitedAnalyzerConfig,
       )
 
       // Should respect the limit of 2 packages

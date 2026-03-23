@@ -1,4 +1,5 @@
 import type {Octokit} from '@octokit/rest'
+import type {CategorizationInfo, MultiPackageInfo} from './changeset-info-formatter'
 import type {RenovatePRContext} from './renovate-parser'
 import * as core from '@actions/core'
 
@@ -349,8 +350,8 @@ export class GroupedPRManager {
       changesetContent: string,
       releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
       dependencies: string[],
-      categorizationResult: any,
-      multiPackageResult: any,
+      categorizationResult: CategorizationInfo,
+      multiPackageResult: MultiPackageInfo,
     ) => Promise<void>,
     createPRCommentFn: (
       octokit: Octokit,
@@ -361,8 +362,8 @@ export class GroupedPRManager {
       releases: {name: string; type: 'patch' | 'minor' | 'major'}[],
       changesetPath: string,
       dependencies: string[],
-      categorizationResult: any,
-      multiPackageResult: any,
+      categorizationResult: CategorizationInfo,
+      multiPackageResult: MultiPackageInfo,
     ) => Promise<void>,
     changesetPath: string,
   ): Promise<GroupedPRResult> {

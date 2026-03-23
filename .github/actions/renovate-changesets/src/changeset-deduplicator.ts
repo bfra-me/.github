@@ -30,91 +30,86 @@ function buildConfig(config: Partial<ChangesetDeduplicationConfig>): ChangesetDe
   }
 }
 
-export class ChangesetDeduplicator {
-  private config: ChangesetDeduplicationConfig
+export async function deduplicateChangesets(
+  changesets: ChangesetInfo[],
+  config: Partial<ChangesetDeduplicationConfig> = {},
+): Promise<DeduplicationResult> {
+  const resolvedConfig = buildConfig(config)
+  const reasoning: string[] = []
+  const warnings: string[] = []
 
-  constructor(config: Partial<ChangesetDeduplicationConfig> = {}) {
-    this.config = buildConfig(config)
+  core.info('Starting changeset deduplication analysis')
+  reasoning.push(`Starting deduplication with ${changesets.length} changesets`)
+  reasoning.push(`Configuration: ${JSON.stringify(resolvedConfig, null, 2)}`)
+
+  const existingChangesets = resolvedConfig.analyzeExistingChangesets
+    ? await analyzeExistingChangesets(resolvedConfig)
+    : []
+
+  if (existingChangesets.length > 0) {
+    reasoning.push(`Found ${existingChangesets.length} existing changesets to analyze`)
   }
 
-  async deduplicateChangesets(changesets: ChangesetInfo[]): Promise<DeduplicationResult> {
-    const reasoning: string[] = []
-    const warnings: string[] = []
+  let deduplicatedChangesets = [...changesets]
+  const contentDuplicates = resolvedConfig.enableContentDeduplication
+    ? performContentDeduplication(deduplicatedChangesets)
+    : {unique: deduplicatedChangesets, duplicates: []}
 
-    core.info('Starting changeset deduplication analysis')
-    reasoning.push(`Starting deduplication with ${changesets.length} changesets`)
-    reasoning.push(`Configuration: ${JSON.stringify(this.config, null, 2)}`)
+  deduplicatedChangesets = contentDuplicates.unique
+  reasoning.push(
+    `Content deduplication: removed ${contentDuplicates.duplicates.length} exact duplicates`,
+  )
 
-    const existingChangesets = this.config.analyzeExistingChangesets
-      ? await analyzeExistingChangesets(this.config)
-      : []
+  const semanticDuplicates = resolvedConfig.enableSemanticDeduplication
+    ? performSemanticDeduplication(deduplicatedChangesets, resolvedConfig)
+    : {unique: deduplicatedChangesets, duplicates: []}
 
-    if (existingChangesets.length > 0) {
-      reasoning.push(`Found ${existingChangesets.length} existing changesets to analyze`)
-    }
+  deduplicatedChangesets = semanticDuplicates.unique
+  reasoning.push(
+    `Semantic deduplication: removed ${semanticDuplicates.duplicates.length} similar changesets`,
+  )
 
-    let deduplicatedChangesets = [...changesets]
-    const contentDuplicates = this.config.enableContentDeduplication
-      ? performContentDeduplication(deduplicatedChangesets)
-      : {unique: deduplicatedChangesets, duplicates: []}
+  const mergeResult =
+    resolvedConfig.enableChangesetMerging && resolvedConfig.mergeStrategy !== 'disabled'
+      ? await performChangesetMerging(deduplicatedChangesets, resolvedConfig)
+      : {merged: deduplicatedChangesets, mergeOperations: []}
 
-    deduplicatedChangesets = contentDuplicates.unique
-    reasoning.push(
-      `Content deduplication: removed ${contentDuplicates.duplicates.length} exact duplicates`,
-    )
+  deduplicatedChangesets = mergeResult.merged
+  reasoning.push(
+    `Changeset merging: merged ${mergeResult.mergeOperations.length} groups of changesets`,
+  )
 
-    const semanticDuplicates = this.config.enableSemanticDeduplication
-      ? performSemanticDeduplication(deduplicatedChangesets, this.config)
-      : {unique: deduplicatedChangesets, duplicates: []}
+  const existingResult =
+    existingChangesets.length > 0
+      ? checkAgainstExistingChangesets(deduplicatedChangesets, existingChangesets)
+      : {unique: deduplicatedChangesets, duplicateFiles: []}
 
-    deduplicatedChangesets = semanticDuplicates.unique
-    reasoning.push(
-      `Semantic deduplication: removed ${semanticDuplicates.duplicates.length} similar changesets`,
-    )
+  deduplicatedChangesets = existingResult.unique
+  reasoning.push(
+    `Existing changeset check: found ${existingResult.duplicateFiles.length} duplicates with existing files`,
+  )
 
-    const mergeResult =
-      this.config.enableChangesetMerging && this.config.mergeStrategy !== 'disabled'
-        ? await performChangesetMerging(deduplicatedChangesets, this.config)
-        : {merged: deduplicatedChangesets, mergeOperations: []}
+  validateDeduplicationResult(deduplicatedChangesets, changesets, warnings)
 
-    deduplicatedChangesets = mergeResult.merged
-    reasoning.push(
-      `Changeset merging: merged ${mergeResult.mergeOperations.length} groups of changesets`,
-    )
-
-    const existingResult =
-      existingChangesets.length > 0
-        ? checkAgainstExistingChangesets(deduplicatedChangesets, existingChangesets)
-        : {unique: deduplicatedChangesets, duplicateFiles: []}
-
-    deduplicatedChangesets = existingResult.unique
-    reasoning.push(
-      `Existing changeset check: found ${existingResult.duplicateFiles.length} duplicates with existing files`,
-    )
-
-    validateDeduplicationResult(deduplicatedChangesets, changesets, warnings)
-
-    const result: DeduplicationResult = {
-      originalChangesets: changesets,
-      deduplicatedChangesets,
-      removedDuplicates: [...contentDuplicates.duplicates, ...semanticDuplicates.duplicates],
-      mergedChangesets: mergeResult.mergeOperations,
-      existingDuplicates: existingResult.duplicateFiles,
-      reasoning,
-      warnings,
-      stats: {
-        totalOriginal: changesets.length,
-        totalFinal: deduplicatedChangesets.length,
-        duplicatesRemoved:
-          contentDuplicates.duplicates.length + semanticDuplicates.duplicates.length,
-        changesetseMerged: mergeResult.mergeOperations.length,
-        existingDuplicates: existingResult.duplicateFiles.length,
-      },
-    }
-
-    core.info(
-      `Deduplication complete: ${result.stats.totalOriginal} → ${result.stats.totalFinal} changesets`,
-    )
-    return result
+  const result: DeduplicationResult = {
+    originalChangesets: changesets,
+    deduplicatedChangesets,
+    removedDuplicates: [...contentDuplicates.duplicates, ...semanticDuplicates.duplicates],
+    mergedChangesets: mergeResult.mergeOperations,
+    existingDuplicates: existingResult.duplicateFiles,
+    reasoning,
+    warnings,
+    stats: {
+      totalOriginal: changesets.length,
+      totalFinal: deduplicatedChangesets.length,
+      duplicatesRemoved: contentDuplicates.duplicates.length + semanticDuplicates.duplicates.length,
+      changesetseMerged: mergeResult.mergeOperations.length,
+      existingDuplicates: existingResult.duplicateFiles.length,
+    },
   }
+
+  core.info(
+    `Deduplication complete: ${result.stats.totalOriginal} → ${result.stats.totalFinal} changesets`,
+  )
+  return result
 }

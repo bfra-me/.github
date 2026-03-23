@@ -1,16 +1,11 @@
 import type {RenovateDependency} from '../src/renovate-parser'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {MultiPackageAnalyzer} from '../src/multi-package-analyzer'
-import {SecurityVulnerabilityDetector} from '../src/security-vulnerability-detector'
+import {analyzeMultiPackageUpdate} from '../src/multi-package-analyzer'
+import {analyzeSecurityVulnerabilities} from '../src/security-vulnerability-detector'
 
 describe('Grouped Updates and Security Patches Integration Tests', () => {
-  let securityDetector: SecurityVulnerabilityDetector
-  let multiPackageAnalyzer: MultiPackageAnalyzer
-
   beforeEach(() => {
     vi.clearAllMocks()
-    securityDetector = new SecurityVulnerabilityDetector()
-    multiPackageAnalyzer = new MultiPackageAnalyzer()
   })
 
   describe('Grouped Updates Scenarios', () => {
@@ -59,10 +54,9 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       ]
 
       // Test multi-package analysis - in a single package workspace this will be 'single'
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
-        groupedDependencies,
-        ['package.json'],
-      )
+      const multiPackageResult = await analyzeMultiPackageUpdate(groupedDependencies, [
+        'package.json',
+      ])
 
       // Verify the analysis was successful and packages were identified
       expect(multiPackageResult.affectedPackages.length).toBeGreaterThan(0)
@@ -110,10 +104,10 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
         },
       ]
 
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
-        mixedGroupDependencies,
-        ['package.json', '.github/workflows/ci.yaml'],
-      )
+      const multiPackageResult = await analyzeMultiPackageUpdate(mixedGroupDependencies, [
+        'package.json',
+        '.github/workflows/ci.yaml',
+      ])
 
       // Verify analysis completed successfully
       expect(['single', 'grouped', 'multiple']).toContain(
@@ -141,7 +135,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       const firstDependency = securityDependencies[0]
       expect(firstDependency).toBeDefined()
 
-      const securityAnalysis = await securityDetector.analyzeSecurityVulnerabilities(
+      const securityAnalysis = await analyzeSecurityVulnerabilities(
         firstDependency as RenovateDependency,
       )
 
@@ -180,7 +174,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
 
       // Analyze each dependency for security vulnerabilities
       const securityAnalyses = await Promise.all(
-        groupedSecurityDeps.map(dep => securityDetector.analyzeSecurityVulnerabilities(dep)),
+        groupedSecurityDeps.map(dep => analyzeSecurityVulnerabilities(dep)),
       )
 
       // Test that at least one has security issues
@@ -188,10 +182,9 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       expect(hasSecurityIssues).toBe(true)
 
       // Test multi-package analysis
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
-        groupedSecurityDeps,
-        ['package.json'],
-      )
+      const multiPackageResult = await analyzeMultiPackageUpdate(groupedSecurityDeps, [
+        'package.json',
+      ])
 
       // In single package workspace, strategy will typically be 'single'
       expect(['single', 'grouped']).toContain(multiPackageResult.impactAnalysis.changesetStrategy)
@@ -214,17 +207,16 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       const firstDependency = breakingSecurityDep[0]
       expect(firstDependency).toBeDefined()
 
-      const securityAnalysis = await securityDetector.analyzeSecurityVulnerabilities(
+      const securityAnalysis = await analyzeSecurityVulnerabilities(
         firstDependency as RenovateDependency,
       )
 
       expect(securityAnalysis.hasSecurityIssues).toBe(true)
       expect(['low', 'medium', 'high', 'critical']).toContain(securityAnalysis.overallSeverity)
 
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
-        breakingSecurityDep,
-        ['package.json'],
-      )
+      const multiPackageResult = await analyzeMultiPackageUpdate(breakingSecurityDep, [
+        'package.json',
+      ])
 
       // Should recognize high risk due to major version change
       expect(['low', 'medium', 'high']).toContain(multiPackageResult.impactAnalysis.riskLevel)
@@ -269,10 +261,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
         },
       ]
 
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
-        mixedGroupDeps,
-        ['package.json'],
-      )
+      const multiPackageResult = await analyzeMultiPackageUpdate(mixedGroupDeps, ['package.json'])
 
       // Test that analysis runs successfully and provides meaningful results
       expect(['single', 'grouped', 'multiple']).toContain(
@@ -284,7 +273,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       const axiosDependency = mixedGroupDeps[0] // axios with security flag
       expect(axiosDependency).toBeDefined()
 
-      const securityAnalysis = await securityDetector.analyzeSecurityVulnerabilities(
+      const securityAnalysis = await analyzeSecurityVulnerabilities(
         axiosDependency as RenovateDependency,
       )
 
@@ -315,10 +304,10 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
         },
       ]
 
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
-        cascadingSecurityDeps,
-        ['packages/cli/package.json', 'packages/build-tools/package.json'],
-      )
+      const multiPackageResult = await analyzeMultiPackageUpdate(cascadingSecurityDeps, [
+        'packages/cli/package.json',
+        'packages/build-tools/package.json',
+      ])
 
       // Test that analysis runs successfully
       expect(['single', 'grouped', 'multiple']).toContain(
@@ -330,7 +319,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       const minimistDep = cascadingSecurityDeps[0] // minimist with security flag
       expect(minimistDep).toBeDefined()
 
-      const criticalAnalysis = await securityDetector.analyzeSecurityVulnerabilities(
+      const criticalAnalysis = await analyzeSecurityVulnerabilities(
         minimistDep as RenovateDependency,
       )
 
@@ -359,7 +348,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       const firstMalformedDep = malformedSecurityDep[0]
       expect(firstMalformedDep).toBeDefined()
 
-      const securityAnalysis = await securityDetector.analyzeSecurityVulnerabilities(
+      const securityAnalysis = await analyzeSecurityVulnerabilities(
         firstMalformedDep as RenovateDependency,
       )
 
@@ -371,7 +360,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
     })
 
     it('should handle empty dependency list gracefully', async () => {
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate([], [])
+      const multiPackageResult = await analyzeMultiPackageUpdate([], [])
 
       expect(multiPackageResult.affectedPackages).toHaveLength(0)
       expect(multiPackageResult.impactAnalysis.changesetStrategy).toBe('single')
@@ -414,13 +403,9 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
         },
       ]
 
-      const singleResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(singleUpdate, [
-        'package.json',
-      ])
+      const singleResult = await analyzeMultiPackageUpdate(singleUpdate, ['package.json'])
 
-      const groupedResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(groupedUpdate, [
-        'package.json',
-      ])
+      const groupedResult = await analyzeMultiPackageUpdate(groupedUpdate, ['package.json'])
 
       expect(singleResult.impactAnalysis.changesetStrategy).toBe('single')
       expect(['single', 'grouped', 'multiple']).toContain(
@@ -454,16 +439,15 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
 
       // Analyze both dependencies
       const analyses = await Promise.all(
-        mixedSeverityGroup.map(dep => securityDetector.analyzeSecurityVulnerabilities(dep)),
+        mixedSeverityGroup.map(dep => analyzeSecurityVulnerabilities(dep)),
       )
 
       // Should detect security issues in both
       expect(analyses.every(analysis => analysis.hasSecurityIssues)).toBe(true)
 
-      const multiPackageResult = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
-        mixedSeverityGroup,
-        ['package.json'],
-      )
+      const multiPackageResult = await analyzeMultiPackageUpdate(mixedSeverityGroup, [
+        'package.json',
+      ])
 
       // Should group them together despite different severities
       expect(['single', 'grouped', 'multiple']).toContain(
@@ -519,9 +503,7 @@ describe('Grouped Updates and Security Patches Integration Tests', () => {
       ]
 
       for (const scenario of scenarios) {
-        const result = await multiPackageAnalyzer.analyzeMultiPackageUpdate(scenario.deps, [
-          'package.json',
-        ])
+        const result = await analyzeMultiPackageUpdate(scenario.deps, ['package.json'])
         // Test that analysis completes and returns valid strategy
         expect(['single', 'grouped', 'multiple']).toContain(result.impactAnalysis.changesetStrategy)
       }

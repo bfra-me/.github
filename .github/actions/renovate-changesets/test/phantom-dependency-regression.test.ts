@@ -5,10 +5,9 @@ import {
   extractDependenciesFromPR,
   extractStructuredBodySections,
 } from '../src/parser/renovate-dependency-extractor.js'
-import {RenovateParser} from '../src/renovate-parser.js'
+import {extractPRContext} from '../src/renovate-parser.js'
 import {createMockCommit, createMockPRFile, mockedOctokit} from './setup.js'
 
-const parser = new RenovateParser()
 const octokit = mockedOctokit as unknown as Octokit
 const checkoutPatch =
   '@@ -1 +1 @@\n- uses: actions/checkout@v4.2.1\n+ uses: actions/checkout@v4.2.2'
@@ -50,7 +49,7 @@ async function extractContext(options: {
   body: string
   commits?: {commit: {message: string}}[]
   patch?: string
-}): Promise<Awaited<ReturnType<RenovateParser['extractPRContext']>>> {
+}): Promise<Awaited<ReturnType<typeof extractPRContext>>> {
   mockedOctokit.rest.pulls.listFiles.mockResolvedValue({
     data: [createMockPRFile({filename: '.github/workflows/main.yaml', patch: options.patch})],
   })
@@ -58,7 +57,7 @@ async function extractContext(options: {
     data: options.commits ?? [createMockCommit({commit: {message: options.title}})],
   })
 
-  return parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1770, {
+  return extractPRContext(octokit, 'test-owner', 'test-repo', 1770, {
     title: options.title,
     body: options.body,
     user: {login: 'renovate[bot]'},
@@ -265,7 +264,7 @@ describe('manager preservation through deduplication', () => {
       data: [createMockCommit({commit: {message: 'chore(npm): update dependency react to v19'}})],
     } as any)
 
-    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+    const context = await extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
       title: 'chore(deps): update dependency react to v19',
       user: {login: 'renovate[bot]'},
       head: {ref: 'renovate/react-19.x'},
@@ -296,7 +295,7 @@ describe('phantom filter with partial patch availability', () => {
       data: [createMockCommit({commit: {message: 'chore(npm): update dependency react to v19'}})],
     } as any)
 
-    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+    const context = await extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
       title: 'chore(deps): update dependency react to v19',
       body: 'Updates react from 18 to 19',
       user: {login: 'renovate[bot]'},
@@ -322,7 +321,7 @@ describe('phantom filter with partial patch availability', () => {
       data: [createMockCommit({commit: {message: 'chore(npm): update dependency react to v19'}})],
     } as any)
 
-    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+    const context = await extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
       title: 'chore(deps): update dependency react to v19',
       user: {login: 'renovate[bot]'},
       head: {ref: 'renovate/react-19.x'},
@@ -353,7 +352,7 @@ describe('phantom filter with partial patch availability', () => {
       ],
     } as any)
 
-    const context = await parser.extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
+    const context = await extractPRContext(octokit, 'test-owner', 'test-repo', 1, {
       title: 'chore(deps): update bfra-me/renovate-action to v9',
       body: pr1770Body,
       user: {login: 'renovate[bot]'},

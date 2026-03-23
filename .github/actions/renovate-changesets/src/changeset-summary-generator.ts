@@ -12,107 +12,94 @@ import {
   generateGenericSummary,
   generateWithTemplateEngine,
   interpolateTemplate,
-  type ManagerSummaryFn,
 } from './summaries'
 import {DEFAULT_SUMMARY_CONFIG} from './summary-generator-types'
 
 export type {SummaryGeneratorConfig}
 export {DEFAULT_SUMMARY_CONFIG}
 
-export class ChangesetSummaryGenerator {
-  private config: SummaryGeneratorConfig
-  private templateEngine?: ChangesetTemplateEngine
-  private managerSummaries: Record<string, ManagerSummaryFn>
+interface GenerateChangesetSummaryOptions {
+  config?: Partial<SummaryGeneratorConfig>
+  templateEngine?: ChangesetTemplateEngine
+  template?: string
+}
 
-  constructor(
-    config: Partial<SummaryGeneratorConfig> = {},
-    templateEngine?: ChangesetTemplateEngine,
-  ) {
-    this.config = {...DEFAULT_SUMMARY_CONFIG, ...config}
-    this.templateEngine = templateEngine
-    this.managerSummaries = createManagerSummaries(createSummaryContexts(this.config), this.config)
-  }
+function generateFromTemplate(
+  template: string,
+  pr: RenovatePRContext,
+  impact: ImpactAssessment,
+  cat: CategorizationResult,
+  type: string,
+  deps: string[],
+  config: SummaryGeneratorConfig,
+): string {
+  return interpolateTemplate(template, buildTemplateContext(pr, impact, cat, type, deps, config))
+}
 
-  async generate(
-    pr: RenovatePRContext,
-    impact: ImpactAssessment,
-    cat: CategorizationResult,
-    type: string,
-    deps: string[],
-    template?: string,
-  ): Promise<string> {
-    if (this.templateEngine)
-      return generateWithTemplateEngine(
-        this.templateEngine,
-        pr,
-        impact,
-        cat,
-        type,
-        deps,
-        template,
-        this.generateContextAwareSummary.bind(this),
-        this.buildEnhancedTemplateContext.bind(this),
-      )
-    return template
-      ? this.generateFromTemplate(template, pr, impact, cat, type, deps)
-      : this.generateContextAwareSummary(pr, impact, type, deps)
-  }
+function generateContextAwareSummary(
+  pr: RenovatePRContext,
+  impact: ImpactAssessment,
+  type: string,
+  deps: string[],
+  managerSummaries: ReturnType<typeof createManagerSummaries>,
+  config: SummaryGeneratorConfig,
+): string {
+  return (
+    managerSummaries[pr.manager]?.(pr, impact, deps) ??
+    generateGenericSummary(pr, impact, type, deps, config)
+  )
+}
 
-  async generateSummary(
-    pr: RenovatePRContext,
-    impact: ImpactAssessment,
-    cat: CategorizationResult,
-    type: string,
-    deps: string[],
-    template?: string,
-  ): Promise<string> {
-    return this.generate(pr, impact, cat, type, deps, template)
-  }
+function buildEnhancedTemplateContextForOptions(
+  pr: RenovatePRContext,
+  impact: ImpactAssessment,
+  cat: CategorizationResult,
+  type: string,
+  deps: string[],
+  config: SummaryGeneratorConfig,
+) {
+  return buildEnhancedTemplateContext(pr, impact, cat, type, deps, (p, i, c, t, d) =>
+    buildTemplateContext(p, i, c, t, d, config),
+  )
+}
 
-  private generateFromTemplate(
-    template: string,
-    pr: RenovatePRContext,
-    impact: ImpactAssessment,
-    cat: CategorizationResult,
-    type: string,
-    deps: string[],
-  ): string {
-    return interpolateTemplate(
-      template,
-      buildTemplateContext(pr, impact, cat, type, deps, this.config),
+export async function generateChangesetSummary(
+  pr: RenovatePRContext,
+  impact: ImpactAssessment,
+  cat: CategorizationResult,
+  type: string,
+  deps: string[],
+  options: GenerateChangesetSummaryOptions = {},
+): Promise<string> {
+  const config = {...DEFAULT_SUMMARY_CONFIG, ...(options.config ?? {})}
+  const managerSummaries = createManagerSummaries(createSummaryContexts(config), config)
+
+  if (options.templateEngine != null) {
+    return generateWithTemplateEngine(
+      options.templateEngine,
+      pr,
+      impact,
+      cat,
+      type,
+      deps,
+      options.template,
+      (summaryPr, summaryImpact, summaryType, summaryDeps) =>
+        generateContextAwareSummary(
+          summaryPr,
+          summaryImpact,
+          summaryType,
+          summaryDeps,
+          managerSummaries,
+          config,
+        ),
+      (ctxPr, ctxImpact, ctxCat, ctxType, ctxDeps) =>
+        buildEnhancedTemplateContextForOptions(ctxPr, ctxImpact, ctxCat, ctxType, ctxDeps, config),
     )
   }
 
-  private generateContextAwareSummary(
-    pr: RenovatePRContext,
-    impact: ImpactAssessment,
-    type: string,
-    deps: string[],
-  ): string {
-    return (
-      this.managerSummaries[pr.manager]?.(pr, impact, deps) ??
-      this.generateGenericSummary(pr, impact, type, deps)
-    )
+  if (options.template != null) {
+    return generateFromTemplate(options.template, pr, impact, cat, type, deps, config)
   }
 
-  private buildEnhancedTemplateContext(
-    pr: RenovatePRContext,
-    impact: ImpactAssessment,
-    cat: CategorizationResult,
-    type: string,
-    deps: string[],
-  ) {
-    return buildEnhancedTemplateContext(pr, impact, cat, type, deps, (p, i, c, t, d) =>
-      buildTemplateContext(p, i, c, t, d, this.config),
-    )
-  }
-
-  private generateGenericSummary(
-    pr: RenovatePRContext,
-    impact: ImpactAssessment,
-    type: string,
-    deps: string[],
-  ): string {
-    return generateGenericSummary(pr, impact, type, deps, this.config)
-  }
+  return generateContextAwareSummary(pr, impact, type, deps, managerSummaries, config)
 }

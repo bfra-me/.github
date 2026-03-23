@@ -1,7 +1,7 @@
 import type {Octokit} from '@octokit/rest'
 import {Buffer} from 'node:buffer'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {DockerChangeDetector} from '../src/docker-change-detector.js'
+import {detectDockerChangesFromPR, dockerInternals} from '../src/docker-change-detector.js'
 
 // Mock Octokit
 const createMockOctokit = () => {
@@ -18,11 +18,9 @@ const createMockOctokit = () => {
 }
 
 describe('DockerChangeDetector', () => {
-  let detector: DockerChangeDetector
   let mockOctokit: Octokit
 
   beforeEach(() => {
-    detector = new DockerChangeDetector()
     mockOctokit = createMockOctokit()
     vi.clearAllMocks()
   })
@@ -39,7 +37,7 @@ describe('DockerChangeDetector', () => {
       ]
 
       for (const file of dockerFiles) {
-        expect((detector as any).isDockerFile(file)).toBe(true)
+        expect(dockerInternals.isDockerFile(file)).toBe(true)
       }
     })
 
@@ -54,7 +52,7 @@ describe('DockerChangeDetector', () => {
       ]
 
       for (const file of composeFiles) {
-        expect((detector as any).isDockerFile(file)).toBe(true)
+        expect(dockerInternals.isDockerFile(file)).toBe(true)
       }
     })
 
@@ -69,14 +67,14 @@ describe('DockerChangeDetector', () => {
       ]
 
       for (const file of nonDockerFiles) {
-        expect((detector as any).isDockerFile(file)).toBe(false)
+        expect(dockerInternals.isDockerFile(file)).toBe(false)
       }
     })
   })
 
   describe('parseImageReference', () => {
     it('should parse simple image names', () => {
-      const result = (detector as any).parseImageReference('nginx')
+      const result = dockerInternals.parseImageReference('nginx')
       expect(result).toEqual({
         name: 'nginx',
         tag: 'latest',
@@ -85,7 +83,7 @@ describe('DockerChangeDetector', () => {
     })
 
     it('should parse image with tag', () => {
-      const result = (detector as any).parseImageReference('nginx:1.21')
+      const result = dockerInternals.parseImageReference('nginx:1.21')
       expect(result).toEqual({
         name: 'nginx',
         tag: '1.21',
@@ -94,7 +92,7 @@ describe('DockerChangeDetector', () => {
     })
 
     it('should parse image with registry and namespace', () => {
-      const result = (detector as any).parseImageReference('docker.io/library/nginx:1.21')
+      const result = dockerInternals.parseImageReference('docker.io/library/nginx:1.21')
       expect(result).toEqual({
         registry: 'docker.io',
         namespace: 'library',
@@ -106,7 +104,7 @@ describe('DockerChangeDetector', () => {
 
     it('should parse image with digest', () => {
       const digest = 'sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
-      const result = (detector as any).parseImageReference(`nginx@${digest}`)
+      const result = dockerInternals.parseImageReference(`nginx@${digest}`)
       expect(result).toEqual({
         name: 'nginx',
         tag: digest,
@@ -115,7 +113,7 @@ describe('DockerChangeDetector', () => {
     })
 
     it('should parse custom registry image', () => {
-      const result = (detector as any).parseImageReference('ghcr.io/user/repo:v1.0.0')
+      const result = dockerInternals.parseImageReference('ghcr.io/user/repo:v1.0.0')
       expect(result).toEqual({
         registry: 'ghcr.io',
         namespace: 'user',
@@ -126,7 +124,7 @@ describe('DockerChangeDetector', () => {
     })
 
     it('should handle quoted image references', () => {
-      const result = (detector as any).parseImageReference('"nginx:1.21"')
+      const result = dockerInternals.parseImageReference('"nginx:1.21"')
       expect(result).toEqual({
         name: 'nginx',
         tag: '1.21',
@@ -145,7 +143,7 @@ FROM nginx:1.21 AS webserver
 COPY --from=build /app /usr/share/nginx/html
       `.trim()
 
-      const images = (detector as any).parseDockerfile(dockerfile)
+      const images = dockerInternals.parseDockerfile(dockerfile)
       expect(images).toHaveLength(2)
       expect(images[0]).toMatchObject({
         name: 'node',
@@ -169,7 +167,7 @@ COPY --from=build /app /usr/share/nginx/html
 COPY --from=0 /app /dist
       `.trim()
 
-      const images = (detector as any).parseDockerfile(dockerfile)
+      const images = dockerInternals.parseDockerfile(dockerfile)
       expect(images).toHaveLength(2) // node:18 and nginx:1.21, but not build or 0
       expect(images[0]).toMatchObject({
         name: 'node',
@@ -189,7 +187,7 @@ FROM --platform=linux/amd64 node:18-alpine
 FROM --platform=linux/arm64 nginx:1.21
       `.trim()
 
-      const images = (detector as any).parseDockerfile(dockerfile)
+      const images = dockerInternals.parseDockerfile(dockerfile)
       expect(images).toHaveLength(2)
       expect(images[0]).toMatchObject({
         name: 'node',
@@ -213,7 +211,7 @@ FROM node:18
 FROM nginx:1.21
       `.trim()
 
-      const images = (detector as any).parseDockerfile(dockerfile)
+      const images = dockerInternals.parseDockerfile(dockerfile)
       expect(images).toHaveLength(2)
     })
   })
@@ -236,7 +234,7 @@ services:
       POSTGRES_DB: mydb
       `.trim()
 
-      const images = (detector as any).parseDockerCompose(compose)
+      const images = dockerInternals.parseDockerCompose(compose)
       expect(images).toHaveLength(3)
       expect(images[0]).toMatchObject({
         name: 'nginx',
@@ -267,7 +265,7 @@ services:
     image: redis:7-alpine
       `.trim()
 
-      const images = (detector as any).parseDockerCompose(compose)
+      const images = dockerInternals.parseDockerCompose(compose)
       expect(images).toHaveLength(1)
       expect(images[0]).toMatchObject({
         name: 'redis',
@@ -282,41 +280,41 @@ invalid: yaml: content
   - unclosed: [
       `.trim()
 
-      const images = (detector as any).parseDockerCompose(invalidCompose)
+      const images = dockerInternals.parseDockerCompose(invalidCompose)
       expect(images).toHaveLength(0)
     })
   })
 
   describe('calculateSemverImpact', () => {
     it('should detect major version changes', () => {
-      const impact = (detector as any).calculateSemverImpact('node:16', 'node:18')
+      const impact = dockerInternals.calculateSemverImpact('node:16', 'node:18')
       expect(impact).toBe('major')
     })
 
     it('should detect minor version changes', () => {
-      const impact = (detector as any).calculateSemverImpact('nginx:1.20', 'nginx:1.21')
+      const impact = dockerInternals.calculateSemverImpact('nginx:1.20', 'nginx:1.21')
       expect(impact).toBe('minor')
     })
 
     it('should detect patch version changes', () => {
-      const impact = (detector as any).calculateSemverImpact('nginx:1.21.0', 'nginx:1.21.1')
+      const impact = dockerInternals.calculateSemverImpact('nginx:1.21.0', 'nginx:1.21.1')
       expect(impact).toBe('minor') // Docker tags are parsed differently than pure semver
     })
 
     it('should handle digest updates', () => {
       const oldDigest = 'sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'
       const newDigest = 'sha256:fedcba0987654321fedcba0987654321fedcba0987654321fedcba0987654321'
-      const impact = (detector as any).calculateSemverImpact(oldDigest, newDigest)
+      const impact = dockerInternals.calculateSemverImpact(oldDigest, newDigest)
       expect(impact).toBe('patch')
     })
 
     it('should handle latest tag updates', () => {
-      const impact = (detector as any).calculateSemverImpact('nginx:1.21', 'nginx:latest')
+      const impact = dockerInternals.calculateSemverImpact('nginx:1.21', 'nginx:latest')
       expect(impact).toBe('patch') // Heuristic returns patch for non-semver changes
     })
 
     it('should handle non-semver tags', () => {
-      const impact = (detector as any).calculateSemverImpact('alpine:3.18', 'alpine:3.19')
+      const impact = dockerInternals.calculateSemverImpact('alpine:3.18', 'alpine:3.19')
       expect(impact).toBe('minor')
     })
   })
@@ -338,7 +336,7 @@ invalid: yaml: content
         line: 1,
       }
 
-      const change = (detector as any).createDependencyChange(
+      const change = dockerInternals.createDependencyChange(
         baseImage,
         headImage,
         'Dockerfile',
@@ -372,7 +370,7 @@ invalid: yaml: content
         context: 'FROM',
       }
 
-      const change = (detector as any).createDependencyChange(
+      const change = dockerInternals.createDependencyChange(
         baseImage,
         headImage,
         'Dockerfile',
@@ -396,7 +394,7 @@ invalid: yaml: content
         context: 'service:web',
       }
 
-      const change = (detector as any).createDependencyChange(
+      const change = dockerInternals.createDependencyChange(
         baseImage,
         headImage,
         'docker-compose.yml',
@@ -414,7 +412,7 @@ invalid: yaml: content
         {filename: 'src/index.ts', status: 'modified', additions: 5, deletions: 2},
       ]
 
-      const changes = await detector.detectChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
+      const changes = await detectDockerChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
       expect(changes).toHaveLength(0)
     })
 
@@ -464,7 +462,7 @@ services:
           data: {content: Buffer.from(headCompose).toString('base64')},
         } as any)
 
-      const changes = await detector.detectChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
+      const changes = await detectDockerChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
 
       expect(changes).toHaveLength(2)
       expect(changes[0]).toMatchObject({
@@ -497,7 +495,7 @@ services:
       // Mock file content error
       vi.mocked(mockOctokit.rest.repos.getContent).mockRejectedValue(new Error('File not found'))
 
-      const changes = await detector.detectChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
+      const changes = await detectDockerChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
       expect(changes).toHaveLength(0)
     })
 
@@ -533,7 +531,7 @@ services:
           data: {content: Buffer.from(headContent).toString('base64')},
         } as any)
 
-      const changes = await detector.detectChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
+      const changes = await detectDockerChangesFromPR(mockOctokit, 'owner', 'repo', 123, files)
 
       // Should have 2 changes (one for each file) since they're in different files
       expect(changes).toHaveLength(2)
@@ -547,19 +545,19 @@ services:
       const malformedRefs = ['', '::::', 'image@invalid-digest', 'registry.com/']
 
       for (const ref of malformedRefs) {
-        const result = (detector as any).parseImageReference(ref)
+        const result = dockerInternals.parseImageReference(ref)
         // Should either return null or handle gracefully
         expect(result === null || typeof result === 'object').toBe(true)
       }
     })
 
     it('should handle empty Dockerfile', () => {
-      const images = (detector as any).parseDockerfile('')
+      const images = dockerInternals.parseDockerfile('')
       expect(images).toHaveLength(0)
     })
 
     it('should handle empty docker-compose file', () => {
-      const images = (detector as any).parseDockerCompose('')
+      const images = dockerInternals.parseDockerCompose('')
       expect(images).toHaveLength(0)
     })
 
@@ -570,7 +568,7 @@ services:
     image: nginx:latest
       `.trim()
 
-      const images = (detector as any).parseDockerCompose(compose)
+      const images = dockerInternals.parseDockerCompose(compose)
       expect(images).toHaveLength(1)
     })
   })

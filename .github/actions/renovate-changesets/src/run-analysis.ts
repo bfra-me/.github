@@ -4,9 +4,9 @@ import type {RenovateDependency, RenovatePRContext} from './renovate-parser'
 import type {SemverBumpDecision} from './semver-bump-decision-engine'
 import type {ImpactAssessment} from './semver-impact-assessor'
 import * as core from '@actions/core'
-import {ChangeCategorizationEngine} from './change-categorization-engine'
-import {SemverBumpTypeDecisionEngine} from './semver-bump-decision-engine'
-import {SemverImpactAssessor} from './semver-impact-assessor'
+import {categorizeChanges} from './change-categorization-engine'
+import {decideBumpType} from './semver-bump-decision-engine'
+import {assessImpact} from './semver-impact-assessor'
 import {detectUpdateType, matchesPatterns} from './utils'
 
 export interface RunAnalysis {
@@ -37,7 +37,7 @@ export function analyzeRunContext(
     core.info('No matching update type found, using default')
   }
 
-  const semverAssessor = new SemverImpactAssessor({
+  const impactAssessment = assessImpact(enhancedDependencies, {
     securityMinimumPatch: true,
     majorAsBreaking: true,
     prereleaseAsLowerImpact: true,
@@ -48,7 +48,6 @@ export function analyzeRunContext(
       docker: {defaultImpact: 'patch'},
     },
   })
-  const impactAssessment = semverAssessor.assessImpact(enhancedDependencies)
   core.info(
     `Semver impact assessment: ${JSON.stringify(
       {
@@ -67,7 +66,7 @@ export function analyzeRunContext(
     core.info(`Assessment reasoning: ${impactAssessment.reasoning.join('; ')}`)
   }
 
-  const categorizationEngine = new ChangeCategorizationEngine({
+  const categorizationResult = categorizeChanges(enhancedDependencies, impactAssessment, {
     securityFirst: true,
     majorAsHighPriority: true,
     prereleaseAsLowerPriority: true,
@@ -77,10 +76,6 @@ export function analyzeRunContext(
       npm: {categoryOverrides: {}, riskAdjustment: 1.1},
     },
   })
-  const categorizationResult = categorizationEngine.categorizeChanges(
-    enhancedDependencies,
-    impactAssessment,
-  )
 
   core.info(
     `Change categorization: ${JSON.stringify(
@@ -101,51 +96,52 @@ export function analyzeRunContext(
     core.info(`Categorization reasoning: ${categorizationResult.reasoning.join('; ')}`)
   }
 
-  const decisionEngine = new SemverBumpTypeDecisionEngine({
-    defaultBumpType: config.defaultChangesetType,
-    securityTakesPrecedence: true,
-    breakingChangesAlwaysMajor: true,
-    securityMinimumBumps: {low: 'patch', moderate: 'patch', high: 'minor', critical: 'minor'},
-    managerSpecificRules: {
-      'github-actions': {
-        allowDowngrade: true,
-        maxBumpType: 'patch',
-        defaultBumpType: 'patch',
-        majorAsMinor: false,
+  const bumpDecision = decideBumpType(
+    {
+      semverImpact: impactAssessment,
+      categorization: categorizationResult,
+      renovateContext: prContext,
+      manager: prContext.manager,
+      isGroupedUpdate: prContext.isGroupedUpdate,
+      dependencyCount: enhancedDependencies.length,
+    },
+    {
+      defaultBumpType: config.defaultChangesetType,
+      securityTakesPrecedence: true,
+      breakingChangesAlwaysMajor: true,
+      securityMinimumBumps: {low: 'patch', moderate: 'patch', high: 'minor', critical: 'minor'},
+      managerSpecificRules: {
+        'github-actions': {
+          allowDowngrade: true,
+          maxBumpType: 'patch',
+          defaultBumpType: 'patch',
+          majorAsMinor: false,
+        },
+        docker: {
+          allowDowngrade: true,
+          maxBumpType: 'minor',
+          defaultBumpType: 'patch',
+          majorAsMinor: false,
+        },
+        npm: {
+          allowDowngrade: false,
+          maxBumpType: 'major',
+          defaultBumpType: 'patch',
+          majorAsMinor: false,
+        },
       },
-      docker: {
-        allowDowngrade: true,
-        maxBumpType: 'minor',
-        defaultBumpType: 'patch',
-        majorAsMinor: false,
-      },
-      npm: {
-        allowDowngrade: false,
-        maxBumpType: 'major',
-        defaultBumpType: 'patch',
-        majorAsMinor: false,
+      riskTolerance: {patchMaxRisk: 20, minorMaxRisk: 50, majorRiskThreshold: 80},
+      organizationRules: {
+        conservativeMode: true,
+        preferMinorForMajor: true,
+        groupedUpdateHandling: 'conservative',
+        dependencyPatternRules: [
+          {pattern: /^@types\//, maxBumpType: 'patch'},
+          {pattern: /eslint|prettier|typescript/, maxBumpType: 'patch'},
+        ],
       },
     },
-    riskTolerance: {patchMaxRisk: 20, minorMaxRisk: 50, majorRiskThreshold: 80},
-    organizationRules: {
-      conservativeMode: true,
-      preferMinorForMajor: true,
-      groupedUpdateHandling: 'conservative',
-      dependencyPatternRules: [
-        {pattern: /^@types\//, maxBumpType: 'patch'},
-        {pattern: /eslint|prettier|typescript/, maxBumpType: 'patch'},
-      ],
-    },
-  })
-
-  const bumpDecision = decisionEngine.decideBumpType({
-    semverImpact: impactAssessment,
-    categorization: categorizationResult,
-    renovateContext: prContext,
-    manager: prContext.manager,
-    isGroupedUpdate: prContext.isGroupedUpdate,
-    dependencyCount: enhancedDependencies.length,
-  })
+  )
   core.info(
     `Bump type decision: ${JSON.stringify(
       {

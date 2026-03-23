@@ -6,11 +6,11 @@ import type {RenovateDependency, RenovatePRContext} from './renovate-parser'
 import type {ImpactAssessment} from './semver-impact-assessor'
 import process from 'node:process'
 import * as core from '@actions/core'
-import {ChangesetSummaryGenerator} from './changeset-summary-generator'
+import {generateChangesetSummary} from './changeset-summary-generator'
 import {ChangesetTemplateEngine} from './changeset-template-engine'
 import {writeRenovateChangeset} from './changeset-writer'
-import {MultiPackageAnalyzer} from './multi-package-analyzer'
-import {MultiPackageChangesetGenerator} from './multi-package-changeset-generator'
+import {analyzeMultiPackageUpdate} from './multi-package-analyzer'
+import {generateMultiPackageChangesets} from './multi-package-changeset-generator'
 import {getRootPackageName, resolveDependencyNames} from './run-generation-helpers'
 import {setRunGenerationOutputs} from './run-generation-outputs'
 import {sortChangesetReleases} from './utils'
@@ -38,16 +38,16 @@ export async function generateChangesetsFromAnalysis(params: {
   changesetType: 'patch' | 'minor' | 'major'
 }): Promise<RunGenerationResult> {
   core.info('Analyzing multi-package dependencies and relationships')
-  const multiPackageAnalyzer = new MultiPackageAnalyzer({
-    workspaceRoot: params.workingDirectory,
-    detectWorkspaces: true,
-    analyzeInternalDependencies: true,
-    enforceVersionConsistency: true,
-    maxPackagesToAnalyze: 50,
-  })
-  const multiPackageAnalysis = await multiPackageAnalyzer.analyzeMultiPackageUpdate(
+  const multiPackageAnalysis = await analyzeMultiPackageUpdate(
     params.enhancedDependencies,
     params.changedFiles,
+    {
+      workspaceRoot: params.workingDirectory,
+      detectWorkspaces: true,
+      analyzeInternalDependencies: true,
+      enforceVersionConsistency: true,
+      maxPackagesToAnalyze: 50,
+    },
   )
 
   core.info(
@@ -110,41 +110,41 @@ export async function generateChangesetsFromAnalysis(params: {
       maxRenderTime: 5000,
     },
   })
-  const summaryGenerator = new ChangesetSummaryGenerator(
-    {
-      useEmojis: true,
-      includeVersionDetails: true,
-      includeRiskAssessment: false,
-      includeBreakingChangeWarnings: true,
-      sortDependencies: params.config.sort || false,
-      maxDependenciesToList: 5,
-    },
-    templateEngine,
-  )
-  const changesetContent = await summaryGenerator.generateSummary(
+  const changesetContent = await generateChangesetSummary(
     params.prContext,
     params.impactAssessment,
     params.categorizationResult,
     params.updateType,
     dependencyNames,
-    params.config.updateTypes[params.updateType]?.template,
+    {
+      config: {
+        useEmojis: true,
+        includeVersionDetails: true,
+        includeRiskAssessment: false,
+        includeBreakingChangeWarnings: true,
+        sortDependencies: params.config.sort || false,
+        maxDependenciesToList: 5,
+      },
+      templateEngine,
+      template: params.config.updateTypes[params.updateType]?.template,
+    },
   )
 
-  const generator = new MultiPackageChangesetGenerator({
-    workingDirectory: params.workingDirectory,
-    useOfficialChangesets: true,
-    createSeparateChangesets: multiPackageAnalysis.recommendations.createSeparateChangesets,
-    respectPackageRelationships: true,
-    groupRelatedPackages: true,
-    includeRelationshipInfo: true,
-    maxChangesetsPerPR: 10,
-  })
-  const multiPackageResult = await generator.generateMultiPackageChangesets(
+  const multiPackageResult = await generateMultiPackageChangesets(
     params.enhancedDependencies,
     params.prContext,
     multiPackageAnalysis,
     changesetContent,
     params.changesetType,
+    {
+      workingDirectory: params.workingDirectory,
+      useOfficialChangesets: true,
+      createSeparateChangesets: multiPackageAnalysis.recommendations.createSeparateChangesets,
+      respectPackageRelationships: true,
+      groupRelatedPackages: true,
+      includeRelationshipInfo: true,
+      maxChangesetsPerPR: 10,
+    },
   )
 
   core.info(

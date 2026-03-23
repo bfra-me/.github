@@ -1,18 +1,19 @@
 import type {Config} from '../action-config'
-import type {RenovateParser} from '../renovate-parser'
+import type {BranchPatterns} from '../renovate-parser'
+import {isRenovateBranch} from '../renovate-parser'
 import {matchesPatterns} from './file-pattern-matcher'
 
 export function isValidBranch(
   branchName: string,
   branchPrefix: string,
   skipBranchPrefixCheck: boolean,
-  parser: RenovateParser,
+  branchPatterns: BranchPatterns,
 ): boolean {
   if (skipBranchPrefixCheck) {
     return true
   }
 
-  return parser.isRenovateBranch(branchName) || branchName.startsWith(branchPrefix)
+  return isRenovateBranch(branchName, branchPatterns) || branchName.startsWith(branchPrefix)
 }
 
 export function detectUpdateType(changedFiles: string[], config: Config): string | undefined {

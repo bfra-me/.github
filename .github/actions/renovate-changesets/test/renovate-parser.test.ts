@@ -1,12 +1,51 @@
 import {beforeEach, describe, expect, it} from 'vitest'
-import {RenovateParser, type RenovateManagerType} from '../src/renovate-parser.js'
+import {
+  createBranchPatterns,
+  detectManagerFromFilename,
+  detectManagerFromScope,
+  detectUpdateTypeFromVersions,
+  extractDependenciesFromPR,
+  extractGroupName,
+  extractPRContext,
+  extractSecuritySeverity,
+  getBranchType,
+  getSupportedManagers,
+  isGroupedUpdate,
+  isRenovateBranch,
+  isSecurityUpdate,
+  parseCommitMessage,
+  parseDependenciesFromText,
+  type BranchPatterns,
+  type RenovateManagerType,
+} from '../src/renovate-parser.js'
 import {createMockCommit, createMockPRFile, mockedOctokit} from './setup.js'
 
 describe('RenovateParser', () => {
-  let parser: RenovateParser
+  let branchPatterns: BranchPatterns
+
+  const parser = {
+    isRenovateBranch: (branchName: string): boolean => isRenovateBranch(branchName, branchPatterns),
+    getBranchType: (branchName: string): 'renovate' | 'dependabot' | 'custom' | 'unknown' =>
+      getBranchType(branchName, branchPatterns),
+    parseCommitMessage,
+    parseSemanticCommit: (commitMessage: string) => parseCommitMessage(commitMessage),
+    detectManagerFromScope,
+    extractPRContext,
+    detectManagerFromFilename,
+    extractDependenciesFromPR,
+    parseDependenciesFromText,
+    detectUpdateTypeFromVersions,
+    isSecurityUpdate,
+    isGroupedUpdate,
+    extractGroupName,
+    extractSecuritySeverity,
+    getSupportedManagers,
+    isManagerSupported: (manager: string): manager is RenovateManagerType =>
+      getSupportedManagers().includes(manager as RenovateManagerType),
+  }
 
   beforeEach(() => {
-    parser = new RenovateParser()
+    branchPatterns = createBranchPatterns()
   })
 
   describe('Branch Detection (TASK-007)', () => {
@@ -66,13 +105,13 @@ describe('RenovateParser', () => {
       })
 
       it('should support custom branch patterns', () => {
-        const customParser = new RenovateParser({
+        const customBranchPatterns = createBranchPatterns({
           custom: ['custom/update-*', 'automation/*'],
         })
 
-        expect(customParser.isRenovateBranch('custom/update-deps')).toBe(true)
-        expect(customParser.isRenovateBranch('automation/dependency-bump')).toBe(true)
-        expect(customParser.isRenovateBranch('regular/branch')).toBe(false)
+        expect(isRenovateBranch('custom/update-deps', customBranchPatterns)).toBe(true)
+        expect(isRenovateBranch('automation/dependency-bump', customBranchPatterns)).toBe(true)
+        expect(isRenovateBranch('regular/branch', customBranchPatterns)).toBe(false)
       })
     })
 
@@ -84,11 +123,9 @@ describe('RenovateParser', () => {
       })
 
       it('should handle custom branch patterns', () => {
-        const customParser = new RenovateParser({
-          custom: ['custom/update-*'],
-        })
+        const customBranchPatterns = createBranchPatterns({custom: ['custom/update-*']})
 
-        expect(customParser.getBranchType('custom/update-deps')).toBe('custom')
+        expect(getBranchType('custom/update-deps', customBranchPatterns)).toBe('custom')
       })
     })
   })
@@ -462,12 +499,14 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const testCase of testCases) {
-          // Use reflection to access private method for testing
-          const testResult = (parser as any).parseDependenciesFromText(testCase.text, 'npm')
+          const testResult = parser.parseDependenciesFromText(testCase.text, 'npm')
 
           expect(testResult.length).toBeGreaterThan(0)
-          const dependency = testResult.find((dep: any) => dep.name === testCase.expected.name)
+          const dependency = testResult.find(dep => dep.name === testCase.expected.name)
           expect(dependency).toBeTruthy()
+          if (dependency == null) {
+            return
+          }
           expect(dependency.name).toBe(testCase.expected.name)
           if (testCase.expected.currentVersion) {
             expect(dependency.currentVersion).toBe(testCase.expected.currentVersion)
@@ -478,53 +517,79 @@ Includes security fixes and performance improvements.`
 
       it('should extract dependency when title includes type qualifier before version', () => {
         const text = 'chore(deps): update pnpm/action-setup action to v4.4.0'
-        const result = (parser as any).parseDependenciesFromText(text, 'github-actions')
+        const result = parser.parseDependenciesFromText(text, 'github-actions')
 
         expect(result.length).toBeGreaterThan(0)
-        expect(result[0].name).toBe('pnpm/action-setup')
-        expect(result[0].newVersion).toBe('4.4.0')
+        const first = result[0]
+        expect(first).toBeDefined()
+        if (first == null) {
+          return
+        }
+        expect(first.name).toBe('pnpm/action-setup')
+        expect(first.newVersion).toBe('4.4.0')
       })
 
       it('should extract GitHub Action dependency when title uses major-only target version', () => {
         const text = 'chore(deps): update dorny/paths-filter action to v4'
-        const result = (parser as any).parseDependenciesFromText(text, 'github-actions')
+        const result = parser.parseDependenciesFromText(text, 'github-actions')
 
         expect(result.length).toBeGreaterThan(0)
-        expect(result[0].name).toBe('dorny/paths-filter')
-        expect(result[0].newVersion).toBe('4')
-        expect(result[0].manager).toBe('github-actions')
+        const first = result[0]
+        expect(first).toBeDefined()
+        if (first == null) {
+          return
+        }
+        expect(first.name).toBe('dorny/paths-filter')
+        expect(first.newVersion).toBe('4')
+        expect(first.manager).toBe('github-actions')
       })
 
       it('should detect scoped npm packages', () => {
         const text = 'update dependency @scope/package to v1.0.0'
-        const result = (parser as any).parseDependenciesFromText(text, 'npm')
+        const result = parser.parseDependenciesFromText(text, 'npm')
 
-        expect(result[0].name).toBe('@scope/package')
-        expect(result[0].scope).toBe('scope')
-        expect(result[0].manager).toBe('npm')
+        const first = result[0]
+        expect(first).toBeDefined()
+        if (first == null) {
+          return
+        }
+        expect(first.name).toBe('@scope/package')
+        expect(first.scope).toBe('scope')
+        expect(first.manager).toBe('npm')
       })
 
       it('should detect security updates from text', () => {
         const text = 'update dependency lodash to v4.17.21 [SECURITY]'
-        const result = (parser as any).parseDependenciesFromText(text, 'npm')
+        const result = parser.parseDependenciesFromText(text, 'npm')
 
-        expect(result[0].isSecurityUpdate).toBe(true)
+        const first = result[0]
+        expect(first).toBeDefined()
+        if (first == null) {
+          return
+        }
+
+        expect(first.isSecurityUpdate).toBe(true)
         // Security severity may be null if not explicitly mentioned
-        expect(result[0].securitySeverity).toBeTypeOf('object') // null is typeof 'object'
+        expect(first.securitySeverity).toBeTypeOf('object') // null is typeof 'object'
       })
 
       it('should not flag OpenSSF Scorecard badge URLs as security update', () => {
         const text =
           '| [bfra-me/renovate-action](https://github.com/bfra-me/renovate-action) | action | major | `8.87.9` → `9.0.0` | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/bfra-me/renovate-action/badge)](https://securityscorecards.dev/viewer/?uri=github.com/bfra-me/renovate-action) |'
-        const result = (parser as any).parseDependenciesFromText(text, 'github-actions')
+        const result = parser.parseDependenciesFromText(text, 'github-actions')
 
-        expect(result[0].isSecurityUpdate).toBe(false)
+        const first = result[0]
+        expect(first).toBeDefined()
+        if (first == null) {
+          return
+        }
+        expect(first.isSecurityUpdate).toBe(false)
       })
 
       it('should detect grouped updates', () => {
         const text = 'update dependency group: all non-major dependencies'
         // Note: This tests the grouping logic, actual dependency extraction may vary
-        expect((parser as any).isGroupedUpdate(text)).toBe(true)
+        expect(parser.isGroupedUpdate(text)).toBe(true)
       })
     })
 
@@ -540,7 +605,7 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const testCase of testCases) {
-          const result = (parser as any).detectUpdateTypeFromVersions(testCase.from, testCase.to)
+          const result = parser.detectUpdateTypeFromVersions(testCase.from, testCase.to)
           expect(result).toBe(testCase.expected)
         }
       })
@@ -574,7 +639,7 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const [filename, expectedManager] of testCases) {
-          const result = (parser as any).detectManagerFromFilename(filename)
+          const result = parser.detectManagerFromFilename(filename)
           expect(result).toBe(expectedManager)
         }
       })
@@ -583,7 +648,7 @@ Includes security fixes and performance improvements.`
         const unknownFiles = ['README.md', 'LICENSE', 'src/index.ts', 'unknown.config']
 
         for (const filename of unknownFiles) {
-          const result = (parser as any).detectManagerFromFilename(filename)
+          const result = parser.detectManagerFromFilename(filename)
           expect(result).toBe('unknown')
         }
       })
@@ -604,7 +669,7 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const text of securityTexts) {
-          const result = (parser as any).isSecurityUpdate(text, 'test-package')
+          const result = parser.isSecurityUpdate(text)
           expect(result).toBe(true)
         }
       })
@@ -618,7 +683,7 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const text of regularTexts) {
-          const result = (parser as any).isSecurityUpdate(text, 'test-package')
+          const result = parser.isSecurityUpdate(text)
           expect(result).toBe(false)
         }
       })
@@ -636,7 +701,7 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const text of groupedTexts) {
-          const result = (parser as any).isGroupedUpdate(text)
+          const result = parser.isGroupedUpdate(text)
           expect(result).toBe(true)
         }
       })
@@ -654,7 +719,7 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const testCase of testCases) {
-          const result = (parser as any).extractSecuritySeverity(testCase.text)
+          const result = parser.extractSecuritySeverity(testCase.text)
           expect(result).toBe(testCase.expected)
         }
       })
@@ -669,7 +734,7 @@ Includes security fixes and performance improvements.`
         ]
 
         for (const testCase of testCases) {
-          const result = (parser as any).extractGroupName(testCase.text)
+          const result = parser.extractGroupName(testCase.text)
           expect(result).toBe(testCase.expected)
         }
       })
@@ -738,12 +803,12 @@ Includes security fixes and performance improvements.`
         upgrade react (17.0.0 → 18.0.0)
       `
 
-      const result = (parser as any).parseDependenciesFromText(text, 'npm')
+      const result = parser.parseDependenciesFromText(text, 'npm')
 
       // Check that react appears in the results (implementation may return multiple due to overlapping patterns)
-      const reactDeps = result.filter((dep: any) => dep.name === 'react')
+      const reactDeps = result.filter(dep => dep.name === 'react')
       expect(reactDeps.length).toBeGreaterThan(0)
-      expect(reactDeps[0].name).toBe('react')
+      expect(reactDeps[0]?.name).toBe('react')
     })
   })
 
@@ -757,8 +822,8 @@ Includes security fixes and performance improvements.`
         '| [pnpm](https://pnpm.io) ([source](https://github.com/pnpm/pnpm)) | [`10.32.0` → `10.32.1`](https://renovatebot.com/diffs/npm/pnpm/10.32.0/10.32.1) | ![age](https://img.example.com) | ![confidence](https://img.example.com) |',
       ].join('\n')
 
-      const result = (parser as any).parseDependenciesFromText(renovateBody, 'npm')
-      const depNames = result.map((d: any) => d.name)
+      const result = parser.parseDependenciesFromText(renovateBody, 'npm')
+      const depNames = result.map(d => d.name)
 
       expect(depNames).not.toContain('Age')
       expect(depNames).not.toContain('Confidence')
@@ -774,18 +839,18 @@ Includes security fixes and performance improvements.`
         '| [@types/node](https://npmjs.com) | [`20.0.0` → `22.0.0`](https://diff.url) | ![age](https://img.url) |',
       ].join('\n')
 
-      const result = (parser as any).parseDependenciesFromText(renovateBody, 'npm')
-      const depNames = result.map((d: any) => d.name)
+      const result = parser.parseDependenciesFromText(renovateBody, 'npm')
+      const depNames = result.map(d => d.name)
 
       expect(depNames).not.toContain('Age')
       expect(depNames).toContain('eslint')
       expect(depNames).toContain('@types/node')
 
-      const eslintDep = result.find((d: any) => d.name === 'eslint')
+      const eslintDep = result.find(d => d.name === 'eslint')
       expect(eslintDep?.currentVersion).toBe('8.0.0')
       expect(eslintDep?.newVersion).toBe('9.0.0')
 
-      const nodeTypesDep = result.find((d: any) => d.name === '@types/node')
+      const nodeTypesDep = result.find(d => d.name === '@types/node')
       expect(nodeTypesDep?.currentVersion).toBe('20.0.0')
       expect(nodeTypesDep?.newVersion).toBe('22.0.0')
     })
@@ -797,8 +862,8 @@ Includes security fixes and performance improvements.`
         '| [lodash](https://lodash.com) | [`4.17.20` → `4.17.21`](https://diff) | ![age](img) | ![adoption](img) | ![passing](img) | ![confidence](img) |',
       ].join('\n')
 
-      const result = (parser as any).parseDependenciesFromText(renovateBody, 'npm')
-      const depNames = result.map((d: any) => d.name)
+      const result = parser.parseDependenciesFromText(renovateBody, 'npm')
+      const depNames = result.map(d => d.name)
 
       expect(depNames).not.toContain('Age')
       expect(depNames).not.toContain('Adoption')

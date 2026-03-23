@@ -1,11 +1,7 @@
 import {describe, expect, it} from 'vitest'
-import {GitHubActionsChangeDetector} from '../src/github-actions-change-detector.js'
+import {detectGHAChangesFromFiles, ghaInternals} from '../src/github-actions-change-detector.js'
 
 describe('GitHubActionsChangeDetector', () => {
-  const detector = new GitHubActionsChangeDetector()
-  // Type assertion to access private methods for testing
-  const detectorPrivate = detector as any
-
   describe('file detection', () => {
     it('should identify GitHub Actions workflow files', () => {
       const workflowFiles = [
@@ -23,11 +19,11 @@ describe('GitHubActionsChangeDetector', () => {
       ]
 
       for (const file of workflowFiles) {
-        expect(detectorPrivate.isGitHubActionsFile(file)).toBe(true)
+        expect(ghaInternals.isGitHubActionsFile(file)).toBe(true)
       }
 
       for (const file of nonWorkflowFiles) {
-        expect(detectorPrivate.isGitHubActionsFile(file)).toBe(false)
+        expect(ghaInternals.isGitHubActionsFile(file)).toBe(false)
       }
     })
   })
@@ -68,7 +64,7 @@ describe('GitHubActionsChangeDetector', () => {
       ]
 
       for (const testCase of testCases) {
-        const result = detectorPrivate.parseActionUses(testCase.uses, 'test-step')
+        const result = ghaInternals.parseActionUses(testCase.uses, 'test-step')
         expect(result).toEqual(testCase.expected)
       }
     })
@@ -93,20 +89,20 @@ describe('GitHubActionsChangeDetector', () => {
       ]
 
       for (const testCase of testCases) {
-        const result = detectorPrivate.parseActionUses(testCase.uses, 'test-step')
+        const result = ghaInternals.parseActionUses(testCase.uses, 'test-step')
         expect(result?.name).toBe(testCase.expectedName)
         expect(result?.inlineVersion).toBe(testCase.expectedInlineVersion)
       }
     })
 
     it('should keep standard 2-segment action names unchanged', () => {
-      const result = detectorPrivate.parseActionUses('actions/checkout@v4', 'test-step')
+      const result = ghaInternals.parseActionUses('actions/checkout@v4', 'test-step')
       expect(result?.name).toBe('actions/checkout')
     })
 
     it('should skip local actions', () => {
       const localAction = './local-action'
-      const result = detectorPrivate.parseActionUses(localAction, 'test-step')
+      const result = ghaInternals.parseActionUses(localAction, 'test-step')
       expect(result).toBeNull()
     })
   })
@@ -160,7 +156,7 @@ describe('GitHubActionsChangeDetector', () => {
       ]
 
       for (const testCase of testCases) {
-        const result = detectorPrivate.parseActionVersion(testCase.ref)
+        const result = ghaInternals.parseActionVersion(testCase.ref)
         expect(result).toMatchObject(testCase.expected)
       }
     })
@@ -181,20 +177,20 @@ describe('GitHubActionsChangeDetector', () => {
       ]
 
       for (const testCase of testCases) {
-        const result = detectorPrivate.calculateSemverImpact(testCase.current, testCase.new)
+        const result = ghaInternals.calculateSemverImpact(testCase.current, testCase.new)
         expect(result).toBe(testCase.expected)
       }
     })
 
     it('should handle prerelease changes correctly', () => {
       // Test prerelease changes separately
-      const result = detectorPrivate.calculateSemverImpact('v1.0.0', 'v1.0.0-alpha.1')
+      const result = ghaInternals.calculateSemverImpact('v1.0.0', 'v1.0.0-alpha.1')
       expect(result).toBe('prerelease')
     })
 
     it('should handle branch changes correctly', () => {
       // Test branch changes separately
-      const result = detectorPrivate.calculateSemverImpact('main', 'develop')
+      const result = ghaInternals.calculateSemverImpact('main', 'develop')
       expect(result).toBe('minor')
     })
   })
@@ -211,11 +207,11 @@ describe('GitHubActionsChangeDetector', () => {
       const regularActions = ['actions/checkout', 'actions/setup-node', 'actions/upload-artifact']
 
       for (const action of securityActions) {
-        expect(detectorPrivate.isSecurityRelatedAction(action)).toBe(true)
+        expect(ghaInternals.isSecurityRelatedAction(action)).toBe(true)
       }
 
       for (const action of regularActions) {
-        expect(detectorPrivate.isSecurityRelatedAction(action)).toBe(false)
+        expect(ghaInternals.isSecurityRelatedAction(action)).toBe(false)
       }
     })
   })
@@ -230,11 +226,11 @@ describe('GitHubActionsChangeDetector', () => {
       const regularActions = ['actions/checkout@v5.0.0', 'ossf/scorecard-action@main']
 
       for (const workflow of reusableWorkflows) {
-        expect(detectorPrivate.isReusableWorkflow(workflow)).toBe(true)
+        expect(ghaInternals.isReusableWorkflow(workflow)).toBe(true)
       }
 
       for (const action of regularActions) {
-        expect(detectorPrivate.isReusableWorkflow(action)).toBe(false)
+        expect(ghaInternals.isReusableWorkflow(action)).toBe(false)
       }
     })
   })
@@ -242,7 +238,7 @@ describe('GitHubActionsChangeDetector', () => {
   describe('local file analysis', () => {
     it('should handle local file analysis gracefully', async () => {
       // This test ensures the method exists and doesn't throw
-      const result = await detector.detectChangesFromFiles('/tmp', [])
+      const result = await detectGHAChangesFromFiles('/tmp', [])
       expect(Array.isArray(result)).toBe(true)
       expect(result).toHaveLength(0)
     })

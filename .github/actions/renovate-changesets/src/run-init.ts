@@ -7,7 +7,7 @@ import * as core from '@actions/core'
 import {Octokit as OctokitClient} from '@octokit/rest'
 import {getConfig} from './action-config'
 import {runDetectors} from './detector-runner'
-import {RenovateParser} from './renovate-parser'
+import {createBranchPatterns, extractPRContext} from './renovate-parser'
 import {isValidBranch} from './utils'
 
 interface PullRequestInfo {
@@ -29,7 +29,6 @@ interface ChangedPRFile {
 }
 
 export interface RunInitialization {
-  parser: RenovateParser
   config: Config
   octokit: Octokit
   owner: string
@@ -61,7 +60,7 @@ function hasPullRequest(data: unknown): data is GitHubEventWithPR {
 }
 
 export async function initializeRun(): Promise<RunInitialization | null> {
-  const parser = new RenovateParser()
+  const branchPatterns = createBranchPatterns()
   const repository = process.env.GITHUB_REPOSITORY
   const eventPath = process.env.GITHUB_EVENT_PATH
 
@@ -101,7 +100,7 @@ export async function initializeRun(): Promise<RunInitialization | null> {
       branchName,
       config.branchPrefix || 'renovate/',
       config.skipBranchPrefixCheck || false,
-      parser,
+      branchPatterns,
     )
   ) {
     core.info(
@@ -144,7 +143,7 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   core.info(`Changed files: ${changedFiles.join(', ')}`)
   core.info(`Using config: ${JSON.stringify(config, null, 2)}`)
 
-  const prContext = await parser.extractPRContext(octokit, owner, repo, pr.number, pr)
+  const prContext = await extractPRContext(octokit, owner, repo, pr.number, pr)
   const {enhancedDependencies} = await runDetectors({
     octokit,
     owner,
@@ -170,7 +169,6 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   )
 
   return {
-    parser,
     config,
     octokit,
     owner,

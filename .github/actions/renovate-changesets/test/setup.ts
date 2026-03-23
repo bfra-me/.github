@@ -1,10 +1,162 @@
 import process from 'node:process'
 import {beforeEach, vi} from 'vitest'
 
+type MockFn = ReturnType<typeof vi.fn>
+
+interface GitHubCoreSummaryMocks {
+  addRaw: MockFn
+  addTable: MockFn
+  addDetails: MockFn
+  addCodeBlock: MockFn
+  write: MockFn
+}
+
+interface GitHubCoreMocks {
+  getInput: MockFn
+  getBooleanInput: MockFn
+  getMultilineInput: MockFn
+  info: MockFn
+  warning: MockFn
+  error: MockFn
+  debug: MockFn
+  notice: MockFn
+  setFailed: MockFn
+  setOutput: MockFn
+  exportVariable: MockFn
+  addPath: MockFn
+  group: MockFn
+  saveState: MockFn
+  getState: MockFn
+  startGroup: MockFn
+  endGroup: MockFn
+  summary: GitHubCoreSummaryMocks
+}
+
+interface GitHubContextMock {
+  payload: Record<string, unknown>
+  eventName: string
+  sha: string
+  ref: string
+  workflow: string
+  action: string
+  actor: string
+  job: string
+  runNumber: number
+  runId: number
+  repo: {
+    owner: string
+    repo: string
+  }
+  issue: {
+    owner: string
+    repo: string
+    number: number
+  }
+}
+
+interface GitHubApiMocks {
+  context: GitHubContextMock
+  getOctokit: MockFn
+}
+
+interface GitHubExecMocks {
+  exec: MockFn
+  getExecOutput: MockFn
+}
+
+interface MockedGitHubActions {
+  core: GitHubCoreMocks
+  github: GitHubApiMocks
+  exec: GitHubExecMocks
+}
+
+interface OctokitPullMocks {
+  get: MockFn
+  list: MockFn
+  listFiles: MockFn
+  listCommits: MockFn
+  update: MockFn
+  createReview: MockFn
+  createReviewComment: MockFn
+  dismissReview: MockFn
+}
+
+interface OctokitIssueMocks {
+  get: MockFn
+  list: MockFn
+  createComment: MockFn
+  updateComment: MockFn
+  deleteComment: MockFn
+  listComments: MockFn
+}
+
+interface OctokitRepoMocks {
+  get: MockFn
+  getContent: MockFn
+  createOrUpdateFileContents: MockFn
+  deleteFile: MockFn
+  listCommits: MockFn
+  getCommit: MockFn
+  compareCommits: MockFn
+  getBranch: MockFn
+  listBranches: MockFn
+}
+
+interface OctokitGitMocks {
+  getRef: MockFn
+  createRef: MockFn
+  updateRef: MockFn
+  deleteRef: MockFn
+  getCommit: MockFn
+  createCommit: MockFn
+  getTree: MockFn
+  createTree: MockFn
+  getBlob: MockFn
+  createBlob: MockFn
+}
+
+interface OctokitSearchMocks {
+  issuesAndPullRequests: MockFn
+  commits: MockFn
+  code: MockFn
+}
+
+interface MockedOctokit {
+  rest: {
+    pulls: OctokitPullMocks
+    issues: OctokitIssueMocks
+    repos: OctokitRepoMocks
+    git: OctokitGitMocks
+    search: OctokitSearchMocks
+  }
+  paginate: MockFn
+  graphql: MockFn
+}
+
+interface MockedFileSystem {
+  readFile: MockFn
+  writeFile: MockFn
+  mkdir: MockFn
+  access: MockFn
+  stat: MockFn
+  readdir: MockFn
+  unlink: MockFn
+  rmdir: MockFn
+  exists: MockFn
+}
+
+interface MockedChangesets {
+  write: MockFn
+  parse: MockFn
+  read: MockFn
+  getChangedPackages: MockFn
+  assembleReleasePlan: MockFn
+}
+
 /**
  * Global GitHub Actions environment mocks
  */
-export const mockedGitHubActions = {
+export const mockedGitHubActions: MockedGitHubActions = {
   core: {
     getInput: vi.fn(),
     getBooleanInput: vi.fn(),
@@ -64,7 +216,7 @@ export const mockedGitHubActions = {
 /**
  * Octokit API mocks
  */
-export const mockedOctokit = {
+export const mockedOctokit: MockedOctokit = {
   rest: {
     pulls: {
       get: vi.fn(),
@@ -120,7 +272,7 @@ export const mockedOctokit = {
 /**
  * File system mocks
  */
-export const mockedFileSystem = {
+export const mockedFileSystem: MockedFileSystem = {
   readFile: vi.fn(),
   writeFile: vi.fn(),
   mkdir: vi.fn(),
@@ -135,7 +287,7 @@ export const mockedFileSystem = {
 /**
  * Changesets API mocks
  */
-export const mockedChangesets = {
+export const mockedChangesets: MockedChangesets = {
   write: vi.fn(),
   parse: vi.fn(),
   read: vi.fn(),

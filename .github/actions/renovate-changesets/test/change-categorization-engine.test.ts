@@ -2,7 +2,7 @@ import type {RenovateDependency} from '../src/renovate-parser'
 import type {DependencyImpact, ImpactAssessment} from '../src/semver-impact-assessor'
 
 import {describe, expect, it} from 'vitest'
-import {ChangeCategorizationEngine} from '../src/change-categorization-engine'
+import {categorizeChanges} from '../src/change-categorization-engine'
 
 describe('ChangeCategorizationEngine', () => {
   const createMockDependency = (
@@ -61,7 +61,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('basic categorization', () => {
     it('should categorize patch updates correctly', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [createMockDependency('test-pkg', '1.0.0', '1.0.1')]
       const impacts = [
         createMockImpact('test-pkg', {
@@ -74,7 +73,7 @@ describe('ChangeCategorizationEngine', () => {
         recommendedChangesetType: 'patch',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.primaryCategory).toBe('patch')
       expect(result.allCategories).toEqual(['patch'])
@@ -84,7 +83,6 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should categorize minor updates correctly', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [createMockDependency('test-pkg', '1.0.0', '1.1.0')]
       const impacts = [
         createMockImpact('test-pkg', {
@@ -97,7 +95,7 @@ describe('ChangeCategorizationEngine', () => {
         recommendedChangesetType: 'minor',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.primaryCategory).toBe('minor')
       expect(result.allCategories).toEqual(['minor'])
@@ -106,7 +104,6 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should categorize major updates correctly', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [createMockDependency('test-pkg', '1.0.0', '2.0.0')]
       const impacts = [
         createMockImpact('test-pkg', {
@@ -119,7 +116,7 @@ describe('ChangeCategorizationEngine', () => {
         recommendedChangesetType: 'major',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.primaryCategory).toBe('major')
       expect(result.allCategories).toEqual(['major'])
@@ -133,7 +130,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('security update categorization', () => {
     it('should prioritize security updates over version impact', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('test-pkg', '1.0.0', '1.0.1', {
           isSecurityUpdate: true,
@@ -154,7 +150,7 @@ describe('ChangeCategorizationEngine', () => {
         recommendedChangesetType: 'patch',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.primaryCategory).toBe('security')
       expect(result.allCategories).toEqual(['security'])
@@ -165,7 +161,6 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should handle critical security updates with elevated risk', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('test-pkg', '1.0.0', '1.0.1', {
           isSecurityUpdate: true,
@@ -180,7 +175,7 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts, {isSecurityUpdate: true})
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.riskLevel).toBe('critical')
@@ -189,7 +184,6 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should handle low severity security updates', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('test-pkg', '1.0.0', '1.0.1', {
           isSecurityUpdate: true,
@@ -204,7 +198,7 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts, {isSecurityUpdate: true})
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.riskLevel).toBe('low')
@@ -214,7 +208,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('breaking change detection', () => {
     it('should identify breaking changes and elevate priority', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [createMockDependency('test-pkg', '1.0.0', '2.0.0')]
       const impacts = [
         createMockImpact('test-pkg', {
@@ -229,7 +222,7 @@ describe('ChangeCategorizationEngine', () => {
         recommendedChangesetType: 'major',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.isHighPriority).toBe(true)
@@ -239,7 +232,6 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should handle breaking changes in non-major updates', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [createMockDependency('test-pkg', '1.0.0', '1.1.0')]
       const impacts = [
         createMockImpact('test-pkg', {
@@ -250,7 +242,7 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts, {hasBreakingChanges: true})
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.category).toBe('minor')
@@ -261,7 +253,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('multiple dependencies categorization', () => {
     it('should handle mixed update types with correct prioritization', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('security-pkg', '1.0.0', '1.0.1', {
           isSecurityUpdate: true,
@@ -295,7 +286,7 @@ describe('ChangeCategorizationEngine', () => {
         overallImpact: 'major',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.primaryCategory).toBe('security')
       expect(result.allCategories).toEqual(['security', 'major', 'minor', 'patch'])
@@ -307,7 +298,6 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should calculate correct average risk level', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('low-risk', '1.0.0', '1.0.1'),
         createMockDependency('high-risk', '1.0.0', '2.0.0'),
@@ -318,7 +308,7 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts)
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       // low: 25, high: 75, average: 50
       expect(result.summary.averageRiskLevel).toBe(50)
@@ -327,14 +317,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('manager-specific rules', () => {
     it('should apply GitHub Actions manager rules', () => {
-      const engine = new ChangeCategorizationEngine({
-        managerCategoryRules: {
-          'github-actions': {
-            categoryOverrides: {major: 'minor'},
-            riskAdjustment: 0.8,
-          },
-        },
-      })
       const dependencies = [
         createMockDependency('actions/checkout', '3.0.0', '4.0.0', {
           manager: 'github-actions',
@@ -348,7 +330,14 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts)
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment, {
+        managerCategoryRules: {
+          'github-actions': {
+            categoryOverrides: {major: 'minor'},
+            riskAdjustment: 0.8,
+          },
+        },
+      })
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.category).toBe('minor')
@@ -358,18 +347,17 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should apply risk adjustment factors', () => {
-      const engine = new ChangeCategorizationEngine({
+      const dependencies = [createMockDependency('test-pkg', '1.0.0', '1.1.0', {manager: 'npm'})]
+      const impacts = [createMockImpact('test-pkg', {semverImpact: 'minor'})]
+      const assessment = createMockAssessment(impacts)
+
+      const result = categorizeChanges(dependencies, assessment, {
         managerCategoryRules: {
           npm: {
             riskAdjustment: 2, // Double risk
           },
         },
       })
-      const dependencies = [createMockDependency('test-pkg', '1.0.0', '1.1.0', {manager: 'npm'})]
-      const impacts = [createMockImpact('test-pkg', {semverImpact: 'minor'})]
-      const assessment = createMockAssessment(impacts)
-
-      const result = engine.categorizeChanges(dependencies, assessment)
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.riskLevel).toBe('medium') // Elevated from low
@@ -379,9 +367,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('prerelease handling', () => {
     it('should lower priority for prerelease versions', () => {
-      const engine = new ChangeCategorizationEngine({
-        prereleaseAsLowerPriority: true,
-      })
       const dependencies = [createMockDependency('test-pkg', '1.0.0', '2.0.0-alpha.1')]
       const impacts = [
         createMockImpact('test-pkg', {
@@ -392,7 +377,9 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts)
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment, {
+        prereleaseAsLowerPriority: true,
+      })
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.isHighPriority).toBe(false)
@@ -402,7 +389,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('downgrades handling', () => {
     it('should handle version downgrades correctly', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [createMockDependency('test-pkg', '2.0.0', '1.9.0')]
       const impacts = [
         createMockImpact('test-pkg', {
@@ -414,7 +400,7 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts)
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.confidence).toBe('low') // Lowered due to downgrade
@@ -425,7 +411,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('confidence calculation', () => {
     it('should calculate overall confidence correctly', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('high-conf', '1.0.0', '1.1.0'),
         createMockDependency('medium-conf', '1.0.0', '1.1.0'),
@@ -438,7 +423,7 @@ describe('ChangeCategorizationEngine', () => {
       ]
       const assessment = createMockAssessment(impacts)
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.confidence).toBe('medium') // Average of high, medium, low
     })
@@ -446,7 +431,6 @@ describe('ChangeCategorizationEngine', () => {
 
   describe('edge cases', () => {
     it('should handle empty dependencies list', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies: RenovateDependency[] = []
       const impacts: DependencyImpact[] = []
       const assessment = createMockAssessment(impacts, {
@@ -454,7 +438,7 @@ describe('ChangeCategorizationEngine', () => {
         recommendedChangesetType: 'patch',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.primaryCategory).toBe('patch')
       expect(result.allCategories).toEqual([])
@@ -463,20 +447,18 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should throw error for missing impact assessment', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [createMockDependency('test-pkg', '1.0.0', '1.1.0')]
       const impacts: DependencyImpact[] = [] // Empty impacts for non-empty dependencies
       const assessment = createMockAssessment(impacts)
 
       expect(() => {
-        engine.categorizeChanges(dependencies, assessment)
+        categorizeChanges(dependencies, assessment)
       }).toThrow('No impact assessment found for dependency: test-pkg')
     })
   })
 
   describe('complex scenarios', () => {
     it('should handle security updates with breaking changes', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('security-breaking', '1.0.0', '2.0.0', {
           isSecurityUpdate: true,
@@ -497,7 +479,7 @@ describe('ChangeCategorizationEngine', () => {
         hasBreakingChanges: true,
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       const firstDep = result.dependencies[0]
       expect(firstDep?.category).toBe('security')
@@ -509,7 +491,6 @@ describe('ChangeCategorizationEngine', () => {
     })
 
     it('should recommend appropriate changeset types for mixed scenarios', () => {
-      const engine = new ChangeCategorizationEngine()
       const dependencies = [
         createMockDependency('breaking-pkg', '1.0.0', '2.0.0'),
         createMockDependency('regular-pkg', '1.0.0', '1.1.0'),
@@ -531,7 +512,7 @@ describe('ChangeCategorizationEngine', () => {
         recommendedChangesetType: 'major',
       })
 
-      const result = engine.categorizeChanges(dependencies, assessment)
+      const result = categorizeChanges(dependencies, assessment)
 
       expect(result.recommendedChangesetType).toBe('major')
       expect(result.primaryCategory).toBe('major')

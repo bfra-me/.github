@@ -66,14 +66,14 @@ vi.mock('@changesets/write', () => ({
 
 const renovateParserMocks = vi.hoisted(() => ({
   isRenovateBranch: vi.fn(),
+  createBranchPatterns: vi.fn(),
   extractPRContext: vi.fn(),
 }))
 
 vi.mock('../src/renovate-parser.js', () => ({
-  RenovateParser: class {
-    isRenovateBranch = renovateParserMocks.isRenovateBranch
-    extractPRContext = renovateParserMocks.extractPRContext
-  },
+  isRenovateBranch: renovateParserMocks.isRenovateBranch,
+  createBranchPatterns: renovateParserMocks.createBranchPatterns,
+  extractPRContext: renovateParserMocks.extractPRContext,
 }))
 
 describe('Renovate Changesets Action', () => {
@@ -85,6 +85,11 @@ describe('Renovate Changesets Action', () => {
       return ''
     })
     fsMocks.access.mockResolvedValue(undefined) // Directory exists
+    renovateParserMocks.createBranchPatterns.mockReturnValue({
+      renovate: ['renovate/**'],
+      dependabot: ['dependabot/**'],
+      custom: [],
+    })
     renovateParserMocks.extractPRContext.mockResolvedValue({
       dependencies: [],
       isRenovateBot: true,

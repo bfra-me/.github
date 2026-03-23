@@ -1,7 +1,7 @@
 import type {DecisionFactors} from '../src/semver-bump-decision-engine'
 
 import {describe, expect, it} from 'vitest'
-import {SemverBumpTypeDecisionEngine} from '../src/semver-bump-decision-engine'
+import {decideBumpType} from '../src/semver-bump-decision-engine'
 
 describe('SemverBumpTypeDecisionEngine', () => {
   const createMockFactors = (overrides: Partial<DecisionFactors> = {}): DecisionFactors => ({
@@ -74,10 +74,9 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('basic decision making', () => {
     it('should use categorization recommendation by default', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors()
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.bumpType).toBe('minor')
       expect(result.confidence).toBe('high')
@@ -85,7 +84,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
     })
 
     it('should fall back to semver impact when categorization is unavailable', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors({
         categorization: {
           ...createMockFactors().categorization,
@@ -94,16 +92,13 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.bumpType).toBe('minor')
       expect(result.confidence).toBe('high')
     })
 
     it('should use default bump type when all recommendations are unclear', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        defaultBumpType: 'patch',
-      })
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -117,7 +112,9 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        defaultBumpType: 'patch',
+      })
 
       expect(result.bumpType).toBe('patch')
     })
@@ -125,16 +122,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('security precedence rules', () => {
     it('should prioritize security updates with appropriate bump type', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        securityTakesPrecedence: true,
-        securityMinimumBumps: {
-          low: 'patch',
-          moderate: 'patch',
-          high: 'minor',
-          critical: 'major',
-        },
-      })
-
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -158,17 +145,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
-
-      expect(result.bumpType).toBe('minor') // High security forces minor
-      expect(result.influencingFactors).toContain('security-precedence')
-      expect(result.reasoningChain).toContain(
-        'Security severity: high, minimum bump: minor, result: minor',
-      )
-    })
-
-    it('should handle critical security updates', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
+      const result = decideBumpType(factors, {
         securityTakesPrecedence: true,
         securityMinimumBumps: {
           low: 'patch',
@@ -178,6 +155,14 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
+      expect(result.bumpType).toBe('minor') // High security forces minor
+      expect(result.influencingFactors).toContain('security-precedence')
+      expect(result.reasoningChain).toContain(
+        'Security severity: high, minimum bump: minor, result: minor',
+      )
+    })
+
+    it('should handle critical security updates', () => {
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -201,7 +186,15 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        securityTakesPrecedence: true,
+        securityMinimumBumps: {
+          low: 'patch',
+          moderate: 'patch',
+          high: 'minor',
+          critical: 'major',
+        },
+      })
 
       expect(result.bumpType).toBe('major') // Critical security forces major
     })
@@ -209,10 +202,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('breaking change rules', () => {
     it('should force major bump for breaking changes', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        breakingChangesAlwaysMajor: true,
-      })
-
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -221,7 +210,9 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        breakingChangesAlwaysMajor: true,
+      })
 
       expect(result.bumpType).toBe('major')
       expect(result.influencingFactors).toContain('breaking-changes')
@@ -229,10 +220,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
     })
 
     it('should respect breaking changes always major setting', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        breakingChangesAlwaysMajor: false,
-      })
-
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -241,7 +228,9 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        breakingChangesAlwaysMajor: false,
+      })
 
       expect(result.bumpType).toBe('minor') // Respects the original recommendation
     })
@@ -249,17 +238,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('package manager specific rules', () => {
     it('should cap GitHub Actions updates at patch regardless of semver impact', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        managerSpecificRules: {
-          'github-actions': {
-            allowDowngrade: true,
-            maxBumpType: 'patch',
-            defaultBumpType: 'patch',
-            majorAsMinor: false,
-          },
-        },
-      })
-
       const factors = createMockFactors({
         manager: 'github-actions',
         semverImpact: {
@@ -272,14 +250,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
-
-      expect(result.bumpType).toBe('patch')
-      expect(result.influencingFactors).toContain('manager-rules-github-actions')
-    })
-
-    it('should cap GitHub Actions minor updates at patch', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
+      const result = decideBumpType(factors, {
         managerSpecificRules: {
           'github-actions': {
             allowDowngrade: true,
@@ -290,6 +261,11 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
+      expect(result.bumpType).toBe('patch')
+      expect(result.influencingFactors).toContain('manager-rules-github-actions')
+    })
+
+    it('should cap GitHub Actions minor updates at patch', () => {
       const factors = createMockFactors({
         manager: 'github-actions',
         semverImpact: {
@@ -302,16 +278,10 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
-
-      expect(result.bumpType).toBe('patch')
-    })
-
-    it('should respect max bump type restrictions', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
+      const result = decideBumpType(factors, {
         managerSpecificRules: {
-          docker: {
-            allowDowngrade: false,
+          'github-actions': {
+            allowDowngrade: true,
             maxBumpType: 'patch',
             defaultBumpType: 'patch',
             majorAsMinor: false,
@@ -319,6 +289,10 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
+      expect(result.bumpType).toBe('patch')
+    })
+
+    it('should respect max bump type restrictions', () => {
       const factors = createMockFactors({
         manager: 'docker',
         semverImpact: {
@@ -331,7 +305,16 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        managerSpecificRules: {
+          docker: {
+            allowDowngrade: false,
+            maxBumpType: 'patch',
+            defaultBumpType: 'patch',
+            majorAsMinor: false,
+          },
+        },
+      })
 
       expect(result.bumpType).toBe('patch') // Restricted to max bump type
       expect(result.overriddenRules).toContain(
@@ -342,15 +325,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('organization-specific rules', () => {
     it('should apply conservative mode', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        organizationRules: {
-          conservativeMode: true,
-          preferMinorForMajor: true,
-          groupedUpdateHandling: 'conservative',
-          dependencyPatternRules: [],
-        },
-      })
-
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -362,27 +336,20 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        organizationRules: {
+          conservativeMode: true,
+          preferMinorForMajor: true,
+          groupedUpdateHandling: 'conservative',
+          dependencyPatternRules: [],
+        },
+      })
 
       expect(result.bumpType).toBe('minor') // Conservative mode downgrades major to minor
       expect(result.overriddenRules).toContain('Conservative mode: downgraded major to minor')
     })
 
     it('should apply dependency pattern rules', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        organizationRules: {
-          conservativeMode: false,
-          preferMinorForMajor: false,
-          groupedUpdateHandling: 'highest',
-          dependencyPatternRules: [
-            {
-              pattern: /^@types\//,
-              maxBumpType: 'patch',
-            },
-          ],
-        },
-      })
-
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -409,7 +376,19 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        organizationRules: {
+          conservativeMode: false,
+          preferMinorForMajor: false,
+          groupedUpdateHandling: 'highest',
+          dependencyPatternRules: [
+            {
+              pattern: /^@types\//,
+              maxBumpType: 'patch',
+            },
+          ],
+        },
+      })
 
       expect(result.bumpType).toBe('patch') // Pattern rule restricts @types/* to patch
       expect(result.overriddenRules).toContain(
@@ -420,14 +399,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('risk-based adjustments', () => {
     it('should force major bump for high risk scores', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        riskTolerance: {
-          patchMaxRisk: 20,
-          minorMaxRisk: 50,
-          majorRiskThreshold: 80,
-        },
-      })
-
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -436,14 +407,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
-
-      expect(result.bumpType).toBe('major') // High risk forces major
-      expect(result.influencingFactors).toContain('risk-assessment')
-    })
-
-    it('should upgrade patch to minor for medium risk', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
+      const result = decideBumpType(factors, {
         riskTolerance: {
           patchMaxRisk: 20,
           minorMaxRisk: 50,
@@ -451,6 +415,11 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
+      expect(result.bumpType).toBe('major') // High risk forces major
+      expect(result.influencingFactors).toContain('risk-assessment')
+    })
+
+    it('should upgrade patch to minor for medium risk', () => {
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -459,7 +428,13 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        riskTolerance: {
+          patchMaxRisk: 20,
+          minorMaxRisk: 50,
+          majorRiskThreshold: 80,
+        },
+      })
 
       expect(result.bumpType).toBe('minor') // Risk score exceeds patch threshold
     })
@@ -467,15 +442,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('grouped update logic', () => {
     it('should apply conservative grouped update handling', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        organizationRules: {
-          conservativeMode: false,
-          preferMinorForMajor: false,
-          groupedUpdateHandling: 'conservative',
-          dependencyPatternRules: [],
-        },
-      })
-
       const factors = createMockFactors({
         isGroupedUpdate: true,
         dependencyCount: 5,
@@ -485,22 +451,20 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        organizationRules: {
+          conservativeMode: false,
+          preferMinorForMajor: false,
+          groupedUpdateHandling: 'conservative',
+          dependencyPatternRules: [],
+        },
+      })
 
       expect(result.bumpType).toBe('minor') // Conservative grouped update downgrades major to minor
       expect(result.influencingFactors).toContain('grouped-update')
     })
 
     it('should apply majority grouped update handling', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
-        organizationRules: {
-          conservativeMode: false,
-          preferMinorForMajor: false,
-          groupedUpdateHandling: 'majority',
-          dependencyPatternRules: [],
-        },
-      })
-
       const factors = createMockFactors({
         isGroupedUpdate: true,
         dependencyCount: 5,
@@ -545,7 +509,14 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors, {
+        organizationRules: {
+          conservativeMode: false,
+          preferMinorForMajor: false,
+          groupedUpdateHandling: 'majority',
+          dependencyPatternRules: [],
+        },
+      })
 
       expect(result.bumpType).toBe('patch') // Majority of dependencies are patch
     })
@@ -553,16 +524,14 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('confidence calculation', () => {
     it('should have high confidence for simple cases', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors()
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.confidence).toBe('high')
     })
 
     it('should have lower confidence for complex grouped updates', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors({
         isGroupedUpdate: true,
         dependencyCount: 10,
@@ -572,13 +541,12 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.confidence).toBe('medium')
     })
 
     it('should have low confidence when impact assessment is uncertain', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -586,7 +554,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.confidence).toBe('low')
     })
@@ -594,7 +562,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('risk assessment', () => {
     it('should calculate appropriate risk levels', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -606,7 +573,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
         dependencyCount: 3,
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.riskAssessment.level).toBe('medium')
       expect(result.riskAssessment.factors).toContain('breaking changes detected')
@@ -618,7 +585,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('reasoning and alternatives', () => {
     it('should provide clear reasoning for decisions', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -626,7 +592,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.primaryReason).toContain('security update')
       expect(result.reasoningChain.length).toBeGreaterThan(0)
@@ -634,7 +600,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
     })
 
     it('should generate alternatives when different analyzers disagree', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors({
         semverImpact: {
           ...createMockFactors().semverImpact,
@@ -646,7 +611,7 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.alternatives.length).toBeGreaterThan(0)
       expect(result.alternatives.some(alt => alt.bumpType === 'patch')).toBe(true)
@@ -655,7 +620,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
 
   describe('edge cases', () => {
     it('should handle empty dependencies gracefully', () => {
-      const engine = new SemverBumpTypeDecisionEngine()
       const factors = createMockFactors({
         dependencyCount: 0,
         semverImpact: {
@@ -664,14 +628,23 @@ describe('SemverBumpTypeDecisionEngine', () => {
         },
       })
 
-      const result = engine.decideBumpType(factors)
+      const result = decideBumpType(factors)
 
       expect(result.bumpType).toBe('minor') // Falls back to categorization
       expect(result.confidence).toBeDefined()
     })
 
     it('should handle conflicting rules appropriately', () => {
-      const engine = new SemverBumpTypeDecisionEngine({
+      const factors = createMockFactors({
+        manager: 'github-actions',
+        semverImpact: {
+          ...createMockFactors().semverImpact,
+          hasBreakingChanges: true,
+          recommendedChangesetType: 'major',
+        },
+      })
+
+      const result = decideBumpType(factors, {
         breakingChangesAlwaysMajor: true,
         managerSpecificRules: {
           'github-actions': {
@@ -682,17 +655,6 @@ describe('SemverBumpTypeDecisionEngine', () => {
           },
         },
       })
-
-      const factors = createMockFactors({
-        manager: 'github-actions',
-        semverImpact: {
-          ...createMockFactors().semverImpact,
-          hasBreakingChanges: true,
-          recommendedChangesetType: 'major',
-        },
-      })
-
-      const result = engine.decideBumpType(factors)
 
       // Breaking changes should force major, but manager rule should downgrade it
       expect(result.bumpType).toBe('minor')

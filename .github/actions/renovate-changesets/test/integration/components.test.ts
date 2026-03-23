@@ -1,19 +1,20 @@
 import type {ExecOptions} from '@actions/exec'
+import type {RenovateDependency, RenovatePRContext} from '../../src/renovate-parser.js'
 
 import * as core from '@actions/core'
 import {getExecOutput} from '@actions/exec'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 
 // Import individual components directly from source
-import {ChangeCategorizationEngine} from '../../src/change-categorization-engine.js'
-import {ChangesetSummaryGenerator} from '../../src/changeset-summary-generator.js'
+import {categorizeChanges} from '../../src/change-categorization-engine.js'
+import {generateChangesetSummary} from '../../src/changeset-summary-generator.js'
 import {ChangesetTemplateEngine} from '../../src/changeset-template-engine.js'
-import {MultiPackageAnalyzer} from '../../src/multi-package-analyzer.js'
-import {MultiPackageChangesetGenerator} from '../../src/multi-package-changeset-generator.js'
-import {RenovateParser} from '../../src/renovate-parser.js'
-import {SecurityVulnerabilityDetector} from '../../src/security-vulnerability-detector.js'
-import {SemverBumpTypeDecisionEngine} from '../../src/semver-bump-decision-engine.js'
-import {SemverImpactAssessor} from '../../src/semver-impact-assessor.js'
+import {analyzeMultiPackageUpdate} from '../../src/multi-package-analyzer.js'
+import {generateMultiPackageChangesets} from '../../src/multi-package-changeset-generator.js'
+import {createBranchPatterns, extractPRContext} from '../../src/renovate-parser.js'
+import {analyzeSecurityVulnerabilities} from '../../src/security-vulnerability-detector.js'
+import {decideBumpType} from '../../src/semver-bump-decision-engine.js'
+import {assessImpact} from '../../src/semver-impact-assessor.js'
 
 // Mock all external dependencies
 vi.mock('@actions/core')
@@ -36,26 +37,28 @@ vi.mock('node:path')
 
 describe('Enhanced Renovate-Changesets Action - Real Components Integration', () => {
   let mockOctokit: any
-  let realRenovateParser: RenovateParser
-  let realCategorizationEngine: ChangeCategorizationEngine
-  let realSemverAssessor: SemverImpactAssessor
+
+  const categorizationOptions = {
+    securityFirst: true,
+    majorAsHighPriority: true,
+    prereleaseAsLowerPriority: true,
+  }
+
+  const semverOptions = {
+    securityMinimumPatch: true,
+    majorAsBreaking: true,
+    prereleaseAsLowerImpact: true,
+    defaultChangesetType: 'patch' as const,
+  }
+
+  const bumpDecisionConfig = {
+    defaultBumpType: 'patch' as const,
+    securityTakesPrecedence: true,
+    breakingChangesAlwaysMajor: true,
+  }
 
   beforeEach(() => {
     vi.clearAllMocks()
-
-    // Setup real component instances
-    realRenovateParser = new RenovateParser()
-    realCategorizationEngine = new ChangeCategorizationEngine({
-      securityFirst: true,
-      majorAsHighPriority: true,
-      prereleaseAsLowerPriority: true,
-    })
-    realSemverAssessor = new SemverImpactAssessor({
-      securityMinimumPatch: true,
-      majorAsBreaking: true,
-      prereleaseAsLowerImpact: true,
-      defaultChangesetType: 'patch',
-    })
 
     // Mock external API calls
     mockOctokit = {
@@ -187,9 +190,19 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
     },
   ]
 
+  function getSample(index: number) {
+    const sample = REAL_RENOVATE_SAMPLES[index]
+    if (sample == null) {
+      throw new Error(`Missing sample at index ${index}`)
+    }
+    return sample
+  }
+
   describe('Real Component Integration Tests', () => {
     it('should parse real Renovate PR context using actual RenovateParser', async () => {
-      const sample = REAL_RENOVATE_SAMPLES[0] // @types/node update
+      const sample = getSample(0) // @types/node update
+      const branchPatterns = createBranchPatterns()
+      expect(branchPatterns.renovate.length).toBeGreaterThan(0)
 
       // Mock Octokit responses with manager-specific keywords
       mockOctokit.rest.pulls.get.mockResolvedValue({
@@ -219,18 +232,11 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
       })
 
       // Test real parser functionality
-      const prContext = await realRenovateParser.extractPRContext(
-        mockOctokit,
-        'test-owner',
-        'test-repo',
-        123,
-        {
-          title: sample.title,
-          head: {ref: sample.branchName},
-          user: {login: sample.user},
-          number: 123,
-        },
-      )
+      const prContext = await extractPRContext(mockOctokit, 'test-owner', 'test-repo', 123, {
+        title: sample.title,
+        head: {ref: sample.branchName},
+        user: {login: sample.user},
+      })
 
       expect(prContext.isRenovateBot).toBe(true)
 
@@ -244,11 +250,11 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
 
       // Verify that the parser correctly identified the dependency
       const dependencyNames = prContext.dependencies.map(dep => dep.name)
-      expect(dependencyNames).toEqual(expect.arrayContaining(sample.expectedDependencies))
+      expect(dependencyNames).toEqual(expect.arrayContaining(sample.expectedDependencies ?? []))
     })
 
     it('should perform real semver impact assessment', async () => {
-      const mockDependencies = [
+      const mockDependencies: RenovateDependency[] = [
         {
           name: '@types/node',
           currentVersion: '20.11.4',
@@ -262,18 +268,23 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         },
       ]
 
-      const impactAssessment = realSemverAssessor.assessImpact(mockDependencies)
+      const impactAssessment = assessImpact(mockDependencies, semverOptions)
 
       expect(impactAssessment).toBeDefined()
       expect(impactAssessment.overallImpact).toBe('patch')
       expect(impactAssessment.recommendedChangesetType).toBe('patch')
       expect(impactAssessment.dependencies).toHaveLength(1)
-      expect(impactAssessment.dependencies[0].name).toBe('@types/node')
-      expect(impactAssessment.dependencies[0].semverImpact).toBe('patch')
+      const firstDependency = impactAssessment.dependencies[0]
+      expect(firstDependency).toBeDefined()
+      if (firstDependency == null) {
+        throw new Error('Expected dependency impact to be present')
+      }
+      expect(firstDependency.name).toBe('@types/node')
+      expect(firstDependency.semverImpact).toBe('patch')
     })
 
     it('should perform real change categorization', () => {
-      const mockDependencies = [
+      const mockDependencies: RenovateDependency[] = [
         {
           name: 'eslint',
           currentVersion: '8.55.0',
@@ -287,10 +298,11 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         },
       ]
 
-      const impactAssessment = realSemverAssessor.assessImpact(mockDependencies)
-      const categorizationResult = realCategorizationEngine.categorizeChanges(
+      const impactAssessment = assessImpact(mockDependencies, semverOptions)
+      const categorizationResult = categorizeChanges(
         mockDependencies,
         impactAssessment,
+        categorizationOptions,
       )
 
       expect(categorizationResult).toBeDefined()
@@ -301,7 +313,7 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
     })
 
     it('should handle grouped updates correctly', async () => {
-      const sample = REAL_RENOVATE_SAMPLES[4] // typescript-eslint monorepo update
+      const sample = getSample(4) // typescript-eslint monorepo update
 
       // Mock Octokit responses
       mockOctokit.rest.pulls.get.mockResolvedValue({
@@ -330,18 +342,11 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         ],
       })
 
-      const prContext = await realRenovateParser.extractPRContext(
-        mockOctokit,
-        'test-owner',
-        'test-repo',
-        123,
-        {
-          title: sample.title,
-          head: {ref: sample.branchName},
-          user: {login: sample.user},
-          number: 123,
-        },
-      )
+      const prContext = await extractPRContext(mockOctokit, 'test-owner', 'test-repo', 123, {
+        title: sample.title,
+        head: {ref: sample.branchName},
+        user: {login: sample.user},
+      })
 
       expect(prContext.isGroupedUpdate).toBe(true)
       // Dependencies are now extracted from PR title/body/commit message
@@ -349,10 +354,11 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
       expect(prContext.dependencies.length).toBeGreaterThanOrEqual(0)
 
       // Test categorization with grouped update
-      const impactAssessment = realSemverAssessor.assessImpact(prContext.dependencies)
-      const categorizationResult = realCategorizationEngine.categorizeChanges(
+      const impactAssessment = assessImpact(prContext.dependencies, semverOptions)
+      const categorizationResult = categorizeChanges(
         prContext.dependencies,
         impactAssessment,
+        categorizationOptions,
       )
 
       expect(categorizationResult.primaryCategory).toBeDefined()
@@ -361,7 +367,7 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
     })
 
     it('should handle security updates with appropriate priority', () => {
-      const securityDependencies = [
+      const securityDependencies: RenovateDependency[] = [
         {
           name: 'express',
           currentVersion: '4.18.0',
@@ -375,10 +381,11 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         },
       ]
 
-      const impactAssessment = realSemverAssessor.assessImpact(securityDependencies)
-      const categorizationResult = realCategorizationEngine.categorizeChanges(
+      const impactAssessment = assessImpact(securityDependencies, semverOptions)
+      const categorizationResult = categorizeChanges(
         securityDependencies,
         impactAssessment,
+        categorizationOptions,
       )
 
       // Security updates should be prioritized
@@ -388,7 +395,7 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
     })
 
     it('should handle major version updates with breaking change warnings', () => {
-      const majorUpdateDependencies = [
+      const majorUpdateDependencies: RenovateDependency[] = [
         {
           name: 'react',
           currentVersion: '17.0.2',
@@ -402,10 +409,11 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         },
       ]
 
-      const impactAssessment = realSemverAssessor.assessImpact(majorUpdateDependencies)
-      const categorizationResult = realCategorizationEngine.categorizeChanges(
+      const impactAssessment = assessImpact(majorUpdateDependencies, semverOptions)
+      const categorizationResult = categorizeChanges(
         majorUpdateDependencies,
         impactAssessment,
+        categorizationOptions,
       )
 
       expect(impactAssessment.overallImpact).toBe('major')
@@ -419,18 +427,7 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         errorHandling: 'fallback',
       })
 
-      const summaryGenerator = new ChangesetSummaryGenerator(
-        {
-          useEmojis: true,
-          includeVersionDetails: true,
-          includeBreakingChangeWarnings: true,
-          sortDependencies: false,
-          maxDependenciesToList: 5,
-        },
-        templateEngine,
-      )
-
-      const mockDependencies = [
+      const mockDependencies: RenovateDependency[] = [
         {
           name: '@types/node',
           currentVersion: '20.11.4',
@@ -444,30 +441,43 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         },
       ]
 
-      const impactAssessment = realSemverAssessor.assessImpact(mockDependencies)
-      const categorizationResult = realCategorizationEngine.categorizeChanges(
+      const impactAssessment = assessImpact(mockDependencies, semverOptions)
+      const categorizationResult = categorizeChanges(
         mockDependencies,
         impactAssessment,
+        categorizationOptions,
       )
 
-      const prContext = {
+      const prContext: RenovatePRContext = {
         isRenovateBot: true,
         isGroupedUpdate: false,
         isSecurityUpdate: false,
         manager: 'npm',
         updateType: 'patch',
         dependencies: mockDependencies,
-        title: 'Update dependency @types/node to v20.11.5',
+        prTitle: 'Update dependency @types/node to v20.11.5',
+        prBody: '',
+        commitMessages: ['chore(deps): update dependency @types/node to v20.11.5'],
         branchName: 'renovate/types-node-20.x',
+        files: [{filename: 'package.json', status: 'modified', additions: 1, deletions: 1}],
       }
 
-      const summary = await summaryGenerator.generateSummary(
+      const summary = await generateChangesetSummary(
         prContext,
         impactAssessment,
         categorizationResult,
         'npm',
         ['@types/node'],
-        undefined,
+        {
+          config: {
+            useEmojis: true,
+            includeVersionDetails: true,
+            includeBreakingChangeWarnings: true,
+            sortDependencies: false,
+            maxDependenciesToList: 5,
+          },
+          templateEngine,
+        },
       )
 
       expect(summary).toBeDefined()
@@ -476,34 +486,19 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
     })
 
     it('should create real multi-package analyzer and changeset generator', async () => {
-      const analyzer = new MultiPackageAnalyzer({
+      const analysis = await analyzeMultiPackageUpdate([], [], {
         workspaceRoot: '/tmp/test',
         detectWorkspaces: true,
         analyzeInternalDependencies: true,
       })
 
-      const changesetGenerator = new MultiPackageChangesetGenerator({
-        workingDirectory: '/tmp/test',
-        useOfficialChangesets: true,
-        createSeparateChangesets: false,
-      })
-
-      expect(analyzer).toBeDefined()
-      expect(changesetGenerator).toBeDefined()
-
-      // Verify the components are properly instantiated
-      expect(typeof analyzer.analyzeMultiPackageUpdate).toBe('function')
-      expect(typeof changesetGenerator.generateMultiPackageChangesets).toBe('function')
+      expect(analysis).toBeDefined()
+      expect(typeof analyzeMultiPackageUpdate).toBe('function')
+      expect(typeof generateMultiPackageChangesets).toBe('function')
     })
 
     it('should create real semver bump decision engine', () => {
-      const decisionEngine = new SemverBumpTypeDecisionEngine({
-        defaultBumpType: 'patch',
-        securityTakesPrecedence: true,
-        breakingChangesAlwaysMajor: true,
-      })
-
-      const mockDependencies = [
+      const mockDependencies: RenovateDependency[] = [
         {
           name: 'lodash',
           currentVersion: '4.17.20',
@@ -517,31 +512,38 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         },
       ]
 
-      const impactAssessment = realSemverAssessor.assessImpact(mockDependencies)
-      const categorizationResult = realCategorizationEngine.categorizeChanges(
+      const impactAssessment = assessImpact(mockDependencies, semverOptions)
+      const categorizationResult = categorizeChanges(
         mockDependencies,
         impactAssessment,
+        categorizationOptions,
       )
 
-      const prContext = {
+      const prContext: RenovatePRContext = {
         isRenovateBot: true,
         isGroupedUpdate: false,
         isSecurityUpdate: true,
         manager: 'npm',
         updateType: 'patch',
         dependencies: mockDependencies,
-        title: 'Update dependency lodash to v4.17.21 [SECURITY]',
+        prTitle: 'Update dependency lodash to v4.17.21 [SECURITY]',
+        prBody: '',
+        commitMessages: ['chore(deps): update dependency lodash to v4.17.21 [SECURITY]'],
         branchName: 'renovate/npm-lodash-vulnerability',
+        files: [{filename: 'package.json', status: 'modified', additions: 1, deletions: 1}],
       }
 
-      const bumpDecision = decisionEngine.decideBumpType({
-        semverImpact: impactAssessment,
-        categorization: categorizationResult,
-        renovateContext: prContext,
-        manager: 'npm',
-        isGroupedUpdate: false,
-        dependencyCount: 1,
-      })
+      const bumpDecision = decideBumpType(
+        {
+          semverImpact: impactAssessment,
+          categorization: categorizationResult,
+          renovateContext: prContext,
+          manager: 'npm',
+          isGroupedUpdate: false,
+          dependencyCount: 1,
+        },
+        bumpDecisionConfig,
+      )
 
       expect(bumpDecision).toBeDefined()
       expect(bumpDecision.bumpType).toBeDefined()
@@ -551,19 +553,13 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
     })
 
     it('should create real security vulnerability detector', () => {
-      const securityDetector = new SecurityVulnerabilityDetector()
-
-      expect(securityDetector).toBeDefined()
-      expect(typeof securityDetector.analyzeSecurityVulnerabilities).toBe('function')
-
-      // Verify the detector can be instantiated without errors
-      expect(securityDetector).toBeInstanceOf(SecurityVulnerabilityDetector)
+      expect(typeof analyzeSecurityVulnerabilities).toBe('function')
     })
   })
 
   describe('End-to-End Component Integration', () => {
     it('should integrate all real components in a complete workflow', async () => {
-      const sample = REAL_RENOVATE_SAMPLES[3] // Security update sample
+      const sample = getSample(3) // Security update sample
 
       // Mock Octokit responses with security-specific content
       mockOctokit.rest.pulls.get.mockResolvedValue({
@@ -594,30 +590,24 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
       })
 
       // Step 1: Parse PR context
-      const prContext = await realRenovateParser.extractPRContext(
-        mockOctokit,
-        'test-owner',
-        'test-repo',
-        123,
-        {
-          title: sample.title,
-          head: {ref: sample.branchName},
-          user: {login: sample.user},
-          number: 123,
-        },
-      )
+      const prContext = await extractPRContext(mockOctokit, 'test-owner', 'test-repo', 123, {
+        title: sample.title,
+        head: {ref: sample.branchName},
+        user: {login: sample.user},
+      })
 
       expect(prContext.isRenovateBot).toBe(true)
       expect(prContext.isSecurityUpdate).toBe(true)
 
       // Step 2: Assess semver impact
-      const impactAssessment = realSemverAssessor.assessImpact(prContext.dependencies)
+      const impactAssessment = assessImpact(prContext.dependencies, semverOptions)
       expect(impactAssessment.isSecurityUpdate).toBe(true)
 
       // Step 3: Categorize changes
-      const categorizationResult = realCategorizationEngine.categorizeChanges(
+      const categorizationResult = categorizeChanges(
         prContext.dependencies,
         impactAssessment,
+        categorizationOptions,
       )
       expect(categorizationResult.primaryCategory).toBe('security')
 
@@ -627,22 +617,20 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
         errorHandling: 'fallback',
       })
 
-      const summaryGenerator = new ChangesetSummaryGenerator(
-        {
-          useEmojis: true,
-          includeVersionDetails: true,
-          includeBreakingChangeWarnings: true,
-        },
-        templateEngine,
-      )
-
-      const summary = await summaryGenerator.generateSummary(
+      const summary = await generateChangesetSummary(
         prContext,
         impactAssessment,
         categorizationResult,
         'npm',
         ['eslint'],
-        undefined,
+        {
+          config: {
+            useEmojis: true,
+            includeVersionDetails: true,
+            includeBreakingChangeWarnings: true,
+          },
+          templateEngine,
+        },
       )
 
       expect(summary).toContain('eslint')

@@ -19,17 +19,13 @@ export type {
   SemverBumpDecisionConfig,
 } from './semver/semver-bump-decision-types'
 
-export class SemverBumpTypeDecisionEngine {
-  private config: SemverBumpDecisionConfig
+export function decideBumpType(
+  factors: DecisionFactors,
+  config: Partial<SemverBumpDecisionConfig> = {},
+): SemverBumpDecision {
+  const mergedConfig = mergeSemverBumpDecisionConfig(config)
+  const trace = createDecisionTrace()
+  const bumpType = evaluateBumpRules(factors, mergedConfig, trace)
 
-  constructor(config: Partial<SemverBumpDecisionConfig> = {}) {
-    this.config = mergeSemverBumpDecisionConfig(config)
-  }
-
-  decideBumpType(factors: DecisionFactors): SemverBumpDecision {
-    const trace = createDecisionTrace()
-    const bumpType = evaluateBumpRules(factors, this.config, trace)
-
-    return aggregateBumpDecision(factors, bumpType, trace)
-  }
+  return aggregateBumpDecision(factors, bumpType, trace)
 }

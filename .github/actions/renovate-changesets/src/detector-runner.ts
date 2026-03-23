@@ -2,14 +2,14 @@ import type {Octokit} from '@octokit/rest'
 import type {RenovatePRContext} from './renovate-parser'
 import process from 'node:process'
 import * as core from '@actions/core'
-import {BreakingChangeDetector} from './breaking-change-detector'
-import {DockerChangeDetector} from './docker-change-detector'
-import {GitHubActionsChangeDetector} from './github-actions-change-detector'
-import {GoChangeDetector} from './go-change-detector'
-import {JVMChangeDetector} from './jvm-change-detector'
-import {NPMChangeDetector} from './npm-change-detector'
-import {PythonChangeDetector} from './python-change-detector'
-import {SecurityVulnerabilityDetector} from './security-vulnerability-detector'
+import {analyzeBreakingChanges} from './breaking-change-detector'
+import {detectDockerChangesFromPR} from './docker-change-detector'
+import {detectGHAChangesFromPR} from './github-actions-change-detector'
+import {detectGoChangesFromPR} from './go-change-detector'
+import {detectJVMChangesFromPR} from './jvm-change-detector'
+import {detectNPMChangesFromPR} from './npm-change-detector'
+import {detectPythonChangesFromPR} from './python-change-detector'
+import {analyzeSecurityVulnerabilities} from './security-vulnerability-detector'
 
 interface ChangedPRFile {
   filename: string
@@ -25,9 +25,23 @@ export interface DetectorRunnerParams {
   files: ChangedPRFile[]
   prContext: RenovatePRContext
 }
+
+type DetectFromPR = (
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  prNumber: number,
+  files: ChangedPRFile[],
+) => Promise<unknown[]>
+
 function toRenovateDep(
   change: unknown,
-  config: {versionField: string; newVersionField: string; packageFileField: string},
+  config: {
+    versionField: string
+    newVersionField: string
+    packageFileField: string
+    detect: DetectFromPR
+  },
 ): RenovatePRContext['dependencies'][number] {
   const dep = change as Record<string, unknown>
   const rawCurrent = dep[config.versionField] as string | undefined
@@ -54,18 +68,12 @@ export async function runDetectors({
   files,
   prContext,
 }: DetectorRunnerParams): Promise<{enhancedDependencies: RenovatePRContext['dependencies']}> {
-  const npmDetector = new NPMChangeDetector()
-  const actionsDetector = new GitHubActionsChangeDetector()
-  const dockerDetector = new DockerChangeDetector()
-  const pythonDetector = new PythonChangeDetector()
-  const jvmDetector = new JVMChangeDetector()
-  const goDetector = new GoChangeDetector()
   let enhancedDependencies = prContext.dependencies
   const detectorConfigs = [
     {
       label: 'NPM',
       managers: ['npm', 'pnpm', 'yarn', 'lockfile'],
-      detector: npmDetector,
+      detect: detectNPMChangesFromPR,
       versionField: 'currentVersion',
       newVersionField: 'newVersion',
       packageFileField: 'packageFile',
@@ -73,7 +81,7 @@ export async function runDetectors({
     {
       label: 'GitHub Actions',
       managers: ['github-actions'],
-      detector: actionsDetector,
+      detect: detectGHAChangesFromPR,
       versionField: 'currentRef',
       newVersionField: 'newRef',
       packageFileField: 'workflowFile',
@@ -81,7 +89,7 @@ export async function runDetectors({
     {
       label: 'Docker',
       managers: ['docker', 'dockerfile', 'docker-compose'],
-      detector: dockerDetector,
+      detect: detectDockerChangesFromPR,
       versionField: 'currentTag',
       newVersionField: 'newTag',
       packageFileField: 'dockerFile',
@@ -89,7 +97,7 @@ export async function runDetectors({
     {
       label: 'Python',
       managers: ['pip', 'pipenv', 'poetry', 'setuptools', 'pip-compile', 'pip_setup'],
-      detector: pythonDetector,
+      detect: detectPythonChangesFromPR,
       versionField: 'currentVersion',
       newVersionField: 'newVersion',
       packageFileField: 'packageFile',
@@ -97,7 +105,7 @@ export async function runDetectors({
     {
       label: 'JVM',
       managers: ['gradle', 'maven', 'gradle-wrapper', 'sbt'],
-      detector: jvmDetector,
+      detect: detectJVMChangesFromPR,
       versionField: 'currentVersion',
       newVersionField: 'newVersion',
       packageFileField: 'buildFile',
@@ -105,7 +113,7 @@ export async function runDetectors({
     {
       label: 'Go',
       managers: ['gomod', 'go', 'golang'],
-      detector: goDetector,
+      detect: detectGoChangesFromPR,
       versionField: 'currentVersion',
       newVersionField: 'newVersion',
       packageFileField: 'modFile',
@@ -124,13 +132,7 @@ export async function runDetectors({
       `Detected ${config.label.toLowerCase()} update, using enhanced ${config.label.toLowerCase()} change detector`,
     )
     try {
-      const changes = await config.detector.detectChangesFromPR(
-        octokit,
-        owner,
-        repo,
-        prNumber,
-        files,
-      )
+      const changes = await config.detect(octokit, owner, repo, prNumber, files)
       if (changes != null && changes.length > 0) {
         core.info(`${config.label} change detector found ${changes.length} dependency changes`)
         const converted = changes.map(change => toRenovateDep(change, config))
@@ -165,25 +167,21 @@ export async function runDetectors({
     }
   }
   core.info('Running enhanced breaking change detection and security vulnerability analysis')
-  const breakingChangeDetector = new BreakingChangeDetector()
-  const securityDetector = new SecurityVulnerabilityDetector()
   for (const dependency of enhancedDependencies) {
     try {
       if (!process.env.VITEST && process.env.NODE_ENV !== 'test') {
-        const breakingAnalysis = await breakingChangeDetector.analyzeBreakingChanges(
-          dependency,
+        const breakingAnalysis = await analyzeBreakingChanges(dependency, {
           octokit,
           owner,
           repo,
           prNumber,
-        )
-        const securityAnalysis = await securityDetector.analyzeSecurityVulnerabilities(
-          dependency,
-          octokit,
+        })
+        const securityAnalysis = await analyzeSecurityVulnerabilities(dependency, {
+          prContentOrOctokit: octokit,
           owner,
           repo,
           prNumber,
-        )
+        })
         if (breakingAnalysis.hasBreakingChanges) {
           core.warning(
             `Breaking changes detected for ${dependency.name}: ${breakingAnalysis.overallSeverity} severity, ${breakingAnalysis.indicators.length} indicators`,

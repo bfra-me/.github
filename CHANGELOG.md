@@ -1,5 +1,30 @@
 # @bfra.me/.github
 
+## 4.13.7
+### Patch Changes
+
+
+- Force flatted to 3.4.2 to fix prototype pollution vulnerability (CVE-2026-33228) ([#1859](https://github.com/bfra-me/.github/pull/1859))
+  
+  This addresses a HIGH severity security vulnerability in flatted <=3.4.1
+  discovered via Dependabot alert #39. The vulnerability allows prototype
+  pollution via the parse() function in NodeJS.
+  
+  Since flatted is a transitive dependency of eslint via flat-cache and
+  file-entry-cache, we add a pnpm override to ensure the patched version
+  is used throughout the dependency tree.
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.10.0` to `9.10.1` ([#1868](https://github.com/bfra-me/.github/pull/1868))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.31.1` to `v0.31.2` ([#1863](https://github.com/bfra-me/.github/pull/1863))
+
+
+- 📦 Update npm dependency `eslint` from `10.0.3` to `10.1.0` ([#1869](https://github.com/bfra-me/.github/pull/1869))
+
+
+- 📦 Update npm dependency `pnpm` ([#1867](https://github.com/bfra-me/.github/pull/1867))
+
 ## 4.13.6
 ### Patch Changes
 

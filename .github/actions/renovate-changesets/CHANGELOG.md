@@ -1,5 +1,19 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.27
+### Patch Changes
+
+
+- Refactor single-use classes into plain exported functions ([#1865](https://github.com/bfra-me/.github/pull/1865))
+  
+  Replace 16 classes that existed only to instantiate and call a single method
+  with plain functions accepting an optional config parameter. Large modules
+  (>200 LOC) split into sub-module directories (impact/, categorization/,
+  multi-package/, multi-package-gen/, detectors/gha-*, detectors/go-*,
+  detectors/breaking-change-*). RenovateParser facade removed in favor of
+  barrel re-exports from parser/. ChangesetTemplateEngine, GroupedPRManager,
+  and GitOperations retained as classes (multiple public methods / complex state).
+
 ## 0.2.26
 ### Patch Changes
 

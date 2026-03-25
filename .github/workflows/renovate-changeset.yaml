@@ -52,6 +52,7 @@ jobs:
         with:
           repository: bfra-me/.github
           ref: ${{ github.workflow_sha }}
+          token: ${{ steps.get-workflow-access-token.outputs.token }}
           path: .bfra-me-github
           sparse-checkout: .github/actions/renovate-changesets
 

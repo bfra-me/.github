@@ -47,9 +47,17 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-workflow-access-token.outputs.token }}
 
+      - name: Checkout action (self-checkout at workflow SHA)
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: bfra-me/.github
+          ref: ${{ github.workflow_sha }}
+          path: .bfra-me-github
+          sparse-checkout: .github/actions/renovate-changesets
+
       - id: renovate-changesets
         name: 🖌️ Generate Renovate changesets
-        uses: bfra-me/.github/.github/actions/renovate-changesets@da61f98c46e041e72fcce741fd76cd14dedd4459 # 0.2.27
+        uses: ./.bfra-me-github/.github/actions/renovate-changesets
         with:
           token: ${{ steps.get-workflow-access-token.outputs.token }}
           commit-back: 'true'

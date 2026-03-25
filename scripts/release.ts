@@ -268,28 +268,6 @@ interface WorkflowPinMapping {
 
 const WORKFLOW_PIN_MAPPINGS: WorkflowPinMapping[] = [
   {
-    packageName: 'renovate-changesets',
-    files: [
-      {
-        path: '.github/workflows/renovate-changeset.yaml',
-        pattern:
-          /(uses:\s*bfra-me\/\.github\/\.github\/actions\/renovate-changesets@)[a-f0-9]+(\s+#\s*)[\w.]+/g,
-        versionPrefix: '',
-      },
-    ],
-  },
-  {
-    packageName: 'update-repository-settings',
-    files: [
-      {
-        path: '.github/workflows/update-repo-settings.yaml',
-        pattern:
-          /(uses:\s*bfra-me\/\.github\/\.github\/actions\/update-repository-settings@)[a-f0-9]+(\s+#\s*)[\w.]+/g,
-        versionPrefix: '',
-      },
-    ],
-  },
-  {
     packageName: '@bfra.me/.github',
     files: [
       {

@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.28
+### Patch Changes
+
+
+- Update action runtime from Node.js 20 to Node.js 24. ([#1891](https://github.com/bfra-me/.github/pull/1891))
+
 ## 0.2.27
 ### Patch Changes
 

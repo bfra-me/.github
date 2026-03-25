@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.14.0
+### Minor Changes
+
+
+- Replace hardcoded SHA pins for internal actions in reusable workflows with self-checkout at `github.workflow_sha`. Actions now always match the workflow version — no timing gap, no recursive release cycle, no separate "update internal action SHA pins" automation needed for action packages. ([#1889](https://github.com/bfra-me/.github/pull/1889))
+
 ## 4.13.9
 ### Patch Changes
 

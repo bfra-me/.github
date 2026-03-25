@@ -17,15 +17,17 @@ Read `AGENTS.md` at the repo root for project structure, conventions, commands, 
 
 ### Changesets Are Manual
 
-Create `.changeset/{name}.md` by hand. Do NOT run `pnpm changeset` CLI — it produces inconsistent format.
+Create `.changeset/{name}.md` by hand. Do NOT run `pnpm changeset` CLI — it produces inconsistent format. Target the **closest package** being changed:
 
 ```markdown
 ---
-"@bfra.me/.github": patch
+"update-repository-settings": patch
 ---
 
 Description of what changed
 ```
+
+Workspace packages: `renovate-changesets`, `update-metadata`, `update-repository-settings`. Only use `"@bfra.me/.github"` for root-level changes (reusable workflows, scripts, repo config).
 
 ### ESM Only
 

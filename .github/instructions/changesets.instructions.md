@@ -1,6 +1,6 @@
 ---
-description: 'Guidelines for using Changesets (pnpm changeset) to manage versioning and changelogs.'
-applyTo: '.changeset/*.md,**/package.json'
+description: "Guidelines for using Changesets (pnpm changeset) to manage versioning and changelogs."
+applyTo: ".changeset/*.md,**/package.json"
 ---
 
 # Changeset Management Guidelines
@@ -22,11 +22,46 @@ applyTo: '.changeset/*.md,**/package.json'
 
    ```markdown
    ---
-   "@package-name": patch|minor|major
+   "package-name": patch|minor|major
    ---
 
    Description of changes
    ```
+
+### Package Scoping (CRITICAL)
+
+Always target the **closest package** being changed. This monorepo has these workspace packages:
+
+| Package name                 | Location                                        |
+| ---------------------------- | ----------------------------------------------- |
+| `renovate-changesets`        | `.github/actions/renovate-changesets/`          |
+| `update-metadata`            | `.github/actions/update-metadata/`              |
+| `update-repository-settings` | `.github/actions/update-repository-settings/`   |
+| `@bfra.me/.github`           | Root — reusable workflows, scripts, repo config |
+
+**Examples:**
+
+```markdown
+# Fixing a bug in the update-repository-settings action:
+
+---
+
+## "update-repository-settings": patch
+
+# Adding a feature to renovate-changesets:
+
+---
+
+## "renovate-changesets": minor
+
+# Changing a reusable workflow or root-level script:
+
+---
+
+## "@bfra.me/.github": patch
+```
+
+Only use `"@bfra.me/.github"` when the change is to root-level files (reusable workflows, scripts, repo config) — NOT for changes inside `.github/actions/*/`.
 
 ### Version Bump Guidelines
 
@@ -173,26 +208,30 @@ For significant changes, consider using this expanded template in your changeset
 
 ```markdown
 ---
-"@package-name": minor
+"package-name": minor
 ---
 
 Add new JWT authentication support to API endpoints
 
 ## Primary Change
+
 - Implement JWT authentication for all API endpoints
 - Add token validation middleware
 
 ## Secondary Changes
+
 - Update user model to support token storage
 - Modify authorization logic in access control layer
 - Add token refresh endpoint
 
 ## Migration Required
-Users will need to update their authentication code to use tokens instead of basic auth.
-See the migration guide at docs/migrations/auth-to-jwt.md
+
+Users will need to update their authentication code to use tokens instead of basic auth. See the migration guide at docs/migrations/auth-to-jwt.md
 
 ## Configuration Changes
+
 New environment variables required:
+
 - JWT_SECRET
 - TOKEN_EXPIRY_TIME
 ```

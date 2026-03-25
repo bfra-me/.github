@@ -49,6 +49,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 
 - **Actions pinned to commit SHAs** — never floating tags (`@main`, `@v1`)
 - **Changesets created manually** — `DO NOT` use `pnpm changeset` CLI (creates inconsistent format)
+- **Changesets scoped to closest package** — target the package being changed (`renovate-changesets`, `update-metadata`, `update-repository-settings`). Only use `@bfra.me/.github` for root-level changes (reusable workflows, scripts, repo config)
 - **ESM only** — `"type": "module"` everywhere, `import`/`export` syntax
 - **Shared configs** — `@bfra.me/eslint-config`, `@bfra.me/prettier-config`, `@bfra.me/tsconfig`
 - **GitHub App auth** — `bfra-me[bot]` via `actions/create-github-app-token` for automated workflows

@@ -47,11 +47,15 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-workflow-access-token.outputs.token }}
 
-      - name: Checkout action (self-checkout at workflow SHA)
+      - id: workflow-ref
+        name: Resolve workflow ref
+        run: echo "ref=${GITHUB_WORKFLOW_REF##*@}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout action
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: bfra-me/.github
-          ref: ${{ github.workflow_sha }}
+          ref: ${{ steps.workflow-ref.outputs.ref }}
           token: ${{ steps.get-workflow-access-token.outputs.token }}
           path: .bfra-me-github
           sparse-checkout: .github/actions/renovate-changesets

@@ -1,5 +1,11 @@
 # update-repository-settings
 
+## 0.1.6
+### Patch Changes
+
+
+- Update action runtime from Node.js 20 to Node.js 24. ([#1891](https://github.com/bfra-me/.github/pull/1891))
+
 ## 0.1.5
 ### Patch Changes
 

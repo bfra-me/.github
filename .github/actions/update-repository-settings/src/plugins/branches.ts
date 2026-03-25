@@ -56,10 +56,9 @@ export async function branchesPlugin(
       }
     }
 
-    const mergedProtection = cleanupMergedProtection(
-      deepMerge(currentProtection, protection),
-      isOrganization,
-    )
+    const merged = deepMerge(currentProtection, protection)
+    resolveStatusCheckConflict(merged, protection)
+    const mergedProtection = cleanupMergedProtection(merged, isOrganization)
 
     await octokit.rest.repos.updateBranchProtection({
       owner,
@@ -150,6 +149,40 @@ export function cleanupMergedProtection(
   }
 
   return result
+}
+
+/**
+ * `checks` and `contexts` are mutually exclusive in the PUT endpoint.
+ * After deep-merging the GET response with the config, both may be present
+ * because the GET response includes `checks` while the config specifies
+ * `contexts` (or vice versa). Remove whichever field the config does NOT
+ * specify so the user's intent is preserved.
+ */
+function resolveStatusCheckConflict(
+  merged: Record<string, unknown>,
+  config: Record<string, unknown>,
+): void {
+  const mergedRsc = merged.required_status_checks
+  const configRsc = config.required_status_checks
+  if (
+    mergedRsc == null ||
+    typeof mergedRsc !== 'object' ||
+    Array.isArray(mergedRsc) ||
+    configRsc == null ||
+    typeof configRsc !== 'object' ||
+    Array.isArray(configRsc)
+  ) {
+    return
+  }
+
+  const m = mergedRsc as Record<string, unknown>
+  const c = configRsc as Record<string, unknown>
+
+  if ('contexts' in c && 'checks' in m) {
+    delete m.checks
+  } else if ('checks' in c && 'contexts' in m) {
+    delete m.contexts
+  }
 }
 
 function extractEnabled(value: unknown): boolean | unknown {

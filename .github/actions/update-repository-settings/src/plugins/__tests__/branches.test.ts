@@ -181,11 +181,46 @@ describe('branchesPlugin', () => {
     expect(call.allow_force_pushes).toBe(false)
 
     const rsc = call.required_status_checks as Record<string, unknown>
-    expect(rsc).not.toHaveProperty('contexts')
-    expect(rsc.checks).toEqual([
-      {context: 'Renovate', app_id: 15368},
-      {context: 'Release', app_id: 15368},
+    expect(rsc).not.toHaveProperty('checks')
+    expect(rsc.contexts).toEqual([])
+  })
+
+  it('config contexts override existing checks from GET response', async () => {
+    mockGetBranchProtection.mockResolvedValueOnce({
+      data: {
+        required_status_checks: {
+          strict: true,
+          contexts: ['Build Node.js', 'Build Python'],
+          checks: [
+            {context: 'Build Node.js', app_id: 15368},
+            {context: 'Build Python', app_id: 15368},
+          ],
+        },
+      },
+    })
+
+    await branchesPlugin(createOctokit(), 'bfra-me', 'repo', [
+      {
+        name: 'main',
+        protection: {
+          required_status_checks: {
+            strict: true,
+            contexts: ['Fro Bot', 'Build Node.js', 'Build Python', 'Renovate / Renovate'],
+          },
+        },
+      },
     ])
+
+    const call = mockUpdateBranchProtection.mock.calls[0]?.[0] as Record<string, unknown>
+    const rsc = call.required_status_checks as Record<string, unknown>
+    expect(rsc).not.toHaveProperty('checks')
+    expect(rsc.contexts).toEqual([
+      'Fro Bot',
+      'Build Node.js',
+      'Build Python',
+      'Renovate / Renovate',
+    ])
+    expect(rsc.strict).toBe(true)
   })
 
   it('passes through required_status_checks.contexts unchanged', async () => {

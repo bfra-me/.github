@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.14.1
+### Patch Changes
+
+
+- Pass GitHub App token to self-checkout steps in reusable workflows for cross-repo access when called via `workflow_call`. ([#1893](https://github.com/bfra-me/.github/pull/1893))
+
 ## 4.14.0
 ### Minor Changes
 

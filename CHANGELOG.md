@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.14.2
+### Patch Changes
+
+
+- Fix self-checkout in reusable workflows: use `GITHUB_WORKFLOW_REF` to resolve the correct ref instead of `github.workflow_sha`, which resolves to the caller's SHA during `workflow_call`. ([#1897](https://github.com/bfra-me/.github/pull/1897))
+
 ## 4.14.1
 ### Patch Changes
 

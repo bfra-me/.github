@@ -1,5 +1,23 @@
 # @bfra.me/.github
 
+## 4.14.4
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.23.0` to `9.24.0` ([#1924](https://github.com/bfra-me/.github/pull/1924))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.34.0` to `v0.34.1` ([#1928](https://github.com/bfra-me/.github/pull/1928))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#1929](https://github.com/bfra-me/.github/pull/1929))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.32.3` to `v0.33.0` ([#1926](https://github.com/bfra-me/.github/pull/1926))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.33.0` to `v0.34.0` ([#1927](https://github.com/bfra-me/.github/pull/1927))
+
 ## 4.14.3
 ### Patch Changes
 

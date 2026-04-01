@@ -1,5 +1,35 @@
 # @bfra.me/.github
 
+## 4.14.5
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.25.1` to `9.26.0` ([#1939](https://github.com/bfra-me/.github/pull/1939))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.24.0` to `9.25.0` ([#1935](https://github.com/bfra-me/.github/pull/1935))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.25.0` to `9.25.1` ([#1937](https://github.com/bfra-me/.github/pull/1937))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.26.0` to `9.27.0` ([#1944](https://github.com/bfra-me/.github/pull/1944))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fossas/fossa-action` from `v1.8.0` to `v1.9.0` ([#1943](https://github.com/bfra-me/.github/pull/1943))
+
+
+- 📦 Update npm dependency `pnpm` ([#1936](https://github.com/bfra-me/.github/pull/1936))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.35.0` to `v0.36.0` ([#1941](https://github.com/bfra-me/.github/pull/1941))
+
+
+- 📋 Update dependency `bfra-me/renovate-config` from `5.2.0` to `5.2.1` ([#1946](https://github.com/bfra-me/.github/pull/1946))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.34.1` to `v0.35.0` ([#1932](https://github.com/bfra-me/.github/pull/1932))
+
 ## 4.14.4
 ### Patch Changes
 

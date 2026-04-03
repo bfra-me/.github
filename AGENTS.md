@@ -1,6 +1,7 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-03-20 **Branch:** main
+**Generated:** 2026-04-03
+**Branch:** main
 
 ## OVERVIEW
 
@@ -12,17 +13,18 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 ./
 ├── .github/
 │   ├── actions/
-│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (125 src files)
+│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (~130 src files)
 │   │   ├── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
-│   │   └── update-repository-settings/ # Action for updating repository settings (26 src files)
-│   ├── workflows/                 # 17 workflows: CI/CD, Fro Bot agent, Copilot setup
+│   │   └── update-repository-settings/ # Plugin-based action: syncs repo settings from YAML config (34 files)
+│   ├── workflows/                 # 17 workflows: CI/CD, Fro Bot agent, Copilot setup, security scanning
 │   ├── instructions/              # Dev guidelines consumed by AI assistants and code review
 │   └── settings.yml               # Repo settings via Repository Settings App
 ├── workflow-templates/            # Org-wide workflow templates (with .properties.json metadata)
 ├── scripts/                       # TypeScript utilities (tsx): release, build perf, workspace validation
-├── docs/workflows/                # Workflow documentation and troubleshooting
+├── docs/
+│   ├── workflows/                 # Workflow documentation and troubleshooting
+│   └── solutions/                 # Solved-problem documentation (learnings, patterns)
 ├── metadata/                      # Renovate config shared across org repos
-├── .ai/plan/                      # AI implementation plans (not code)
 ├── common-settings.yaml           # Org-wide repo settings and labels
 └── profile/                       # GitHub org profile README
 ```
@@ -41,7 +43,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 | Add/edit automation script | `scripts/` | Use `#!/usr/bin/env tsx`. Follow existing patterns |
 | Change org-wide Renovate config | `metadata/renovate.yaml` | Inherited by all org repos |
 | Change THIS repo's Renovate config | `.github/renovate.json5` | Extends bfra-me/renovate-config |
-| Edit repo settings | `.github/settings.yml` + `common-settings.yaml` | Applied by elstudio/actions-settings |
+| Edit repo settings | `.github/settings.yml` + `common-settings.yaml` | Applied by update-repository-settings action |
 | Add dev guidelines | `.github/instructions/` | `*.instructions.md` format |
 | Release | `scripts/release.ts` | Multi-package tagging: private=`v{ver}`, public=`{name}@{ver}` |
 
@@ -55,8 +57,9 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 - **GitHub App auth** — `bfra-me[bot]` via `actions/create-github-app-token` for automated workflows
 - **120 char line limit** — enforced via `.editorconfig`
 - **2-space indent** — for TS/JS/JSON/YAML/Markdown
-- **Vitest exclusively** — no Jest. Coverage thresholds: 80% statements/branches/functions/lines
+- **Vitest exclusively** — no Jest. Coverage thresholds: 80% statements/functions/lines, 75% branches
 - **Workspace scripts via tsx** — `#!/usr/bin/env tsx`, function-based, typed with interfaces
+- **Self-checkout pattern** — reusable workflows that call internal actions use `GITHUB_WORKFLOW_REF` to resolve the correct ref for cross-repo checkout (not `github.workflow_sha`, which resolves to the caller's SHA)
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
@@ -67,6 +70,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 - `contexts` in branch protection — deprecated, use `checks` instead
 - Cancelling Renovate jobs that push to main
 - `@ts-ignore` / `as any` — strict TypeScript enforced
+- `github.workflow_sha` for cross-repo checkout — resolves to caller's SHA in `workflow_call`; use `GITHUB_WORKFLOW_REF` instead
 
 ## COMMANDS
 
@@ -88,9 +92,11 @@ pnpm run build:monitor            # Build performance analysis
 - `dist/` directories are committed for actions (GitHub requires pre-built JS)
 - Root `tsconfig.json` uses `noEmit: true` — type-checking only. Actions have own build configs
 - HACK in `scripts/release.ts`: monorepo root tagged as `{name}@{ver}` format (workaround)
+- All actions use Node.js 24 runtime (`using: node24` in action manifests)
 
 - `.github/instructions/` files are consumed by AI tools, not by build system
-- `pnpm` override: `jiti` pinned to `<2.7.0` due to compatibility issue
+- `pnpm` overrides: `jiti` pinned to `<2.7.0` (compatibility), `undici@<6.23.0` forced to `>=6.23.0`
 - Fro Bot uses `FRO_BOT_PAT` + `OPENCODE_AUTH_JSON` secrets (separate from `bfra-me[bot]` app)
 - Fro Bot org autoheal runs weekdays; repo autoheal runs daily; oversight report runs daily
 - `copilot-instructions.md` references AGENTS.md — keep both in sync
+- Reusable workflows resolve action code via self-checkout at `GITHUB_WORKFLOW_REF` — no hardcoded SHA pins needed for internal actions

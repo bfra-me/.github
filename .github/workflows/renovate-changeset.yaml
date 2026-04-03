@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     if: >-
       (github.repository == 'bfra-me/.github' || github.event_name == 'workflow_call') &&
-      (github.actor == 'bfra-me[bot]' || github.actor == 'renovate[bot]') &&
+      endsWith(github.actor, '[bot]') &&
       !startsWith(github.head_ref, 'chore/update-action-pins-')
     steps:
       - id: get-workflow-access-token

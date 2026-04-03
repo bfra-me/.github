@@ -1,5 +1,34 @@
 # @bfra.me/.github
 
+## 4.14.6
+### Patch Changes
+
+
+- Update AGENTS.md to reflect current file structure ([#1918](https://github.com/bfra-me/.github/pull/1918))
+  
+  - Correct `renovate-changesets` src file count from 96 to 125
+  - Add missing files to `renovate-changesets/AGENTS.md` structure listing:
+    action-config.ts, action-outputs.ts, changeset-info-formatter.ts,
+    changeset-writer.ts, run-generation-helpers.ts, run-generation-outputs.ts,
+    pr-comment-creator.ts, pr-description-updater.ts, summary-generator-types.ts,
+    and utils/ directory
+  - Add missing test files to listing: setup.ts, extract-dependencies-from-title.test.ts,
+    phantom-dependency-regression.test.ts
+
+- Broaden bot actor filter in `renovate-changeset` workflow to accept any GitHub App bot, not just `bfra-me[bot]` and `renovate[bot]`. ([#1956](https://github.com/bfra-me/.github/pull/1956))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.28.0` to `9.29.0` ([#1954](https://github.com/bfra-me/.github/pull/1954))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.27.0` to `9.28.0` ([#1949](https://github.com/bfra-me/.github/pull/1949))
+
+
+- 📦 Update npm dependency `minimatch` from `10.2.4` to `10.2.5` ([#1953](https://github.com/bfra-me/.github/pull/1953))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.36.0` to `v0.36.1` ([#1951](https://github.com/bfra-me/.github/pull/1951))
+
 ## 4.14.5
 ### Patch Changes
 

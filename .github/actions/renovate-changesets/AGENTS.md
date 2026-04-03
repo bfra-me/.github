@@ -7,11 +7,17 @@ Auto-generates changeset files for Renovate dependency update PRs. Supports GitH
 ```
 src/
 ├── index.ts                          # Entry point — delegates to run()
+├── action-config.ts                  # Action input configuration parsing
+├── action-outputs.ts                 # Action output types and helpers
 ├── run.ts                            # Main orchestrator — init → analysis → generation → PR ops
 ├── run-init.ts                       # PR validation, config loading, Renovate context extraction
 ├── run-analysis.ts                   # Semver impact, categorization, bump decision pipeline
 ├── run-generation.ts                 # Changeset content generation and multi-package handling
+├── run-generation-helpers.ts         # Helper utilities for changeset generation
+├── run-generation-outputs.ts         # Output formatting for generation step
 ├── run-pr.ts                         # Post-generation PR operations (comments, labels)
+├── pr-comment-creator.ts             # Creates PR comments with changeset summaries
+├── pr-description-updater.ts         # Updates PR description with changeset info
 │
 ├── renovate-parser.ts                # Barrel re-export of parser/ functions (no class)
 ├── parser/                           # Renovate PR metadata parsing (title, body, labels, branches)
@@ -26,9 +32,12 @@ src/
 ├── categorization/                   # Categorization sub-modules (dependency, risk, aggregation)
 │
 ├── changeset-summary-generator.ts    # generateChangesetSummary() function — human-readable descriptions
+├── summary-generator-types.ts        # Type definitions for summary generation
 ├── summaries/                        # Summary generation sub-modules (templates, context, formatters)
 │
 ├── changeset-template-engine.ts      # ChangesetTemplateEngine class — renders .md from templates
+├── changeset-info-formatter.ts       # Formats changeset metadata for display
+├── changeset-writer.ts               # Writes changeset files to disk
 ├── changeset-deduplicator.ts         # deduplicateChangesets() function — prevents duplicate changesets
 ├── deduplicator/                     # Deduplication sub-modules
 │
@@ -60,14 +69,17 @@ src/
 ├── python-change-detector.ts        # detectPythonChangesFromPR() function
 ├── go-change-detector.ts            # detectGoChangesFromPR() function
 ├── detectors/go-*.ts                # Go sub-modules (change analyzer, parser, types, version)
-└── jvm-change-detector.ts           # detectJVMChangesFromPR() function
+├── jvm-change-detector.ts           # detectJVMChangesFromPR() function
+└── utils/                           # Shared utility functions (branch validator, title parser, file matcher)
 
 test/
+├── setup.ts                         # Vitest global test setup
 ├── index.test.ts                    # Main integration test with full mocking
 ├── integration/
 │   ├── end-to-end.test.ts           # Full action simulation
 │   └── components.test.ts           # Component interaction tests
 ├── renovate-parser.test.ts
+├── extract-dependencies-from-title.test.ts
 ├── changeset-summary-generator.test.ts
 ├── semver-bump-decision-engine.test.ts
 ├── semver-impact-assessor.test.ts
@@ -77,7 +89,8 @@ test/
 ├── docker-change-detector.test.ts
 ├── github-actions-change-detector.test.ts
 ├── multi-package-analyzer.test.ts
-└── grouped-updates-security-patches.test.ts
+├── grouped-updates-security-patches.test.ts
+└── phantom-dependency-regression.test.ts
 ```
 
 ## WHERE TO LOOK

@@ -12,7 +12,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 ./
 ├── .github/
 │   ├── actions/
-│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (96 src files)
+│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (125 src files)
 │   │   ├── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
 │   │   └── update-repository-settings/ # Action for updating repository settings (26 src files)
 │   ├── workflows/                 # 17 workflows: CI/CD, Fro Bot agent, Copilot setup

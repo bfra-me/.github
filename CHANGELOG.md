@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.14.7
+### Patch Changes
+
+
+- Remove job-level permissions from renovate-changeset reusable workflow to fix `startup_failure` when callers set restrictive workflow-level permissions. ([#1962](https://github.com/bfra-me/.github/pull/1962))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.36.1` to `v0.36.2` ([#1964](https://github.com/bfra-me/.github/pull/1964))
+
 ## 4.14.6
 ### Patch Changes
 

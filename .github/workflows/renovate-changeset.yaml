@@ -19,9 +19,6 @@ permissions:
 jobs:
   create-changeset:
     name: Create Renovate Changeset
-    permissions:
-      contents: write
-      pull-requests: write
     runs-on: ubuntu-latest
     if: >-
       (github.repository == 'bfra-me/.github' || github.event_name == 'workflow_call') &&

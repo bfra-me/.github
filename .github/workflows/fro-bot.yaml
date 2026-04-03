@@ -235,7 +235,7 @@ env:
 
     OUTPUT FORMAT — PERPETUAL ISSUE
     After completing all work, find the open issue titled
-    "Daily Autohealing Report — Perpetual". If it exists, prepend
+    "Daily Autohealing Report". If it exists, prepend
     today's update to the top of the issue body. If not, create it
     and add today's update as the first entry.
 
@@ -258,7 +258,7 @@ env:
     ### Tasks for Copilot
     - [ ] Assigned task
 
-    ## Daily Autohealing Report — YYYY-MM-DD (UTC)
+    ### Daily Autohealing Report — YYYY-MM-DD (UTC)
 
     ### Errored PRs
     | PR | Failure | Fix | Status |

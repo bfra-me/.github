@@ -196,7 +196,7 @@ env:
     OUTPUT FORMAT — PERPETUAL ISSUE
     ═══════════════════════════════════════════════════════════════════
     After completing all work, find the open issue titled
-    "Org Autohealing Report — Perpetual" in bfra-me/.github. If it exists,
+    "Org Autohealing Report" in bfra-me/.github. If it exists,
     prepend today's update to the top of the issue body. If not, create it
     and add today's update as the first entry.
 
@@ -204,8 +204,6 @@ env:
     not emit an empty table — write "None." directly under that heading.
 
     ## Update — YYYY-MM-DD (UTC)
-
-    **Repos scanned:** N | **Target:** [all / specific-repo]
 
     **Repos scanned:** N | **Target:** [all / specific-repo]
 

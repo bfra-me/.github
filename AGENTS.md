@@ -97,6 +97,6 @@ pnpm run build:monitor            # Build performance analysis
 - `pnpm` overrides: `jiti` pinned to `<2.7.0` (compatibility), `undici@<6.23.0` forced to `>=6.23.0`
 - Fro Bot uses `FRO_BOT_PAT` + `OPENCODE_AUTH_JSON` secrets (separate from `bfra-me[bot]` app)
 - Fro Bot org autoheal runs weekdays; repo autoheal runs daily; oversight report runs daily
-- Fro Bot uses perpetual issues for reports: Daily Autohealing Report (one issue, updated daily) and Org Autohealing Report (one issue, updated weekdays)
+- Fro Bot uses perpetual issues for reports: Daily Autohealing Report and Org Autohealing Report (each report type has one issue that is updated daily/weekday)
 - `copilot-instructions.md` references AGENTS.md — keep both in sync
 - Reusable workflows resolve action code via self-checkout at `GITHUB_WORKFLOW_REF` — no hardcoded SHA pins needed for internal actions

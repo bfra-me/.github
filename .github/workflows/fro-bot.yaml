@@ -233,15 +233,32 @@ env:
     - YAML extension: .yaml, not .yml
     - 120 char line limit, 2-space indent
 
-    OUTPUT FORMAT — SINGLE SUMMARY ISSUE
-    After completing all work, find an existing open issue titled
-    "Daily Autohealing Report — YYYY-MM-DD" (using today's UTC date).
-    If it exists, update its body. If not, create it.
+    OUTPUT FORMAT — PERPETUAL ISSUE
+    After completing all work, find the open issue titled
+    "Daily Autohealing Report". If it exists, prepend
+    today's update to the top of the issue body. If not, create it
+    and add today's update as the first entry.
 
-    The issue body MUST use this structure. If a section has no rows, do
+    Each daily update MUST use this structure. If a section has no rows, do
     not emit an empty table — write "None." directly under that heading.
 
-    ## Daily Autohealing Report — YYYY-MM-DD (UTC)
+    ## Update — YYYY-MM-DD (UTC)
+
+    ### Summary
+    | Category | Status | Actions |
+    |---------|--------|---------|
+    | ERRORED PRs | ✅/⚠️/❌ | description |
+    | SECURITY | ✅/⚠️/❌ | description |
+    | HEALTH & MAINTENANCE | ✅/⚠️/❌ | description |
+    | DEVELOPER EXPERIENCE | ✅/⚠️/❌ | description |
+
+    ### Tasks for Fro Bot
+    - [ ] Automated task
+
+    ### Tasks for Copilot
+    - [ ] Assigned task
+
+    ### Daily Autohealing Report — YYYY-MM-DD (UTC)
 
     ### Errored PRs
     | PR | Failure | Fix | Status |
@@ -276,7 +293,7 @@ env:
     - [items that could not be auto-fixed, with context]
 
     Do NOT create multiple issues. Do NOT comment on individual issues.
-    Produce exactly one summary issue per run.
+    Update the single perpetual issue by prepending the daily update.
 
 jobs:
   fro-bot:

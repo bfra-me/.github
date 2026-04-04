@@ -12,9 +12,9 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 ./
 ├── .github/
 │   ├── actions/
-│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (~130 src files)
+│   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (125 src files)
 │   │   ├── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
-│   │   └── update-repository-settings/ # Plugin-based action: syncs repo settings from YAML config (34 files)
+│   │   └── update-repository-settings/ # Plugin-based action: syncs repo settings from YAML config (39 files)
 │   ├── workflows/                 # 17 workflows: CI/CD, Fro Bot agent, Copilot setup, security scanning
 │   ├── instructions/              # Dev guidelines consumed by AI assistants and code review
 │   └── settings.yml               # Repo settings via Repository Settings App
@@ -33,7 +33,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 | Task | Location | Notes |
 | --- | --- | --- |
 | Add/edit CI workflow | `.github/workflows/` | Pin actions to SHA. Use `bfra-me[bot]` app auth |
-| Fro Bot agent config | `.github/workflows/fro-bot*.yaml` | Main + repo autoheal + org autoheal. Prompts in env vars |
+| Fro Bot agent config | `.github/workflows/fro-bot*.yaml` | Main + org autoheal workflows. Prompts in env vars |
 | Copilot coding agent | `.github/workflows/copilot-setup-steps.yaml` | Setup steps for Copilot agent. Instructions in `copilot-instructions.md` |
 | Create org workflow template | `workflow-templates/` | Requires matching `.properties.json` |
 | Modify renovate-changesets action | `.github/actions/renovate-changesets/` | Has own AGENTS.md. Build with `pnpm build` |

@@ -1,3 +1,4 @@
+import {Buffer} from 'node:buffer'
 import {describe, expect, it} from 'vitest'
 import {detectNPMChangesFromFiles, detectNPMChangesFromPR} from '../src/npm-change-detector'
 import {mockedFileSystem, mockedOctokit} from './setup'
@@ -36,7 +37,7 @@ describe('NPMChangeDetector', () => {
 
       const files = [{filename: 'package.json', status: 'modified', additions: 1, deletions: 1}]
 
-      const result = await detectNPMChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
+      await detectNPMChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(mockedOctokit.rest.pulls.get).toHaveBeenCalledWith({
         owner: 'owner',
@@ -90,9 +91,7 @@ describe('NPMChangeDetector', () => {
         data: {content: Buffer.from('lockfileVersion: 6.0').toString('base64')},
       })
 
-      const files = [
-        {filename: 'pnpm-lock.yaml', status: 'modified', additions: 1, deletions: 1},
-      ]
+      const files = [{filename: 'pnpm-lock.yaml', status: 'modified', additions: 1, deletions: 1}]
 
       await detectNPMChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
@@ -148,7 +147,7 @@ describe('NPMChangeDetector', () => {
         JSON.stringify({dependencies: {lodash: '4.17.21'}}),
       )
 
-      const result = await detectNPMChangesFromFiles('/workspace', ['package.json'])
+      await detectNPMChangesFromFiles('/workspace', ['package.json'])
 
       expect(mockedFileSystem.readFile).toHaveBeenCalled()
     })
@@ -162,9 +161,7 @@ describe('NPMChangeDetector', () => {
     })
 
     it('should detect package.json in subdirectory', async () => {
-      mockedFileSystem.readFile.mockResolvedValue(
-        JSON.stringify({dependencies: {react: '18.0.0'}}),
-      )
+      mockedFileSystem.readFile.mockResolvedValue(JSON.stringify({dependencies: {react: '18.0.0'}}))
 
       await detectNPMChangesFromFiles('/workspace', ['packages/app/package.json'])
 

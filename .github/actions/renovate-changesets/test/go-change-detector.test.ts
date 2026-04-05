@@ -1,10 +1,10 @@
-import type {GoModDependencyChange} from '../src/go-change-detector'
-import {describe, expect, it, vi} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {detectGoChangesFromPR} from '../src/go-change-detector'
 import {mockedOctokit} from './setup'
 
 describe('GoChangeDetector', () => {
-  const createMockOctokit = () => mockedOctokit as unknown as Parameters<typeof detectGoChangesFromPR>[0]
+  const createMockOctokit = () =>
+    mockedOctokit as unknown as Parameters<typeof detectGoChangesFromPR>[0]
 
   describe('detectGoChangesFromPR', () => {
     it('should return empty array when no go.mod files', async () => {
@@ -137,13 +137,9 @@ go 1.21
         data: {files: [{filename: 'go.mod', patch}]},
       })
 
-      const result = await detectGoChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        [{filename: 'go.mod', status: 'modified', additions: 1, deletions: 1}],
-      )
+      const result = await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, [
+        {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
+      ])
 
       expect(result[0].updateType).toBe('major')
       expect(result[0].semverImpact).toBe('major')
@@ -158,13 +154,9 @@ go 1.21
         data: {files: [{filename: 'go.mod', patch}]},
       })
 
-      const result = await detectGoChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        [{filename: 'go.mod', status: 'modified', additions: 1, deletions: 1}],
-      )
+      const result = await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, [
+        {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
+      ])
 
       expect(result[0].updateType).toBe('minor')
       expect(result[0].semverImpact).toBe('minor')
@@ -179,13 +171,9 @@ go 1.21
         data: {files: [{filename: 'go.mod', patch}]},
       })
 
-      const result = await detectGoChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        [{filename: 'go.mod', status: 'modified', additions: 1, deletions: 1}],
-      )
+      const result = await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, [
+        {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
+      ])
 
       expect(result[0].updateType).toBe('patch')
       expect(result[0].semverImpact).toBe('patch')
@@ -200,27 +188,21 @@ go 1.21
         data: {files: [{filename: 'go.mod', patch}]},
       })
 
-      const result = await detectGoChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        [{filename: 'go.mod', status: 'modified', additions: 1, deletions: 1}],
-      )
+      const result = await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, [
+        {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
+      ])
 
       expect(result[0].isIndirect).toBe(true)
     })
 
     it('should handle go.mod files in subdirectories', async () => {
-      const files = [
-        {filename: 'subdir/go.mod', status: 'modified', additions: 1, deletions: 1},
-      ]
+      const files = [{filename: 'subdir/go.mod', status: 'modified', additions: 1, deletions: 1}]
 
       mockedOctokit.rest.repos.compareCommits.mockResolvedValue({
         data: {files: [{filename: 'subdir/go.mod', patch: ''}]},
       })
 
-      const result = await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
+      await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(mockedOctokit.rest.repos.compareCommits).toHaveBeenCalled()
     })

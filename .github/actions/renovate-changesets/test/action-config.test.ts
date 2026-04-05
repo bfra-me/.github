@@ -1,4 +1,5 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import process from 'node:process'
+import {beforeEach, describe, expect, it} from 'vitest'
 import {DEFAULT_CONFIG, getConfig} from '../src/action-config'
 import {mockedFileSystem, mockedGitHubActions} from './setup'
 
@@ -18,25 +19,25 @@ describe('action-config', () => {
     })
 
     it('should include npm update type with package.json pattern', () => {
-      expect(DEFAULT_CONFIG.updateTypes['npm']).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes['npm'].filePatterns).toContain('**/package.json')
+      expect(DEFAULT_CONFIG.updateTypes.npm).toBeDefined()
+      expect(DEFAULT_CONFIG.updateTypes.npm.filePatterns).toContain('**/package.json')
     })
 
     it('should include docker update type', () => {
-      expect(DEFAULT_CONFIG.updateTypes['docker']).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes['docker'].filePatterns).toContain('**/Dockerfile')
+      expect(DEFAULT_CONFIG.updateTypes.docker).toBeDefined()
+      expect(DEFAULT_CONFIG.updateTypes.docker.filePatterns).toContain('**/Dockerfile')
     })
 
     it('should include go/gomod/golang update types', () => {
-      expect(DEFAULT_CONFIG.updateTypes['go']).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes['gomod']).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes['golang']).toBeDefined()
+      expect(DEFAULT_CONFIG.updateTypes.go).toBeDefined()
+      expect(DEFAULT_CONFIG.updateTypes.gomod).toBeDefined()
+      expect(DEFAULT_CONFIG.updateTypes.golang).toBeDefined()
     })
 
     it('should include maven and gradle JVM update types', () => {
-      expect(DEFAULT_CONFIG.updateTypes['maven']).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes['gradle']).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes['maven'].filePatterns).toContain('**/pom.xml')
+      expect(DEFAULT_CONFIG.updateTypes.maven).toBeDefined()
+      expect(DEFAULT_CONFIG.updateTypes.gradle).toBeDefined()
+      expect(DEFAULT_CONFIG.updateTypes.maven.filePatterns).toContain('**/pom.xml')
     })
 
     it('should have defaultChangesetType of patch', () => {
@@ -62,7 +63,7 @@ describe('action-config', () => {
       expect(config.defaultChangesetType).toBe('patch')
       expect(config.branchPrefix).toBe('renovate/')
       expect(config.updateTypes).toBeDefined()
-      expect(config.updateTypes['npm']).toBeDefined()
+      expect(config.updateTypes.npm).toBeDefined()
     })
 
     it('should apply branch prefix from input', async () => {

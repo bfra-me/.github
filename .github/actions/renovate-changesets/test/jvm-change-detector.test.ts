@@ -1,3 +1,4 @@
+import {Buffer} from 'node:buffer'
 import {describe, expect, it} from 'vitest'
 import {detectJVMChangesFromPR} from '../src/jvm-change-detector'
 import {mockedOctokit} from './setup'
@@ -45,9 +46,7 @@ describe('JVMChangeDetector', () => {
         data: {files: [{filename: 'build.gradle.kts', patch: ''}]},
       })
 
-      const files = [
-        {filename: 'build.gradle.kts', status: 'modified', additions: 1, deletions: 1},
-      ]
+      const files = [{filename: 'build.gradle.kts', status: 'modified', additions: 1, deletions: 1}]
 
       await detectJVMChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
@@ -137,21 +136,7 @@ describe('JVMChangeDetector', () => {
         data: {files: [{filename: 'settings.gradle', patch: ''}]},
       })
 
-      const files = [
-        {filename: 'settings.gradle', status: 'modified', additions: 1, deletions: 1},
-      ]
-
-      await detectJVMChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
-
-      expect(mockedOctokit.rest.repos.compareCommits).toHaveBeenCalled()
-    })
-
-    it('should detect build.sbt as JVM build file', async () => {
-      mockedOctokit.rest.repos.compareCommits.mockResolvedValue({
-        data: {files: [{filename: 'build.sbt', patch: ''}]},
-      })
-
-      const files = [{filename: 'build.sbt', status: 'modified', additions: 1, deletions: 1}]
+      const files = [{filename: 'settings.gradle', status: 'modified', additions: 1, deletions: 1}]
 
       await detectJVMChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 

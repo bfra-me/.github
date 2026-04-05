@@ -5,12 +5,12 @@ import {
   calculateChangesetContentHash,
   isChangesetDuplicateOfExisting,
 } from '../src/deduplicator/changeset-comparator'
+import {validateDeduplicationResult} from '../src/deduplicator/deduplication-validator'
 import {
   checkAgainstExistingChangesets,
   performContentDeduplication,
   performSemanticDeduplication,
 } from '../src/deduplicator/duplicate-strategies'
-import {validateDeduplicationResult} from '../src/deduplicator/deduplication-validator'
 
 function makeChangeset(
   id: string,
@@ -295,7 +295,10 @@ describe('duplicate-strategies', () => {
     })
 
     it('should not remove changesets with low similarity', () => {
-      const lowThresholdConfig = {semanticSimilarityThreshold: 0.99, mergeStrategy: 'conservative' as const}
+      const lowThresholdConfig = {
+        semanticSimilarityThreshold: 0.99,
+        mergeStrategy: 'conservative' as const,
+      }
       const cs1 = makeChangeset('cs1', ['pkg-a'], 'Update lodash', 'patch', ['lodash'])
       const cs2 = makeChangeset('cs2', ['pkg-b'], 'Update react', 'patch', ['react'])
 
@@ -308,9 +311,7 @@ describe('duplicate-strategies', () => {
 
   describe('checkAgainstExistingChangesets', () => {
     it('should return all changesets when none match existing', () => {
-      const changesets = [
-        makeChangeset('cs1', ['pkg-a'], 'Update lodash', 'patch'),
-      ]
+      const changesets = [makeChangeset('cs1', ['pkg-a'], 'Update lodash', 'patch')]
       const existing = [
         {
           filename: 'existing.md',
@@ -371,10 +372,7 @@ describe('deduplication-validator', () => {
     })
 
     it('should not add ratio warning for low deduplication', () => {
-      const original = [
-        makeChangeset('cs1', ['pkg-a']),
-        makeChangeset('cs2', ['pkg-b']),
-      ]
+      const original = [makeChangeset('cs1', ['pkg-a']), makeChangeset('cs2', ['pkg-b'])]
       const deduplicated = [makeChangeset('cs1', ['pkg-a'])]
       const warnings: string[] = []
 
@@ -385,9 +383,7 @@ describe('deduplication-validator', () => {
     })
 
     it('should warn when package is missing from deduplicated results', () => {
-      const original = [
-        makeChangeset('cs1', ['pkg-a', 'pkg-b']),
-      ]
+      const original = [makeChangeset('cs1', ['pkg-a', 'pkg-b'])]
       const deduplicated = [makeChangeset('cs2', ['pkg-a'])] // pkg-b is missing
       const warnings: string[] = []
 

@@ -13,13 +13,7 @@ describe('PythonChangeDetector', () => {
         {filename: 'src/main.ts', status: 'modified', additions: 5, deletions: 2},
       ]
 
-      const result = await detectPythonChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        files,
-      )
+      const result = await detectPythonChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(result).toEqual([])
       expect(mockedOctokit.rest.repos.compareCommits).not.toHaveBeenCalled()
@@ -35,17 +29,9 @@ describe('PythonChangeDetector', () => {
         data: {files: [{filename: 'requirements.txt', patch}]},
       })
 
-      const files = [
-        {filename: 'requirements.txt', status: 'modified', additions: 1, deletions: 1},
-      ]
+      const files = [{filename: 'requirements.txt', status: 'modified', additions: 1, deletions: 1}]
 
-      const result = await detectPythonChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        files,
-      )
+      await detectPythonChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(mockedOctokit.rest.repos.compareCommits).toHaveBeenCalled()
     })
@@ -59,13 +45,7 @@ describe('PythonChangeDetector', () => {
         {filename: 'dev-requirements.txt', status: 'modified', additions: 1, deletions: 1},
       ]
 
-      const result = await detectPythonChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        files,
-      )
+      await detectPythonChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(mockedOctokit.rest.repos.compareCommits).toHaveBeenCalled()
     })
@@ -135,17 +115,9 @@ describe('PythonChangeDetector', () => {
     it('should handle compare commits API error gracefully', async () => {
       mockedOctokit.rest.repos.compareCommits.mockRejectedValue(new Error('API error'))
 
-      const files = [
-        {filename: 'requirements.txt', status: 'modified', additions: 1, deletions: 1},
-      ]
+      const files = [{filename: 'requirements.txt', status: 'modified', additions: 1, deletions: 1}]
 
-      const result = await detectPythonChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        files,
-      )
+      const result = await detectPythonChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(result).toEqual([])
     })
@@ -155,17 +127,9 @@ describe('PythonChangeDetector', () => {
         data: {files: [{filename: 'requirements.txt', patch: undefined}]},
       })
 
-      const files = [
-        {filename: 'requirements.txt', status: 'modified', additions: 1, deletions: 1},
-      ]
+      const files = [{filename: 'requirements.txt', status: 'modified', additions: 1, deletions: 1}]
 
-      const result = await detectPythonChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        files,
-      )
+      const result = await detectPythonChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(result).toEqual([])
     })
@@ -176,13 +140,7 @@ describe('PythonChangeDetector', () => {
         {filename: 'my-requirements', status: 'modified', additions: 1, deletions: 0},
       ]
 
-      const result = await detectPythonChangesFromPR(
-        createMockOctokit(),
-        'owner',
-        'repo',
-        1,
-        files,
-      )
+      const result = await detectPythonChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(result).toEqual([])
       expect(mockedOctokit.rest.repos.compareCommits).not.toHaveBeenCalled()

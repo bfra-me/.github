@@ -242,9 +242,15 @@ describe('action-outputs', () => {
       })
 
       expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith('commit-success', 'false')
-      expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith('git-error', 'git error message')
+      expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith(
+        'git-error',
+        'git error message',
+      )
       expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith('conflicts-resolved', 'true')
-      expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith('conflict-resolution', 'manual')
+      expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith(
+        'conflict-resolution',
+        'manual',
+      )
       expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith('retry-attempts', '3')
     })
   })
@@ -290,7 +296,10 @@ describe('action-outputs', () => {
         'pr-description-error',
         'API error',
       )
-      expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith('pr-comment-error', 'Rate limit')
+      expect(mockedGitHubActions.core.setOutput).toHaveBeenCalledWith(
+        'pr-comment-error',
+        'Rate limit',
+      )
     })
   })
 

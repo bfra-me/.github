@@ -1,5 +1,27 @@
 # @bfra.me/.github
 
+## 4.15.0
+### Minor Changes
+
+
+- Expose `global-config` input in reusable Renovate workflow ([#1973](https://github.com/bfra-me/.github/pull/1973))
+  
+  Add a `global-config` input to the `workflow_call` and `workflow_dispatch` triggers in `.github/workflows/renovate.yaml` and pass it through to `bfra-me/renovate-action`. This allows consuming repositories to configure global-only Renovate options such as `gitNoVerify`.
+
+### Patch Changes
+
+
+- Fix AGENTS.md file count and workflow documentation inaccuracies ([#1968](https://github.com/bfra-me/.github/pull/1968))
+
+
+- Replace stale HACK comment in `scripts/release.ts` with proper documentation explaining why monorepo root packages log the `<name>@<version>` tag format for the Changesets action. Update AGENTS.md accordingly. ([#1974](https://github.com/bfra-me/.github/pull/1974))
+
+
+- 📦 Update npm dependency `@bfra.me/eslint-config` from `0.50.1` to `0.50.2` ([#1970](https://github.com/bfra-me/.github/pull/1970))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.36.2` to `v0.36.3` ([#1972](https://github.com/bfra-me/.github/pull/1972))
+
 ## 4.14.7
 ### Patch Changes
 

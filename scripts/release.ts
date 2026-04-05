@@ -160,7 +160,10 @@ async function main() {
 
       // If a private root or monorepo root package, also create or update a floating major branch.
       if (isPrivateRoot) {
-        // HACK: For monorepo root packages, output the tag name in `<packageName>@<packageVersion>` format to be picked up by the Changesets action.
+        // The Changesets action parses stdout for "New tag: <name>@<version>" lines to determine
+        // which packages were published. For monorepo root packages, the actual git tag is created in
+        // `v<version>` format (without the package name prefix). We therefore also log the expected
+        // `<packageName>@<packageVersion>` format so the Changesets action can detect this package.
         if (await tool.isMonorepoRoot(pkg.dir)) {
           console.log('New tag:', `${pkg.packageJson.name}@${pkg.packageJson.version}`)
         }

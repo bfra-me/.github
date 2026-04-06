@@ -1,0 +1,37 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'github>bfra-me/renovate-config#5.2.1',
+    'github>bfra-me/renovate-config:fro-bot.json5#5.2.1',
+  ],
+  automergeType: 'pr',
+  packageRules: [
+    {
+      matchDepNames: ['python'],
+      allowedVersions: '<=3.13',
+    },
+    {
+      description: 'Disable digest-only updates for internal bfra-me/.github actions to stop recursive self-referencing PRs.',
+      matchDepNames: ['bfra-me/.github'],
+      matchUpdateTypes: ['digest'],
+      enabled: false,
+    },
+    {
+      description: 'Track released versions of renovate-changesets action via release tags.',
+      matchDepNames: ['bfra-me/.github'],
+      matchFileNames: ['.github/workflows/renovate-changeset.yaml'],
+      extractVersion: '^renovate-changesets@(?<version>.+)$',
+      pinDigests: false,
+      commitMessageTopic: 'renovate-changesets action',
+    },
+    {
+      description: 'Track released versions of update-repository-settings action via release tags.',
+      matchDepNames: ['bfra-me/.github'],
+      matchFileNames: ['.github/workflows/update-repo-settings.yaml'],
+      extractVersion: '^update-repository-settings@(?<version>.+)$',
+      pinDigests: false,
+      commitMessageTopic: 'update-repository-settings action',
+    },
+  ],
+  rebaseWhen: 'behind-base-branch',
+}

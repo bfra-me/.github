@@ -41,6 +41,7 @@ renovate:
       - any-glob-to-any-file:
           - .github/workflows/*renovate*.yaml
           - .github/renovate.json5
+          - internal.json5
 
 scripts:
   - changed-files:

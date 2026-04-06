@@ -1,5 +1,29 @@
 # @bfra.me/.github
 
+## 4.16.0
+### Minor Changes
+
+
+- Add `internal` Renovate config preset to roll up org config. ([#1983](https://github.com/bfra-me/.github/pull/1983))
+
+
+### Patch Changes
+
+
+- 📦 Update npm dependency `pnpm` ([#1980](https://github.com/bfra-me/.github/pull/1980))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.36.4` to `v0.36.5` ([#1979](https://github.com/bfra-me/.github/pull/1979))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.29.0` to `9.29.1` ([#1981](https://github.com/bfra-me/.github/pull/1981))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.29.1` to `9.29.2` ([#1982](https://github.com/bfra-me/.github/pull/1982))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.36.3` to `v0.36.4` ([#1977](https://github.com/bfra-me/.github/pull/1977))
+
 ## 4.15.0
 ### Minor Changes
 

@@ -89,7 +89,7 @@ jobs:
       )
     env:
       WORKFLOW_LOG_LEVEL: debug
-      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5']"
+      default_path_filters: "['.github/workflows/renovate.yaml', '.github/renovate.json5', 'internal.json5']"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

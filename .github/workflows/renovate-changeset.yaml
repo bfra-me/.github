@@ -21,7 +21,6 @@ jobs:
     name: Create Renovate Changeset
     runs-on: ubuntu-latest
     if: >-
-      (github.repository == 'bfra-me/.github' || github.event_name == 'workflow_call') &&
       endsWith(github.actor, '[bot]') &&
       !startsWith(github.head_ref, 'chore/update-action-pins-')
     steps:

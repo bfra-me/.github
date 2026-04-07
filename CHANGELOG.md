@@ -1,5 +1,35 @@
 # @bfra.me/.github
 
+## 4.16.1
+### Patch Changes
+
+
+- Fix `create-changeset` job always skipped for external callers of the `renovate-changeset` reusable workflow ([#1991](https://github.com/bfra-me/.github/pull/1991))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.29.3` to `9.30.0` ([#1993](https://github.com/bfra-me/.github/pull/1993))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.29.2` to `9.29.3` ([#1988](https://github.com/bfra-me/.github/pull/1988))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.30.0` to `9.31.0` ([#1994](https://github.com/bfra-me/.github/pull/1994))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.37.1` to `v0.38.0` ([#1996](https://github.com/bfra-me/.github/pull/1996))
+
+
+- 📦 Update npm dependency `eslint` from `10.1.0` to `10.2.0` ([#1987](https://github.com/bfra-me/.github/pull/1987))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.37.0` to `v0.37.1` ([#1989](https://github.com/bfra-me/.github/pull/1989))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.36.5` to `v0.37.0` ([#1985](https://github.com/bfra-me/.github/pull/1985))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.31.0` to `9.32.0` ([#1995](https://github.com/bfra-me/.github/pull/1995))
+
 ## 4.16.0
 ### Minor Changes
 

@@ -82,7 +82,7 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   }
 
   const pr = eventData.pull_request
-  const isRenovatePR = ['renovate[bot]', 'bfra-me[bot]'].includes(pr.user.login)
+  const isRenovatePR = pr.user.login.endsWith('[bot]')
   if (!isRenovatePR) {
     core.info('Not a Renovate PR, skipping')
     return null

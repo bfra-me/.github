@@ -441,7 +441,13 @@ Includes security fixes and performance improvements.`
       })
 
       it('should identify different bot types', async () => {
-        const botTypes = ['renovate[bot]', 'bfra-me[bot]', 'dependabot[bot]', 'mrbro-bot[bot]', 'custom-renovate-bot[bot]']
+        const botTypes = [
+          'renovate[bot]',
+          'bfra-me[bot]',
+          'dependabot[bot]',
+          'mrbro-bot[bot]',
+          'custom-renovate-bot[bot]',
+        ]
 
         for (const botLogin of botTypes) {
           const prData = {

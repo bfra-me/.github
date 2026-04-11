@@ -5,6 +5,15 @@ on:
   merge_group:
   pull_request_target:
   workflow_call:
+    inputs:
+      target-package:
+        description: >-
+          Override the changeset release target for fallback updates (e.g.
+          `github-actions` manager updates that don't touch any workspace
+          member). Required for monorepos whose root `package.json` is
+          private and not in the workspace patterns.
+        required: false
+        type: string
     secrets:
       APPLICATION_ID:
         description: GitHub App ID for generating tokens
@@ -63,3 +72,4 @@ jobs:
           token: ${{ steps.get-workflow-access-token.outputs.token }}
           commit-back: 'true'
           max-retries: '3'
+          target-package: ${{ inputs.target-package }}

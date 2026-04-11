@@ -18,6 +18,7 @@ export interface Config {
   sort?: boolean
   commentPR?: boolean
   updatePRDescription?: boolean
+  targetPackage?: string
 }
 
 export const DEFAULT_CONFIG: Config = {
@@ -141,7 +142,11 @@ export async function getConfig(): Promise<Config> {
     ? excludePatternsInput.split(',').map(p => p.trim())
     : undefined
 
-  let config = {
+  const targetPackageInput = core.getInput('target-package')
+  const targetPackage =
+    targetPackageInput === '' ? process.env.TARGET_PACKAGE || undefined : targetPackageInput
+
+  let config: Config = {
     ...DEFAULT_CONFIG,
     branchPrefix,
     skipBranchPrefixCheck,
@@ -150,6 +155,7 @@ export async function getConfig(): Promise<Config> {
     updatePRDescription,
     defaultChangesetType,
     excludePatterns,
+    targetPackage,
   }
 
   if (configFile) {

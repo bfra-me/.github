@@ -2,12 +2,36 @@ import type {WorkspacePackage} from './multi-package-analyzer'
 import type {RenovateDependency} from './renovate-parser'
 import {extractDependenciesFromTitle} from './utils'
 
+/**
+ * Resolve the changeset release target when no workspace member is directly affected
+ * (e.g. `github-actions` updates that only touch `.github/workflows/*.yaml`).
+ *
+ * Resolution order: explicit `targetPackage` override → non-private workspace root →
+ * first non-private workspace member → `fallbackName`. Private workspace roots are
+ * skipped because `@manypkg/get-packages` only includes them when `.` is in the
+ * workspace patterns; targeting one produces a changeset that crashes
+ * `changeset version` with "Found changeset X for package Y which is not in the
+ * workspace" (see issue #2012).
+ */
 export function getRootPackageName(
   workspacePackages: WorkspacePackage[],
   fallbackName: string,
+  targetPackage?: string,
 ): string {
-  const rootPackage = workspacePackages.find(pkg => pkg.path === '.' || pkg.path === '')
-  return rootPackage?.name ?? fallbackName
+  if (targetPackage != null && targetPackage !== '') {
+    const explicit = workspacePackages.find(pkg => pkg.name === targetPackage)
+    return explicit?.name ?? targetPackage
+  }
+
+  const rootPackage = workspacePackages.find(
+    pkg => (pkg.path === '.' || pkg.path === '') && !pkg.private,
+  )
+  if (rootPackage != null) return rootPackage.name
+
+  const firstPublic = workspacePackages.find(pkg => !pkg.private)
+  if (firstPublic != null) return firstPublic.name
+
+  return fallbackName
 }
 
 export function resolveDependencyNames(

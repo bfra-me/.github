@@ -48,6 +48,14 @@ inputs:
     description: Sort dependency bumps and update messages within changesets
     required: false
     default: 'false'
+  target-package:
+    description: >-
+      Override the changeset release target for fallback updates (e.g.
+      `github-actions` manager updates that don't touch any workspace member).
+      Required for monorepos whose root `package.json` is private and not in
+      the workspace patterns. Defaults to the first non-private workspace
+      member when omitted.
+    required: false
   token:
     description: GitHub token for API access
     required: false

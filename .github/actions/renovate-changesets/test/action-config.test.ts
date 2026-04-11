@@ -251,5 +251,50 @@ describe('action-config', () => {
       expect(config.commentPR).toBe(true)
       expect(config.updatePRDescription).toBe(true)
     })
+
+    it('should leave targetPackage undefined when no input or env var is set', async () => {
+      const config = await getConfig()
+
+      expect(config.targetPackage).toBeUndefined()
+    })
+
+    it('should set targetPackage from the target-package input', async () => {
+      mockedGitHubActions.core.getInput.mockImplementation((name: string) => {
+        if (name === 'target-package') return '@scope/published'
+        if (name === 'default-changeset-type') return 'patch'
+        return ''
+      })
+
+      const config = await getConfig()
+
+      expect(config.targetPackage).toBe('@scope/published')
+    })
+
+    it('should fall back to TARGET_PACKAGE env var when input is empty', async () => {
+      process.env.TARGET_PACKAGE = '@scope/from-env'
+
+      try {
+        const config = await getConfig()
+        expect(config.targetPackage).toBe('@scope/from-env')
+      } finally {
+        delete process.env.TARGET_PACKAGE
+      }
+    })
+
+    it('should prefer the target-package input over the env var', async () => {
+      mockedGitHubActions.core.getInput.mockImplementation((name: string) => {
+        if (name === 'target-package') return '@scope/from-input'
+        if (name === 'default-changeset-type') return 'patch'
+        return ''
+      })
+      process.env.TARGET_PACKAGE = '@scope/from-env'
+
+      try {
+        const config = await getConfig()
+        expect(config.targetPackage).toBe('@scope/from-input')
+      } finally {
+        delete process.env.TARGET_PACKAGE
+      }
+    })
   })
 })

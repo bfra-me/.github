@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.16.4
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/create-github-app-token` from `v3.1.0` to `v3.1.1` ([#2013](https://github.com/bfra-me/.github/pull/2013))
+
 ## 4.16.3
 ### Patch Changes
 

@@ -1,5 +1,15 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.30
+### Patch Changes
+
+
+- Fix `renovate-changesets` action targeting the private workspace root for fallback changesets (e.g. `github-actions` manager updates), which broke `changeset version` for downstream monorepo consumers whose root `package.json` is private and not in the workspace patterns. ([#2016](https://github.com/bfra-me/.github/pull/2016))
+  
+  `getRootPackageName` now skips private workspace roots and falls back to the first non-private workspace member, then the repo slug. A new `target-package` action input (also exposed on the reusable `renovate-changeset.yaml` workflow) lets consumers explicitly override the changeset release target when "first non-private member" isn't the desired default.
+  
+  Resolves #2012.
+
 ## 0.2.29
 ### Patch Changes
 

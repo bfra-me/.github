@@ -5,6 +5,17 @@ on:
   merge_group:
   pull_request_target:
   workflow_call:
+    inputs:
+      target-package:
+        description: >-
+          Optional override for the changeset release target used for
+          fallback updates (e.g. `github-actions` manager updates that don't
+          touch any workspace member). By default the action auto-selects a
+          non-private workspace package, preferring the workspace root when
+          it is publishable. Set this when you want a specific package to
+          absorb fallback bumps in a multi-package monorepo.
+        required: false
+        type: string
     secrets:
       APPLICATION_ID:
         description: GitHub App ID for generating tokens
@@ -63,3 +74,4 @@ jobs:
           token: ${{ steps.get-workflow-access-token.outputs.token }}
           commit-back: 'true'
           max-retries: '3'
+          target-package: ${{ inputs.target-package }}

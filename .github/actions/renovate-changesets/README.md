@@ -38,8 +38,36 @@ This GitHub Action automatically generates changeset files for Renovate dependen
 | `config-file` | Path to configuration file | No | - |
 | `config` | Inline configuration (JSON/YAML) | No | - |
 | `comment-pr` | Post a comment on the PR with changeset details | No | `false` |
+| `target-package` | Optional override for the changeset release target used for fallback updates (e.g. `github-actions` manager updates that don't touch any workspace member). When unset, the action auto-resolves a non-private workspace package — see [`target-package` and private workspace roots](#target-package-and-private-workspace-roots) for the full resolution order. | No | - |
 | `token` | GitHub token for API access | No | `${{ github.token }}` |
 | `working-directory` | Working directory | No | `.` |
+
+### `target-package` and private workspace roots
+
+When Renovate opens a PR that touches files outside any workspace member (for example, a `github-actions` manager update modifying `.github/workflows/*.yaml`), the action falls back to a single workspace-level changeset. By default, the fallback resolution is:
+
+1. The workspace root, if it is **not** marked `"private": true`.
+2. Otherwise, the first non-private workspace member discovered.
+3. Otherwise, the repository slug.
+
+Set `target-package` to override this resolution explicitly when the automatic selection isn't what you want — for example, in monorepos with multiple publishable packages where "first non-private member" isn't deterministic enough, or where you want a specific package (e.g. a CLI) to absorb orchestration bumps. Most consumers with a single publishable package or a private root plus one public member can leave it unset:
+
+```yaml
+- uses: bfra-me/.github/.github/actions/renovate-changesets@v4
+  with:
+    target-package: "@my-scope/cli"
+```
+
+The same input is forwarded by the reusable `bfra-me/.github/.github/workflows/renovate-changeset.yaml` workflow, so consumers of the reusable workflow can pass it directly:
+
+```yaml
+jobs:
+  renovate-changeset:
+    uses: bfra-me/.github/.github/workflows/renovate-changeset.yaml@v4
+    with:
+      target-package: "@my-scope/cli"
+    secrets: inherit
+```
 
 ## Outputs
 
@@ -67,19 +95,19 @@ updateTypes:
   github-actions:
     changesetType: patch
     filePatterns:
-      - '.github/workflows/**/*.yaml'
-      - '.github/actions/**/action.yaml'
-    template: 'Update GitHub Actions {dependencies}{version}'
+      - ".github/workflows/**/*.yaml"
+      - ".github/actions/**/action.yaml"
+    template: "Update GitHub Actions {dependencies}{version}"
   npm:
     changesetType: patch
     filePatterns:
-      - '**/package.json'
-      - '**/pnpm-lock.yaml'
+      - "**/package.json"
+      - "**/pnpm-lock.yaml"
   docker:
     changesetType: patch
     filePatterns:
-      - '**/Dockerfile'
-      - '**/docker-compose.yaml'
+      - "**/Dockerfile"
+      - "**/docker-compose.yaml"
 ```
 
 ### Default Configuration
@@ -89,23 +117,23 @@ updateTypes:
   github-actions:
     changesetType: patch
     filePatterns:
-      - '.github/workflows/**/*.yaml'
-      - '.github/workflows/**/*.yml'
-      - '.github/actions/**/action.yaml'
-      - '.github/actions/**/action.yml'
+      - ".github/workflows/**/*.yaml"
+      - ".github/workflows/**/*.yml"
+      - ".github/actions/**/action.yaml"
+      - ".github/actions/**/action.yml"
   npm:
     changesetType: patch
     filePatterns:
-      - '**/package.json'
-      - '**/package-lock.json'
-      - '**/pnpm-lock.yaml'
-      - '**/yarn.lock'
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/pnpm-lock.yaml"
+      - "**/yarn.lock"
   docker:
     changesetType: patch
     filePatterns:
-      - '**/Dockerfile'
-      - '**/docker-compose.yaml'
-      - '**/docker-compose.yml'
+      - "**/Dockerfile"
+      - "**/docker-compose.yaml"
+      - "**/docker-compose.yml"
 defaultChangesetType: patch
 ```
 

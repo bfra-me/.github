@@ -48,6 +48,17 @@ inputs:
     description: Sort dependency bumps and update messages within changesets
     required: false
     default: 'false'
+  target-package:
+    description: >-
+      Optional override for the changeset release target used for fallback
+      updates (e.g. `github-actions` manager updates that don't touch any
+      workspace member). When omitted, the action auto-resolves a target
+      package, preferring a non-private workspace root first and otherwise
+      falling back to another non-private workspace member. Set this only
+      when you need to override that automatic selection (for example, to
+      point fallback bumps at a specific publishable package in a
+      multi-package monorepo).
+    required: false
   token:
     description: GitHub token for API access
     required: false

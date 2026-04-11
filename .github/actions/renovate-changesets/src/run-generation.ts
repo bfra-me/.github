@@ -174,7 +174,11 @@ export async function generateChangesetsFromAnalysis(params: {
       ? multiPackageResult.changesets[0].releases
       : [
           {
-            name: getRootPackageName(multiPackageAnalysis.workspacePackages, params.repo),
+            name: getRootPackageName(
+              multiPackageAnalysis.workspacePackages,
+              params.repo,
+              params.config.targetPackage,
+            ),
             type: params.changesetType,
           },
         ]
@@ -183,7 +187,11 @@ export async function generateChangesetsFromAnalysis(params: {
     core.info('Multi-package generation created no files, falling back to original changeset logic')
     releases = [
       {
-        name: getRootPackageName(multiPackageAnalysis.workspacePackages, params.repo),
+        name: getRootPackageName(
+          multiPackageAnalysis.workspacePackages,
+          params.repo,
+          params.config.targetPackage,
+        ),
         type: params.changesetType,
       },
     ]

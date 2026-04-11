@@ -84,7 +84,7 @@ export async function extractPRContext(
 
   return {
     dependencies: validatedDeps,
-    isRenovateBot: ['renovate[bot]', 'bfra-me[bot]', 'dependabot[bot]'].includes(prData.user.login),
+    isRenovateBot: prData.user.login.endsWith('[bot]'),
     branchName: prData.head?.ref ?? '',
     prTitle: prData.title,
     prBody: prData.body ?? '',

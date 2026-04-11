@@ -9,7 +9,7 @@ import {
   isSecurityUpdate,
 } from './renovate-update-classifier.js'
 
-const VERSION_PATTERN = String.raw`v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)`
+const VERSION_PATTERN = String.raw`v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?)(?!\w)`
 const VERSION_TOKEN = String.raw`v?\d+(?:\.\d+){0,2}(?:-[\w.]+)?`
 const OPTIONAL_BACKTICKS = '`?'
 const VERSION_ARROW_PATTERN = new RegExp(

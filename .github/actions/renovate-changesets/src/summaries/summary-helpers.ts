@@ -153,6 +153,9 @@ export function formatVersionText(
     const stripped = newVersion.replace(/^v/i, '')
     const majorVersion = stripped.split('.')[0]
     if (majorVersion != null && /^\d+$/.test(majorVersion)) {
+      // Omit the redundant parenthetical when the full version is just the major digit
+      // e.g. `to v4` instead of `to v4 (4)` for major-only versions like `v4`
+      if (stripped === majorVersion) return ` to v${majorVersion}`
       return ` to v${majorVersion} (${newVersion})`
     }
     return ` to \`${newVersion}\``

@@ -361,6 +361,32 @@ ${changeset.summary}
 
       expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
     })
+
+    it('should process PR from external bot account (e.g. mrbro-bot[bot])', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'mrbro-bot[bot]'},
+          number: 1,
+          title: 'chore(deps): update dependency typescript to v6',
+          body: '',
+          head: {ref: 'renovate/typescript-6.x'},
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
+
+      // Provide required inputs for API calls
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
+      fsMocks.access.mockResolvedValue(undefined) // Directory exists
+
+      await import('../src/index')
+
+      expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
+    })
   })
 
   describe('file filtering and update type detection', () => {

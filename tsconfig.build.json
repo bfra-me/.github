@@ -16,6 +16,8 @@
     "module": "Preserve",
     // Module resolution optimized for build - keep consistent with base config
     "moduleResolution": "Bundler",
+    // Explicitly include Node.js types (TypeScript 6.0 defaults types to [])
+    "types": ["node"],
     // Generate declaration files for cross-package type safety
     "declaration": true,
     "declarationMap": true,

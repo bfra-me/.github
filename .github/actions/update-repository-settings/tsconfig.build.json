@@ -11,6 +11,7 @@
     "rootDir": "src",
     "module": "Preserve",
     "moduleResolution": "Bundler",
+    "types": ["node"],
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": false,

@@ -1,6 +1,7 @@
 {
   "extends": "@bfra.me/tsconfig",
   "compilerOptions": {
+    "types": ["node"],
     "noPropertyAccessFromIndexSignature": false,
     "noEmit": true
   },

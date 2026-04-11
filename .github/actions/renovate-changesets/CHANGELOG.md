@@ -1,5 +1,18 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.29
+### Patch Changes
+
+
+- Replace hardcoded bot allowlist with suffix check to support external Renovate runners ([#2004](https://github.com/bfra-me/.github/pull/2004))
+  
+  The action previously used a hardcoded list (`['renovate[bot]', 'bfra-me[bot]']`) to
+  identify Renovate PRs, which rejected valid PRs from external bot accounts such as
+  `mrbro-bot[bot]`. Both `run-init.ts` and `renovate-pr-context-extractor.ts` now use
+  `login.endsWith('[bot]')` instead, consistent with the fix from #1990. The branch
+  prefix check (`isValidBranch`) still provides the second gate to ensure it is a
+  Renovate branch.
+
 ## 0.2.28
 ### Patch Changes
 

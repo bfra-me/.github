@@ -1,5 +1,28 @@
 # @bfra.me/.github
 
+## 4.16.3
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `peter-evans/create-pull-request` from `v8.1.0` to `v8.1.1` ([#2007](https://github.com/bfra-me/.github/pull/2007))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/create-github-app-token` from `v3.0.0` to `v3.1.0` ([#2009](https://github.com/bfra-me/.github/pull/2009))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `pnpm/action-setup` to v6 (v6.0.0) ([#2010](https://github.com/bfra-me/.github/pull/2010))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/upload-artifact` from `v7.0.0` to `v7.0.1` ([#2008](https://github.com/bfra-me/.github/pull/2008))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#2005](https://github.com/bfra-me/.github/pull/2005))
+
+
+- ⚠️ Update npm dependency `typescript` to v6 (6.0.2) ([#2002](https://github.com/bfra-me/.github/pull/2002))
+  
+  ⚠️ **Breaking Changes**: This update includes breaking changes that may require code modifications.
+
 ## 4.16.2
 ### Patch Changes
 

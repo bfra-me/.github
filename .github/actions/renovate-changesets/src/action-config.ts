@@ -21,6 +21,15 @@ export interface Config {
   targetPackage?: string
 }
 
+// `core.getInput()` trims by default, but env vars and YAML/JSON config values do not,
+// so normalize all optional string inputs through a single helper that also treats
+// whitespace-only as unset.
+function normalizeOptionalString(value: string | undefined): string | undefined {
+  if (value == null) return undefined
+  const trimmed = value.trim()
+  return trimmed === '' ? undefined : trimmed
+}
+
 export const DEFAULT_CONFIG: Config = {
   updateTypes: {
     'github-actions': {
@@ -142,9 +151,9 @@ export async function getConfig(): Promise<Config> {
     ? excludePatternsInput.split(',').map(p => p.trim())
     : undefined
 
-  const targetPackageInput = core.getInput('target-package')
-  const targetPackage =
-    targetPackageInput === '' ? process.env.TARGET_PACKAGE || undefined : targetPackageInput
+  const targetPackageInput = normalizeOptionalString(core.getInput('target-package'))
+  const targetPackageEnv = normalizeOptionalString(process.env.TARGET_PACKAGE)
+  const targetPackage = targetPackageInput ?? targetPackageEnv
 
   let config: Config = {
     ...DEFAULT_CONFIG,
@@ -186,6 +195,8 @@ export async function getConfig(): Promise<Config> {
       core.warning(`Failed to parse inline config: ${errorMessage}`)
     }
   }
+
+  config.targetPackage = normalizeOptionalString(config.targetPackage)
 
   return config
 }

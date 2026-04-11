@@ -38,7 +38,7 @@ This GitHub Action automatically generates changeset files for Renovate dependen
 | `config-file` | Path to configuration file | No | - |
 | `config` | Inline configuration (JSON/YAML) | No | - |
 | `comment-pr` | Post a comment on the PR with changeset details | No | `false` |
-| `target-package` | Override the changeset release target for fallback updates (e.g. `github-actions` manager updates that don't touch any workspace member). Required for monorepos whose root `package.json` is private and not in the workspace patterns. Defaults to the first non-private workspace member. | No | - |
+| `target-package` | Optional override for the changeset release target used for fallback updates (e.g. `github-actions` manager updates that don't touch any workspace member). When unset, the action auto-resolves a non-private workspace package — see [`target-package` and private workspace roots](#target-package-and-private-workspace-roots) for the full resolution order. | No | - |
 | `token` | GitHub token for API access | No | `${{ github.token }}` |
 | `working-directory` | Working directory | No | `.` |
 
@@ -50,7 +50,7 @@ When Renovate opens a PR that touches files outside any workspace member (for ex
 2. Otherwise, the first non-private workspace member discovered.
 3. Otherwise, the repository slug.
 
-Set `target-package` to override this resolution explicitly. This is the recommended setting for monorepos with multiple publishable packages where "first non-private member" isn't deterministic enough, or where you want a specific package (e.g. a CLI) to absorb orchestration bumps:
+Set `target-package` to override this resolution explicitly when the automatic selection isn't what you want — for example, in monorepos with multiple publishable packages where "first non-private member" isn't deterministic enough, or where you want a specific package (e.g. a CLI) to absorb orchestration bumps. Most consumers with a single publishable package or a private root plus one public member can leave it unset:
 
 ```yaml
 - uses: bfra-me/.github/.github/actions/renovate-changesets@v4

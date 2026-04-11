@@ -8,10 +8,12 @@ on:
     inputs:
       target-package:
         description: >-
-          Override the changeset release target for fallback updates (e.g.
-          `github-actions` manager updates that don't touch any workspace
-          member). Required for monorepos whose root `package.json` is
-          private and not in the workspace patterns.
+          Optional override for the changeset release target used for
+          fallback updates (e.g. `github-actions` manager updates that don't
+          touch any workspace member). By default the action auto-selects a
+          non-private workspace package, preferring the workspace root when
+          it is publishable. Set this when you want a specific package to
+          absorb fallback bumps in a multi-package monorepo.
         required: false
         type: string
     secrets:

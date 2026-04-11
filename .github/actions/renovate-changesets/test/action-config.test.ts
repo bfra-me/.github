@@ -296,5 +296,39 @@ describe('action-config', () => {
         delete process.env.TARGET_PACKAGE
       }
     })
+
+    it('should trim surrounding whitespace on the TARGET_PACKAGE env var', async () => {
+      process.env.TARGET_PACKAGE = '  @scope/from-env  '
+
+      try {
+        const config = await getConfig()
+        expect(config.targetPackage).toBe('@scope/from-env')
+      } finally {
+        delete process.env.TARGET_PACKAGE
+      }
+    })
+
+    it('should treat a whitespace-only TARGET_PACKAGE env var as unset', async () => {
+      process.env.TARGET_PACKAGE = '   \n'
+
+      try {
+        const config = await getConfig()
+        expect(config.targetPackage).toBeUndefined()
+      } finally {
+        delete process.env.TARGET_PACKAGE
+      }
+    })
+
+    it('should normalize targetPackage coming from an inline config', async () => {
+      mockedGitHubActions.core.getInput.mockImplementation((name: string) => {
+        if (name === 'config') return 'targetPackage: "  @scope/from-inline  "'
+        if (name === 'default-changeset-type') return 'patch'
+        return ''
+      })
+
+      const config = await getConfig()
+
+      expect(config.targetPackage).toBe('@scope/from-inline')
+    })
   })
 })

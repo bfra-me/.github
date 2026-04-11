@@ -18,6 +18,8 @@
     "module": "Preserve",
     // Module resolution
     "moduleResolution": "Bundler",
+    // Explicitly include Node.js types (TypeScript 6.0 defaults types to [])
+    "types": ["node"],
     // Enable declaration generation for type exports
     "declaration": true,
     "declarationMap": true,

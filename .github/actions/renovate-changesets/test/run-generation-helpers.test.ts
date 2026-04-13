@@ -28,14 +28,14 @@ describe('getRootPackageName', () => {
       expect(getRootPackageName(packages, 'fallback')).toBe('@scope/root')
     })
 
-    it('returns the first non-private workspace member when the root is private (issue #2012)', () => {
+    it('returns the workspace root even when it is private', () => {
       const packages: WorkspacePackage[] = [
         makePackage({name: '@scope/repo-workspace', path: '.', private: true}),
         makePackage({name: '@scope/keeweb', path: 'apps/keeweb', private: true}),
         makePackage({name: '@scope/cli', path: 'packages/cli', private: false}),
       ]
 
-      expect(getRootPackageName(packages, 'fallback')).toBe('@scope/cli')
+      expect(getRootPackageName(packages, 'fallback')).toBe('@scope/repo-workspace')
     })
 
     it('returns the first non-private package even when no root entry exists', () => {
@@ -47,13 +47,13 @@ describe('getRootPackageName', () => {
       expect(getRootPackageName(packages, 'fallback')).toBe('@scope/lib')
     })
 
-    it('returns the fallback when all workspace packages are private', () => {
+    it('returns the private root when all workspace packages are private', () => {
       const packages: WorkspacePackage[] = [
         makePackage({name: '@scope/repo-workspace', path: '.', private: true}),
         makePackage({name: '@scope/internal', path: 'packages/internal', private: true}),
       ]
 
-      expect(getRootPackageName(packages, 'owner/repo')).toBe('owner/repo')
+      expect(getRootPackageName(packages, 'owner/repo')).toBe('@scope/repo-workspace')
     })
 
     it('returns the fallback when no workspace packages are discovered', () => {
@@ -94,7 +94,7 @@ describe('getRootPackageName', () => {
         makePackage({name: '@scope/cli', path: 'packages/cli', private: false}),
       ]
 
-      expect(getRootPackageName(packages, 'fallback', '')).toBe('@scope/cli')
+      expect(getRootPackageName(packages, 'fallback', '')).toBe('@scope/repo-workspace')
     })
 
     it('takes precedence over a non-private root', () => {

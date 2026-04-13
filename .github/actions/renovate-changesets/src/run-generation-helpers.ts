@@ -6,12 +6,10 @@ import {extractDependenciesFromTitle} from './utils'
  * Resolve the changeset release target when no workspace member is directly affected
  * (e.g. `github-actions` updates that only touch `.github/workflows/*.yaml`).
  *
- * Resolution order: explicit `targetPackage` override → non-private workspace root →
- * first non-private workspace member → `fallbackName`. Private workspace roots are
- * skipped because `@manypkg/get-packages` only includes them when `.` is in the
- * workspace patterns; targeting one produces a changeset that crashes
- * `changeset version` with "Found changeset X for package Y which is not in the
- * workspace" (see issue #2012).
+ * Resolution order: explicit `targetPackage` override → workspace root (regardless of
+ * private status) → first non-private workspace member → `fallbackName`. If a root
+ * package exists in `workspacePackages`, it was discovered by the workspace analyzer
+ * and is a valid changeset target.
  */
 export function getRootPackageName(
   workspacePackages: WorkspacePackage[],
@@ -23,9 +21,7 @@ export function getRootPackageName(
     return explicit?.name ?? targetPackage
   }
 
-  const rootPackage = workspacePackages.find(
-    pkg => (pkg.path === '.' || pkg.path === '') && !pkg.private,
-  )
+  const rootPackage = workspacePackages.find(pkg => pkg.path === '.' || pkg.path === '')
   if (rootPackage != null) return rootPackage.name
 
   const firstPublic = workspacePackages.find(pkg => !pkg.private)

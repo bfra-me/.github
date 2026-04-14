@@ -100,7 +100,7 @@ pnpm run build:monitor            # Build performance analysis
 - Root `tsconfig.json` uses `noEmit: true` — type-checking only. Actions have own build configs
 - `scripts/release.ts`: monorepo root package is tagged as `v{ver}` (private), but also logs `{name}@{ver}` so the Changesets action can detect it as a published package
 - All actions use Node.js 24 runtime (`using: node24` in action manifests)
-- Action manifest naming is inconsistent: `action.yaml` (renovate-changesets, update-metadata) vs `action.yml` (update-repository-settings)
+- All action manifests use `action.yaml` (standardized)
 - `.github/instructions/` files are consumed by AI tools, not by build system
 - `pnpm` overrides: `jiti` pinned to `<2.7.0` (compatibility), `undici@<6.23.0` forced to `>=6.23.0`
 - Fro Bot uses `FRO_BOT_PAT` + `OPENCODE_AUTH_JSON` secrets (separate from `bfra-me[bot]` app)

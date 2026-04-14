@@ -28,11 +28,11 @@ const BODY_FOOTER_MARKERS = [
 ] as const
 const TEXT_PATTERNS = [
   new RegExp(
-    String.raw`update\s+action\s+(@?\w[\w./%-]*)(?:\s+(?:package|module|dependency))?\s+(?:to\s+)?${VERSION_PATTERN}`,
+    String.raw`update\s+action\s+(@?\w[\w./%-]*)(?:\s+(?:package|module|dependency))?\s+(?:to\s+)?${VERSION_PATTERN}(?!\w)`,
     'gi',
   ),
   new RegExp(
-    String.raw`update\s+(?:dependency\s+)?(@?\w[\w./%-]*)(?:\s+(?:action|package|module|dependency))?\s+(?:to\s+)?${VERSION_PATTERN}`,
+    String.raw`update\s+(?:dependency\s+)?(@?\w[\w./%-]*)(?:\s+(?:action|package|module|dependency))?\s+(?:to\s+)?${VERSION_PATTERN}(?!\w)`,
     'gi',
   ),
   new RegExp(

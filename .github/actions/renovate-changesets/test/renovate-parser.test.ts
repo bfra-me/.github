@@ -550,6 +550,39 @@ Includes security fixes and performance improvements.`
         expect(first.manager).toBe('github-actions')
       })
 
+      it('should not extract leading digit of a hex digest hash as a version number', () => {
+        // Regression test for: https://github.com/bfra-me/.github/issues/XXXX
+        // Digest-only Renovate PR titles contain short SHA hashes like `6a454fe`.
+        // VERSION_PATTERN must not match the leading digit of a hex string as a bare version.
+        const text = 'update dependency eceasy/cli-proxy-api to 6a454fe'
+        const result = parser.parseDependenciesFromText(text, 'docker')
+
+        // If any dependency is extracted, it must not have newVersion = '6' (from hex digest)
+        const cliProxy = result.find(dep => dep.name === 'eceasy/cli-proxy-api')
+        expect(cliProxy?.newVersion).not.toBe('6')
+      })
+
+      it('should not extract version from docker digest-only update with sha256 prefix', () => {
+        const text =
+          'update docker image eceasy/cli-proxy-api digest to sha256:6a454fe6b710bda1cdef123'
+        const result = parser.parseDependenciesFromText(text, 'docker')
+
+        const cliProxy = result.find(dep => dep.name === 'eceasy/cli-proxy-api')
+        expect(cliProxy?.newVersion).toBeUndefined()
+      })
+
+      it('should still extract major-only version with v prefix (e.g. v4)', () => {
+        // Regression guard: ensure the (?!\w) lookahead does not break major-only `v4` style
+        const text = 'chore(deps): update dorny/paths-filter action to v4'
+        const result = parser.parseDependenciesFromText(text, 'github-actions')
+
+        const first = result[0]
+        expect(first).toBeDefined()
+        if (first == null) return
+        expect(first.name).toBe('dorny/paths-filter')
+        expect(first.newVersion).toBe('4')
+      })
+
       it('should detect scoped npm packages', () => {
         const text = 'update dependency @scope/package to v1.0.0'
         const result = parser.parseDependenciesFromText(text, 'npm')

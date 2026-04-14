@@ -12,7 +12,7 @@
     // Performance optimizations for incremental builds
     "assumeChangesOnlyAffectDirectDependencies": true,
 
-    "target": "ES2022",
+    "target": "ES2024",
     "rootDir": "src",
 
     "module": "Preserve",

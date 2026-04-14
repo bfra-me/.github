@@ -1,5 +1,5 @@
 import type {Options} from 'tsup'
-import packageJson from './package.json' assert {type: 'json'}
+import packageJson from './package.json' with {type: 'json'}
 
 const config: Options = {
   banner: {
@@ -9,6 +9,7 @@ const config: Options = {
     index: 'src/index.ts',
   },
   format: 'esm',
+  target: 'node24',
   noExternal: Object.keys(packageJson.dependencies),
   splitting: false,
 }

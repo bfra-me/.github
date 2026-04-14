@@ -132,3 +132,22 @@ pnpm lint      # eslint
 - Security updates get special handling: always flagged, may override bump type
 - `renovate-parser.ts` is a barrel file re-exporting functions from `src/parser/`
 - Constructor config parameters became optional function parameters (e.g., `assessImpact(deps, options?)`)
+
+## COMPLEXITY HOTSPOTS
+
+These modules contain high cyclomatic complexity and deep nesting — approach refactoring carefully:
+
+| File | Lines | Hardest Functions | Why Complex |
+| --- | --- | --- | --- |
+| `changeset-template-engine.ts` | 579 | `renderHandlebarsTemplate`, `parseTemplate` | Regex-based rendering, multiple template formats, 10+ decision points |
+| `git-operations.ts` | 697 | `commitChangesetFiles`, `pushToRemoteBranch` | Retry logic, rebase/conflict handling, 15+ paths |
+| `grouped-pr-manager.ts` | 608 | `updateGroupedPRs` | Nested loops with try-catch, API-heavy, 12+ decision points |
+
+## DEEP MODULE PATTERNS
+
+The `src/detectors/`, `src/impact/`, `src/semver/`, `src/parser/` directories (and `src/categorization/`, `src/deduplicator/`, `src/multi-package/`, `src/multi-package-gen/`, `src/summaries/`) follow a modular decomposition pattern:
+
+- **Naming conventions**: `*-analyzer.ts`, `*-parser.ts`, `*-comparator.ts`, `*-types.ts` (not all directories use all suffixes)
+- **Data flow pipeline**: `parse` → `analyze` → `compare` → `calculate impact` → `decide bump`
+- **Common concepts**: `RenovateDependency`, `ImpactAssessment`, confidence enums (`high|medium|low`), ecosystem-specific change types (e.g., `DependencyChange` for npm, `DockerChange` for Docker)
+- **Deep module pattern**: Complex logic encapsulated behind simple function interfaces — e.g., `detectNPMChangesFromPR()` hides lockfile diffing, version comparison, and workspace detection

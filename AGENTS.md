@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-04-03 **Branch:** main
+**Generated:** 2026-04-13 **Branch:** main
 
 ## OVERVIEW
 
@@ -14,7 +14,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 │   ├── actions/
 │   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (125 src files)
 │   │   ├── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
-│   │   └── update-repository-settings/ # Plugin-based action: syncs repo settings from YAML config (39 files)
+│   │   └── update-repository-settings/ # Plugin-based action: syncs repo settings from YAML config
 │   ├── workflows/                 # 17 workflows: CI/CD, Fro Bot agent, Copilot setup, security scanning
 │   ├── instructions/              # Dev guidelines consumed by AI assistants and code review
 │   └── settings.yml               # Repo settings via Repository Settings App
@@ -86,13 +86,21 @@ pnpm run workspace:validate       # Dependency analysis + consistency check
 pnpm run build:monitor            # Build performance analysis
 ```
 
+## WORKSPACE
+
+- **4 packages**: root (`@bfra.me/.github`) + 3 actions (renovate-changesets, update-repository-settings, update-metadata)
+- **Root in workspace** — `packages: ["."]` with `ignoreWorkspaceRootCheck: true` (uncommon but intentional)
+- **Aggressive hoisting** — `shamefullyHoist: true` for faster installs
+- **No inter-package deps** — actions are self-contained; root provides shared dev tooling
+- **Parallel builds** — `pnpm -r run build` (no dependency ordering needed)
+
 ## NOTES
 
 - `dist/` directories are committed for actions (GitHub requires pre-built JS)
 - Root `tsconfig.json` uses `noEmit: true` — type-checking only. Actions have own build configs
 - `scripts/release.ts`: monorepo root package is tagged as `v{ver}` (private), but also logs `{name}@{ver}` so the Changesets action can detect it as a published package
 - All actions use Node.js 24 runtime (`using: node24` in action manifests)
-
+- Action manifest naming is inconsistent: `action.yaml` (renovate-changesets, update-metadata) vs `action.yml` (update-repository-settings)
 - `.github/instructions/` files are consumed by AI tools, not by build system
 - `pnpm` overrides: `jiti` pinned to `<2.7.0` (compatibility), `undici@<6.23.0` forced to `>=6.23.0`
 - Fro Bot uses `FRO_BOT_PAT` + `OPENCODE_AUTH_JSON` secrets (separate from `bfra-me[bot]` app)
@@ -100,3 +108,4 @@ pnpm run build:monitor            # Build performance analysis
 - Fro Bot uses perpetual issues for reports: Daily Autohealing Report and Org Autohealing Report (each report type has one issue that is updated daily/weekday)
 - `copilot-instructions.md` references AGENTS.md — keep both in sync
 - Reusable workflows resolve action code via self-checkout at `GITHUB_WORKFLOW_REF` — no hardcoded SHA pins needed for internal actions
+- `update-metadata.yaml` workflow uses local action path without self-checkout pattern (action only runs in this repo)

@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.32
+### Patch Changes
+
+
+- Bump TypeScript build target to ES2024 and esbuild target to node24 to match the Node.js 24 runtime. Add `engines: { node: ">=24" }` to all action packages. Fix deprecated `import ... assert` → `import ... with` syntax in tsup configs. ([#2040](https://github.com/bfra-me/.github/pull/2040))
+
 ## 0.2.31
 ### Patch Changes
 

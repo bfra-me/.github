@@ -1,5 +1,39 @@
 # @bfra.me/.github
 
+## 4.16.6
+### Patch Changes
+
+
+- 📦 Group update for npm dependencies: `@bfra.me/eslint-config`, `@bfra.me/prettier-config`, `@bfra.me/tsconfig` ([#2042](https://github.com/bfra-me/.github/pull/2042))
+  
+  ⚠️ **Breaking Changes**: This update includes breaking changes that may require code modifications.
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.40.0` to `9.41.0` ([#2044](https://github.com/bfra-me/.github/pull/2044))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.37.0` to `9.38.0` ([#2037](https://github.com/bfra-me/.github/pull/2037))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.39.0` to `9.40.0` ([#2041](https://github.com/bfra-me/.github/pull/2041))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.40.0` to `v0.40.1` ([#2047](https://github.com/bfra-me/.github/pull/2047))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.39.1` to `v0.40.0` ([#2034](https://github.com/bfra-me/.github/pull/2034))
+
+
+- 📦 Update npm dependency `@types/node` from `24.12.0` to `24.12.2` ([#2043](https://github.com/bfra-me/.github/pull/2043))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.35.1` to `4.35.2` ([#2045](https://github.com/bfra-me/.github/pull/2045))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.41.0` to `9.42.0` ([#2046](https://github.com/bfra-me/.github/pull/2046))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.38.0` to `9.39.0` ([#2038](https://github.com/bfra-me/.github/pull/2038))
+
 ## 4.16.5
 ### Patch Changes
 

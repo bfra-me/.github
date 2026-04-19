@@ -1,5 +1,47 @@
 # @bfra.me/.github
 
+## 4.16.7
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v6.0.0` to `v6.0.1` ([#2055](https://github.com/bfra-me/.github/pull/2055))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.40.1` to `v0.40.2` ([#2053](https://github.com/bfra-me/.github/pull/2053))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.41.1` to `v0.41.2` ([#2061](https://github.com/bfra-me/.github/pull/2061))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.43.0` to `9.44.0` ([#2052](https://github.com/bfra-me/.github/pull/2052))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.42.0` to `9.43.0` ([#2049](https://github.com/bfra-me/.github/pull/2049))
+
+
+- 📦 Group update for dependencies dependencies: `Node.js`, `node` ([#2051](https://github.com/bfra-me/.github/pull/2051))
+
+
+- 📦 Update npm dependency `prettier` from `3.8.2` to `3.8.3` ([#2056](https://github.com/bfra-me/.github/pull/2056))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.40.2` to `v0.41.0` ([#2058](https://github.com/bfra-me/.github/pull/2058))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.48.0` to `9.49.0` ([#2063](https://github.com/bfra-me/.github/pull/2063))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.46.0` to `9.48.0` ([#2062](https://github.com/bfra-me/.github/pull/2062))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.45.0` to `9.46.0` ([#2057](https://github.com/bfra-me/.github/pull/2057))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.44.0` to `9.45.0` ([#2054](https://github.com/bfra-me/.github/pull/2054))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.41.0` to `v0.41.1` ([#2059](https://github.com/bfra-me/.github/pull/2059))
+
 ## 4.16.6
 ### Patch Changes
 

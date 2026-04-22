@@ -1,5 +1,44 @@
 # @bfra.me/.github
 
+## 4.16.8
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.49.0` to `9.49.1` ([`f24bb55`](https://github.com/bfra-me/.github/commit/f24bb55cab2105344ab910fe7708e642a0266640))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v6.0.1` to `v6.0.3` ([`d25dd6c`](https://github.com/bfra-me/.github/commit/d25dd6ca880c8602d87f03d589b35909c64cd32b))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.49.1` to `9.50.0` ([`e61a913`](https://github.com/bfra-me/.github/commit/e61a913b23dd4c3839b8b8d3c2e5df0c837b095a))
+
+
+- 📦 Update npm dependency `eslint` from `10.2.0` to `10.2.1` ([`3a28a98`](https://github.com/bfra-me/.github/commit/3a28a981d00dc2da2b0dea6b267c41baf917785c))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.50.0` to `9.51.0` ([`7a3cd86`](https://github.com/bfra-me/.github/commit/7a3cd869ed40def43261f42bd1e18f6f41a98e45))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.41.2` to `v0.41.3` ([`4805a9e`](https://github.com/bfra-me/.github/commit/4805a9eb6fe2b78352b1aef4b0ae87467fda968d))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.51.0` to `9.52.0` ([`e41f4ca`](https://github.com/bfra-me/.github/commit/e41f4ca3184ab38959a6a8de6f106810e3a0b532))
+
+
+- 📦 Update npm dependency `@changesets/cli` from `2.30.0` to `2.31.0` ([`caa5d39`](https://github.com/bfra-me/.github/commit/caa5d39f5cf0623a39970ad4d63bee3074a035b3))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.52.0` to `9.53.0` ([#2077](https://github.com/bfra-me/.github/pull/2077))
+
+
+- 📦 Update npm dependency `@changesets/config` from `3.1.3` to `3.1.4` ([`dd6964d`](https://github.com/bfra-me/.github/commit/dd6964dcde5f750c43cd2b5aa24c16f43336c2bb))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/setup-node` from `v6.3.0` to `v6.4.0` ([`acef69b`](https://github.com/bfra-me/.github/commit/acef69bc2c4fd7dc121d4c670590e186be553186))
+
+
+- 📦 Update npm dependency `typescript` from `6.0.2` to `6.0.3` ([`ad7f9ef`](https://github.com/bfra-me/.github/commit/ad7f9efa008514154b3c6d09d723a9b5a37611e0))
+
 ## 4.16.7
 ### Patch Changes
 

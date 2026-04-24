@@ -105,7 +105,7 @@ importers:
     dependencies:
       '@actions/core':
         specifier: ^3.0.0
-        version: 3.0.0
+        version: 3.0.1
       '@actions/exec':
         specifier: ^3.0.0
         version: 3.0.0
@@ -142,7 +142,7 @@ importers:
     dependencies:
       '@actions/core':
         specifier: ^3.0.0
-        version: 3.0.0
+        version: 3.0.1
       '@octokit/rest':
         specifier: ^22.0.0
         version: 22.0.1
@@ -164,7 +164,7 @@ importers:
     dependencies:
       '@actions/core':
         specifier: ^3.0.0
-        version: 3.0.0
+        version: 3.0.1
       '@actions/github':
         specifier: ^9.0.0
         version: 9.1.0
@@ -187,8 +187,8 @@ importers:
 
 packages:
 
-  '@actions/core@3.0.0':
-    resolution: {integrity: sha512-zYt6cz+ivnTmiT/ksRVriMBOiuoUpDCJJlZ5KPl2/FRdvwU3f7MPh9qftvbkXJThragzUZieit2nyHUyw53Seg==}
+  '@actions/core@3.0.1':
+    resolution: {integrity: sha512-a6d/Nwahm9fliVGRhdhofo40HjHQasUPusmc7vBfyky+7Z+P2A1J68zyFVaNcEclc/Se+eO595oAr5nwEIoIUA==}
 
   '@actions/exec@3.0.0':
     resolution: {integrity: sha512-6xH/puSoNBXb72VPlZVm7vQ+svQpFyA96qdDBvhB8eNZOE8LtPf9L4oAsfzK/crCL8YZ+19fKYVnM63Sl+Xzlw==}
@@ -199,8 +199,8 @@ packages:
   '@actions/http-client@3.0.2':
     resolution: {integrity: sha512-JP38FYYpyqvUsz+Igqlc/JG6YO9PaKuvqjM3iGvaLqFnJ7TFmcLyy2IDrY0bI0qCQug8E9K+elv5ZNfw62ZJzA==}
 
-  '@actions/http-client@4.0.0':
-    resolution: {integrity: sha512-QuwPsgVMsD6qaPD57GLZi9sqzAZCtiJT8kVBCDpLtxhL5MydQ4gS+DrejtZZPdIYyB1e95uCK9Luyds7ybHI3g==}
+  '@actions/http-client@4.0.1':
+    resolution: {integrity: sha512-+Nvd1ImaOZBSoPbsUtEhv+1z99H12xzncCkz0a3RuehINE81FZSe2QTj3uvAPTcJX/SCzUQHQ0D1GrPMbrPitg==}
 
   '@actions/io@3.0.2':
     resolution: {integrity: sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw==}
@@ -1288,8 +1288,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  ajv@6.14.0:
-    resolution: {integrity: sha512-IWrosm/yrn43eiKqkfkHis7QioDleaXQHdDVPKg0FSwwd/DuvyX79TZnFOnYpB7dcsFAMmtFztZuXPDvSePkFw==}
+  ajv@6.15.0:
+    resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
 
   ajv@8.18.0:
     resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
@@ -2940,8 +2940,8 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@6.24.1:
-    resolution: {integrity: sha512-sC+b0tB1whOCzbtlx20fx3WgCXwkW627p4EA9uM+/tNNPkSS+eSEld6pAs9nDv7WbY1UUljBMYPtu9BCOrCWKA==}
+  undici@6.25.0:
+    resolution: {integrity: sha512-ZgpWDC5gmNiuY9CnLVXEH8rl50xhRCuLNA97fAUnKi8RRuV4E6KG31pDTsLVUKnohJE0I3XDrTeEydAXRw47xg==}
     engines: {node: '>=18.17'}
 
   unified@11.0.5:
@@ -3121,10 +3121,10 @@ packages:
 
 snapshots:
 
-  '@actions/core@3.0.0':
+  '@actions/core@3.0.1':
     dependencies:
       '@actions/exec': 3.0.0
-      '@actions/http-client': 4.0.0
+      '@actions/http-client': 4.0.1
 
   '@actions/exec@3.0.0':
     dependencies:
@@ -3138,17 +3138,17 @@ snapshots:
       '@octokit/plugin-rest-endpoint-methods': 17.0.0(@octokit/core@7.0.6)
       '@octokit/request': 10.0.8
       '@octokit/request-error': 7.1.0
-      undici: 6.24.1
+      undici: 6.25.0
 
   '@actions/http-client@3.0.2':
     dependencies:
       tunnel: 0.0.6
-      undici: 6.24.1
+      undici: 6.25.0
 
-  '@actions/http-client@4.0.0':
+  '@actions/http-client@4.0.1':
     dependencies:
       tunnel: 0.0.6
-      undici: 6.24.1
+      undici: 6.25.0
 
   '@actions/io@3.0.2': {}
 
@@ -3986,7 +3986,7 @@ snapshots:
       '@typescript-eslint/parser': 8.58.0(eslint@10.2.1(jiti@2.6.1))(typescript@6.0.3)
       '@typescript-eslint/typescript-estree': 8.58.0(typescript@6.0.3)
       '@typescript-eslint/utils': 8.58.0(eslint@10.2.1(jiti@2.6.1))(typescript@6.0.3)
-      ajv: 6.14.0
+      ajv: 6.15.0
       eslint: 10.2.1(jiti@2.6.1)
       json-stable-stringify-without-jsonify: 1.0.1
       lodash.merge: 4.6.2
@@ -4211,7 +4211,7 @@ snapshots:
 
   acorn@8.16.0: {}
 
-  ajv@6.14.0:
+  ajv@6.15.0:
     dependencies:
       fast-deep-equal: 3.1.3
       fast-json-stable-stringify: 2.1.0
@@ -4693,7 +4693,7 @@ snapshots:
       '@humanwhocodes/module-importer': 1.0.1
       '@humanwhocodes/retry': 0.4.3
       '@types/estree': 1.0.8
-      ajv: 6.14.0
+      ajv: 6.15.0
       cross-spawn: 7.0.6
       debug: 4.4.3
       escape-string-regexp: 4.0.0
@@ -6029,7 +6029,7 @@ snapshots:
 
   undici-types@7.16.0: {}
 
-  undici@6.24.1: {}
+  undici@6.25.0: {}
 
   unified@11.0.5:
     dependencies:

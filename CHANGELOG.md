@@ -1,5 +1,50 @@
 # @bfra.me/.github
 
+## 4.16.9
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.54.0` to `9.55.0` ([#2083](https://github.com/bfra-me/.github/pull/2083))
+
+
+- 📦 Update npm dependency `pnpm` from `10.33.0` to `10.33.1` ([#2088](https://github.com/bfra-me/.github/pull/2088))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.55.0` to `9.55.1` ([#2087](https://github.com/bfra-me/.github/pull/2087))
+
+
+- 📦 Update npm dependency `@actions/core` from `3.0.0` to `3.0.1` ([#2085](https://github.com/bfra-me/.github/pull/2085))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#2084](https://github.com/bfra-me/.github/pull/2084))
+
+
+- 📦 Update npm dependency `@actions/github` from `9.1.0` to `9.1.1` ([#2086](https://github.com/bfra-me/.github/pull/2086))
+
+
+- 📦 Update npm dependency `vite` from `8.0.8` to `8.0.9` ([#2081](https://github.com/bfra-me/.github/pull/2081))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.41.4` to `v0.42.0` ([#2089](https://github.com/bfra-me/.github/pull/2089))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.41.3` to `v0.41.4` ([#2079](https://github.com/bfra-me/.github/pull/2079))
+
+
+- 📦 Update npm dependency `pnpm` from `10.33.1` to `10.33.2` ([#2094](https://github.com/bfra-me/.github/pull/2094))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.53.0` to `9.54.0` ([#2082](https://github.com/bfra-me/.github/pull/2082))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.0` to `v0.42.1` ([#2090](https://github.com/bfra-me/.github/pull/2090))
+
+
+- 📦 Update npm dependency `vite` from `8.0.9` to `8.0.10` ([#2091](https://github.com/bfra-me/.github/pull/2091))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.1` to `v0.42.2` ([#2093](https://github.com/bfra-me/.github/pull/2093))
+
 ## 4.16.8
 ### Patch Changes
 

@@ -21,8 +21,20 @@ function makeContext(overrides: Partial<EnhancedTemplateContext> = {}): Enhanced
     ecosystem: 'node',
     updateScope: 'major',
     dependencyList: [
-      {name: 'lodash', currentVersion: '4.0.0', newVersion: '5.0.0', isBreaking: true, isSecurity: false},
-      {name: 'react', currentVersion: '18.0.0', newVersion: '19.0.0', isBreaking: true, isSecurity: false},
+      {
+        name: 'lodash',
+        currentVersion: '4.0.0',
+        newVersion: '5.0.0',
+        isBreaking: true,
+        isSecurity: false,
+      },
+      {
+        name: 'react',
+        currentVersion: '18.0.0',
+        newVersion: '19.0.0',
+        isBreaking: true,
+        isSecurity: false,
+      },
     ],
     impact: {
       overall: 'major',
@@ -32,12 +44,12 @@ function makeContext(overrides: Partial<EnhancedTemplateContext> = {}): Enhanced
       hasSecurity: false,
     },
     helpers: {
-      formatDate: (date) => String(date),
-      capitalize: (text) => text.charAt(0).toUpperCase() + text.slice(1),
+      formatDate: date => String(date),
+      capitalize: text => text.charAt(0).toUpperCase() + text.slice(1),
       pluralize: (word, count) => (count === 1 ? word : `${word}s`),
       truncate: (text, length) => text.slice(0, length),
-      joinWithAnd: (items) => items.join(' and '),
-      formatVersion: (version) => `v${version}`,
+      joinWithAnd: items => items.join(' and '),
+      formatVersion: version => `v${version}`,
       formatSemverBump: (current, next) => `${current} -> ${next}`,
     },
     ...overrides,
@@ -76,10 +88,7 @@ describe('ChangesetTemplateEngine', () => {
 
     it('should remove unreplaced variables', async () => {
       const engine = makeEngine()
-      const result = await engine.renderTemplate(
-        'Update {unknownVar} dependency',
-        makeContext(),
-      )
+      const result = await engine.renderTemplate('Update {unknownVar} dependency', makeContext())
       expect(result).not.toContain('{unknownVar}')
     })
 
@@ -95,10 +104,7 @@ describe('ChangesetTemplateEngine', () => {
 
     it('should handle {dependencyList} list', async () => {
       const engine = makeEngine()
-      const result = await engine.renderTemplate(
-        'Packages: {dependencyList}',
-        makeContext(),
-      )
+      const result = await engine.renderTemplate('Packages: {dependencyList}', makeContext())
       expect(result).toContain('lodash')
     })
 
@@ -183,10 +189,7 @@ describe('ChangesetTemplateEngine', () => {
   describe('renderTemplate error handling', () => {
     it('should return fallback on error in fallback mode', async () => {
       const engine = makeEngine('fallback')
-      const result = await engine.renderTemplate(
-        {content: '', format: 'simple'},
-        makeContext(),
-      )
+      const result = await engine.renderTemplate({content: '', format: 'simple'}, makeContext())
       expect(result).toContain('npm')
     })
 
@@ -199,10 +202,7 @@ describe('ChangesetTemplateEngine', () => {
 
     it('should return empty string in silent mode on error', async () => {
       const engine = makeEngine('silent')
-      const result = await engine.renderTemplate(
-        {content: '', format: 'simple'},
-        makeContext(),
-      )
+      const result = await engine.renderTemplate({content: '', format: 'simple'}, makeContext())
       expect(result).toBe('')
     })
 

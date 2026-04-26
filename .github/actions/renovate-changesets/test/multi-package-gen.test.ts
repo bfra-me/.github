@@ -1,7 +1,11 @@
-import type {MultiPackageAnalysisResult, PackageRelationship, WorkspacePackage} from '../src/multi-package-analyzer'
-import type {RenovateDependency, RenovatePRContext} from '../src/renovate-parser'
+import type {
+  MultiPackageAnalysisResult,
+  PackageRelationship,
+  WorkspacePackage,
+} from '../src/multi-package-analyzer'
 import type {MultiPackageChangesetConfig} from '../src/multi-package-gen/types'
-import {describe, expect, it, vi, beforeEach} from 'vitest'
+import type {RenovateDependency, RenovatePRContext} from '../src/renovate-parser'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {
   createChangesetInfos,
   createGroupedChangesets,
@@ -92,7 +96,9 @@ function makePRContext(overrides: Partial<RenovatePRContext> = {}): RenovatePRCo
   }
 }
 
-function makeConfig(overrides: Partial<MultiPackageChangesetConfig> = {}): MultiPackageChangesetConfig {
+function makeConfig(
+  overrides: Partial<MultiPackageChangesetConfig> = {},
+): MultiPackageChangesetConfig {
   return {
     workingDirectory: '/tmp/test',
     useOfficialChangesets: false,
@@ -311,7 +317,10 @@ describe('changeset-enhancer', () => {
 
     it('should include impact info when indirectly affected packages exist', () => {
       const analysis: MultiPackageAnalysisResult = {
-        ...makeAnalysisResult(['pkg-a', 'pkg-b'], [makeWorkspacePackage('pkg-a'), makeWorkspacePackage('pkg-b')]),
+        ...makeAnalysisResult(
+          ['pkg-a', 'pkg-b'],
+          [makeWorkspacePackage('pkg-a'), makeWorkspacePackage('pkg-b')],
+        ),
         impactAnalysis: {
           directlyAffected: ['pkg-a'],
           indirectlyAffected: ['pkg-b'],
@@ -333,8 +342,15 @@ describe('changeset-enhancer', () => {
         type: 'internal-dependency' as const,
         weight: 1,
       }))
-      const pkgs = [makeWorkspacePackage('pkg-a'), ...Array.from({length: 7}, (_, i) => makeWorkspacePackage(`pkg-${i + 1}`))]
-      const analysis = makeAnalysisResult(['pkg-a', 'pkg-1', 'pkg-2', 'pkg-3', 'pkg-4', 'pkg-5', 'pkg-6', 'pkg-7'], pkgs, relationships)
+      const pkgs = [
+        makeWorkspacePackage('pkg-a'),
+        ...Array.from({length: 7}, (_, i) => makeWorkspacePackage(`pkg-${i + 1}`)),
+      ]
+      const analysis = makeAnalysisResult(
+        ['pkg-a', 'pkg-1', 'pkg-2', 'pkg-3', 'pkg-4', 'pkg-5', 'pkg-6', 'pkg-7'],
+        pkgs,
+        relationships,
+      )
       const config = makeConfig({includeRelationshipInfo: true})
       const result = enhanceChangesetSummary('Update dep', analysis, config)
       expect(result).toContain('more')
@@ -507,7 +523,14 @@ describe('changeset-creators', () => {
 
     it('should handle empty affected packages', async () => {
       const analysis = makeAnalysisResult([])
-      const result = await createMultipleChangesets([], analysis, 'Update', 'patch', [], makeConfig())
+      const result = await createMultipleChangesets(
+        [],
+        analysis,
+        'Update',
+        'patch',
+        [],
+        makeConfig(),
+      )
       expect(result).toHaveLength(0)
     })
   })
@@ -532,7 +555,14 @@ describe('changeset-creators', () => {
 
     it('should handle packages with no relationships', async () => {
       const analysis = makeAnalysisResult(['pkg-a', 'pkg-b'])
-      const result = await createGroupedChangesets([], analysis, 'Update', 'patch', [], makeConfig())
+      const result = await createGroupedChangesets(
+        [],
+        analysis,
+        'Update',
+        'patch',
+        [],
+        makeConfig(),
+      )
       expect(result).toHaveLength(2)
     })
 
@@ -542,7 +572,14 @@ describe('changeset-creators', () => {
         {source: 'pkg-b', target: 'pkg-a', type: 'internal-dependency', weight: 1},
       ]
       const analysis = makeAnalysisResult(['pkg-a', 'pkg-b'], [], relationships)
-      const result = await createGroupedChangesets([], analysis, 'Update', 'patch', [], makeConfig())
+      const result = await createGroupedChangesets(
+        [],
+        analysis,
+        'Update',
+        'patch',
+        [],
+        makeConfig(),
+      )
       // Both are in the same group, so only one changeset
       expect(result).toHaveLength(1)
     })

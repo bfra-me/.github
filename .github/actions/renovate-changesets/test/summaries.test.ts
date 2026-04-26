@@ -15,14 +15,15 @@ import {
   generatePythonSummaryLogic,
   generateTerraformSummaryLogic,
 } from '../src/summaries/infrastructure-summaries'
+import {createManagerSummaries} from '../src/summaries/manager-summaries'
 import {
   addBreakingChangeWarning,
   generateGenericSummary,
   generateGroupedUpdateSummary,
   generateLockfileSummary,
   generateSecurityUpdateSummary,
-  generateSingleDependencySummary,
 } from '../src/summaries/structural-summaries'
+import {createSummaryContexts} from '../src/summaries/summary-contexts'
 import {
   determineRiskLevel,
   formatVersionText,
@@ -32,8 +33,6 @@ import {
   getPackageManagerDisplayName,
   getPythonManagerDisplayName,
 } from '../src/summaries/summary-helpers'
-import {createSummaryContexts} from '../src/summaries/summary-contexts'
-import {createManagerSummaries} from '../src/summaries/manager-summaries'
 
 function makePRContext(overrides: Partial<RenovatePRContext> = {}): RenovatePRContext {
   return {
@@ -89,15 +88,21 @@ describe('summary-helpers', () => {
     })
 
     it('should return lock emoji for security updates', () => {
-      expect(getEmojiForUpdate(makePRContext({isSecurityUpdate: true}), makeImpact(), true)).toBe('🔒 ')
+      expect(getEmojiForUpdate(makePRContext({isSecurityUpdate: true}), makeImpact(), true)).toBe(
+        '🔒 ',
+      )
     })
 
     it('should return package emoji for grouped updates', () => {
-      expect(getEmojiForUpdate(makePRContext({isGroupedUpdate: true}), makeImpact(), true)).toBe('📦 ')
+      expect(getEmojiForUpdate(makePRContext({isGroupedUpdate: true}), makeImpact(), true)).toBe(
+        '📦 ',
+      )
     })
 
     it('should return warning emoji for breaking changes', () => {
-      expect(getEmojiForUpdate(makePRContext(), makeImpact({hasBreakingChanges: true}), true)).toBe('⚠️ ')
+      expect(getEmojiForUpdate(makePRContext(), makeImpact({hasBreakingChanges: true}), true)).toBe(
+        '⚠️ ',
+      )
     })
 
     it('should return npm emoji for npm manager', () => {
@@ -121,11 +126,15 @@ describe('summary-helpers', () => {
     })
 
     it('should return clipboard emoji for unknown manager', () => {
-      expect(getEmojiForUpdate(makePRContext({manager: 'unknown' as 'npm'}), makeImpact(), true)).toBe('📋 ')
+      expect(
+        getEmojiForUpdate(makePRContext({manager: 'unknown' as 'npm'}), makeImpact(), true),
+      ).toBe('📋 ')
     })
 
     it('should return gear emoji for github-actions manager', () => {
-      expect(getEmojiForUpdate(makePRContext({manager: 'github-actions'}), makeImpact(), true)).toBe('⚙️ ')
+      expect(
+        getEmojiForUpdate(makePRContext({manager: 'github-actions'}), makeImpact(), true),
+      ).toBe('⚙️ ')
     })
   })
 
@@ -221,7 +230,9 @@ describe('summary-helpers', () => {
     })
 
     it('should return empty string for commit SHA', () => {
-      expect(formatVersionText(undefined, 'abcdef1234567890abcdef1234567890abcdef12', 'major', true)).toBe('')
+      expect(
+        formatVersionText(undefined, 'abcdef1234567890abcdef1234567890abcdef12', 'major', true),
+      ).toBe('')
     })
 
     it('should format major version upgrade', () => {
@@ -247,7 +258,11 @@ describe('structural-summaries', () => {
 
   describe('addBreakingChangeWarning', () => {
     it('should add warning when hasBreakingChanges and config enabled', () => {
-      const result = addBreakingChangeWarning('Summary', makeImpact({hasBreakingChanges: true}), config)
+      const result = addBreakingChangeWarning(
+        'Summary',
+        makeImpact({hasBreakingChanges: true}),
+        config,
+      )
       expect(result).toContain('Breaking Changes')
     })
 
@@ -258,7 +273,11 @@ describe('structural-summaries', () => {
 
     it('should not add warning when config disabled', () => {
       const disabledConfig = makeConfig({includeBreakingChangeWarnings: false})
-      const result = addBreakingChangeWarning('Summary', makeImpact({hasBreakingChanges: true}), disabledConfig)
+      const result = addBreakingChangeWarning(
+        'Summary',
+        makeImpact({hasBreakingChanges: true}),
+        disabledConfig,
+      )
       expect(result).toBe('Summary')
     })
   })
@@ -273,7 +292,13 @@ describe('structural-summaries', () => {
     })
 
     it('should handle single dep', () => {
-      const result = generateSecurityUpdateSummary('npm', ['lodash'], prContext, makeImpact(), config)
+      const result = generateSecurityUpdateSummary(
+        'npm',
+        ['lodash'],
+        prContext,
+        makeImpact(),
+        config,
+      )
       expect(result).toContain('lodash')
       expect(result).toContain('Security update')
     })
@@ -301,7 +326,13 @@ describe('structural-summaries', () => {
     })
 
     it('should handle multiple deps within limit', () => {
-      const result = generateSecurityUpdateSummary('npm', ['dep1', 'dep2'], prContext, makeImpact(), config)
+      const result = generateSecurityUpdateSummary(
+        'npm',
+        ['dep1', 'dep2'],
+        prContext,
+        makeImpact(),
+        config,
+      )
       expect(result).toContain('dep1')
       expect(result).toContain('dep2')
     })
@@ -353,7 +384,12 @@ describe('structural-summaries', () => {
     })
 
     it('should include dep names within limit', () => {
-      const result = generateLockfileSummary(makePRContext(), makeImpact(), ['dep1', 'dep2'], config)
+      const result = generateLockfileSummary(
+        makePRContext(),
+        makeImpact(),
+        ['dep1', 'dep2'],
+        config,
+      )
       expect(result).toContain('dep1')
     })
 
@@ -402,7 +438,13 @@ describe('structural-summaries', () => {
     })
 
     it('should handle multiple deps within limit', () => {
-      const result = generateGenericSummary(makePRContext(), makeImpact(), 'npm', ['d1', 'd2'], config)
+      const result = generateGenericSummary(
+        makePRContext(),
+        makeImpact(),
+        'npm',
+        ['d1', 'd2'],
+        config,
+      )
       expect(result).toContain('d1')
     })
 
@@ -442,18 +484,21 @@ describe('ci-summaries', () => {
     })
 
     it('should handle multiple roles within limit', () => {
-      const result = generateAnsibleSummaryLogic(ci, makePRContext(), makeImpact(), ['role1', 'role2'])
+      const result = generateAnsibleSummaryLogic(ci, makePRContext(), makeImpact(), [
+        'role1',
+        'role2',
+      ])
       expect(result).toContain('role1')
       expect(result).toContain('role2')
     })
 
     it('should handle many roles beyond limit', () => {
-      const result = generateAnsibleSummaryLogic(
-        ci,
-        makePRContext(),
-        makeImpact(),
-        ['r1', 'r2', 'r3', 'r4'],
-      )
+      const result = generateAnsibleSummaryLogic(ci, makePRContext(), makeImpact(), [
+        'r1',
+        'r2',
+        'r3',
+        'r4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('Ansible')
     })
@@ -482,7 +527,12 @@ describe('ci-summaries', () => {
     })
 
     it('should handle many hooks beyond limit', () => {
-      const result = generatePreCommitSummaryLogic(ci, makePRContext(), makeImpact(), ['h1', 'h2', 'h3', 'h4'])
+      const result = generatePreCommitSummaryLogic(ci, makePRContext(), makeImpact(), [
+        'h1',
+        'h2',
+        'h3',
+        'h4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('pre-commit')
     })
@@ -511,7 +561,12 @@ describe('ci-summaries', () => {
     })
 
     it('should handle many deps beyond limit', () => {
-      const result = generateGitLabCISummaryLogic(ci, makePRContext(), makeImpact(), ['d1', 'd2', 'd3', 'd4'])
+      const result = generateGitLabCISummaryLogic(ci, makePRContext(), makeImpact(), [
+        'd1',
+        'd2',
+        'd3',
+        'd4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('GitLab')
     })
@@ -540,7 +595,12 @@ describe('ci-summaries', () => {
     })
 
     it('should handle many orbs beyond limit', () => {
-      const result = generateCircleCISummaryLogic(ci, makePRContext(), makeImpact(), ['o1', 'o2', 'o3', 'o4'])
+      const result = generateCircleCISummaryLogic(ci, makePRContext(), makeImpact(), [
+        'o1',
+        'o2',
+        'o3',
+        'o4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('CircleCI')
     })
@@ -564,23 +624,28 @@ describe('infrastructure-summaries', () => {
     })
 
     it('should handle single image', () => {
-      const result = generateDockerSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['nginx'])
+      const result = generateDockerSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'nginx',
+      ])
       expect(result).toContain('nginx')
       expect(result).toContain('Docker')
     })
 
     it('should handle multiple images within limit', () => {
-      const result = generateDockerSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['img1', 'img2'])
+      const result = generateDockerSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'img1',
+        'img2',
+      ])
       expect(result).toContain('img1')
     })
 
     it('should handle many images beyond limit', () => {
-      const result = generateDockerSummaryLogic(
-        infrastructure,
-        makePRContext(),
-        makeImpact(),
-        ['i1', 'i2', 'i3', 'i4'],
-      )
+      const result = generateDockerSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'i1',
+        'i2',
+        'i3',
+        'i4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('Docker')
     })
@@ -598,7 +663,9 @@ describe('infrastructure-summaries', () => {
     })
 
     it('should handle single crate', () => {
-      const result = generateCargoSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['serde'])
+      const result = generateCargoSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'serde',
+      ])
       expect(result).toContain('serde')
     })
 
@@ -608,17 +675,20 @@ describe('infrastructure-summaries', () => {
     })
 
     it('should handle multiple crates within limit', () => {
-      const result = generateCargoSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['c1', 'c2'])
+      const result = generateCargoSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'c1',
+        'c2',
+      ])
       expect(result).toContain('c1')
     })
 
     it('should handle many crates beyond limit', () => {
-      const result = generateCargoSummaryLogic(
-        infrastructure,
-        makePRContext(),
-        makeImpact(),
-        ['c1', 'c2', 'c3', 'c4'],
-      )
+      const result = generateCargoSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'c1',
+        'c2',
+        'c3',
+        'c4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('Rust')
     })
@@ -636,23 +706,28 @@ describe('infrastructure-summaries', () => {
     })
 
     it('should handle single chart', () => {
-      const result = generateHelmSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['my-chart'])
+      const result = generateHelmSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'my-chart',
+      ])
       expect(result).toContain('my-chart')
       expect(result).toContain('Helm')
     })
 
     it('should handle multiple charts within limit', () => {
-      const result = generateHelmSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['c1', 'c2'])
+      const result = generateHelmSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'c1',
+        'c2',
+      ])
       expect(result).toContain('c1')
     })
 
     it('should handle many charts beyond limit', () => {
-      const result = generateHelmSummaryLogic(
-        infrastructure,
-        makePRContext(),
-        makeImpact(),
-        ['c1', 'c2', 'c3', 'c4'],
-      )
+      const result = generateHelmSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'c1',
+        'c2',
+        'c3',
+        'c4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('Helm')
     })
@@ -670,23 +745,28 @@ describe('infrastructure-summaries', () => {
     })
 
     it('should handle single provider', () => {
-      const result = generateTerraformSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['aws'])
+      const result = generateTerraformSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'aws',
+      ])
       expect(result).toContain('aws')
       expect(result).toContain('Terraform')
     })
 
     it('should handle multiple providers within limit', () => {
-      const result = generateTerraformSummaryLogic(infrastructure, makePRContext(), makeImpact(), ['p1', 'p2'])
+      const result = generateTerraformSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'p1',
+        'p2',
+      ])
       expect(result).toContain('p1')
     })
 
     it('should handle many providers beyond limit', () => {
-      const result = generateTerraformSummaryLogic(
-        infrastructure,
-        makePRContext(),
-        makeImpact(),
-        ['p1', 'p2', 'p3', 'p4'],
-      )
+      const result = generateTerraformSummaryLogic(infrastructure, makePRContext(), makeImpact(), [
+        'p1',
+        'p2',
+        'p3',
+        'p4',
+      ])
       expect(result).toContain('4')
       expect(result).toContain('Terraform')
     })

@@ -1,9 +1,12 @@
 import type {ActionReference} from '../src/detectors/gha-types'
 import {describe, expect, it} from 'vitest'
 import {compareActionReferences, deduplicateChanges} from '../src/detectors/gha-change-analyzer'
-import {isGoModFile, deduplicateGoChanges} from '../src/detectors/go-change-analyzer'
+import {deduplicateGoChanges, isGoModFile} from '../src/detectors/go-change-analyzer'
 import {parseGoModChanges, parseGoSumChanges} from '../src/detectors/go-change-parser'
-import {analyzeSecurityPatterns, analyzeSupplyChainRisks} from '../src/detectors/security-change-analyzer'
+import {
+  analyzeSecurityPatterns,
+  analyzeSupplyChainRisks,
+} from '../src/detectors/security-change-analyzer'
 import {SECURITY_PATTERNS} from '../src/detectors/security-patterns'
 
 function makeActionRef(overrides: Partial<ActionReference> = {}): ActionReference {
@@ -46,24 +49,40 @@ describe('gha-change-analyzer', () => {
     })
 
     it('should not report change when ref is the same', () => {
-      const baseActions = [makeActionRef({name: 'actions/checkout', ref: 'same-sha', stepName: 'Checkout'})]
-      const headActions = [makeActionRef({name: 'actions/checkout', ref: 'same-sha', stepName: 'Checkout'})]
+      const baseActions = [
+        makeActionRef({name: 'actions/checkout', ref: 'same-sha', stepName: 'Checkout'}),
+      ]
+      const headActions = [
+        makeActionRef({name: 'actions/checkout', ref: 'same-sha', stepName: 'Checkout'}),
+      ]
       const result = compareActionReferences(baseActions, headActions, 'workflow.yml')
       expect(result).toHaveLength(0)
     })
 
     it('should handle actions without step name', () => {
-      const headActions = [makeActionRef({name: 'actions/checkout', ref: 'abc123', stepName: undefined})]
+      const headActions = [
+        makeActionRef({name: 'actions/checkout', ref: 'abc123', stepName: undefined}),
+      ]
       const result = compareActionReferences([], headActions, 'workflow.yml')
       expect(result).toHaveLength(1)
     })
 
     it('should use inline version for semver comparison when available', () => {
       const baseActions = [
-        makeActionRef({name: 'actions/checkout', ref: 'old-sha', inlineVersion: 'v3', stepName: 'Checkout'}),
+        makeActionRef({
+          name: 'actions/checkout',
+          ref: 'old-sha',
+          inlineVersion: 'v3',
+          stepName: 'Checkout',
+        }),
       ]
       const headActions = [
-        makeActionRef({name: 'actions/checkout', ref: 'new-sha', inlineVersion: 'v4', stepName: 'Checkout'}),
+        makeActionRef({
+          name: 'actions/checkout',
+          ref: 'new-sha',
+          inlineVersion: 'v4',
+          stepName: 'Checkout',
+        }),
       ]
       const result = compareActionReferences(baseActions, headActions, 'workflow.yml')
       expect(result).toHaveLength(1)

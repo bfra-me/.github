@@ -1,6 +1,6 @@
-import type {ChangesetInfo} from '../src/multi-package-gen/types'
 import type {ChangesetDeduplicationConfig} from '../src/deduplicator/deduplicator-types'
-import {describe, expect, it, vi} from 'vitest'
+import type {ChangesetInfo} from '../src/multi-package-gen/types'
+import {describe, expect, it} from 'vitest'
 import {mergeChangesets, performChangesetMerging} from '../src/deduplicator/changeset-merger'
 import {analyzeExistingChangesets} from '../src/deduplicator/existing-changeset-analyzer'
 import {mockedFileSystem} from './setup'

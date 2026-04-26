@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest'
 import {
-  isGitHubActionsFile,
   extractInlineVersions,
+  isGitHubActionsFile,
   parseActionReferences,
   parseActionUses,
 } from '../src/detectors/gha-workflow-parser'

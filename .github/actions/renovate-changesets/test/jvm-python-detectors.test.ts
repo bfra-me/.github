@@ -134,8 +134,7 @@ describe('python-package-manager-analyzer', () => {
       const result = await parsePackageManagerChanges({
         filename: 'Pipfile.lock',
         prNumber: 1,
-        loadContent: async (_filename, ref) =>
-          ref.includes('base') ? baseLock : headLock,
+        loadContent: async (_filename, ref) => (ref.includes('base') ? baseLock : headLock),
       })
 
       expect(result).toHaveLength(1)
@@ -176,8 +175,7 @@ pytest = "==7.4.0"
       const result = await parsePackageManagerChanges({
         filename: 'Pipfile',
         prNumber: 1,
-        loadContent: async (_filename, ref) =>
-          ref.includes('base') ? basePipfile : headPipfile,
+        loadContent: async (_filename, ref) => (ref.includes('base') ? basePipfile : headPipfile),
       })
 
       expect(result.length).toBeGreaterThanOrEqual(1)

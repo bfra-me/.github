@@ -22,6 +22,7 @@ import {
   generateGroupedUpdateSummary,
   generateLockfileSummary,
   generateSecurityUpdateSummary,
+  generateSingleDependencySummary,
 } from '../src/summaries/structural-summaries'
 import {createSummaryContexts} from '../src/summaries/summary-contexts'
 import {
@@ -73,6 +74,7 @@ function makeImpact(overrides: Partial<ImpactAssessment> = {}): ImpactAssessment
 function makeConfig(overrides: Partial<SummaryGeneratorConfig> = {}): SummaryGeneratorConfig {
   return {
     includeBreakingChangeWarnings: true,
+    includeRiskAssessment: false,
     includeVersionDetails: true,
     maxDependenciesToList: 3,
     sortDependencies: false,
@@ -279,6 +281,79 @@ describe('structural-summaries', () => {
         disabledConfig,
       )
       expect(result).toBe('Summary')
+    })
+  })
+
+  describe('generateSingleDependencySummary', () => {
+    it('should generate summary with dep name and ecosystem', () => {
+      const result = generateSingleDependencySummary(
+        'lodash',
+        '📦 ',
+        'npm',
+        'patch',
+        makePRContext(),
+        makeImpact(),
+        config,
+      )
+      expect(result).toContain('lodash')
+      expect(result).toContain('npm')
+    })
+
+    it('should include version text when versions are provided', () => {
+      const prContext = makePRContext({
+        dependencies: [
+          {
+            name: 'lodash',
+            currentVersion: '4.17.20',
+            newVersion: '4.17.21',
+            manager: 'npm',
+            updateType: 'patch',
+            isSecurityUpdate: false,
+            securitySeverity: null,
+            isGrouped: false,
+            packageFile: 'package.json',
+          },
+        ],
+      })
+      const result = generateSingleDependencySummary(
+        'lodash',
+        '',
+        'npm',
+        'patch',
+        prContext,
+        makeImpact(),
+        config,
+      )
+      expect(result).toContain('lodash')
+      expect(result).toContain('4.17.20')
+      expect(result).toContain('4.17.21')
+    })
+
+    it('should add breaking change warning when applicable', () => {
+      const result = generateSingleDependencySummary(
+        'lodash',
+        '⚠️ ',
+        'npm',
+        'major',
+        makePRContext(),
+        makeImpact({hasBreakingChanges: true}),
+        config,
+      )
+      expect(result).toContain('Breaking Changes')
+    })
+
+    it('should omit emoji when empty string provided', () => {
+      const result = generateSingleDependencySummary(
+        'lodash',
+        '',
+        'npm',
+        'patch',
+        makePRContext(),
+        makeImpact(),
+        config,
+      )
+      expect(result).toContain('Update')
+      expect(result).toContain('lodash')
     })
   })
 
@@ -671,7 +746,7 @@ describe('infrastructure-summaries', () => {
 
     it('should handle empty crates', () => {
       const result = generateCargoSummaryLogic(infrastructure, makePRContext(), makeImpact(), [])
-      expect(result).toBeTruthy()
+      expect(result).toContain('Rust')
     })
 
     it('should handle multiple crates within limit', () => {

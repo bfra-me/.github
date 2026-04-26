@@ -39,9 +39,9 @@ go 1.21
       const result = await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(result.length).toBeGreaterThan(0)
-      expect(result[0].name).toBe('github.com/some/dep')
-      expect(result[0].currentVersion).toBe('v1.0.0')
-      expect(result[0].newVersion).toBe('v1.1.0')
+      expect(result[0]!.name).toBe('github.com/some/dep')
+      expect(result[0]!.currentVersion).toBe('v1.0.0')
+      expect(result[0]!.newVersion).toBe('v1.1.0')
     })
 
     it('should detect go.sum file changes', async () => {
@@ -60,8 +60,8 @@ go 1.21
       const result = await detectGoChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
 
       expect(result.length).toBeGreaterThan(0)
-      expect(result[0].name).toBe('github.com/new/dep')
-      expect(result[0].newVersion).toBe('v2.0.0')
+      expect(result[0]!.name).toBe('github.com/new/dep')
+      expect(result[0]!.newVersion).toBe('v2.0.0')
     })
 
     it('should return empty array when no patch in compare result', async () => {
@@ -141,8 +141,8 @@ go 1.21
         {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
       ])
 
-      expect(result[0].updateType).toBe('major')
-      expect(result[0].semverImpact).toBe('major')
+      expect(result[0]!.updateType).toBe('major')
+      expect(result[0]!.semverImpact).toBe('major')
     })
 
     it('should detect minor version change', async () => {
@@ -158,8 +158,8 @@ go 1.21
         {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
       ])
 
-      expect(result[0].updateType).toBe('minor')
-      expect(result[0].semverImpact).toBe('minor')
+      expect(result[0]!.updateType).toBe('minor')
+      expect(result[0]!.semverImpact).toBe('minor')
     })
 
     it('should detect patch version change', async () => {
@@ -175,8 +175,8 @@ go 1.21
         {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
       ])
 
-      expect(result[0].updateType).toBe('patch')
-      expect(result[0].semverImpact).toBe('patch')
+      expect(result[0]!.updateType).toBe('patch')
+      expect(result[0]!.semverImpact).toBe('patch')
     })
 
     it('should mark indirect dependencies', async () => {
@@ -192,7 +192,7 @@ go 1.21
         {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
       ])
 
-      expect(result[0].isIndirect).toBe(true)
+      expect(result[0]!.isIndirect).toBe(true)
     })
 
     it('should handle go.mod files in subdirectories', async () => {

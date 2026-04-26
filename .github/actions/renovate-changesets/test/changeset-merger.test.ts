@@ -249,8 +249,8 @@ describe('existing-changeset-analyzer', () => {
     })
 
     it('should return empty array when directory has no changeset files', async () => {
-      mockedFileSystem.stat.mockResolvedValueOnce({isDirectory: () => true} as never)
-      mockedFileSystem.readdir.mockResolvedValueOnce([] as never)
+      mockedFileSystem.stat.mockResolvedValueOnce({isDirectory: () => true})
+      mockedFileSystem.readdir.mockResolvedValueOnce([])
 
       const result = await analyzeExistingChangesets(config)
 
@@ -264,13 +264,11 @@ describe('existing-changeset-analyzer', () => {
 
 Update dependency.`
 
-      mockedFileSystem.stat
-        .mockResolvedValueOnce({isDirectory: () => true} as never)
-        .mockResolvedValueOnce({
-          mtime: new Date(Date.now() - 1000 * 60 * 60), // 1 hour old
-        } as never)
-      mockedFileSystem.readdir.mockResolvedValueOnce(['renovate-abc123.md'] as never)
-      mockedFileSystem.readFile.mockResolvedValueOnce(changesetContent as never)
+      mockedFileSystem.stat.mockResolvedValueOnce({isDirectory: () => true}).mockResolvedValueOnce({
+        mtime: new Date(Date.now() - 1000 * 60 * 60), // 1 hour old
+      })
+      mockedFileSystem.readdir.mockResolvedValueOnce(['renovate-abc123.md'])
+      mockedFileSystem.readFile.mockResolvedValueOnce(changesetContent)
 
       const result = await analyzeExistingChangesets(config)
 
@@ -283,12 +281,10 @@ Update dependency.`
     })
 
     it('should skip files older than maxExistingChangesetAge', async () => {
-      mockedFileSystem.stat
-        .mockResolvedValueOnce({isDirectory: () => true} as never)
-        .mockResolvedValueOnce({
-          mtime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60), // 60 days old
-        } as never)
-      mockedFileSystem.readdir.mockResolvedValueOnce(['old-changeset.md'] as never)
+      mockedFileSystem.stat.mockResolvedValueOnce({isDirectory: () => true}).mockResolvedValueOnce({
+        mtime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60), // 60 days old
+      })
+      mockedFileSystem.readdir.mockResolvedValueOnce(['old-changeset.md'])
 
       const result = await analyzeExistingChangesets(config)
 
@@ -296,12 +292,12 @@ Update dependency.`
     })
 
     it('should skip README.md files', async () => {
-      mockedFileSystem.stat.mockResolvedValueOnce({isDirectory: () => true} as never)
-      mockedFileSystem.readdir.mockResolvedValueOnce(['README.md', 'renovate-abc.md'] as never)
+      mockedFileSystem.stat.mockResolvedValueOnce({isDirectory: () => true})
+      mockedFileSystem.readdir.mockResolvedValueOnce(['README.md', 'renovate-abc.md'])
       mockedFileSystem.stat.mockResolvedValueOnce({
         mtime: new Date(),
-      } as never)
-      mockedFileSystem.readFile.mockResolvedValueOnce(`---\n"pkg-a": patch\n---\nUpdate.` as never)
+      })
+      mockedFileSystem.readFile.mockResolvedValueOnce(`---\n"pkg-a": patch\n---\nUpdate.`)
 
       const result = await analyzeExistingChangesets(config)
 
@@ -310,12 +306,10 @@ Update dependency.`
     })
 
     it('should handle file read errors gracefully', async () => {
-      mockedFileSystem.stat
-        .mockResolvedValueOnce({isDirectory: () => true} as never)
-        .mockResolvedValueOnce({
-          mtime: new Date(),
-        } as never)
-      mockedFileSystem.readdir.mockResolvedValueOnce(['bad-file.md'] as never)
+      mockedFileSystem.stat.mockResolvedValueOnce({isDirectory: () => true}).mockResolvedValueOnce({
+        mtime: new Date(),
+      })
+      mockedFileSystem.readdir.mockResolvedValueOnce(['bad-file.md'])
       mockedFileSystem.readFile.mockRejectedValueOnce(new Error('Permission denied'))
 
       const result = await analyzeExistingChangesets(config)
@@ -331,10 +325,10 @@ Update dependency.`
 Minor update.`
 
       mockedFileSystem.stat
-        .mockResolvedValueOnce({isDirectory: () => true} as never)
-        .mockResolvedValueOnce({mtime: new Date()} as never)
-      mockedFileSystem.readdir.mockResolvedValueOnce(['my-changeset.md'] as never)
-      mockedFileSystem.readFile.mockResolvedValueOnce(changesetContent as never)
+        .mockResolvedValueOnce({isDirectory: () => true})
+        .mockResolvedValueOnce({mtime: new Date()})
+      mockedFileSystem.readdir.mockResolvedValueOnce(['my-changeset.md'])
+      mockedFileSystem.readFile.mockResolvedValueOnce(changesetContent)
 
       const result = await analyzeExistingChangesets(config)
 

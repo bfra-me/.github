@@ -209,9 +209,9 @@ describe('go-change-parser', () => {
  )`
       const result = parseGoModChanges('go.mod', patch)
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('github.com/some/pkg')
-      expect(result[0].currentVersion).toBe('v1.0.0')
-      expect(result[0].newVersion).toBe('v2.0.0')
+      expect(result[0]!.name).toBe('github.com/some/pkg')
+      expect(result[0]!.currentVersion).toBe('v1.0.0')
+      expect(result[0]!.newVersion).toBe('v2.0.0')
     })
 
     it('should skip lines that are not version changes', () => {
@@ -231,7 +231,7 @@ describe('go-change-parser', () => {
 `
       const result = parseGoModChanges('go.mod', patch)
       expect(result).toHaveLength(1)
-      expect(result[0].isIndirect).toBe(true)
+      expect(result[0]!.isIndirect).toBe(true)
     })
 
     it('should handle module path with require keyword', () => {
@@ -256,8 +256,8 @@ describe('go-change-parser', () => {
 `
       const result = parseGoSumChanges('go.sum', patch)
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('github.com/some/pkg')
-      expect(result[0].newVersion).toBe('v2.0.0')
+      expect(result[0]!.name).toBe('github.com/some/pkg')
+      expect(result[0]!.newVersion).toBe('v2.0.0')
     })
 
     it('should ignore removed lines', () => {
@@ -335,8 +335,8 @@ describe('security-change-analyzer', () => {
         packageFile: 'package.json',
       }
       const result = analyzeSupplyChainRisks(dep, SECURITY_PATTERNS)
-      // react is a popular package but not in riskPackages, should be low risk
-      expect(Array.isArray(result)).toBe(true)
+      // react is not in riskPackages and has low trust risk, so no supply chain risks
+      expect(result).toHaveLength(0)
     })
 
     it('should return empty for unknown ecosystem', () => {
@@ -368,8 +368,9 @@ describe('security-change-analyzer', () => {
         packageFile: 'package.json',
       }
       const result = analyzeSupplyChainRisks(dep, SECURITY_PATTERNS)
-      // Should detect potential typosquatting of 'react'
-      expect(Array.isArray(result)).toBe(true)
+      // 'malware' pattern + typosquatting of 'react' → high risk level → supply chain entry returned
+      expect(result.length).toBeGreaterThan(0)
+      expect(result[0]!.source).toBe('supply_chain')
     })
   })
 })

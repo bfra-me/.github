@@ -29,12 +29,12 @@ function makeWorkspacePackage(
     name,
     version: '1.0.0',
     path: `/workspace/${name}`,
-    packageJson: {name, version: '1.0.0'},
+    packageJsonPath: `/workspace/${name}/package.json`,
     dependencies: deps,
     devDependencies: devDeps,
     peerDependencies: {},
     optionalDependencies: {},
-    isPrivate: false,
+    private: false,
   }
 }
 
@@ -50,16 +50,13 @@ function makeAnalysisResult(
     impactAnalysis: {
       directlyAffected: affectedPackages,
       indirectlyAffected: [],
+      riskLevel: 'low',
       changesetStrategy: 'single',
-      overallRiskScore: 10,
-      hasBreakingChanges: false,
-      recommendations: [],
     },
-    warnings: [],
-    metadata: {
-      workspaceType: 'pnpm',
-      totalPackages: workspacePackages.length,
-      analyzedAt: new Date().toISOString(),
+    recommendations: {
+      createSeparateChangesets: false,
+      packageGroups: [],
+      reasoningChain: [],
     },
   }
 }
@@ -122,7 +119,7 @@ describe('package-relationship-helpers', () => {
 
     it('should include directly related packages', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const group = findPackageGroup('pkg-a', relationships, ['pkg-a', 'pkg-b'])
       expect(group).toContain('pkg-a')
@@ -131,7 +128,7 @@ describe('package-relationship-helpers', () => {
 
     it('should not include unrelated packages', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const group = findPackageGroup('pkg-a', relationships, ['pkg-a', 'pkg-b', 'pkg-c'])
       expect(group).not.toContain('pkg-c')
@@ -139,8 +136,8 @@ describe('package-relationship-helpers', () => {
 
     it('should follow transitive internal dependencies', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
-        {source: 'pkg-b', target: 'pkg-c', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
+        {source: 'pkg-b', target: 'pkg-c', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const group = findPackageGroup('pkg-a', relationships, ['pkg-a', 'pkg-b', 'pkg-c'])
       expect(group).toContain('pkg-a')
@@ -150,7 +147,7 @@ describe('package-relationship-helpers', () => {
 
     it('should include peer-dependency relationships', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'peer-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'peer-dependency', confidence: 1, impact: 'medium'},
       ]
       const group = findPackageGroup('pkg-a', relationships, ['pkg-a', 'pkg-b'])
       expect(group).toContain('pkg-b')
@@ -158,7 +155,7 @@ describe('package-relationship-helpers', () => {
 
     it('should not follow dev-dependency relationships', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'dev-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'dev-dependency', confidence: 1, impact: 'medium'},
       ]
       const group = findPackageGroup('pkg-a', relationships, ['pkg-a', 'pkg-b'])
       expect(group).toHaveLength(1)
@@ -167,8 +164,8 @@ describe('package-relationship-helpers', () => {
 
     it('should handle bidirectional relationships without infinite loop', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
-        {source: 'pkg-b', target: 'pkg-a', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
+        {source: 'pkg-b', target: 'pkg-a', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const group = findPackageGroup('pkg-a', relationships, ['pkg-a', 'pkg-b'])
       expect(group).toHaveLength(2)
@@ -176,7 +173,7 @@ describe('package-relationship-helpers', () => {
 
     it('should only include packages in affectedPackages list', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       // pkg-b not in affected packages
       const group = findPackageGroup('pkg-a', relationships, ['pkg-a'])
@@ -196,7 +193,7 @@ describe('package-relationship-helpers', () => {
       const dep = makeDependency({name: 'test-dep'})
       const result = findDependenciesForPackage('pkg-a', [dep], [pkg])
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('test-dep')
+      expect(result[0]!.name).toBe('test-dep')
     })
 
     it('should find dependencies from devDependencies', () => {
@@ -289,7 +286,7 @@ describe('changeset-enhancer', () => {
 
     it('should include relationship info when configured', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const analysis = makeAnalysisResult(
         ['pkg-a', 'pkg-b'],
@@ -303,7 +300,7 @@ describe('changeset-enhancer', () => {
 
     it('should not include relationship info when disabled', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const analysis = makeAnalysisResult(
         ['pkg-a', 'pkg-b'],
@@ -324,10 +321,8 @@ describe('changeset-enhancer', () => {
         impactAnalysis: {
           directlyAffected: ['pkg-a'],
           indirectlyAffected: ['pkg-b'],
+          riskLevel: 'low',
           changesetStrategy: 'single',
-          overallRiskScore: 10,
-          hasBreakingChanges: false,
-          recommendations: [],
         },
       }
       const config = makeConfig()
@@ -340,7 +335,8 @@ describe('changeset-enhancer', () => {
         source: 'pkg-a',
         target: `pkg-${i + 1}`,
         type: 'internal-dependency' as const,
-        weight: 1,
+        confidence: 1,
+        impact: 'medium' as const,
       }))
       const pkgs = [
         makeWorkspacePackage('pkg-a'),
@@ -371,7 +367,7 @@ describe('changeset-strategy', () => {
 
     it('should return grouped when internal dependencies found with groupRelatedPackages', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const analysis = makeAnalysisResult(['pkg-a', 'pkg-b'], [], relationships)
       const config = makeConfig({
@@ -386,17 +382,15 @@ describe('changeset-strategy', () => {
 
     it('should not use grouped when respectPackageRelationships is false', () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const analysis: MultiPackageAnalysisResult = {
         ...makeAnalysisResult(['pkg-a', 'pkg-b'], [], relationships),
         impactAnalysis: {
           directlyAffected: ['pkg-a', 'pkg-b'],
           indirectlyAffected: [],
+          riskLevel: 'low',
           changesetStrategy: 'multiple',
-          overallRiskScore: 10,
-          hasBreakingChanges: false,
-          recommendations: [],
         },
       }
       const config = makeConfig({
@@ -414,10 +408,8 @@ describe('changeset-strategy', () => {
         impactAnalysis: {
           directlyAffected: ['pkg-a'],
           indirectlyAffected: [],
+          riskLevel: 'low',
           changesetStrategy: 'multiple',
-          overallRiskScore: 10,
-          hasBreakingChanges: false,
-          recommendations: [],
         },
       }
       const config = makeConfig({
@@ -453,7 +445,7 @@ describe('changeset-creators', () => {
       })
       expect(result.packages).toEqual(['pkg-a', 'pkg-b'])
       expect(result.releases).toHaveLength(2)
-      expect(result.releases[0].type).toBe('patch')
+      expect(result.releases[0]!.type).toBe('patch')
     })
 
     it('should set isSecurityUpdate from prContext', async () => {
@@ -517,8 +509,8 @@ describe('changeset-creators', () => {
         makeConfig(),
       )
       expect(result).toHaveLength(2)
-      expect(result[0].packages).toEqual(['pkg-a'])
-      expect(result[1].packages).toEqual(['pkg-b'])
+      expect(result[0]!.packages).toEqual(['pkg-a'])
+      expect(result[1]!.packages).toEqual(['pkg-b'])
     })
 
     it('should handle empty affected packages', async () => {
@@ -538,7 +530,7 @@ describe('changeset-creators', () => {
   describe('createGroupedChangesets', () => {
     it('should group related packages together', async () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const analysis = makeAnalysisResult(['pkg-a', 'pkg-b', 'pkg-c'], [], relationships)
       const result = await createGroupedChangesets(
@@ -568,8 +560,8 @@ describe('changeset-creators', () => {
 
     it('should not process packages that are already grouped', async () => {
       const relationships: PackageRelationship[] = [
-        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', weight: 1},
-        {source: 'pkg-b', target: 'pkg-a', type: 'internal-dependency', weight: 1},
+        {source: 'pkg-a', target: 'pkg-b', type: 'internal-dependency', confidence: 1, impact: 'medium'},
+        {source: 'pkg-b', target: 'pkg-a', type: 'internal-dependency', confidence: 1, impact: 'medium'},
       ]
       const analysis = makeAnalysisResult(['pkg-a', 'pkg-b'], [], relationships)
       const result = await createGroupedChangesets(

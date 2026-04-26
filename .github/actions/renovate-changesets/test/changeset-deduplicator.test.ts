@@ -89,10 +89,10 @@ describe('deduplicateChangesets', () => {
 
   it('should handle existing changesets when found', async () => {
     mockedFileSystem.stat
-      .mockResolvedValueOnce({isDirectory: () => true} as never)
-      .mockResolvedValueOnce({mtime: new Date()} as never)
-    mockedFileSystem.readdir.mockResolvedValueOnce(['cs1.md'] as never)
-    mockedFileSystem.readFile.mockResolvedValueOnce(`---\n'pkg-a': patch\n---\nUpdate dep` as never)
+      .mockResolvedValueOnce({isDirectory: () => true})
+      .mockResolvedValueOnce({mtime: new Date()})
+    mockedFileSystem.readdir.mockResolvedValueOnce(['cs1.md'])
+    mockedFileSystem.readFile.mockResolvedValueOnce(`---\n'pkg-a': patch\n---\nUpdate dep`)
 
     const cs1 = makeChangeset('cs1')
     const result = await deduplicateChangesets([cs1], {

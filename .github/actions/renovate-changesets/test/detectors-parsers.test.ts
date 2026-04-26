@@ -105,12 +105,12 @@ jobs:
 `
       const refs = await parseActionReferences(content, '.github/workflows/ci.yml')
       expect(refs).toHaveLength(1)
-      expect(refs[0].name).toBe('actions/checkout')
+      expect(refs[0]!.name).toBe('actions/checkout')
     })
 
     it('should return empty for invalid YAML', async () => {
       const refs = await parseActionReferences('invalid: yaml: :', '.github/workflows/ci.yml')
-      expect(Array.isArray(refs)).toBe(true)
+      expect(refs).toHaveLength(0)
     })
 
     it('should return empty for non-workflow content', async () => {
@@ -127,7 +127,7 @@ jobs:
 `
       const refs = await parseActionReferences(content, '.github/workflows/ci.yml')
       expect(refs).toHaveLength(1)
-      expect(refs[0].name).toContain('reusable.yml')
+      expect(refs[0]!.name).toContain('reusable.yml')
     })
 
     it('should handle step without name', async () => {
@@ -173,9 +173,9 @@ describe('python-requirements-parser', () => {
 `
       const result = parseRequirementsChanges('requirements.txt', patch)
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('requests')
-      expect(result[0].currentVersion).toBe('2.28.0')
-      expect(result[0].newVersion).toBe('2.31.0')
+      expect(result[0]!.name).toBe('requests')
+      expect(result[0]!.currentVersion).toBe('2.28.0')
+      expect(result[0]!.newVersion).toBe('2.31.0')
     })
 
     it('should handle version with operator', () => {
@@ -185,7 +185,7 @@ describe('python-requirements-parser', () => {
 `
       const result = parseRequirementsChanges('requirements.txt', patch)
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('Django')
+      expect(result[0]!.name).toBe('Django')
     })
 
     it('should skip comment lines', () => {
@@ -212,8 +212,8 @@ describe('python-requirements-parser', () => {
 `
       const result = parseRequirementsChanges('requirements.txt', patch)
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('celery')
-      expect(result[0].extras).toContain('redis')
+      expect(result[0]!.name).toBe('celery')
+      expect(result[0]!.extras).toContain('redis')
     })
 
     it('should handle editable installs', () => {
@@ -222,8 +222,9 @@ describe('python-requirements-parser', () => {
 +-e git+https://github.com/org/repo@v2.0.0#egg=my-package
 `
       const result = parseRequirementsChanges('requirements.txt', patch)
-      // Editable installs may or may not be parsed (depends on name matching)
-      expect(Array.isArray(result)).toBe(true)
+      // Editable install URLs are parsed with the URL scheme as the package name
+      expect(result).toHaveLength(1)
+      expect(result[0]!.isEditable).toBe(true)
     })
 
     it('should not include unchanged version', () => {

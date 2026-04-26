@@ -36,9 +36,9 @@ describe('jvm-maven-parser', () => {
 </project>`
       const result = parseMavenPOM(content)
       expect(result.dependencies).toHaveLength(1)
-      expect(result.dependencies?.[0].groupId).toBe('org.springframework')
-      expect(result.dependencies?.[0].artifactId).toBe('spring-core')
-      expect(result.dependencies?.[0].version).toBe('5.3.0')
+      expect(result.dependencies?.[0]?.groupId).toBe('org.springframework')
+      expect(result.dependencies?.[0]?.artifactId).toBe('spring-core')
+      expect(result.dependencies?.[0]?.version).toBe('5.3.0')
     })
 
     it('should parse parent section', () => {
@@ -70,8 +70,8 @@ describe('jvm-maven-parser', () => {
 </project>`
       const result = parseMavenPOM(content)
       expect(result.build?.plugins).toHaveLength(1)
-      expect(result.build?.plugins?.[0].artifactId).toBe('maven-compiler-plugin')
-      expect(result.build?.plugins?.[0].version).toBe('3.10.0')
+      expect(result.build?.plugins?.[0]?.artifactId).toBe('maven-compiler-plugin')
+      expect(result.build?.plugins?.[0]?.version).toBe('3.10.0')
     })
 
     it('should parse dependency scope', () => {
@@ -87,7 +87,7 @@ describe('jvm-maven-parser', () => {
   </dependencies>
 </project>`
       const result = parseMavenPOM(content)
-      expect(result.dependencies?.[0].scope).toBe('test')
+      expect(result.dependencies?.[0]?.scope).toBe('test')
     })
 
     it('should handle missing version', () => {
@@ -101,7 +101,7 @@ describe('jvm-maven-parser', () => {
   </dependencies>
 </project>`
       const result = parseMavenPOM(content)
-      expect(result.dependencies?.[0].version).toBeUndefined()
+      expect(result.dependencies?.[0]?.version).toBeUndefined()
     })
   })
 })
@@ -138,9 +138,9 @@ describe('python-package-manager-analyzer', () => {
       })
 
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('requests')
-      expect(result[0].currentVersion).toContain('2.28.0')
-      expect(result[0].newVersion).toContain('2.31.0')
+      expect(result[0]!.name).toBe('requests')
+      expect(result[0]!.currentVersion).toContain('2.28.0')
+      expect(result[0]!.newVersion).toContain('2.31.0')
     })
 
     it('should return empty for unchanged Pipfile.lock', async () => {
@@ -198,7 +198,7 @@ pytest = "==7.4.0"
       })
 
       expect(result).toHaveLength(1)
-      expect(result[0].name).toBe('pytest')
+      expect(result[0]!.name).toBe('pytest')
     })
 
     it('should handle JSON parse error gracefully', async () => {

@@ -1,5 +1,41 @@
 # @bfra.me/.github
 
+## 4.16.10
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.56.0` to `9.56.1` ([#2099](https://github.com/bfra-me/.github/pull/2099))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.56.1` to `9.57.0` ([#2100](https://github.com/bfra-me/.github/pull/2100))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.55.1` to `9.56.0` ([#2096](https://github.com/bfra-me/.github/pull/2096))
+
+
+- 📦 Update npm dependency `pnpm` ([#2097](https://github.com/bfra-me/.github/pull/2097))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.62.0` to `9.63.0` ([#2106](https://github.com/bfra-me/.github/pull/2106))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.63.0` to `9.64.0` ([#2107](https://github.com/bfra-me/.github/pull/2107))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.57.0` to `9.58.0` ([#2101](https://github.com/bfra-me/.github/pull/2101))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.58.0` to `9.59.0` ([#2102](https://github.com/bfra-me/.github/pull/2102))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.59.0` to `9.60.0` ([#2103](https://github.com/bfra-me/.github/pull/2103))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.60.0` to `9.61.0` ([#2104](https://github.com/bfra-me/.github/pull/2104))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.61.0` to `9.62.0` ([#2105](https://github.com/bfra-me/.github/pull/2105))
+
 ## 4.16.9
 ### Patch Changes
 

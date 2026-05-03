@@ -1,5 +1,29 @@
 # @bfra.me/.github
 
+## 4.16.12
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.67.0` to `9.67.1` ([#2119](https://github.com/bfra-me/.github/pull/2119))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.5` to `v0.42.6` ([#2122](https://github.com/bfra-me/.github/pull/2122))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.66.0` to `9.67.0` ([#2117](https://github.com/bfra-me/.github/pull/2117))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v6.0.3` to `v6.0.4` ([#2115](https://github.com/bfra-me/.github/pull/2115))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v6.0.4` to `v6.0.5` ([#2121](https://github.com/bfra-me/.github/pull/2121))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.4` to `v0.42.5` ([#2120](https://github.com/bfra-me/.github/pull/2120))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.35.2` to `4.35.3` ([#2118](https://github.com/bfra-me/.github/pull/2118))
+
 ## 4.16.11
 ### Patch Changes
 

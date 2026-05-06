@@ -1,5 +1,38 @@
 # @bfra.me/.github
 
+## 4.16.13
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.69.1` to `9.70.0` ([#2129](https://github.com/bfra-me/.github/pull/2129))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.72.0` to `9.73.0` ([#2134](https://github.com/bfra-me/.github/pull/2134))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.6` to `v0.42.7` ([#2124](https://github.com/bfra-me/.github/pull/2124))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.71.0` to `9.72.0` ([#2133](https://github.com/bfra-me/.github/pull/2133))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.68.0` to `9.69.1` ([#2128](https://github.com/bfra-me/.github/pull/2128))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/labeler` from `v6.0.1` to `v6.1.0` ([#2132](https://github.com/bfra-me/.github/pull/2132))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.70.0` to `9.71.0` ([#2131](https://github.com/bfra-me/.github/pull/2131))
+
+
+- 📦 Update npm dependency `eslint` from `10.2.1` to `10.3.0` ([#2130](https://github.com/bfra-me/.github/pull/2130))
+
+
+- 📦 Update npm dependency `pnpm` ([#2127](https://github.com/bfra-me/.github/pull/2127))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.67.1` to `9.68.0` ([#2126](https://github.com/bfra-me/.github/pull/2126))
+
 ## 4.16.12
 ### Patch Changes
 

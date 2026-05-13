@@ -1,5 +1,41 @@
 # @bfra.me/.github
 
+## 4.16.15
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.8` to `v0.42.9` ([#2150](https://github.com/bfra-me/.github/pull/2150))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.9` to `v0.42.10` ([#2158](https://github.com/bfra-me/.github/pull/2158))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.77.0` to `9.78.0` ([#2154](https://github.com/bfra-me/.github/pull/2154))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.76.1` to `9.77.0` ([#2151](https://github.com/bfra-me/.github/pull/2151))
+
+
+- 📦 Update npm dependency `pnpm` ([#2153](https://github.com/bfra-me/.github/pull/2153))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v6.0.6` to `v6.0.7` ([#2155](https://github.com/bfra-me/.github/pull/2155))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.42.10` to `v0.43.0` ([#2160](https://github.com/bfra-me/.github/pull/2160))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/create-github-app-token` from `v3.1.1` to `v3.2.0` ([#2161](https://github.com/bfra-me/.github/pull/2161))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.78.0` to `9.79.0` ([#2157](https://github.com/bfra-me/.github/pull/2157))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v6.0.7` to `v6.0.8` ([#2156](https://github.com/bfra-me/.github/pull/2156))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.79.0` to `9.80.0` ([#2159](https://github.com/bfra-me/.github/pull/2159))
+
 ## 4.16.14
 ### Patch Changes
 

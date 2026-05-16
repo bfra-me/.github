@@ -12,20 +12,43 @@ on:
   issues:
     types: [opened, edited]
   pull_request:
-    types: [synchronize, ready_for_review, review_requested]
+    types: [opened, synchronize, ready_for_review, review_requested]
   schedule:
     - cron: '30 15 * * *'
+    - cron: '0 5 * * 1-5'
   workflow_dispatch:
     inputs:
+      mode:
+        description: Operation mode (review, maintenance, autoheal)
+        type: string
+        required: false
+        default: ''
       prompt:
         description: Custom prompt for the Fro Bot agent
-        required: true
+        type: string
+        required: false
+        default: ''
+      target-repo:
+        description: Target a specific repo for org autoheal (comma-separated)
+        type: string
+        required: false
+        default: ''
   workflow_call:
     inputs:
+      mode:
+        description: Operation mode
+        type: string
+        required: false
+        default: ''
       prompt:
         description: Prompt passed by reusable caller workflow
-        required: true
         type: string
+        required: true
+      target-repo:
+        description: Target a specific repo for org autoheal
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -36,6 +59,7 @@ concurrency:
       github.event.issue.number ||
       github.event.pull_request.number ||
       github.event.discussion.number ||
+      (github.event_name == 'schedule' && github.event.schedule) ||
       github.run_id
     }}
   cancel-in-progress: false
@@ -85,7 +109,52 @@ env:
     - Write "None" under headings with no findings.
     - Keep findings actionable: file path, impact, and concrete remediation.
 
-  SCHEDULE_PROMPT: |
+  MAINTENANCE_PROMPT: |
+    Perform daily repository maintenance and update a SINGLE rolling issue
+    titled "Daily Autohealing Report" in bfra-me/.github.
+
+    Search for an issue with this exact title. If multiple matches exist,
+    use the most recently updated one. If no open issue exists, create it.
+    If the most recent matching issue is closed, reopen it instead of
+    creating a new one.
+
+    Perpetual issue hygiene: after selecting the single rolling issue,
+    search for any other open issues with the exact title
+    "Daily Autohealing Report" and close them with a brief comment
+    (e.g., "Consolidating into the perpetual maintenance issue.").
+    There must be exactly one open maintenance issue at all times.
+
+    Append a new dated section for each run using "## YYYY-MM-DD (UTC)".
+    To keep the issue bounded: after appending today's section, replace any
+    individual daily sections older than 14 days with a single
+    "## Historical Summary" section that lists only the count of prior
+    runs and any items that remained unresolved across those runs. If a
+    Historical Summary already exists, update it in place — do not create
+    a second one.
+
+    Include links only (no full content duplication). Keep it concise and
+    actionable. Flag items that appear in the stale list for the first
+    time (not present in the previous dated section) with a ★ marker.
+
+    Context: this repository is bfra-me/.github, the org control center
+    providing workflows, custom actions, workflow templates, repo settings,
+    and shared configs for the @bfra-me GitHub organization. This is a
+    TypeScript monorepo using pnpm workspaces.
+
+    Sections (in order):
+    - Summary metrics (issues opened since last run, currently open PRs,
+      stale issues/PRs count, main branch check status, security alerts
+      if accessible)
+    - Stale issues (no activity >30 days; recommend next step)
+    - Stale PRs (no activity >7 days; stale >14 days)
+    - Unassigned bugs (label bug, no assignee)
+    - Recommended actions (bulleted checklist)
+    - Notes (use "data unavailable" for any inaccessible data source)
+
+    Do NOT comment on or modify individual issues/PRs. Do NOT apply labels.
+    Do NOT open PRs. This run must update ONE issue only.
+
+  AUTOHEAL_PROMPT: |
     Perform daily repository autohealing for bfra-me/.github — the org
     control center that provides workflows, custom actions, workflow
     templates, repo settings, and shared configs for the @bfra-me GitHub
@@ -127,82 +196,142 @@ env:
     Description
     ```
 
-    1. ERRORED PRs
-       Find open PRs with failing CI checks. Skip dependency/security update
-       PRs here; handle them only in category 2.
-       Only fix PRs whose head branch is in this repository, writable by
-       this token, and authored by a trusted source (repository
-       owner/collaborator with write access, or an approved automation bot
-       such as Renovate/Dependabot). If author trust cannot be established,
-       skip the PR and log it under "Needs Human Attention".
-       If the PR touches workflows, automation prompts, package-manager
-       config, lockfiles, or execution scripts, do not run project commands
-       from that branch. Skip it and log why.
-       For each fixable PR:
-       a. Check out the PR branch.
-       b. Read the failing check logs to diagnose the root cause.
-       c. Fix the issue (type errors, lint failures, test regressions,
-          build breaks).
-       d. Rebuild actions if source was changed: `pnpm build` and commit
-          the updated dist/ directory.
-       e. Commit with a clear message and push to the PR branch.
-       f. Comment on the PR explaining what failed and what was fixed.
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 1: ERRORED PRs
+    ═══════════════════════════════════════════════════════════════════
+    Find open PRs with failing CI checks. Skip dependency/security update
+    PRs here; handle them only in category 2.
+    Only fix PRs whose head branch is in this repository, writable by
+    this token, and authored by a trusted source (repository
+    owner/collaborator with write access, or an approved automation bot
+    such as Renovate/Dependabot/fro-bot). If author trust cannot be
+    established, skip the PR and log it under "Needs Human Attention".
+    If the PR touches workflows, automation prompts, package-manager
+    config, lockfiles, or execution scripts, do not run project commands
+    from that branch. Skip it and log why.
+    For each fixable PR:
+    a. Check out the PR branch.
+    b. Read the failing check logs to diagnose the root cause.
+    c. Fix the issue (type errors, lint failures, test regressions,
+       build breaks).
+    d. Rebuild actions if source was changed: `pnpm build` and commit
+       the updated dist/ directory.
+    e. Commit with a clear message and push to the PR branch.
+    f. Comment on the PR explaining what failed and what was fixed.
 
-    2. SECURITY
-       Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
-       - If a security update PR exists but has conflicts or failures,
-         fix and push to that PR branch.
-       - For unaddressed critical/high advisories with no existing PR,
-         create a new PR with the remediation.
-       - Do NOT bulk-update unrelated deps in a security PR.
-       If security advisory/alert data is unavailable to the token or CLI,
-       skip this category and note "security alerts unavailable" under
-       "Needs Human Attention". Do not guess.
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 2: SECURITY
+    ═══════════════════════════════════════════════════════════════════
+    Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
+    - If a security update PR exists but has conflicts or failures,
+      fix and push to that PR branch.
+    - For unaddressed critical/high advisories with no existing PR,
+      create a new PR with the remediation.
+    - Do NOT bulk-update unrelated deps in a security PR.
+    If security advisory/alert data is unavailable to the token or CLI,
+    skip this category and note "security alerts unavailable" under
+    "Needs Human Attention". Do not guess.
 
-    3. ACTION & WORKFLOW INTEGRITY
-       This is the highest-value category for this org control center repo.
-       a. SHA pinning audit: scan all `.github/workflows/*.yaml` AND
-          `workflow-templates/*.yaml` files. Every third-party action must
-          be pinned to a full commit SHA with a version comment
-          (`@<sha> # vX.Y.Z`). Flag and fix any floating tags.
-       b. dist/ freshness: for each action in `.github/actions/*/`, compare
-          the last modification time of `src/` files vs `dist/index.js`.
-          If source is newer than dist, rebuild (`pnpm build` in that
-          action's directory) and commit the updated dist/.
-       c. Workflow template validation: verify every `.yaml` file in
-          `workflow-templates/` has a matching `.properties.json` file.
-          Create missing `.properties.json` files with sensible defaults.
-       d. Action YAML validation: verify `action.yaml` files in
-          `.github/actions/*/` have valid inputs/outputs and point to
-          the correct dist/ entry point.
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 3: ACTION & WORKFLOW INTEGRITY
+    ═══════════════════════════════════════════════════════════════════
+    This is the highest-value category for this org control center repo.
+    a. SHA pinning audit: scan all `.github/workflows/*.yaml` AND
+       `workflow-templates/*.yaml` files. Every third-party action must
+       be pinned to a full commit SHA with a version comment
+       (`@<sha> # vX.Y.Z`). Flag and fix any floating tags.
+    b. dist/ freshness: for each action in `.github/actions/*/`, compare
+       the last modification time of `src/` files vs `dist/index.js`.
+       If source is newer than dist, rebuild (`pnpm build` in that
+       action's directory) and commit the updated dist/.
+    c. Workflow template validation: verify every `.yaml` file in
+       `workflow-templates/` has a matching `.properties.json` file.
+       Create missing `.properties.json` files with sensible defaults.
+    d. Action YAML validation: verify `action.yaml` files in
+       `.github/actions/*/` have valid inputs/outputs and point to
+       the correct dist/ entry point.
 
-    4. CODE QUALITY & MONOREPO HEALTH
-       a. Run `pnpm run quality-check` (type-check + lint + build + test).
-          If any step fails, diagnose and fix. This is the same pipeline
-          that runs in CI via main.yaml.
-       b. Verify test coverage meets 80% thresholds for
-          statements/branches/functions/lines. If coverage fails, open
-          or update an issue with the failing metrics.
-       c. Run `pnpm run workspace:validate` to check dependency consistency
-          across workspace packages. Fix any reported issues.
-       d. Check for stale TODO/FIXME/HACK annotations older than 90 days
-          (use git blame). Collect them into a single issue or update an
-          existing "Stale TODOs" issue.
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 4: CODE QUALITY & MONOREPO HEALTH
+    ═══════════════════════════════════════════════════════════════════
+    a. Run `pnpm run quality-check` (type-check + lint + build + test).
+       If any step fails, diagnose and fix. This is the same pipeline
+       that runs in CI via main.yaml.
+    b. Verify test coverage meets 80% thresholds for
+       statements/branches/functions/lines. If coverage fails, open
+       or update an issue with the failing metrics.
+    c. Run `pnpm run workspace:validate` to check dependency consistency
+       across workspace packages. Fix any reported issues.
+    d. Check for stale TODO/FIXME/HACK annotations older than 90 days
+       (use git blame). Collect them into a single issue or update an
+       existing "Stale TODOs" issue.
 
-    5. DEVELOPER EXPERIENCE & ORG STANDARDS
-       a. Run `pnpm run lint` and `pnpm run fix` to apply auto-fixable
-          lint/format corrections. Open a PR for all fixes — never commit
-          directly to the default branch.
-       b. Verify AGENTS.md accuracy: check that the directory structure
-          and file counts described in AGENTS.md match reality. If drift
-          is found, open a PR with corrections.
-       c. Verify common-settings.yaml consistency: check for deprecated
-          fields (e.g., `contexts` should be `checks` in branch protection).
-          Open a PR if corrections are needed.
-       d. Check .github/instructions/*.instructions.md files reference
-          current tool versions and patterns.
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 5: DEVELOPER EXPERIENCE & ORG STANDARDS
+    ═══════════════════════════════════════════════════════════════════
+    a. Run `pnpm run lint` and `pnpm run fix` to apply auto-fixable
+       lint/format corrections. Open a PR for all fixes — never commit
+       directly to the default branch.
+    b. Verify AGENTS.md accuracy: check that the directory structure
+       and file counts described in AGENTS.md match reality. If drift
+       is found, open a PR with corrections.
+    c. Verify common-settings.yaml consistency: check for deprecated
+       fields (e.g., `contexts` should be `checks` in branch protection).
+       Open a PR if corrections are needed.
+    d. Check .github/instructions/*.instructions.md files reference
+       current tool versions and patterns.
 
-    Hard boundaries:
+    ═══════════════════════════════════════════════════════════════════
+    CATEGORY 6: PROGRESSIVE IMPROVEMENT (Org-wide)
+    ═══════════════════════════════════════════════════════════════════
+    If TARGET_REPOS is set (via workflow_dispatch input or env var),
+    process those repos. Otherwise, this category is skipped.
+
+    Use `gh` CLI for all cross-repo operations. The provided token has
+    write access across the organization.
+
+    Process each target repo serially. For each repo: analyze, apply
+    fixes, return to clean working tree, continue.
+
+    DEDUPLICATION (applies globally)
+    Before creating any new PR or issue, search for an existing open
+    bot-authored item for the same root cause in that repo. Reuse or
+    update the existing item instead of creating a duplicate.
+
+    SCOPE CAP
+    Only apply changes that are minimal and reversible. If a fix requires
+    broad refactoring, architecture changes, or many-file edits, skip it
+    and log it under "Needs Human Attention" with context.
+
+    a. CI Health: check last 10 workflow runs on default branch. If >20%
+       failed, flag repo and identify failure pattern. Check failing main
+       branch runs. For trivial fixes (type error, lint, dep conflict),
+       open PR; otherwise create issue. Find broken PRs and attempt fixes
+       for non-dep PRs from trusted sources. Skip PRs touching CI config.
+    b. Security: query Dependabot/Renovate security alerts. For critical/
+       high advisories without existing PR, create focused PR. Check CodeQL
+       configuration. Verify GitHub Actions pinned to full commit SHAs.
+    c. Dependency Trends: check TypeScript version skew vs org standard,
+       Node.js version alignment, pnpm version consistency, shared config
+       usage (@bfra.me/eslint-config, @bfra.me/prettier-config, etc),
+       and Renovate config alignment. Report only — create issues for
+       significant drift, do not auto-upgrade.
+    d. Developer Experience: verify common scripts exist (build, test,
+       lint, type-check), pre-commit hooks are configured, .editorconfig
+       exists, README.md has minimum content (description, setup, usage).
+       Flag gaps with specific recommendations in issues rather than
+       making direct changes.
+    e. Org Pattern Adherence: verify required workflows exist (CI main,
+       Renovate config, repo settings), .github/settings.yml aligns with
+       org patterns, branch protection is configured, repo has topics/
+       description. Flag repos missing AGENTS.md if >10 source files.
+    f. Stale Work: find issues with no activity >60 days, PRs stale >14
+       days, unfinished feature branches (feature/*, feat/*, wip/*)
+       without open PR. Report only — do not close or delete.
+
+    ═══════════════════════════════════════════════════════════════════
+    HARD BOUNDARIES
+    ═══════════════════════════════════════════════════════════════════
     - Never force-push, rewrite history, or delete branches.
     - Never push directly to the default branch. Direct pushes are allowed
       only to an existing non-default PR branch you are repairing under
@@ -223,8 +352,11 @@ env:
     - If the smallest safe fix would weaken a guardrail or reduce
       validation, skip it and log it under "Needs Human Attention".
     - Do not create multiple summary issues.
+    - Respect each repo's own conventions if TARGET_REPOS are processed.
 
-    Project conventions (MUST follow for code changes):
+    ═══════════════════════════════════════════════════════════════════
+    PROJECT CONVENTIONS (for code changes)
+    ═══════════════════════════════════════════════════════════════════
     - TypeScript strict mode: no `any`, no `@ts-ignore`, no `@ts-expect-error`
     - Pure ESM only: no `require()`, no `module.exports`
     - Actions pinned to commit SHAs with version comment
@@ -233,24 +365,30 @@ env:
     - YAML extension: .yaml, not .yml
     - 120 char line limit, 2-space indent
 
-    OUTPUT FORMAT — PERPETUAL ISSUE
+    ═══════════════════════════════════════════════════════════════════
+    OUTPUT FORMAT — PERPETUAL SINGLE ISSUE
+    ═══════════════════════════════════════════════════════════════════
     After completing all work, find the open issue titled
-    "Daily Autohealing Report". If it exists, prepend
-    today's update to the top of the issue body. If not, create it
-    and add today's update as the first entry.
+    "Daily Autohealing Report". If it exists, prepend today's update
+    to the top of the issue body. If not, create it and add today's
+    update as the first entry.
 
     Each daily update MUST use this structure. If a section has no rows, do
     not emit an empty table — write "None." directly under that heading.
 
     ## Update — YYYY-MM-DD (UTC)
 
+    **Repos scanned:** [this repo / TARGET_REPOS] | **Mode:** [local/org/both]
+
     ### Summary
     | Category | Status | Actions |
     |---------|--------|---------|
     | ERRORED PRs | ✅/⚠️/❌ | description |
     | SECURITY | ✅/⚠️/❌ | description |
-    | HEALTH & MAINTENANCE | ✅/⚠️/❌ | description |
+    | ACTION & WORKFLOW INTEGRITY | ✅/⚠️/❌ | description |
+    | CODE QUALITY & MONOREPO HEALTH | ✅/⚠️/❌ | description |
     | DEVELOPER EXPERIENCE | ✅/⚠️/❌ | description |
+    | PROGRESSIVE IMPROVEMENT | ✅/⚠️/❌ | description |
 
     ### Tasks for Fro Bot
     - [ ] Automated task
@@ -289,6 +427,11 @@ env:
     ### Developer Experience & Org Standards
     - [list of each PR or fix with summary link]
 
+    ### Progressive Improvement (Org-wide)
+    | Repo | Area | Finding | Recommendation |
+    | --- | --- | --- | --- |
+    | repo-name | [CI/Security/DX/Patterns] | [details] | [issue #N or PR #N] |
+
     ### Needs Human Attention
     - [items that could not be auto-fixed, with context]
 
@@ -296,8 +439,73 @@ env:
     Update the single perpetual issue by prepending the daily update.
 
 jobs:
+  resolve-prompt:
+    name: Resolve Prompt
+    runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.resolve.outputs.mode }}
+      prompt: ${{ steps.resolve.outputs.prompt }}
+      target-repos: ${{ steps.resolve.outputs.target-repos }}
+    steps:
+      - id: resolve
+        env:
+          INPUT_MODE: ${{ github.event.inputs.mode || '' }}
+          INPUT_PROMPT: ${{ github.event.inputs.prompt || '' }}
+          TARGET_REPO_INPUT: ${{ github.event.inputs.target-repo || '' }}
+        run: |
+          mode="$INPUT_MODE"
+          target_repos="$TARGET_REPO_INPUT"
+
+          if [ -z "$mode" ]; then
+            case "${{ github.event_name }}" in
+              schedule)
+                if echo "${{ github.event.schedule }}" | grep -q "15"; then
+                  mode="maintenance"
+                else
+                  mode="autoheal"
+                fi
+                ;;
+              workflow_dispatch) mode="autoheal" ;;
+              pull_request) mode="review" ;;
+              *) mode="" ;;
+            esac
+          fi
+
+          case "$mode" in
+            review)
+              prompt="${{ env.PR_REVIEW_PROMPT }}"
+              ;;
+            maintenance)
+              prompt="${{ env.MAINTENANCE_PROMPT }}"
+              ;;
+            autoheal)
+              prompt="${{ env.AUTOHEAL_PROMPT }}"
+              ;;
+            *)
+              prompt="$INPUT_PROMPT"
+              ;;
+          esac
+
+          if [ -z "$target_repos" ] && [ "$mode" = "autoheal" ]; then
+            target_repos="$TARGET_REPO_INPUT"
+          fi
+
+          delimiter="EOF_$(openssl rand -hex 8)"
+          {
+            echo "mode<<$delimiter"
+            echo "$mode"
+            echo "$delimiter"
+            echo "prompt<<$delimiter"
+            echo "$prompt"
+            echo "$delimiter"
+            echo "target-repos<<$delimiter"
+            echo "$target_repos"
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+
   fro-bot:
     name: Fro Bot
+    needs: resolve-prompt
     runs-on: ubuntu-latest
     if: >-
       (
@@ -319,9 +527,12 @@ jobs:
         ) ||
         github.event_name == 'schedule' ||
         github.event_name == 'workflow_dispatch' ||
-        inputs.prompt != '' ||
+        needs.resolve-prompt.outputs.prompt != '' ||
         (
-          (github.event_name == 'issue_comment' ||
+          ((
+            github.event_name == 'issue_comment' &&
+            github.event.issue.pull_request == null
+          ) ||
            github.event_name == 'pull_request_review_comment' ||
            github.event_name == 'discussion_comment') &&
           contains(github.event.comment.body || '', '@fro-bot') &&
@@ -334,6 +545,12 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
+          ref: >-
+            ${{
+              (github.event.issue.pull_request && format('refs/pull/{0}/head', github.event.issue.number))
+              || github.event.pull_request.head.sha
+              || ''
+            }}
           token: ${{ secrets.FRO_BOT_PAT }}
 
       - name: Setup PNPM
@@ -355,18 +572,22 @@ jobs:
       - name: Build actions
         run: pnpm build
 
+      - name: Prepare autoheal environment
+        if: needs.resolve-prompt.outputs.mode == 'autoheal'
+        env:
+          TARGET_REPOS: ${{ needs.resolve-prompt.outputs.target-repos }}
+        run: |
+          if [ -n "$TARGET_REPOS" ]; then
+            echo "TARGET_REPOS=$TARGET_REPOS" >> "$GITHUB_ENV"
+            echo "Processing target repos: $TARGET_REPOS"
+          fi
+
       - name: Run Fro Bot
-        uses: fro-bot/agent@3ec8d72ffdcf71de6e51f88a0de6c49ed79ed286 # v0.43.1
+        uses: fro-bot/agent@3ec8d72ffdcf71de6e51f88a0de6c49ed79ed286 # v6.0.0
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
-          PROMPT: >-
-            ${{
-              (github.event_name == 'workflow_dispatch' && (github.event.inputs.prompt || ''))
-              || inputs.prompt
-              || (github.event_name == 'schedule' && env.SCHEDULE_PROMPT)
-              || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
-              || ''
-            }}
+          PROMPT: ${{ needs.resolve-prompt.outputs.prompt }}
+          TARGET_REPOS: ${{ needs.resolve-prompt.outputs.target-repos }}
         with:
           github-token: ${{ secrets.FRO_BOT_PAT }}
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}

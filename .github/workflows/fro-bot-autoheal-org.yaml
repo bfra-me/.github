@@ -1,4 +1,4 @@
-# Fro Bot org-wide autohealing — progressive improvement across all bfra-me repos.
+# Fro Bot org-wide autohealing — delegates to fro-bot.yaml with org-level targeting.
 ---
 name: Fro Bot Autoheal (Org)
 
@@ -37,8 +37,8 @@ env:
     EXECUTION MODEL
     Process repos serially. For each repo: analyze, apply fixes, move on.
     Do not keep multiple repos checked out simultaneously. Return to a
-    clean working tree between repos. If a target repo is specified via
-    TARGET_REPO env var, process ONLY that repo.
+    clean working tree between repos. If TARGET_REPOS is set, process
+    ONLY those repos.
 
     DEDUPLICATION (applies globally)
     Before creating any new PR or issue, search for an existing open
@@ -252,6 +252,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       prompt: ${{ steps.resolve.outputs.prompt }}
+      target-repos: ${{ steps.resolve.outputs.target-repos }}
     steps:
       - id: resolve
         env:
@@ -265,25 +266,33 @@ jobs:
               echo "prompt<<$delimiter"
               echo "$INPUT_PROMPT"
               echo "$delimiter"
+              echo "target-repos<<$delimiter"
+              echo "$TARGET_REPO"
+              echo "$delimiter"
             } >> "$GITHUB_OUTPUT"
           else
             prompt="$DEFAULT_PROMPT"
             if [ -n "$TARGET_REPO" ]; then
               prompt="$prompt
 
-          TARGET_REPO=$TARGET_REPO — process ONLY this repository in the bfra-me org."
+            TARGET_REPOS=$TARGET_REPO — process ONLY this repository in the bfra-me org."
             fi
             {
               echo "prompt<<$delimiter"
               echo "$prompt"
               echo "$delimiter"
+              echo "target-repos<<$delimiter"
+              echo "$TARGET_REPO"
+              echo "$delimiter"
             } >> "$GITHUB_OUTPUT"
           fi
 
-  fro-bot-autoheal-org:
-    name: Fro Bot Autoheal (Org)
+  fro-bot:
+    name: Fro Bot (Org Autoheal)
     needs: resolve-prompt
     uses: ./.github/workflows/fro-bot.yaml
     secrets: inherit
     with:
+      mode: autoheal
       prompt: ${{ needs.resolve-prompt.outputs.prompt }}
+      target-repo: ${{ needs.resolve-prompt.outputs.target-repos }}

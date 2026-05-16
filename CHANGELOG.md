@@ -1,5 +1,44 @@
 # @bfra.me/.github
 
+## 4.16.17
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.82.0` to `9.83.0` ([#2170](https://github.com/bfra-me/.github/pull/2170))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.84.0` to `9.84.1` ([#2177](https://github.com/bfra-me/.github/pull/2177))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.83.0` to `9.84.0` ([#2172](https://github.com/bfra-me/.github/pull/2172))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.35.4` to `4.35.5` ([#2174](https://github.com/bfra-me/.github/pull/2174))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.84.1` to `9.85.0` ([#2178](https://github.com/bfra-me/.github/pull/2178))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.80.1` to `9.81.0` ([#2166](https://github.com/bfra-me/.github/pull/2166))
+
+
+- 📦 Update npm dependency `@types/node` from `24.12.2` to `24.12.4` ([#2173](https://github.com/bfra-me/.github/pull/2173))
+
+
+- 📦 Update npm dependency `vite` from `8.0.11` to `8.0.12` ([#2168](https://github.com/bfra-me/.github/pull/2168))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.43.0` to `v0.43.1` ([#2175](https://github.com/bfra-me/.github/pull/2175))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#2171](https://github.com/bfra-me/.github/pull/2171))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.81.0` to `9.82.0` ([#2169](https://github.com/bfra-me/.github/pull/2169))
+
+
+- 📦 Group update for npm dependencies: `@bfra.me/eslint-config`, `@bfra.me/prettier-config`, `@bfra.me/tsconfig` ([#2176](https://github.com/bfra-me/.github/pull/2176))
+
 ## 4.16.16
 ### Patch Changes
 

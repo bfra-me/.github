@@ -1,4 +1,5 @@
-# Fro Bot AI agent — responds to mentions, reviews PRs, and runs scheduled maintenance.
+# Fro Bot AI agent — responds to mentions, reviews PRs, runs scheduled
+# maintenance, and performs daily autohealing.
 ---
 name: Fro Bot
 
@@ -12,16 +13,32 @@ on:
   issues:
     types: [opened, edited]
   pull_request:
-    types: [synchronize, ready_for_review, review_requested]
+    types: [opened, synchronize, reopened, ready_for_review, review_requested]
   schedule:
-    - cron: '30 15 * * *'
+    - cron: '0 5 * * *'     # maintenance — proactive issue detection
+    - cron: '30 15 * * *'   # autoheal — reactive fixing
   workflow_dispatch:
     inputs:
+      mode:
+        description: Operation mode
+        type: choice
+        options:
+          - review
+          - maintenance
+          - autoheal
+        default: autoheal
+        required: false
       prompt:
-        description: Custom prompt for the Fro Bot agent
-        required: true
+        description: Custom prompt (overrides mode selection)
+        required: false
+        default: ''
   workflow_call:
     inputs:
+      mode:
+        description: Mode passed by reusable caller workflow
+        required: false
+        type: string
+        default: ''
       prompt:
         description: Prompt passed by reusable caller workflow
         required: true
@@ -36,6 +53,7 @@ concurrency:
       github.event.issue.number ||
       github.event.pull_request.number ||
       github.event.discussion.number ||
+      (github.event_name == 'schedule' && github.event.schedule) ||
       github.run_id
     }}
   cancel-in-progress: false
@@ -85,7 +103,50 @@ env:
     - Write "None" under headings with no findings.
     - Keep findings actionable: file path, impact, and concrete remediation.
 
-  SCHEDULE_PROMPT: |
+  MAINTENANCE_PROMPT: |
+    Perform daily repository maintenance and update a SINGLE rolling issue
+    titled "Daily Maintenance Report" in this repository.
+
+    Search for an issue with this exact title. If multiple matches exist, use
+    the most recently updated one. If no open issue exists, create it. If the
+    most recent matching issue is closed, reopen it instead of creating a new
+    one.
+
+    Perpetual issue hygiene: after selecting the single rolling issue, search
+    for any other open issues with the exact title "Daily Maintenance Report"
+    and close them with a brief comment (e.g., "Consolidating into the
+    perpetual maintenance issue."). There must be exactly one open maintenance
+    issue at all times.
+
+    Append a new dated section for each run using "## YYYY-MM-DD (UTC)". To
+    keep the issue bounded: after appending today's section, replace any
+    individual daily sections older than 14 days with a single
+    "## Historical Summary" section that lists only the count of prior runs
+    and any items that remained unresolved across those runs. If a Historical
+    Summary already exists, update it in place — do not create a second one.
+
+    Include links only (no full content duplication). Keep it concise and
+    actionable. Flag items that appear in the stale list for the first time
+    (not present in the previous dated section) with a ★ marker.
+
+    Context: this repository is bfra-me/.github, the org control center that
+    provides workflows, custom actions, workflow templates, repo settings,
+    and shared configs for the @bfra-me GitHub organization. This is a
+    TypeScript monorepo using pnpm workspaces.
+
+    Sections (in order):
+    - Summary metrics (issues opened since last run, currently open PRs, stale
+      issues/PRs count, main branch check status, security alerts if accessible)
+    - Stale issues (no activity >30 days; recommend next step)
+    - Stale PRs (no activity >7 days; stale >14 days)
+    - Unassigned bugs (label bug, no assignee)
+    - Recommended actions (bulleted checklist)
+    - Notes (use "data unavailable" for any inaccessible data source)
+
+    Do NOT comment on or modify individual issues/PRs. Do NOT apply labels.
+    Do NOT open PRs. This run must update ONE issue only.
+
+  AUTOHEAL_PROMPT: |
     Perform daily repository autohealing for bfra-me/.github — the org
     control center that provides workflows, custom actions, workflow
     templates, repo settings, and shared configs for the @bfra-me GitHub
@@ -116,25 +177,19 @@ env:
     dependency changes into a security fix. Do NOT modify package.json
     versions outside category 2 security remediation.
 
-    CHANGESET RULES
-    If code changes warrant a changeset, create `.changeset/{name}.md`
-    manually. Do NOT use `pnpm changeset` CLI (it produces inconsistent
-    format). Format:
-    ```
-    ---
-    "@bfra.me/.github": patch
-    ---
-    Description
-    ```
+    TRUSTED AUTHORS
+    Trusted PR authors for branch repair are repository
+    owner/collaborator with write access, or approved automation bots:
+    - renovate[bot]
+    - dependabot[bot]
+    - fro-bot
 
     1. ERRORED PRs
        Find open PRs with failing CI checks. Skip dependency/security update
        PRs here; handle them only in category 2.
        Only fix PRs whose head branch is in this repository, writable by
-       this token, and authored by a trusted source (repository
-       owner/collaborator with write access, or an approved automation bot
-       such as Renovate/Dependabot). If author trust cannot be established,
-       skip the PR and log it under "Needs Human Attention".
+       this token, and authored by a trusted source. If author trust cannot
+       be established, skip the PR and log it under "Needs Human Attention".
        If the PR touches workflows, automation prompts, package-manager
        config, lockfiles, or execution scripts, do not run project commands
        from that branch. Skip it and log why.
@@ -202,6 +257,23 @@ env:
        d. Check .github/instructions/*.instructions.md files reference
           current tool versions and patterns.
 
+    6. PROGRESSIVE IMPROVEMENT
+       Scan for opportunities to improve the repository and Fro Bot workflow:
+       - Check if any package.json files reference outdated tool versions
+         (ESLint, Prettier, TypeScript, Vitest). If more than one minor
+         version behind, open or update an issue noting the gap.
+       - Verify the CI pipeline in .github/workflows/ is complete and
+         healthy. Flag any missing jobs or degraded checks.
+       - Cross-project intelligence: check other bfra-me repositories
+         (works, renovate-action) for automation patterns or prompt
+         improvements that could benefit this repository. Include only
+         if relevant findings exist.
+       - Check for any convention drift from AGENTS.md patterns.
+       - Review the analytics collection in package.json for any issues
+         (malformed scripts, missing error handling).
+       Report all findings under a "Progressive Improvement" section
+       in the summary. Do NOT make changes for this category — report only.
+
     Hard boundaries:
     - Never force-push, rewrite history, or delete branches.
     - Never push directly to the default branch. Direct pushes are allowed
@@ -233,11 +305,23 @@ env:
     - YAML extension: .yaml, not .yml
     - 120 char line limit, 2-space indent
 
-    OUTPUT FORMAT — PERPETUAL ISSUE
+    OUTPUT FORMAT — PERPETUAL SINGLE ISSUE
     After completing all work, find the open issue titled
-    "Daily Autohealing Report". If it exists, prepend
-    today's update to the top of the issue body. If not, create it
-    and add today's update as the first entry.
+    "Daily Autohealing Report". If it exists, prepend today's update to
+    the top of the issue body. If not, create it.
+
+    Perpetual issue hygiene: after updating the single rolling issue,
+    search for any other open issues with the exact title
+    "Daily Autohealing Report" and close them with a brief comment
+    (e.g., "Consolidating into the perpetual autohealing issue.").
+    There must be exactly one open autohealing issue at all times.
+
+    To keep the issue bounded: after prepending today's section, replace
+    any individual daily sections older than 14 days with a single
+    "## Historical Summary" section that lists only the count of prior
+    runs and any items that remained unresolved across those runs. If a
+    Historical Summary already exists, update it in place — do not create
+    a second one.
 
     Each daily update MUST use this structure. If a section has no rows, do
     not emit an empty table — write "None." directly under that heading.
@@ -251,6 +335,7 @@ env:
     | SECURITY | ✅/⚠️/❌ | description |
     | HEALTH & MAINTENANCE | ✅/⚠️/❌ | description |
     | DEVELOPER EXPERIENCE | ✅/⚠️/❌ | description |
+    | PROGRESSIVE IMPROVEMENT | ✅/⚠️/❌ | description |
 
     ### Tasks for Fro Bot
     - [ ] Automated task
@@ -289,6 +374,13 @@ env:
     ### Developer Experience & Org Standards
     - [list of each PR or fix with summary link]
 
+    ### Progressive Improvement
+    | Area | Status | Notes |
+    | --- | --- | --- |
+    | Tool versions | ✅ Current / ⚠️ Behind | [gap details] |
+    | CI pipeline health | ✅ Healthy / ⚠️ Issues | [details] |
+    | Cross-project patterns | ✅ Current / ⚠️ Available | [relevant findings] |
+
     ### Needs Human Attention
     - [items that could not be auto-fixed, with context]
 
@@ -321,9 +413,14 @@ jobs:
         github.event_name == 'workflow_dispatch' ||
         inputs.prompt != '' ||
         (
-          (github.event_name == 'issue_comment' ||
-           github.event_name == 'pull_request_review_comment' ||
-           github.event_name == 'discussion_comment') &&
+          (
+            (
+              github.event_name == 'issue_comment' &&
+              github.event.issue.pull_request == null
+            ) ||
+            github.event_name == 'pull_request_review_comment' ||
+            github.event_name == 'discussion_comment'
+          ) &&
           contains(github.event.comment.body || '', '@fro-bot') &&
           (github.event.comment.user.login || '') != 'fro-bot' &&
           contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || '')
@@ -355,18 +452,67 @@ jobs:
       - name: Build actions
         run: pnpm build
 
+      - name: Determine mode and prompt
+        id: resolve
+        env:
+          INPUT_MODE: ${{ github.event.inputs.mode || '' }}
+          INPUT_PROMPT: ${{ github.event.inputs.prompt || '' }}
+          CALLER_MODE: ${{ inputs.mode || '' }}
+          CALLER_PROMPT: ${{ inputs.prompt || '' }}
+        run: |
+          mode="$INPUT_MODE"
+          if [ -z "$mode" ]; then
+            mode="$CALLER_MODE"
+          fi
+          if [ -z "$mode" ]; then
+            case "${{ github.event_name }}" in
+              schedule)
+                if echo "${{ github.event.schedule }}" | grep -q "0 5"; then
+                  mode="maintenance"
+                else
+                  mode="autoheal"
+                fi
+                ;;
+              workflow_dispatch) mode="autoheal" ;;
+              pull_request) mode="review" ;;
+              *) mode="" ;;
+            esac
+          fi
+
+          prompt="$INPUT_PROMPT"
+          if [ -z "$prompt" ]; then
+            prompt="$CALLER_PROMPT"
+          fi
+
+          if [ -z "$prompt" ]; then
+            case "$mode" in
+              review)
+                prompt="${{ env.PR_REVIEW_PROMPT }}"
+                ;;
+              maintenance)
+                prompt="${{ env.MAINTENANCE_PROMPT }}"
+                ;;
+              autoheal)
+                prompt="${{ env.AUTOHEAL_PROMPT }}"
+                ;;
+            esac
+          fi
+
+          delimiter="EOF_$(openssl rand -hex 8)"
+          {
+            echo "mode<<$delimiter"
+            echo "$mode"
+            echo "$delimiter"
+            echo "prompt<<$delimiter"
+            echo "$prompt"
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Run Fro Bot
         uses: fro-bot/agent@3ec8d72ffdcf71de6e51f88a0de6c49ed79ed286 # v0.43.1
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
-          PROMPT: >-
-            ${{
-              (github.event_name == 'workflow_dispatch' && (github.event.inputs.prompt || ''))
-              || inputs.prompt
-              || (github.event_name == 'schedule' && env.SCHEDULE_PROMPT)
-              || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
-              || ''
-            }}
+          PROMPT: ${{ steps.resolve.outputs.prompt }}
         with:
           github-token: ${{ secrets.FRO_BOT_PAT }}
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}

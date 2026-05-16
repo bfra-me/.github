@@ -286,4 +286,5 @@ jobs:
     uses: ./.github/workflows/fro-bot.yaml
     secrets: inherit
     with:
+      mode: autoheal
       prompt: ${{ needs.resolve-prompt.outputs.prompt }}

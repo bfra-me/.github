@@ -15,8 +15,8 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, review_requested]
   schedule:
-    - cron: '0 5 * * *'     # maintenance — proactive issue detection
-    - cron: '30 15 * * *'   # autoheal — reactive fixing
+    - cron: '0 5 * * *' # maintenance — proactive issue detection
+    - cron: '30 15 * * *' # autoheal — reactive fixing
   workflow_dispatch:
     inputs:
       mode:
@@ -487,13 +487,20 @@ jobs:
           if [ -z "$prompt" ]; then
             case "$mode" in
               review)
-                prompt="${{ env.PR_REVIEW_PROMPT }}"
+                prompt="$PR_REVIEW_PROMPT"
                 ;;
               maintenance)
-                prompt="${{ env.MAINTENANCE_PROMPT }}"
+                prompt="$MAINTENANCE_PROMPT"
                 ;;
               autoheal)
-                prompt="${{ env.AUTOHEAL_PROMPT }}"
+                prompt="$AUTOHEAL_PROMPT"
+                ;;
+              *)
+                # Invalid mode with no explicit prompt override
+                if [ -n "$mode" ]; then
+                  echo "❌ Error: Invalid mode '$mode'. Must be one of: review, maintenance, autoheal"
+                  exit 1
+                fi
                 ;;
             esac
           fi

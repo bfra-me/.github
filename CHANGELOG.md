@@ -1,5 +1,29 @@
 # @bfra.me/.github
 
+## 4.16.18
+### Patch Changes
+
+
+- 📦 Update npm dependency `vite` from `8.0.12` to `8.0.13` ([#2187](https://github.com/bfra-me/.github/pull/2187))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.85.0` to `9.86.0` ([#2182](https://github.com/bfra-me/.github/pull/2182))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.86.0` to `9.87.0` ([#2189](https://github.com/bfra-me/.github/pull/2189))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.43.2` to `v0.43.3` ([#2186](https://github.com/bfra-me/.github/pull/2186))
+
+
+- 📦 Update npm dependency `tsx` from `4.21.0` to `4.21.1` ([#2188](https://github.com/bfra-me/.github/pull/2188))
+
+
+- 📦 Update npm dependency `tsx` from `4.21.1` to `4.22.0` ([#2190](https://github.com/bfra-me/.github/pull/2190))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.43.1` to `v0.43.2` ([#2184](https://github.com/bfra-me/.github/pull/2184))
+
 ## 4.16.17
 ### Patch Changes
 

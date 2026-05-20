@@ -1,5 +1,35 @@
 # @bfra.me/.github
 
+## 4.16.19
+### Patch Changes
+
+
+- 📦 Update npm dependency `eslint` from `10.3.0` to `10.4.0` ([#2194](https://github.com/bfra-me/.github/pull/2194))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.87.0` to `9.88.0` ([#2195](https://github.com/bfra-me/.github/pull/2195))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.88.0` to `9.89.0` ([#2196](https://github.com/bfra-me/.github/pull/2196))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.44.1` to `v0.44.2` ([#2200](https://github.com/bfra-me/.github/pull/2200))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.44.0` to `v0.44.1` ([#2197](https://github.com/bfra-me/.github/pull/2197))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.89.0` to `9.90.0` ([#2199](https://github.com/bfra-me/.github/pull/2199))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.44.2` to `v0.44.3` ([#2201](https://github.com/bfra-me/.github/pull/2201))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.43.3` to `v0.44.0` ([#2192](https://github.com/bfra-me/.github/pull/2192))
+
+
+- 📦 Update npm dependency `tsx` from `4.22.0` to `4.22.1` ([#2198](https://github.com/bfra-me/.github/pull/2198))
+
 ## 4.16.18
 ### Patch Changes
 

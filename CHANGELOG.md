@@ -1,5 +1,38 @@
 # @bfra.me/.github
 
+## 4.16.20
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.35.5` to `4.36.0` ([#2210](https://github.com/bfra-me/.github/pull/2210))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.91.0` to `9.92.0` ([#2205](https://github.com/bfra-me/.github/pull/2205))
+
+
+- 📦 Update npm dependency `tsx` from `4.22.1` to `4.22.2` ([#2206](https://github.com/bfra-me/.github/pull/2206))
+
+
+- 📦 Update npm dependency `tsx` from `4.22.2` to `4.22.3` ([#2209](https://github.com/bfra-me/.github/pull/2209))
+
+
+- 📦 Update npm dependency `vite` from `8.0.13` to `8.0.14` ([#2214](https://github.com/bfra-me/.github/pull/2214))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.92.0` to `9.93.0` ([#2208](https://github.com/bfra-me/.github/pull/2208))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#2212](https://github.com/bfra-me/.github/pull/2212))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.93.0` to `9.94.0` ([#2211](https://github.com/bfra-me/.github/pull/2211))
+
+
+- 📦 Group update for dependencies dependencies: `Node.js`, `node` ([#2207](https://github.com/bfra-me/.github/pull/2207))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.90.0` to `9.91.0` ([#2203](https://github.com/bfra-me/.github/pull/2203))
+
 ## 4.16.19
 ### Patch Changes
 

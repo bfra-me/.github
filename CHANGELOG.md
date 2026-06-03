@@ -1,5 +1,50 @@
 # @bfra.me/.github
 
+## 4.16.23
+### Patch Changes
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.48.1` to `v0.49.0` ([#2238](https://github.com/bfra-me/.github/pull/2238))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.48.0` to `v0.48.1` ([#2234](https://github.com/bfra-me/.github/pull/2234))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.102.0` to `9.103.0` ([#2243](https://github.com/bfra-me/.github/pull/2243))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `changesets/action` from `v1.8.0` to `v1.9.0` ([#2244](https://github.com/bfra-me/.github/pull/2244))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.36.0` to `4.36.1` ([#2240](https://github.com/bfra-me/.github/pull/2240))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.100.0` to `9.101.0` ([#2236](https://github.com/bfra-me/.github/pull/2236))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.101.0` to `9.102.0` ([#2241](https://github.com/bfra-me/.github/pull/2241))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.49.0` to `v0.50.0` ([#2239](https://github.com/bfra-me/.github/pull/2239))
+
+
+- 📦 Update npm dependency `tsx` from `4.22.3` to `4.22.4` ([#2246](https://github.com/bfra-me/.github/pull/2246))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/checkout` from `v6.0.2` to `v6.0.3` ([#2242](https://github.com/bfra-me/.github/pull/2242))
+
+
+- 📦 Update npm dependency `eslint` from `10.4.0` to `10.4.1` ([#2237](https://github.com/bfra-me/.github/pull/2237))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.50.0` to `v0.51.0` ([#2245](https://github.com/bfra-me/.github/pull/2245))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.51.0` to `v0.52.0` ([#2247](https://github.com/bfra-me/.github/pull/2247))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.52.0` to `v0.52.1` ([#2248](https://github.com/bfra-me/.github/pull/2248))
+
 ## 4.16.22
 ### Patch Changes
 

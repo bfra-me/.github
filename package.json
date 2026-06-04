@@ -95,7 +95,7 @@
     "tsx": "4.22.4",
     "typescript": "6.0.3",
     "unified": "11.0.5",
-    "vite": "8.0.14",
+    "vite": "8.0.15",
     "vitest": "4.1.7"
   },
   "packageManager": "pnpm@10.34.1"

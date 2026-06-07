@@ -1,5 +1,74 @@
 # @bfra.me/.github
 
+## 4.16.24
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.107.0` to `9.108.0` ([#2265](https://github.com/bfra-me/.github/pull/2265))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.55.2` to `v0.55.3` ([#2267](https://github.com/bfra-me/.github/pull/2267))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.55.4` to `v0.55.6` ([#2269](https://github.com/bfra-me/.github/pull/2269))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.55.0` to `v0.55.1` ([#2264](https://github.com/bfra-me/.github/pull/2264))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.36.1` to `4.36.2` ([#2260](https://github.com/bfra-me/.github/pull/2260))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.106.0` to `9.107.0` ([#2262](https://github.com/bfra-me/.github/pull/2262))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.55.3` to `v0.55.4` ([#2268](https://github.com/bfra-me/.github/pull/2268))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#2254](https://github.com/bfra-me/.github/pull/2254))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.104.0` to `9.105.0` ([#2256](https://github.com/bfra-me/.github/pull/2256))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.55.1` to `v0.55.2` ([#2266](https://github.com/bfra-me/.github/pull/2266))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.54.2` to `v0.55.0` ([#2263](https://github.com/bfra-me/.github/pull/2263))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.52.1` to `v0.53.0` ([#2255](https://github.com/bfra-me/.github/pull/2255))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.105.0` to `9.106.0` ([#2258](https://github.com/bfra-me/.github/pull/2258))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.56.2` to `v0.57.0` ([#2272](https://github.com/bfra-me/.github/pull/2272))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.55.6` to `v0.56.1` ([#2270](https://github.com/bfra-me/.github/pull/2270))
+
+
+- 📦 Update npm dependency `Vite` ([#2257](https://github.com/bfra-me/.github/pull/2257))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.53.0` to `v0.53.1` ([#2259](https://github.com/bfra-me/.github/pull/2259))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.103.0` to `9.104.0` ([#2253](https://github.com/bfra-me/.github/pull/2253))
+
+
+- 📦 Update npm dependency `Vite` ([#2252](https://github.com/bfra-me/.github/pull/2252))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.53.1` to `v0.54.2` ([#2261](https://github.com/bfra-me/.github/pull/2261))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.56.1` to `v0.56.2` ([#2271](https://github.com/bfra-me/.github/pull/2271))
+
+
+- 📦 Update npm dependency `js-yaml` from `4.1.1` to `4.2.0` ([#2250](https://github.com/bfra-me/.github/pull/2250))
+
 ## 4.16.23
 ### Patch Changes
 

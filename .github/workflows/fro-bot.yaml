@@ -1,5 +1,6 @@
-# Fro Bot AI agent — responds to mentions, reviews PRs, runs scheduled
-# maintenance, and performs daily autohealing.
+# Fro Bot AI agent — responds to mentions, reviews PRs, and runs a single
+# daily pass that does both proactive oversight (detect/report) and reactive
+# autohealing (fix what is safe), for this repo and across the bfra-me org.
 ---
 name: Fro Bot
 
@@ -15,8 +16,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, review_requested]
   schedule:
-    - cron: '0 5 * * *' # maintenance — proactive issue detection
-    - cron: '30 15 * * *' # autoheal — reactive fixing
+    - cron: '30 15 * * *' # daily unified pass — oversight + autohealing
   workflow_dispatch:
     inputs:
       mode:
@@ -24,12 +24,15 @@ on:
         type: choice
         options:
           - review
-          - maintenance
           - autoheal
         default: autoheal
         required: false
       prompt:
         description: Custom prompt (overrides mode selection)
+        required: false
+        default: ''
+      target-repo:
+        description: Limit org-wide scanning to a single repo (e.g. "renovate-action"). Leave empty for full org.
         required: false
         default: ''
   workflow_call:
@@ -103,86 +106,53 @@ env:
     - Write "None" under headings with no findings.
     - Keep findings actionable: file path, impact, and concrete remediation.
 
-  MAINTENANCE_PROMPT: |
-    Perform daily repository maintenance and update a SINGLE rolling issue
-    titled "Daily Maintenance Report" in this repository.
-
-    Search for an issue with this exact title. If multiple matches exist, use
-    the most recently updated one. If no open issue exists, create it. If the
-    most recent matching issue is closed, reopen it instead of creating a new
-    one.
-
-    Perpetual issue hygiene: after selecting the single rolling issue, search
-    for any other open issues with the exact title "Daily Maintenance Report"
-    and close them with a brief comment (e.g., "Consolidating into the
-    perpetual maintenance issue."). There must be exactly one open maintenance
-    issue at all times.
-
-    Append a new dated section for each run using "## YYYY-MM-DD (UTC)". To
-    keep the issue bounded: after appending today's section, replace any
-    individual daily sections older than 14 days with a single
-    "## Historical Summary" section that lists only the count of prior runs
-    and any items that remained unresolved across those runs. If a Historical
-    Summary already exists, update it in place — do not create a second one.
-
-    Include links only (no full content duplication). Keep it concise and
-    actionable. Flag items that appear in the stale list for the first time
-    (not present in the previous dated section) with a ★ marker.
-
-    Context: this repository is bfra-me/.github, the org control center that
-    provides workflows, custom actions, workflow templates, repo settings,
-    and shared configs for the @bfra-me GitHub organization. This is a
-    TypeScript monorepo using pnpm workspaces.
-
-    Sections (in order):
-    - Summary metrics (issues opened since last run, currently open PRs, stale
-      issues/PRs count, main branch check status, security alerts if accessible)
-    - Stale issues (no activity >30 days; recommend next step)
-    - Stale PRs (no activity >7 days; stale >14 days)
-    - Unassigned bugs (label bug, no assignee)
-    - Recommended actions (bulleted checklist)
-    - Notes (use "data unavailable" for any inaccessible data source)
-
-    Do NOT comment on or modify individual issues/PRs. Do NOT apply labels.
-    Do NOT open PRs. This run must update ONE issue only.
-
   AUTOHEAL_PROMPT: |
-    Perform daily repository autohealing for bfra-me/.github — the org
-    control center that provides workflows, custom actions, workflow
-    templates, repo settings, and shared configs for the @bfra-me GitHub
-    organization. This is a TypeScript monorepo using pnpm workspaces.
-    Read AGENTS.md for full project conventions before making changes.
+    Run the daily Fro Bot pass for bfra-me/.github — the org control center
+    that provides workflows, custom actions, workflow templates, repo
+    settings, and shared configs for the @bfra-me GitHub organization. This
+    is a TypeScript monorepo using pnpm workspaces. This single run does BOTH
+    proactive oversight (detect and report) AND reactive autohealing (fix
+    what is safe), for this repository AND across the bfra-me org. Prioritize
+    minimal, reversible changes. Read AGENTS.md for full project conventions
+    before making any change.
+
+    If the TARGET_REPO env var is set, restrict org-wide scanning (categories
+    7–8) to ONLY that repository; this-repo categories (1–6) still run.
 
     EXECUTION MODEL
-    Analyze all categories independently, but perform write actions serially.
-    Do not keep multiple branches checked out at once. Complete one mutation,
-    return to a clean working tree, then continue.
+    Analyze every category, but perform write actions serially. Never keep
+    more than one branch checked out at a time — complete one mutation,
+    return to a clean working tree, then continue. Process org repos serially
+    in the same way.
 
     DEDUPLICATION (applies to ALL categories)
     Before creating any new PR or issue, search for an existing open
-    bot-authored PR/issue for the same root cause. Reuse or update the
-    existing item instead of creating a duplicate.
+    bot-authored PR/issue for the same root cause (in the affected repo).
+    Reuse or update the existing item instead of creating a duplicate.
 
     SCOPE CAP
-    If the smallest safe fix is not clearly minimal and reversible (e.g.,
-    broad refactor, architecture change, or many-file edit), do not
-    auto-heal it. Open or update an issue and log it under "Needs Human
-    Attention".
+    Only auto-heal a fix that is clearly minimal and reversible. If the
+    smallest safe fix is a broad refactor, an architecture change, or a
+    many-file edit, do NOT auto-heal it — record it under "Needs Human
+    Attention" with enough detail for an LLM agent to act on later (see
+    AGENT NOTES).
 
     DEPENDENCY OWNERSHIP
     Renovate owns routine dependency/version bumps. You may change dependency
     versions only when remediating a confirmed security advisory
     (critical/high) or repairing an existing security-update PR. Do not
     create non-security version-bump PRs, and do not batch unrelated
-    dependency changes into a security fix. Do NOT modify package.json
-    versions outside category 2 security remediation.
+    dependency changes into a security fix.
 
     TRUSTED AUTHORS
-    Trusted PR authors for branch repair are repository
-    owner/collaborator with write access, or approved automation bots:
-    - renovate[bot]
-    - dependabot[bot]
-    - fro-bot
+    Only repair a PR branch authored by the repository owner/a collaborator
+    with write access, or an approved automation bot (renovate[bot],
+    dependabot[bot], fro-bot). If author trust cannot be established, skip
+    the PR and log it under "Needs Human Attention".
+
+    ═══════════════════════════════════════════════════════════════════
+    THIS REPOSITORY (bfra-me/.github)
+    ═══════════════════════════════════════════════════════════════════
 
     1. ERRORED PRs
        Find open PRs with failing CI checks. Skip dependency/security update
@@ -257,34 +227,74 @@ env:
        d. Check .github/instructions/*.instructions.md files reference
           current tool versions and patterns.
 
-    6. PROGRESSIVE IMPROVEMENT
-       Scan for opportunities to improve the repository and Fro Bot workflow:
-       - Check if any package.json files reference outdated tool versions
-         (ESLint, Prettier, TypeScript, Vitest). If more than one minor
-         version behind, open or update an issue noting the gap.
-       - Verify the CI pipeline in .github/workflows/ is complete and
-         healthy. Flag any missing jobs or degraded checks.
-       - Cross-project intelligence: check other bfra-me repositories
-         (works, renovate-action) for automation patterns or prompt
-         improvements that could benefit this repository. Include only
-         if relevant findings exist.
-       - Check for any convention drift from AGENTS.md patterns.
-       - Review the analytics collection in package.json for any issues
-         (malformed scripts, missing error handling).
-       Report all findings under a "Progressive Improvement" section
-       in the summary. Do NOT make changes for this category — report only.
+    6. OVERSIGHT (this repo, report-only)
+       Detection-only pass over this repository. Summarize with links only:
+       - Issues opened since the last run; currently open PRs.
+       - Stale issues (no activity >30 days) and stale PRs (aging >7 days,
+         stale >14 days). Recommend a next step for each.
+       - Main branch check status and any accessible security alerts.
+       - Unassigned bugs (label `bug`, no assignee).
+       Do NOT modify or comment on individual issues/PRs or apply labels in
+       this category.
+
+    ═══════════════════════════════════════════════════════════════════
+    ORG-WIDE (all non-archived bfra-me repositories)
+    ═══════════════════════════════════════════════════════════════════
+    Use `gh` CLI for cross-repo operations. Process repos serially; return
+    to a clean working tree between repos. If TARGET_REPO is set, process
+    ONLY that repo for these categories.
+
+    7. ORG CI HEALTH & SECURITY (detect; fix only what is minimal)
+       For each repo:
+       a. Failing main: if the latest default-branch check is failing,
+          diagnose from run logs. If the fix is trivial (type error, lint,
+          dep conflict), open a PR in that repo. Otherwise create an issue.
+       b. Flaky CI: query the last 10 default-branch runs; if >20% failed,
+          flag the repo and the most common failure pattern.
+       c. Broken PRs: for non-dependency PRs from trusted authors, attempt a
+          fix on the PR branch. Skip PRs touching CI config, workflows, or
+          lockfiles.
+       d. Security: for critical/high advisories with no existing
+          remediation PR, open a focused PR in the affected repo. Verify all
+          workflow actions are SHA-pinned; open a PR to pin floating tags.
+          Flag missing CodeQL on repos with source code (issue only).
+
+    8. ORG STANDARDS & TRENDS (report-only)
+       Survey across repos and report drift; do NOT auto-upgrade across
+       repos — open issues for significant drift instead:
+       - Tooling skew: TypeScript / Node.js / pnpm versions vs the org
+         standard set by bfra-me/.github (.node-version, packageManager).
+       - Shared config drift: repos not extending @bfra.me/eslint-config,
+         @bfra.me/prettier-config, @bfra.me/tsconfig, or on older versions.
+       - Renovate config: repos not referencing bfra-me/renovate-config.
+       - Org pattern adherence: required CI workflows, .github/settings.yml,
+         branch protection, repo description/topics, AGENTS.md for repos
+         with >10 source files. One issue per repo listing all findings.
+
+    9. CROSS-PROJECT INTELLIGENCE (report-only)
+       Scan sibling repos (bfra-me/works, bfra-me/renovate-action, and
+       tracked fro-bot repos) for automation patterns, prompt strategies, or
+       workflow improvements that could benefit this repository or the org.
+       Report adoptable findings only; make no changes in this category.
+
+    10. PROGRESSIVE IMPROVEMENT (report-only)
+        Scan for durable improvement opportunities: tool-version drift in
+        package.json (ESLint, Prettier, TypeScript, Vitest more than a minor
+        behind), missing or degraded CI jobs, convention drift from AGENTS.md
+        patterns, and stale TODO/FIXME annotations. Report under "Progressive
+        Improvement"; make no changes here.
 
     Hard boundaries:
-    - Never force-push, rewrite history, or delete branches.
-    - Never push directly to the default branch. Direct pushes are allowed
+    - Never force-push, rewrite history, or delete branches in any repo.
+    - Never push directly to a default branch. Direct pushes are allowed
       only to an existing non-default PR branch you are repairing under
-      category 1 or category 2.
-    - Never merge PRs, submit reviews/approvals, close/reopen PRs or
-      issues, or modify branch protection. This workflow may only push
-      fixes, open/update PRs, open/update issues, and comment on PRs when
-      a fix was pushed.
-    - Never modify secrets, org settings, environments, or branch
-      protection.
+      category 1, 2, or 7.
+    - Never merge PRs, submit reviews/approvals, close/reopen PRs, or modify
+      branch protection in any repo. This workflow may only push fixes,
+      open/update PRs, open/update issues, comment on PRs when a fix was
+      pushed, and maintain the single perpetual report issue (which includes
+      closing superseded report issues per OUTPUT FORMAT).
+    - Never modify secrets, org settings, environments, or branch protection.
     - Never make checks pass by disabling tests, deleting failing
       assertions, lowering coverage thresholds, weakening lint/type rules,
       or editing workflows/configuration only to suppress failures.
@@ -294,6 +304,8 @@ env:
       explains why.
     - If the smallest safe fix would weaken a guardrail or reduce
       validation, skip it and log it under "Needs Human Attention".
+    - Respect each repo's own conventions. If a repo has its own AGENTS.md,
+      follow those conventions over org defaults.
     - Do not create multiple summary issues.
 
     Project conventions (MUST follow for code changes):
@@ -305,45 +317,53 @@ env:
     - YAML extension: .yaml, not .yml
     - 120 char line limit, 2-space indent
 
+    AGENT NOTES (instead of per-agent follow-up tasks)
+    Do NOT create follow-up tasks addressed to a specific agent (Fro Bot,
+    Copilot, etc.). When work is deferred, write the note so any LLM agent
+    can pick it up cold: state the exact file paths, the root cause, the
+    smallest safe fix, any constraints or "do not retry" warnings, and how
+    to verify. Put these under "Needs Human Attention" in the report.
+
     OUTPUT FORMAT — PERPETUAL SINGLE ISSUE
-    After completing all work, find the open issue titled
-    "Daily Autohealing Report". If it exists, prepend today's update to
-    the top of the issue body. If not, create it.
+    Maintain exactly one daily report. Find the open issue titled
+    "Daily Fro Bot Report". If it exists, prepend today's update to the top
+    of the issue body. If not, create it.
 
-    Perpetual issue hygiene: after updating the single rolling issue,
-    search for any other open issues with the exact title
-    "Daily Autohealing Report" and close them with a brief comment
-    (e.g., "Consolidating into the perpetual autohealing issue.").
-    There must be exactly one open autohealing issue at all times.
+    Perpetual issue hygiene: after updating the single rolling issue, search
+    for any other open issues whose title is "Daily Fro Bot Report" OR any
+    of the superseded titles "Daily Maintenance Report", "Daily Autohealing
+    Report", or "Org Autohealing Report", and close them with a brief
+    comment that links the current report (e.g., "Consolidating into the
+    perpetual Daily Fro Bot Report."). There must be exactly one open report
+    issue when the run finishes.
 
-    To keep the issue bounded: after prepending today's section, replace
-    any individual daily sections older than 14 days with a single
-    "## Historical Summary" section that lists only the count of prior
-    runs and any items that remained unresolved across those runs. If a
-    Historical Summary already exists, update it in place — do not create
-    a second one.
+    To keep the issue bounded: after prepending today's section, replace any
+    individual daily sections older than 14 days with a single
+    "## Historical Summary" section that lists only the count of prior runs
+    and any items that remained unresolved across those runs. If a Historical
+    Summary already exists, update it in place — do not create a second one.
 
     Each daily update MUST use this structure. If a section has no rows, do
-    not emit an empty table — write "None." directly under that heading.
+    not emit an empty table — write "None." directly under that heading. Use
+    links only (no full content duplication). Write "data unavailable" for
+    any inaccessible data source.
 
     ## Update — YYYY-MM-DD (UTC)
 
-    ### Summary
-    | Category | Status | Actions |
-    |---------|--------|---------|
-    | ERRORED PRs | ✅/⚠️/❌ | description |
-    | SECURITY | ✅/⚠️/❌ | description |
-    | HEALTH & MAINTENANCE | ✅/⚠️/❌ | description |
-    | DEVELOPER EXPERIENCE | ✅/⚠️/❌ | description |
-    | PROGRESSIVE IMPROVEMENT | ✅/⚠️/❌ | description |
+    **Org repos scanned:** N | **Target:** [all / specific-repo]
 
-    ### Tasks for Fro Bot
-    - [ ] Automated task
-
-    ### Tasks for Copilot
-    - [ ] Assigned task
-
-    ### Daily Autohealing Report — YYYY-MM-DD (UTC)
+    ### Run Summary
+    | Category | Status | Notes |
+    | --- | --- | --- |
+    | Errored PRs | ✅/⚠️/❌ | ... |
+    | Security | ✅/⚠️/❌ | ... |
+    | Action & Workflow Integrity | ✅/⚠️/❌ | ... |
+    | Code Quality & Monorepo Health | ✅/⚠️/❌ | ... |
+    | Oversight | ✅/⚠️/❌ | ... |
+    | Org CI Health & Security | ✅/⚠️/❌ | ... |
+    | Org Standards & Trends | ✅/⚠️/❌ | ... |
+    | Cross-Project Intelligence | ✅/⚠️/❌ | ... |
+    | Progressive Improvement | ✅/⚠️/❌ | ... |
 
     ### Errored PRs
     | PR | Failure | Fix | Status |
@@ -371,18 +391,37 @@ env:
     | Workspace consistency | ✅ Clean / ⚠️ Issues | [details or #N] |
     | Stale TODOs | N found | [#N or None] |
 
-    ### Developer Experience & Org Standards
-    - [list of each PR or fix with summary link]
+    ### Oversight (this repo)
+    | Type | Item | Age | Recommendation |
+    | --- | --- | --- | --- |
+    | issue/PR | #N | N days | close/rebase/review |
+
+    ### Org CI Health & Security
+    | Repo | Finding | Action | Status |
+    | --- | --- | --- | --- |
+    | repo-name | [failing main / flaky / advisory / unpinned] | [PR #N / issue #N] | ✅ Fixed / ⚠️ Flagged |
+
+    ### Org Standards & Trends
+    | Metric | Org Standard | Repos Behind | Details |
+    | --- | --- | --- | --- |
+    | TypeScript | [version] | repo-a, repo-b | [versions found] |
+    | Node.js | [version] | repo-c | [version found] |
+    | Shared configs | @bfra.me/* | repo-d | [missing/outdated] |
+
+    ### Cross-Project Intelligence
+    | Source repo | Pattern | Adoptable for | Notes |
+    | --- | --- | --- | --- |
 
     ### Progressive Improvement
     | Area | Status | Notes |
     | --- | --- | --- |
     | Tool versions | ✅ Current / ⚠️ Behind | [gap details] |
     | CI pipeline health | ✅ Healthy / ⚠️ Issues | [details] |
-    | Cross-project patterns | ✅ Current / ⚠️ Available | [relevant findings] |
+    | Convention drift | ✅ None / ⚠️ Found | [details] |
 
     ### Needs Human Attention
-    - [items that could not be auto-fixed, with context]
+    - [items that could not be auto-fixed: exact paths, root cause, smallest
+      safe fix, constraints / "do not retry" warnings, and how to verify]
 
     Do NOT create multiple issues. Do NOT comment on individual issues.
     Update the single perpetual issue by prepending the daily update.
@@ -457,6 +496,7 @@ jobs:
         env:
           INPUT_MODE: ${{ github.event.inputs.mode || '' }}
           INPUT_PROMPT: ${{ github.event.inputs.prompt || '' }}
+          INPUT_TARGET_REPO: ${{ github.event.inputs.target-repo || '' }}
           CALLER_MODE: ${{ inputs.mode || '' }}
           CALLER_PROMPT: ${{ inputs.prompt || '' }}
         run: |
@@ -466,13 +506,7 @@ jobs:
           fi
           if [ -z "$mode" ]; then
             case "${{ github.event_name }}" in
-              schedule)
-                if echo "${{ github.event.schedule }}" | grep -q "0 5"; then
-                  mode="maintenance"
-                else
-                  mode="autoheal"
-                fi
-                ;;
+              schedule) mode="autoheal" ;;
               workflow_dispatch) mode="autoheal" ;;
               pull_request) mode="review" ;;
               *) mode="" ;;
@@ -489,16 +523,18 @@ jobs:
               review)
                 prompt="$PR_REVIEW_PROMPT"
                 ;;
-              maintenance)
-                prompt="$MAINTENANCE_PROMPT"
-                ;;
               autoheal)
                 prompt="$AUTOHEAL_PROMPT"
+                if [ -n "$INPUT_TARGET_REPO" ]; then
+                  prompt="$prompt
+
+          TARGET_REPO=$INPUT_TARGET_REPO — restrict org-wide scanning to ONLY this bfra-me repository."
+                fi
                 ;;
               *)
                 # Invalid mode with no explicit prompt override
                 if [ -n "$mode" ]; then
-                  echo "❌ Error: Invalid mode '$mode'. Must be one of: review, maintenance, autoheal"
+                  echo "❌ Error: Invalid mode '$mode'. Must be one of: review, autoheal"
                   exit 1
                 fi
                 ;;

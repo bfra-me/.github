@@ -22,7 +22,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 ├── scripts/                       # TypeScript utilities (tsx): release, build perf, workspace validation
 ├── docs/
 │   ├── workflows/                 # Workflow documentation and troubleshooting
-│   └── solutions/                 # Solved-problem docs by category, YAML frontmatter (problem_type, component, tags); relevant when implementing/debugging in documented areas
+│   └── solutions/                 # Solved-problem docs by category, YAML frontmatter (problem_type, component, tags) — see docs/solutions/README.md; relevant when implementing/debugging in documented areas
 ├── metadata/                      # Renovate config shared across org repos
 ├── common-settings.yaml           # Org-wide repo settings and labels
 └── profile/                       # GitHub org profile README

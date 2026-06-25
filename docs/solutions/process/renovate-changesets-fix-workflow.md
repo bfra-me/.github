@@ -1,10 +1,20 @@
 ---
 title: Fixing renovate-changesets — The Standard Workflow
-category: process
-tags: [renovate-changesets, github-actions, workflow, bugfix, changesets]
-severity: reference
-components: [action source, dist build, changesets, PRs, release pipeline]
+module: .github/actions/renovate-changesets
 date: 2026-03-18
+problem_type: workflow_issue
+component: development_workflow
+severity: low
+related_components:
+  - tooling
+  - testing_framework
+  - documentation
+tags:
+  - renovate-changesets
+  - github-actions
+  - workflow
+  - changesets
+  - release-pipeline
 ---
 
 How to diagnose, fix, verify, and ship changes to the `renovate-changesets` GitHub Action.

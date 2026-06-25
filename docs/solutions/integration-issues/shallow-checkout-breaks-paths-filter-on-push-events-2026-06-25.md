@@ -5,7 +5,6 @@ date: 2026-06-25
 problem_type: integration_issue
 component: development_workflow
 severity: medium
-category: docs/solutions/integration-issues/
 symptoms:
   - "Filter Changed Files intermittently failed on push events with git exit code 128"
   - "paths-filter could not diff github.event.before against github.sha"

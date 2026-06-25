@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.16.30
+### Patch Changes
+
+
+- Bump bfra-me/renovate-action to 9.125.1 (resolves bfra-me/renovate-action#3418, includes bfra-me/renovate-action#3419). ([#2336](https://github.com/bfra-me/.github/pull/2336))
+
+
+- 📦 Update npm dependency `pnpm` from `10.34.3` to `10.34.4` ([#2337](https://github.com/bfra-me/.github/pull/2337))
+
+
+- 🔒 Remediate undici vulnerabilities via pnpm override (>=6.27.0) addressing GHSA-vxpw-j846-p89q (HIGH/CVSS 7.5, WebSocket DoS via fragment count bypass), GHSA-p88m-4jfj-68fv (MEDIUM/CVSS 5.9, Set-Cookie header injection), GHSA-35p6-xmwp-9g52 (LOW, keep-alive socket reuse response queue poisoning), and GHSA-g8m3-5g58-fq7m (LOW, Set-Cookie SameSite downgrade) ([#2322](https://github.com/bfra-me/.github/pull/2322))
+
 ## 4.16.29
 ### Patch Changes
 

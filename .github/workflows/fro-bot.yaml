@@ -287,8 +287,9 @@ env:
     Hard boundaries:
     - Never force-push, rewrite history, or delete branches in any repo.
     - Never push directly to a default branch. Direct pushes are allowed
-      only to an existing non-default PR branch you are repairing under
-      category 1, 2, or 7.
+      only to a non-default branch you created (for a fresh fix) or to an
+      existing non-default PR branch you are repairing under category
+      1, 2, or 7.
     - Never merge PRs, submit reviews/approvals, close/reopen PRs, or modify
       branch protection in any repo. This workflow may only push fixes,
       open/update PRs, open/update issues, comment on PRs when a fix was
@@ -307,6 +308,28 @@ env:
     - Respect each repo's own conventions. If a repo has its own AGENTS.md,
       follow those conventions over org defaults.
     - Do not create multiple summary issues.
+
+    DELIVERY CONTRACT (READ THIS — REQUIRED)
+    This workflow is a single-step agent. The job is NOT complete when the
+    fix is written to disk. Whenever the task produces a code/config/doc
+    change that should land on the default branch, YOU must complete all
+    of the following before the run ends:
+    1. Create a new, descriptively-named non-default branch (e.g.
+       `fix/<slug>`, `chore/<slug>`, `ci/<slug>`) off the current default
+       branch. Do NOT commit on the default branch. Do NOT amend existing
+       unrelated branches.
+    2. Commit the change with a clear conventional message.
+    3. Push the branch to `origin` with `git push -u origin <branch>`.
+    4. Open a PR with `gh pr create` against the default branch. The PR
+       body must summarize the root cause, the fix, and verification
+       steps. Reference the dispatch / issue / PR that triggered the run.
+    5. If a PR for the same root cause already exists, update it instead
+       of creating a duplicate (push new commits to its branch).
+    This applies to every dispatch that asks for a code change — whether
+    the trigger is `workflow_dispatch` with a custom prompt, an
+    `@fro-bot` mention on an issue, or a category 1/2/7 autoheal. The
+    agent that writes the fix is the agent that ships it. Do not
+    delegate the push/PR to a "caller workflow" — there is none.
 
     Project conventions (MUST follow for code changes):
     - TypeScript strict mode: no `any`, no `@ts-ignore`, no `@ts-expect-error`
@@ -453,10 +476,7 @@ jobs:
         inputs.prompt != '' ||
         (
           (
-            (
-              github.event_name == 'issue_comment' &&
-              github.event.issue.pull_request == null
-            ) ||
+            github.event_name == 'issue_comment' ||
             github.event_name == 'pull_request_review_comment' ||
             github.event_name == 'discussion_comment'
           ) &&

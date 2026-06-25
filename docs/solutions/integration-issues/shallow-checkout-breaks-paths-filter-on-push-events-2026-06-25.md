@@ -39,12 +39,12 @@ Pinning `dorny/paths-filter` (or the workflow) back to `v4.16.17`, `v4.16.18`, o
 
 ## Solution
 
-Make the push-event checkout fetch full history before running `paths-filter`.
+Make the push-event checkout fetch full history before running `paths-filter`. Pins are shown as `@<sha>` placeholders; see [`.github/workflows/update-repo-settings.yaml`](/.github/workflows/update-repo-settings.yaml) for the current pinned versions.
 
 ```yaml
 - if: github.event_name == 'push'
   name: Checkout Repository
-  uses: actions/checkout@<sha> # v6.0.3
+  uses: actions/checkout@<sha> # pinned to a commit SHA
   with:
     # Full history so dorny/paths-filter can diff against the parent
     # commit on push events.
@@ -53,7 +53,7 @@ Make the push-event checkout fetch full history before running `paths-filter`.
 - id: filter
   if: github.event_name == 'push'
   name: Filter Changed Files
-  uses: dorny/paths-filter@<sha> # v4.0.1
+  uses: dorny/paths-filter@<sha> # pinned to a commit SHA
   with:
     filters: |
       changes:

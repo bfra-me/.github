@@ -129,6 +129,7 @@ applyTo: '.github/workflows/*.yaml,.github/actions/**/*'
   - **Edge cases to be aware of when using GitHub Actions**: Handling rate limits, managing concurrency, and dealing with transient network errors.
   - **Version-specific issues with GitHub Actions**: Changes in action syntax, deprecation of features, and compatibility issues with older runner environments.
   - **Compatibility concerns between GitHub Actions and other technologies**: Ensuring that actions are compatible with the target operating systems, programming languages, and cloud platforms.
+  - **Shallow checkout breaks change detection on push**: `actions/checkout` defaults to a shallow clone (`fetch-depth: 1`). Steps that diff against the parent commit on push events — e.g. `dorny/paths-filter` comparing `github.event.before` to `github.sha` — then fail intermittently with `git failed with exit code 128`. Set `fetch-depth: 0` on the push-event checkout. See [docs/solutions/integration-issues/shallow-checkout-breaks-paths-filter-on-push-events-2026-06-25.md](/docs/solutions/integration-issues/shallow-checkout-breaks-paths-filter-on-push-events-2026-06-25.md).
 
 - **Best Practices specific for Docker containers**
   - **Minimize image size**: Utilize multi-stage builds to reduce the final image size, include only required dependencies, and remove unnecessary files.

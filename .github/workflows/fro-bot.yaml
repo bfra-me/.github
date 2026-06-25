@@ -32,7 +32,7 @@ on:
         required: false
         default: ''
       target-repo:
-        description: Limit org-wide scanning to a single repo (e.g. "renovate-action"). Leave empty for full org.
+        description: Limit org-wide scanning to a single repo (e.g. "renovate-action"). Autoheal mode only; ignored for review. Leave empty for full org.
         required: false
         default: ''
   workflow_call:

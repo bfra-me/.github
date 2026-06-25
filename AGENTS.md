@@ -15,7 +15,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 │   │   ├── renovate-changesets/   # Complex action: auto-generates changesets for Renovate PRs (125 src files)
 │   │   ├── update-metadata/       # Simple action: generates/updates repo metadata (1 src file)
 │   │   └── update-repository-settings/ # Plugin-based action: syncs repo settings from YAML config
-│   ├── workflows/                 # 17 workflows: CI/CD, Fro Bot agent, Copilot setup, security scanning
+│   ├── workflows/                 # 16 workflows: CI/CD, Fro Bot agent, Copilot setup, security scanning
 │   ├── instructions/              # Dev guidelines consumed by AI assistants and code review
 │   └── settings.yml               # Repo settings via Repository Settings App
 ├── workflow-templates/            # Org-wide workflow templates (with .properties.json metadata)
@@ -33,7 +33,7 @@ Organization defaults, reusable workflows, custom GitHub Actions, and workflow t
 | Task | Location | Notes |
 | --- | --- | --- |
 | Add/edit CI workflow | `.github/workflows/` | Pin actions to SHA. Use `bfra-me[bot]` app auth |
-| Fro Bot agent config | `.github/workflows/fro-bot*.yaml` | Main + org autoheal workflows. Prompts in env vars |
+| Fro Bot agent config | `.github/workflows/fro-bot.yaml` | Single workflow: PR review + one daily oversight/autoheal pass (repo + org). Prompts in env vars |
 | Copilot coding agent | `.github/workflows/copilot-setup-steps.yaml` | Setup steps for Copilot agent. Instructions in `copilot-instructions.md` |
 | Create org workflow template | `workflow-templates/` | Requires matching `.properties.json` |
 | Modify renovate-changesets action | `.github/actions/renovate-changesets/` | Has own AGENTS.md. Build with `pnpm build` |
@@ -104,8 +104,9 @@ pnpm run build:monitor            # Build performance analysis
 - `.github/instructions/` files are consumed by AI tools, not by build system
 - `pnpm` overrides: `jiti` pinned to `<2.7.0` (compatibility), `undici@<6.23.0` forced to `>=6.23.0`
 - Fro Bot uses `FRO_BOT_PAT` + `OPENCODE_AUTH_JSON` secrets (separate from `bfra-me[bot]` app)
-- Fro Bot org autoheal runs weekdays; repo autoheal runs daily; oversight report runs daily
-- Fro Bot uses perpetual issues for reports: Daily Autohealing Report and Org Autohealing Report (each report type has one issue that is updated daily/weekday)
+- Fro Bot runs one daily unified pass (cron `30 15 * * *`) that does both proactive oversight (detect/report) and reactive autohealing (fix safe), for this repo and across the bfra-me org; there is no separate maintenance schedule or org-autoheal workflow
+- Fro Bot uses ONE perpetual report issue titled `Daily Fro Bot Report` (the prompt closes superseded `Daily Maintenance Report`, `Daily Autohealing Report`, and `Org Autohealing Report` issues into it)
+- Org-wide scanning can be narrowed to one repo via the `target-repo` workflow_dispatch input
 - `copilot-instructions.md` references AGENTS.md — keep both in sync
 - Reusable workflows resolve action code via self-checkout at `GITHUB_WORKFLOW_REF` — no hardcoded SHA pins needed for internal actions
 - `update-metadata.yaml` workflow uses local action path without self-checkout pattern (action only runs in this repo)

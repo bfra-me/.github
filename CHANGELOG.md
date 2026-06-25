@@ -1,5 +1,35 @@
 # @bfra.me/.github
 
+## 4.16.31
+### Patch Changes
+
+
+- Fix `fro-bot` workflow skipping `issue_comment` events on pull requests. The ([#2350](https://github.com/bfra-me/.github/pull/2350))
+  `if` condition's `github.event.issue.pull_request == null` clause (added during
+  PR-fork hardening) filtered out `@fro-bot` mentions on PR conversation threads,
+  because GitHub populates `issue.pull_request` (with the PR URL) for any comment
+  on a PR. The clause has been removed; the top-level fork-hardening and
+  `author_association` (`OWNER`/`MEMBER`/`COLLABORATOR`) check still gate
+  untrusted triggers.
+  
+  Also add an explicit "DELIVERY CONTRACT" to the `AUTOHEAL_PROMPT` so future
+  dispatched runs always finish with `git push` + `gh pr create` instead of
+  stopping at "the caller will push" — the caller is the agent itself.
+
+- Fix intermittent `git exit 128` in the `update-repo-settings` reusable workflow's `Filter Changed Files` step on push events. The push-event checkout now uses `fetch-depth: 0` so `dorny/paths-filter` always has the history it needs to diff against the parent commit, instead of the default shallow clone that could fail the diff. ([#2346](https://github.com/bfra-me/.github/pull/2346))
+
+
+- 📦 Group update for dependencies dependencies: `Node.js`, `node` ([#2339](https://github.com/bfra-me/.github/pull/2339))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.74.0` to `v0.76.2` ([#2338](https://github.com/bfra-me/.github/pull/2338))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.76.2` to `v0.76.3` ([#2347](https://github.com/bfra-me/.github/pull/2347))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.125.1` to `9.125.2` ([#2345](https://github.com/bfra-me/.github/pull/2345))
+
 ## 4.16.30
 ### Patch Changes
 

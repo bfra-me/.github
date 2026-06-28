@@ -2,9 +2,9 @@ autoInstallPeers: true
 
 ignoreWorkspaceRootCheck: true
 
-onlyBuiltDependencies:
-  - esbuild
-  - unrs-resolver
+allowBuilds:
+  esbuild: true
+  unrs-resolver: true
 
 overrides:
   esbuild@>=0.17.0 <0.28.1: '>=0.28.1'

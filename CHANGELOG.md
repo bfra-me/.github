@@ -1,5 +1,44 @@
 # @bfra.me/.github
 
+## 4.16.32
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.128.0` to `9.129.0` ([#2364](https://github.com/bfra-me/.github/pull/2364))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.127.1` to `9.128.0` ([#2363](https://github.com/bfra-me/.github/pull/2363))
+
+
+- 📦 Update npm dependency `vite` from `8.0.16` to `8.1.0` ([#2358](https://github.com/bfra-me/.github/pull/2358))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.77.0` to `v0.78.0` ([#2357](https://github.com/bfra-me/.github/pull/2357))
+
+
+- 🔒 Security update for npm dependency `pnpm` to v11 (11.5.3) ([#2360](https://github.com/bfra-me/.github/pull/2360))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.126.0` to `9.127.0` ([#2359](https://github.com/bfra-me/.github/pull/2359))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.76.3` to `v0.77.0` ([#2354](https://github.com/bfra-me/.github/pull/2354))
+
+
+- 🔒 Security update for npm dependency `pnpm` from `11.5.3` to `11.8.0` ([#2365](https://github.com/bfra-me/.github/pull/2365))
+
+
+- 📦 Update npm dependency `pnpm` from `11.8.0` to `11.9.0` ([#2366](https://github.com/bfra-me/.github/pull/2366))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.125.2` to `9.126.0` ([#2356](https://github.com/bfra-me/.github/pull/2356))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.78.0` to `v0.79.1` ([#2361](https://github.com/bfra-me/.github/pull/2361))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.127.0` to `9.127.1` ([#2362](https://github.com/bfra-me/.github/pull/2362))
+
 ## 4.16.31
 ### Patch Changes
 

@@ -1248,10 +1248,7 @@ async function main() {
     // Parse command line arguments
     const showTree = args.includes('--tree') || args.includes('-t')
     const exportFormat = args.find(arg => arg.startsWith('--export='))?.split('=')[1] as
-      | 'json'
-      | 'dot'
-      | 'mermaid'
-      | undefined
+      'json' | 'dot' | 'mermaid' | undefined
     const standardizeScripts = args.includes('--standardize-scripts')
     const applyStandardization = args.includes('--apply')
     const help = args.includes('--help') || args.includes('-h')

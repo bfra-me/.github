@@ -17,10 +17,7 @@ export function synthesizeBreakingAnalysis(
   }
 
   const overallSeverity = (severityLevels[maxSeverityLevel] || 'low') as
-    | 'low'
-    | 'medium'
-    | 'high'
-    | 'critical'
+    'low' | 'medium' | 'high' | 'critical'
 
   const confidenceLevels = ['low', 'medium', 'high']
   const avgConfidenceLevel = indicators.length

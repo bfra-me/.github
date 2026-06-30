@@ -136,9 +136,7 @@ export async function getConfig(): Promise<Config> {
   const commentPR = core.getBooleanInput('comment-pr')
   const updatePRDescription = core.getBooleanInput('update-pr-description')
   const defaultChangesetType = (core.getInput('default-changeset-type') || 'patch') as
-    | 'patch'
-    | 'minor'
-    | 'major'
+    'patch' | 'minor' | 'major'
 
   if (!['patch', 'minor', 'major'].includes(defaultChangesetType)) {
     throw new Error(

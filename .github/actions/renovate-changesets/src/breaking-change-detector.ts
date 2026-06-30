@@ -11,11 +11,7 @@ import {synthesizeBreakingAnalysis} from './detectors/breaking-change-synthesize
 
 export interface BreakingChangeIndicator {
   type:
-    | 'major_version'
-    | 'api_deprecation'
-    | 'config_change'
-    | 'runtime_change'
-    | 'ecosystem_specific'
+    'major_version' | 'api_deprecation' | 'config_change' | 'runtime_change' | 'ecosystem_specific'
   severity: 'low' | 'medium' | 'high' | 'critical'
   description: string
   evidence: string[]

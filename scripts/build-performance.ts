@@ -835,13 +835,9 @@ Examples:
   }
 
   const phaseArg = args.find(arg => arg.startsWith('--phase='))?.split('=')[1] as
-    | BuildMetrics['phase']
-    | undefined
+    BuildMetrics['phase'] | undefined
   const formatArg = args.find(arg => arg.startsWith('--format='))?.split('=')[1] as
-    | 'console'
-    | 'json'
-    | 'markdown'
-    | undefined
+    'console' | 'json' | 'markdown' | undefined
 
   const phase = phaseArg || 'full'
   const format = formatArg || 'console'

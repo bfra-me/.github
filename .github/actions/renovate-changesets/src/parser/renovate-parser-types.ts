@@ -24,14 +24,7 @@ export type RenovateManagerType =
   | 'unknown'
 
 export type RenovateUpdateType =
-  | 'major'
-  | 'minor'
-  | 'patch'
-  | 'pin'
-  | 'digest'
-  | 'lockfile'
-  | 'rollback'
-  | 'replacement'
+  'major' | 'minor' | 'patch' | 'pin' | 'digest' | 'lockfile' | 'rollback' | 'replacement'
 
 export type RenovateSecurityType = 'low' | 'moderate' | 'high' | 'critical' | null
 

@@ -1,10 +1,7 @@
 import type {RenovateManagerType, RenovateUpdateType} from '../renovate-parser.js'
 
 export type NPMDependencyType =
-  | 'dependencies'
-  | 'devDependencies'
-  | 'peerDependencies'
-  | 'optionalDependencies'
+  'dependencies' | 'devDependencies' | 'peerDependencies' | 'optionalDependencies'
 
 export interface PackageJson {
   name?: string

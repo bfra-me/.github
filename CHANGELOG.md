@@ -1,5 +1,50 @@
 # @bfra.me/.github
 
+## 4.16.34
+### Patch Changes
+
+
+- 📦 Update npm dependency `vite` from `8.1.2` to `8.1.3` ([#2395](https://github.com/bfra-me/.github/pull/2395))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.36.2` to `4.36.3` ([#2385](https://github.com/bfra-me/.github/pull/2385))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.81.0` to `v0.82.0` ([#2393](https://github.com/bfra-me/.github/pull/2393))
+
+
+- 📦 Update npm dependency `prettier` from `3.9.1` to `3.9.3` ([#2386](https://github.com/bfra-me/.github/pull/2386))
+
+
+- 📦 Update npm dependency `vite` from `8.1.0` to `8.1.1` ([#2391](https://github.com/bfra-me/.github/pull/2391))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.131.0` to `9.132.0` ([#2387](https://github.com/bfra-me/.github/pull/2387))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.133.0` to `9.134.0` ([#2396](https://github.com/bfra-me/.github/pull/2396))
+
+
+- 📦 Update npm dependency `vite` from `8.1.1` to `8.1.2` ([#2392](https://github.com/bfra-me/.github/pull/2392))
+
+
+- 📦 Update npm dependency `tsx` from `4.22.4` to `4.22.5` ([#2397](https://github.com/bfra-me/.github/pull/2397))
+
+
+- 📦 Update npm dependency `prettier` from `3.9.3` to `3.9.4` ([#2389](https://github.com/bfra-me/.github/pull/2389))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.132.0` to `9.133.0` ([#2390](https://github.com/bfra-me/.github/pull/2390))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `dorny/paths-filter` from `v4.0.1` to `v4.0.2` ([#2388](https://github.com/bfra-me/.github/pull/2388))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.82.0` to `v0.83.0` ([#2394](https://github.com/bfra-me/.github/pull/2394))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.80.0` to `v0.81.0` ([#2383](https://github.com/bfra-me/.github/pull/2383))
+
 ## 4.16.33
 ### Patch Changes
 

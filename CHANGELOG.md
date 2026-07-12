@@ -1,5 +1,50 @@
 # @bfra.me/.github
 
+## 4.16.36
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.84.1` to `v0.84.2` ([#2412](https://github.com/bfra-me/.github/pull/2412))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.139.0` to `9.140.0` ([#2418](https://github.com/bfra-me/.github/pull/2418))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/labeler` from `v6.1.0` to `v6.2.0` ([#2413](https://github.com/bfra-me/.github/pull/2413))
+
+
+- 📦 Update npm dependency `vite` from `8.1.3` to `8.1.4` ([#2422](https://github.com/bfra-me/.github/pull/2422))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.140.0` to `9.141.0` ([#2419](https://github.com/bfra-me/.github/pull/2419))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.85.1` to `v0.86.0` ([#2421](https://github.com/bfra-me/.github/pull/2421))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.85.0` to `v0.85.1` ([#2420](https://github.com/bfra-me/.github/pull/2420))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.84.2` to `v0.84.3` ([#2415](https://github.com/bfra-me/.github/pull/2415))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.84.0` to `v0.84.1` ([#2410](https://github.com/bfra-me/.github/pull/2410))
+
+
+- 📦 Update npm dependency `prettier` from `3.9.4` to `3.9.5` ([#2424](https://github.com/bfra-me/.github/pull/2424))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.84.3` to `v0.85.0` ([#2417](https://github.com/bfra-me/.github/pull/2417))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.141.0` to `9.142.0` ([#2423](https://github.com/bfra-me/.github/pull/2423))
+
+
+- 📦 Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#2414](https://github.com/bfra-me/.github/pull/2414))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.138.0` to `9.139.0` ([#2416](https://github.com/bfra-me/.github/pull/2416))
+
 ## 4.16.35
 ### Patch Changes
 

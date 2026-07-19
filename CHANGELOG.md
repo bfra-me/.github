@@ -1,5 +1,50 @@
 # @bfra.me/.github
 
+## 4.16.38
+### Patch Changes
+
+
+- 📦 Update npm dependency `vite` from `8.1.4` to `8.1.5` ([#2454](https://github.com/bfra-me/.github/pull/2454))
+
+
+- 📦 Update npm dependency `@changesets/cli` from `2.31.0` to `2.31.1` ([#2452](https://github.com/bfra-me/.github/pull/2452))
+
+
+- 📋 Update github-actions dependency `bfra-me/.github` from `4.16.36` to `4.16.37` ([#2442](https://github.com/bfra-me/.github/pull/2442))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.92.0` to `v0.92.1` ([#2443](https://github.com/bfra-me/.github/pull/2443))
+
+
+- 📦 Update npm dependency `pnpm` from `11.11.0` to `11.12.0` ([#2436](https://github.com/bfra-me/.github/pull/2436))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.147.0` to `9.148.0` ([#2453](https://github.com/bfra-me/.github/pull/2453))
+
+
+- 📦 Update npm dependency `tsx` from `4.23.0` to `4.23.1` ([#2445](https://github.com/bfra-me/.github/pull/2445))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.144.0` to `9.145.0` ([#2446](https://github.com/bfra-me/.github/pull/2446))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.146.0` to `9.147.0` ([#2451](https://github.com/bfra-me/.github/pull/2451))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.148.0` to `9.149.0` ([#2455](https://github.com/bfra-me/.github/pull/2455))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.0` to `4.37.1` ([#2447](https://github.com/bfra-me/.github/pull/2447))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.145.0` to `9.146.0` ([#2450](https://github.com/bfra-me/.github/pull/2450))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.92.1` to `v0.93.0` ([#2448](https://github.com/bfra-me/.github/pull/2448))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.93.0` to `v0.93.1` ([#2449](https://github.com/bfra-me/.github/pull/2449))
+
 ## 4.16.37
 ### Patch Changes
 

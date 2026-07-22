@@ -1,5 +1,14 @@
 # @bfra.me/.github
 
+## 4.16.40
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.153.0` to `9.154.0` ([#2475](https://github.com/bfra-me/.github/pull/2475))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.152.2` to `9.153.0` ([#2473](https://github.com/bfra-me/.github/pull/2473))
+
 ## 4.16.39
 ### Patch Changes
 

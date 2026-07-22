@@ -1,5 +1,50 @@
 # @bfra.me/.github
 
+## 4.16.39
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.94.0` to `v0.94.1` ([#2467](https://github.com/bfra-me/.github/pull/2467))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.151.1` to `9.152.1` ([#2470](https://github.com/bfra-me/.github/pull/2470))
+
+
+- 📦 Update npm dependency `pnpm` from `11.14.0` to `11.15.0` ([#2464](https://github.com/bfra-me/.github/pull/2464))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.1` to `4.37.2` ([#2466](https://github.com/bfra-me/.github/pull/2466))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.149.0` to `9.150.0` ([#2459](https://github.com/bfra-me/.github/pull/2459))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.150.1` to `9.150.2` ([#2462](https://github.com/bfra-me/.github/pull/2462))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.150.2` to `9.151.0` ([#2465](https://github.com/bfra-me/.github/pull/2465))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.150.0` to `9.150.1` ([#2461](https://github.com/bfra-me/.github/pull/2461))
+
+
+- 📦 Update npm dependency `pnpm` from `11.13.1` to `11.14.0` ([#2460](https://github.com/bfra-me/.github/pull/2460))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.152.1` to `9.152.2` ([#2471](https://github.com/bfra-me/.github/pull/2471))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.151.0` to `9.151.1` ([#2468](https://github.com/bfra-me/.github/pull/2468))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `actions/checkout` from `v6.0.3` to `v6.1.0` ([#2457](https://github.com/bfra-me/.github/pull/2457))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.93.1` to `v0.94.0` ([#2463](https://github.com/bfra-me/.github/pull/2463))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.2` to `4.37.3` ([#2469](https://github.com/bfra-me/.github/pull/2469))
+
 ## 4.16.38
 ### Patch Changes
 

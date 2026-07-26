@@ -1,5 +1,68 @@
 # @bfra.me/.github
 
+## 4.16.41
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.156.2` to `9.157.0` ([#2495](https://github.com/bfra-me/.github/pull/2495))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.154.2` to `9.154.3` ([#2483](https://github.com/bfra-me/.github/pull/2483))
+
+
+- 📦 Update npm dependency `pnpm` from `11.15.1` to `11.16.0` ([#2493](https://github.com/bfra-me/.github/pull/2493))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.154.3` to `9.155.0` ([#2485](https://github.com/bfra-me/.github/pull/2485))
+
+
+- 📦 Update npm dependency `pnpm` from `11.15.0` to `11.15.1` ([#2480](https://github.com/bfra-me/.github/pull/2480))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.94.2` to `v0.94.3` ([#2486](https://github.com/bfra-me/.github/pull/2486))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.154.1` to `9.154.2` ([#2482](https://github.com/bfra-me/.github/pull/2482))
+
+
+- 📦 Update npm dependency `flatted` from `3.4.2` to `3.4.3` ([#2491](https://github.com/bfra-me/.github/pull/2491))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.157.0` to `9.157.1` ([#2497](https://github.com/bfra-me/.github/pull/2497))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.155.0` to `9.156.0` ([#2488](https://github.com/bfra-me/.github/pull/2488))
+
+
+- 📦 Update npm dependency `prettier` from `3.9.5` to `3.9.6` ([#2487](https://github.com/bfra-me/.github/pull/2487))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `ossf/scorecard-action` from `v2.4.3` to `v2.4.4` ([#2484](https://github.com/bfra-me/.github/pull/2484))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.94.4` to `v0.95.0` ([#2490](https://github.com/bfra-me/.github/pull/2490))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.94.3` to `v0.94.4` ([#2489](https://github.com/bfra-me/.github/pull/2489))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.156.1` to `9.156.2` ([#2494](https://github.com/bfra-me/.github/pull/2494))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.156.0` to `9.156.1` ([#2492](https://github.com/bfra-me/.github/pull/2492))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.154.0` to `9.154.1` ([#2481](https://github.com/bfra-me/.github/pull/2481))
+
+
+- 📦 Update npm dependency `pnpm` from `11.16.0` to `11.17.0` ([#2496](https://github.com/bfra-me/.github/pull/2496))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.94.1` to `v0.94.2` ([#2478](https://github.com/bfra-me/.github/pull/2478))
+
+
+- 📋 Update github-actions dependency `bfra-me/.github` from `4.16.39` to `4.16.40` ([#2477](https://github.com/bfra-me/.github/pull/2477))
+
 ## 4.16.40
 ### Patch Changes
 

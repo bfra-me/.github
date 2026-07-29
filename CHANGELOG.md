@@ -1,5 +1,38 @@
 # @bfra.me/.github
 
+## 4.16.42
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.161.0` to `9.162.0` ([#2507](https://github.com/bfra-me/.github/pull/2507))
+
+
+- 📦 Group update for dependencies dependencies: `Node.js`, `node` ([#2508](https://github.com/bfra-me/.github/pull/2508))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.162.0` to `9.162.1` ([#2509](https://github.com/bfra-me/.github/pull/2509))
+
+
+- 📋 Update github-actions dependency `bfra-me/.github` from `4.16.40` to `4.16.41` ([#2499](https://github.com/bfra-me/.github/pull/2499))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.159.0` to `9.160.0` ([#2505](https://github.com/bfra-me/.github/pull/2505))
+
+
+- 📦 Update npm dependency `eslint` from `10.7.0` to `10.8.0` ([#2504](https://github.com/bfra-me/.github/pull/2504))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.160.0` to `9.161.0` ([#2506](https://github.com/bfra-me/.github/pull/2506))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.158.1` to `9.159.0` ([#2503](https://github.com/bfra-me/.github/pull/2503))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.157.1` to `9.158.1` ([#2501](https://github.com/bfra-me/.github/pull/2501))
+
+
+- 📦 Update npm dependency `pnpm` ([#2502](https://github.com/bfra-me/.github/pull/2502))
+
 ## 4.16.41
 ### Patch Changes
 

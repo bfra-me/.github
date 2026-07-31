@@ -29,7 +29,7 @@ jobs:
     steps:
       - if: github.event_name == 'push'
         name: Checkout Repository
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history so dorny/paths-filter can diff against the parent
           # commit on push events; the default shallow clone (fetch-depth: 1)
@@ -62,7 +62,7 @@ jobs:
 
       - if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Checkout action
-        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: bfra-me/.github
           ref: ${{ steps.workflow-ref.outputs.ref }}

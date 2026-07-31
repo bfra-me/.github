@@ -1,5 +1,38 @@
 # @bfra.me/.github
 
+## 4.16.43
+### Patch Changes
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.163.0` to `9.163.1` ([#2515](https://github.com/bfra-me/.github/pull/2515))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.162.1` to `9.163.0` ([#2513](https://github.com/bfra-me/.github/pull/2513))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.3` to `4.37.4` ([#2514](https://github.com/bfra-me/.github/pull/2514))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.163.1` to `9.163.2` ([#2518](https://github.com/bfra-me/.github/pull/2518))
+
+
+- 📦 Update npm dependency `minimatch` from `10.2.5` to `10.2.6` ([#2516](https://github.com/bfra-me/.github/pull/2516))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` to v10 (10.0.0) ([#2520](https://github.com/bfra-me/.github/pull/2520))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `actions/checkout` to v7 (v7.0.1) ([#2521](https://github.com/bfra-me/.github/pull/2521))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.95.1` to `v0.96.0` ([#2517](https://github.com/bfra-me/.github/pull/2517))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.95.0` to `v0.95.1` ([#2511](https://github.com/bfra-me/.github/pull/2511))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `9.163.2` to `9.163.3` ([#2519](https://github.com/bfra-me/.github/pull/2519))
+
 ## 4.16.42
 ### Patch Changes
 

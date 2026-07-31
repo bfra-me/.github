@@ -14,4 +14,4 @@ jobs:
     if: github.actor == 'renovate[bot]' || github.actor == 'bfra-me[bot]'
     name: Renovate Changesets
     secrets: inherit
-    uses: bfra-me/.github/.github/workflows/renovate-changeset.yaml@387b00fdbea67b06432780f0bca5ef2a2c6fd437 # v4.16.43
+    uses: bfra-me/.github/.github/workflows/renovate-changeset.yaml@dd02bc5fb90edbe510033b02657ca0e9c32af58f # v4.16.44

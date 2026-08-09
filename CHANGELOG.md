@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.16.45
+### Patch Changes
+
+
+- 🔒 Security update for npm dependency `js-yaml` from `4.3.0` to `4.3.1` ([#2533](https://github.com/bfra-me/.github/pull/2533))
+
 ## 4.16.44
 ### Patch Changes
 

@@ -187,11 +187,13 @@ After merge to `main`:
 
 1. The changesets release workflow creates a release PR (`changeset-release/main`)
 2. That PR bumps `renovate-changesets` version in `package.json` and updates `CHANGELOG.md`
-3. When the release PR merges, a new version tag is created
-4. Renovate updates the action SHA reference in `.github/workflows/renovate-changeset.yaml`
-5. Subsequent Renovate PRs use the new action version
+3. When the release PR merges, the commit is tagged twice: `v{ver}` for the repository and `renovate-changesets@{ver}` for the action
+4. In this repository the reusable workflow resolves the action by self-checkout at `GITHUB_WORKFLOW_REF`, so there is no SHA pin to update and the next run picks up the release automatically
+5. External consumers that pin the action by SHA update on their own Renovate schedule
 
-**Version lag is normal** — a fix merged to `main` won't affect existing Renovate PRs until the SHA reference is updated through this pipeline.
+**Version lag is normal** — a fix merged to `main` won't affect existing Renovate PRs until the release lands.
+
+**External SHA-pinned consumers do not update automatically.** Renovate's built-in `github-actions` manager resolves only the `v{ver}` tag family, so a pin commented `# renovate-changesets@{ver}` receives no updates and reports no error. Those repositories need explicit configuration — see [Renovate silently stops updating SHA-pinned actions when a repo publishes two tag families](../integration-issues/renovate-sha-pin-rot-two-tag-families-2026-08-15.md).
 
 ## Common Pitfalls
 

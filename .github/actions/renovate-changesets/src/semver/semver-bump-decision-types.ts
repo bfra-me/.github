@@ -1,7 +1,6 @@
-import type {BreakingChangeAnalysis} from '../breaking-change-detector'
+import type {BreakingChangeAnalysis, SecurityAnalysis} from '../analysis-types.js'
 import type {CategorizationResult} from '../change-categorization-engine'
 import type {RenovatePRContext} from '../renovate-parser'
-import type {SecurityAnalysis} from '../security-vulnerability-detector'
 import type {ImpactAssessment} from '../semver-impact-assessor'
 
 export type BumpType = 'patch' | 'minor' | 'major'

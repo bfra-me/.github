@@ -295,6 +295,13 @@ export const mockedChangesets: MockedChangesets = {
   assembleReleasePlan: vi.fn(),
 }
 
+const defaultRenovatePRBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| test-package | npm | major | \`1.0.0\` -> \`2.0.0\` |
+`
+
 /**
  * Setup mocks for all external dependencies
  */
@@ -355,7 +362,7 @@ beforeEach(() => {
     pull_request: {
       number: 1,
       title: 'test PR',
-      body: 'test PR body',
+      body: defaultRenovatePRBody,
       head: {
         ref: 'test-branch',
         sha: 'test-sha',
@@ -383,7 +390,7 @@ beforeEach(() => {
     data: {
       number: 1,
       title: 'test PR',
-      body: 'test PR body',
+      body: defaultRenovatePRBody,
       head: {
         ref: 'test-branch',
         sha: 'test-sha',
@@ -425,7 +432,7 @@ export const createMockPRContext = (overrides: Partial<any> = {}) => ({
   isRenovateBot: true,
   branchName: 'renovate/test-branch',
   prTitle: 'chore(deps): update dependency test-package to v2.0.0',
-  prBody: 'This PR contains the following updates...',
+  prBody: defaultRenovatePRBody,
   commitMessages: ['chore(deps): update dependency test-package to v2.0.0'],
   isGroupedUpdate: false,
   isSecurityUpdate: false,

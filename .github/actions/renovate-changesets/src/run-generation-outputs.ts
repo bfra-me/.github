@@ -1,4 +1,4 @@
-import type {CategorizationResult} from './change-categorization-engine'
+import type {CategorizationInfo} from './changeset-info-formatter'
 import type {MultiPackageAnalysisResult} from './multi-package-analyzer'
 import type {MultiPackageChangesetResult} from './multi-package-changeset-generator'
 import {
@@ -13,7 +13,7 @@ export function setRunGenerationOutputs(params: {
   updateType: string
   dependencyNames: string[]
   changesetContent: string
-  categorizationResult: CategorizationResult
+  categorizationResult: CategorizationInfo
 }): void {
   setChangesetOutputs({
     changesetsCreated: params.multiPackageResult.filesCreated.length,

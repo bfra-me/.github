@@ -257,55 +257,6 @@ vi.mock('../../src/write-renovate-changeset', () => ({
   }),
 }))
 
-// Mock the template engine more specifically
-vi.mock('../../src/changeset-template-engine', () => ({
-  ChangesetTemplateEngine: class {
-    buildTemplate = vi.fn().mockReturnValue({
-      header: '---\n"@bfra.me/.github": patch\n---\n',
-      content: 'Update react dependency to v18.3.1',
-      metadata: {
-        template: 'dependency-update',
-        reasoning: 'Default patch for npm updates',
-      },
-    })
-  },
-}))
-
-// Mock all the enhanced detectors
-vi.mock('../../src/npm-change-detector', () => ({
-  detectNPMChangesFromPR: vi.fn().mockResolvedValue([]),
-  detectNPMChangesFromFiles: vi.fn().mockResolvedValue([]),
-}))
-
-vi.mock('../../src/github-actions-change-detector', () => ({
-  detectGHAChangesFromPR: vi.fn().mockResolvedValue([]),
-  detectGHAChangesFromFiles: vi.fn().mockResolvedValue([]),
-}))
-
-vi.mock('../../src/docker-change-detector', () => ({
-  detectDockerChangesFromPR: vi.fn().mockResolvedValue([]),
-}))
-
-vi.mock('../../src/breaking-change-detector', () => ({
-  analyzeBreakingChanges: vi.fn().mockResolvedValue({
-    hasBreakingChanges: false,
-    overallSeverity: 'low',
-    indicators: [],
-  }),
-}))
-
-vi.mock('../../src/security-vulnerability-detector', () => ({
-  analyzeSecurityVulnerabilities: vi.fn().mockResolvedValue({
-    hasSecurityIssues: false,
-    overallSeverity: 'low',
-    vulnerabilities: [],
-    riskScore: 0,
-    cveCount: 0,
-    recommendedAction: 'proceed',
-    confidence: 'high',
-  }),
-}))
-
 vi.mock('../../src/git-operations', () => ({
   createGitOperations: vi.fn().mockReturnValue({
     commitChangesetFiles: vi.fn().mockResolvedValue({
@@ -1036,8 +987,8 @@ describe('TASK-040: Enhanced End-to-End Tests with Real Renovate PRs', () => {
       if (changesetCall) {
         const content = changesetCall[1] as string
         expect(content).toContain('enhanced-test-repo')
-        expect(content).toContain('patch')
-        expect(content).toMatch(/Update.*react.*dependency/i)
+        expect(content).toContain('major')
+        expect(content).toMatch(/Update.*npm dependency.*react/i)
       }
 
       // Verify comprehensive outputs are set

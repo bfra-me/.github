@@ -8,11 +8,9 @@ import {beforeEach, describe, expect, it, vi} from 'vitest'
 // Import individual components directly from source
 import {categorizeChanges} from '../../src/change-categorization-engine.js'
 import {generateChangesetSummary} from '../../src/changeset-summary-generator.js'
-import {ChangesetTemplateEngine} from '../../src/changeset-template-engine.js'
 import {analyzeMultiPackageUpdate} from '../../src/multi-package-analyzer.js'
 import {generateMultiPackageChangesets} from '../../src/multi-package-changeset-generator.js'
 import {createBranchPatterns, extractPRContext} from '../../src/renovate-parser.js'
-import {analyzeSecurityVulnerabilities} from '../../src/security-vulnerability-detector.js'
 import {decideBumpType} from '../../src/semver-bump-decision-engine.js'
 import {assessImpact} from '../../src/semver-impact-assessor.js'
 
@@ -409,11 +407,6 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
     })
 
     it('should create real changeset template engine and summary generator', async () => {
-      const templateEngine = new ChangesetTemplateEngine({
-        workingDirectory: '/tmp/test',
-        errorHandling: 'fallback',
-      })
-
       const mockDependencies: RenovateDependency[] = [
         {
           name: '@types/node',
@@ -463,7 +456,6 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
             sortDependencies: false,
             maxDependenciesToList: 5,
           },
-          templateEngine,
         },
       )
 
@@ -538,10 +530,6 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
       expect(bumpDecision.confidence).toBeDefined()
       expect(bumpDecision.primaryReason).toBeDefined()
     })
-
-    it('should create real security vulnerability detector', () => {
-      expect(typeof analyzeSecurityVulnerabilities).toBe('function')
-    })
   })
 
   describe('End-to-End Component Integration', () => {
@@ -599,11 +587,6 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
       expect(categorizationResult.primaryCategory).toBe('security')
 
       // Step 4: Generate summary
-      const templateEngine = new ChangesetTemplateEngine({
-        workingDirectory: '/tmp/test',
-        errorHandling: 'fallback',
-      })
-
       const summary = await generateChangesetSummary(
         prContext,
         impactAssessment,
@@ -616,7 +599,6 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
             includeVersionDetails: true,
             includeBreakingChangeWarnings: true,
           },
-          templateEngine,
         },
       )
 

@@ -6,20 +6,25 @@ import process from 'node:process'
 import * as core from '@actions/core'
 import {Octokit as OctokitClient} from '@octokit/rest'
 import {getConfig} from './action-config'
-import {runDetectors} from './detector-runner'
 import {createBranchPatterns, extractPRContext} from './renovate-parser'
 import {isValidBranch} from './utils'
 
 interface PullRequestInfo {
   number: number
   title: string
+  body?: string | null
   user: {login: string}
+  labels?: {name?: string | null}[] | null
   head?: {ref?: string}
 }
 
 interface GitHubEventWithPR {
   pull_request: PullRequestInfo
 }
+
+// bfra-me and mrbro-bot are self-hosted Renovate app identities; renovate[bot] is the hosted one.
+// Unknown identities skip rather than generate, so a missing entry fails visibly instead of silently.
+const ACCEPTED_RENOVATE_BOT_LOGINS = new Set(['bfra-me[bot]', 'mrbro-bot[bot]', 'renovate[bot]'])
 
 interface ChangedPRFile {
   filename: string
@@ -59,7 +64,18 @@ function hasPullRequest(data: unknown): data is GitHubEventWithPR {
   return typeof pullRequest.user.login === 'string'
 }
 
+export function isAcceptedRenovateBotLogin(login: string): boolean {
+  return ACCEPTED_RENOVATE_BOT_LOGINS.has(login.toLowerCase())
+}
+
 export async function initializeRun(): Promise<RunInitialization | null> {
+  if (process.env.GITHUB_EVENT_NAME === 'merge_group') {
+    core.info(
+      'Merge group event detected; no pull request body available, skipping changeset creation',
+    )
+    return null
+  }
+
   const branchPatterns = createBranchPatterns()
   const repository = process.env.GITHUB_REPOSITORY
   const eventPath = process.env.GITHUB_EVENT_PATH
@@ -82,7 +98,7 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   }
 
   const pr = eventData.pull_request
-  const isRenovatePR = pr.user.login.endsWith('[bot]')
+  const isRenovatePR = isAcceptedRenovateBotLogin(pr.user.login)
   if (!isRenovatePR) {
     core.info('Not a Renovate PR, skipping')
     return null
@@ -144,14 +160,7 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   core.info(`Using config: ${JSON.stringify(config, null, 2)}`)
 
   const prContext = await extractPRContext(octokit, owner, repo, pr.number, pr)
-  const {enhancedDependencies} = await runDetectors({
-    octokit,
-    owner,
-    repo,
-    prNumber: pr.number,
-    files,
-    prContext,
-  })
+  const enhancedDependencies = prContext.dependencies
 
   core.info(
     `Parsed PR context: ${JSON.stringify(

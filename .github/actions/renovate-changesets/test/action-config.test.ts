@@ -52,8 +52,19 @@ describe('action-config', () => {
 
       expect(config.defaultChangesetType).toBe('patch')
       expect(config.branchPrefix).toBe('renovate/')
+      expect(config.emoji).toBe(false)
       expect(config.updateTypes).toBeDefined()
       expect(config.updateTypes.npm).toBeDefined()
+    })
+
+    it('should honor an enabled emoji input', async () => {
+      mockedGitHubActions.core.getBooleanInput.mockImplementation(
+        (name: string) => name === 'emoji',
+      )
+
+      const config = await getConfig()
+
+      expect(config.emoji).toBe(true)
     })
 
     it('should apply branch prefix from input', async () => {

@@ -48,6 +48,10 @@ inputs:
     description: Sort dependency bumps and update messages within changesets
     required: false
     default: 'false'
+  emoji:
+    description: Prefix changeset summaries with ecosystem emoji
+    required: false
+    default: 'false'
   target-package:
     description: >-
       Optional override for the changeset release target used for fallback

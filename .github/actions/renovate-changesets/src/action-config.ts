@@ -16,6 +16,7 @@ export interface Config {
   branchPrefix?: string
   skipBranchPrefixCheck?: boolean
   sort?: boolean
+  emoji: boolean
   commentPR?: boolean
   updatePRDescription?: boolean
   targetPackage?: string
@@ -58,6 +59,7 @@ export const DEFAULT_CONFIG: Config = {
     },
   },
   defaultChangesetType: 'patch',
+  emoji: false,
 }
 
 export async function getConfig(): Promise<Config> {
@@ -68,6 +70,7 @@ export async function getConfig(): Promise<Config> {
   const skipBranchPrefixCheck =
     core.getBooleanInput('skip-branch-prefix-check') || process.env.SKIP_BRANCH_CHECK === 'TRUE'
   const sort = core.getBooleanInput('sort') || process.env.SORT_CHANGESETS === 'TRUE'
+  const emoji = core.getBooleanInput('emoji')
   const commentPR = core.getBooleanInput('comment-pr')
   const updatePRDescription = core.getBooleanInput('update-pr-description')
   const defaultChangesetType = (core.getInput('default-changeset-type') || 'patch') as
@@ -93,6 +96,7 @@ export async function getConfig(): Promise<Config> {
     branchPrefix,
     skipBranchPrefixCheck,
     sort,
+    emoji,
     commentPR,
     updatePRDescription,
     defaultChangesetType,

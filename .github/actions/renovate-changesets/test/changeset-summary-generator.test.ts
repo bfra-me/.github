@@ -275,39 +275,6 @@ describe('ChangesetSummaryGenerator', () => {
     })
   })
 
-  describe('python dependency summaries', () => {
-    beforeEach(() => {
-      mockPRContext.manager = 'pip'
-    })
-
-    it('should generate pip dependency summary', async () => {
-      const summary = await generateChangesetSummary(
-        mockPRContext,
-        mockImpactAssessment,
-        mockCategorizationResult,
-        'pip',
-        ['requests'],
-      )
-
-      expect(summary).toContain('🐍')
-      expect(summary).toContain('Update pip dependency `requests`')
-    })
-
-    it('should handle pipenv manager', async () => {
-      mockPRContext.manager = 'pipenv'
-
-      const summary = await generateChangesetSummary(
-        mockPRContext,
-        mockImpactAssessment,
-        mockCategorizationResult,
-        'pipenv',
-        ['django'],
-      )
-
-      expect(summary).toContain('Update Pipenv dependency')
-    })
-  })
-
   describe('nuget dependency summaries', () => {
     beforeEach(() => {
       mockPRContext.manager = 'nuget'

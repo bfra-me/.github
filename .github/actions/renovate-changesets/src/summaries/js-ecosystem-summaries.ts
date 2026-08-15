@@ -121,37 +121,3 @@ export function generateGitHubActionsSummaryLogic(
 
   return `${emoji}Update ${sortedDeps.length} GitHub Actions workflow dependencies`
 }
-
-export function generateGoSummaryLogic(
-  ctx: JsEcosystemSummaryContext,
-  prContext: RenovatePRContext,
-  impactAssessment: ImpactAssessment,
-  dependencies: string[],
-): string {
-  const emoji = ctx.getEmojiForUpdate(prContext, impactAssessment)
-  const sortedDeps = ctx.config.sortDependencies ? [...dependencies].sort() : dependencies
-
-  if (prContext.isSecurityUpdate) {
-    return ctx.generateSecurityUpdateSummary('Go', sortedDeps, prContext, impactAssessment)
-  }
-
-  if (sortedDeps.length === 1) {
-    return ctx.generateSingleDependencySummary(
-      'Go',
-      sortedDeps[0] || '',
-      prContext,
-      impactAssessment,
-      emoji,
-    )
-  }
-
-  if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
-    const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-    const summary = `${emoji}Update Go modules: ${depList}`
-
-    return ctx.addBreakingChangeWarning(summary, impactAssessment)
-  }
-
-  const summary = `${emoji}Update ${sortedDeps.length} Go modules`
-  return ctx.addBreakingChangeWarning(summary, impactAssessment)
-}

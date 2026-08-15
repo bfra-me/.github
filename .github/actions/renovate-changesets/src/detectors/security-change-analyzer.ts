@@ -1,5 +1,5 @@
 import type {Octokit} from '@octokit/rest'
-import type {RenovateDependency} from '../renovate-parser.js'
+import type {RenovateDependency, RenovateManagerType} from '../renovate-parser.js'
 import type {SecurityPatterns, SecurityVulnerability} from './security-vulnerability-types.js'
 import {extractCVEIds, extractGHSAIds} from './security-advisory-parser.js'
 import {
@@ -158,17 +158,13 @@ function assessPackageTrust(dependency: RenovateDependency): {
   return {riskLevel, evidence}
 }
 
-function detectEcosystem(manager: string): string {
+function detectEcosystem(manager: RenovateManagerType): string {
   switch (manager) {
     case 'npm':
     case 'pnpm':
     case 'yarn':
     case 'lockfile':
       return 'npm'
-    case 'pip':
-    case 'pipenv':
-    case 'poetry':
-      return 'python'
     case 'docker':
     case 'dockerfile':
     case 'docker-compose':

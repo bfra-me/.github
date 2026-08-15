@@ -233,11 +233,6 @@ Includes security fixes and performance improvements.`
 
       it('should detect all supported manager types', () => {
         const managerMappings: [string, RenovateManagerType][] = [
-          ['pip', 'pip'],
-          ['pipenv', 'pipenv'],
-          ['gradle', 'gradle'],
-          ['maven', 'maven'],
-          ['go', 'go'],
           ['nuget', 'nuget'],
           ['composer', 'composer'],
           ['cargo', 'cargo'],
@@ -262,9 +257,7 @@ Includes security fixes and performance improvements.`
         expect(managers).toContain('npm')
         expect(managers).toContain('github-actions')
         expect(managers).toContain('docker')
-        expect(managers).toContain('pip')
-        expect(managers).toContain('go')
-        expect(managers.length).toBeGreaterThan(20)
+        expect(managers).toHaveLength(17)
       })
     })
 
@@ -662,11 +655,6 @@ Includes security fixes and performance improvements.`
           ['.github/workflows/ci.yaml', 'github-actions'],
           ['Dockerfile', 'dockerfile'],
           ['docker-compose.yml', 'docker-compose'],
-          ['requirements.txt', 'pip'],
-          ['Pipfile', 'pipenv'],
-          ['build.gradle', 'gradle'],
-          ['pom.xml', 'maven'],
-          ['go.mod', 'go'],
           ['project.csproj', 'nuget'],
           ['composer.json', 'composer'],
           ['Cargo.toml', 'cargo'],

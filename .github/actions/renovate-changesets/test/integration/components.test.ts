@@ -19,19 +19,6 @@ import {assessImpact} from '../../src/semver-impact-assessor.js'
 // Mock all external dependencies
 vi.mock('@actions/core')
 vi.mock('@actions/exec')
-vi.mock('@actions/github', () => ({
-  context: {
-    repo: {owner: 'test-owner', repo: 'test-repo'},
-    payload: {
-      pull_request: {
-        number: 123,
-        head: {ref: 'renovate/test-branch'},
-        title: 'Update dependencies',
-        user: {login: 'renovate[bot]'},
-      },
-    },
-  },
-}))
 vi.mock('node:fs/promises')
 vi.mock('node:path')
 

@@ -601,7 +601,7 @@ export function createGroupedPRManager(
     createComments: core.getBooleanInput('comment-pr') || false,
     failureStrategy:
       (core.getInput('grouped-pr-failure-strategy') as 'continue' | 'stop') || 'continue',
-    skipCurrentPR: core.getBooleanInput('skip-current-pr-in-group') || true,
+    skipCurrentPR: core.getBooleanInput('skip-current-pr-in-group'),
   }
 
   return new GroupedPRManager(octokit, owner, repo, config)

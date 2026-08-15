@@ -1,6 +1,6 @@
 # renovate-changesets Action
 
-Auto-generates changeset files for Renovate dependency update PRs. Supports GitHub Actions, NPM, Docker, Python, Go, JVM ecosystems.
+Auto-generates changeset files for Renovate dependency update PRs. Supports GitHub Actions, NPM, and Docker ecosystems.
 
 ## STRUCTURE
 
@@ -66,10 +66,6 @@ src/
 ├── npm-change-detector.ts           # detectNPMChangesFromPR() function
 ├── detectors/npm-*.ts               # NPM sub-modules (package parser, lockfile analyzer, version)
 │
-├── python-change-detector.ts        # detectPythonChangesFromPR() function
-├── go-change-detector.ts            # detectGoChangesFromPR() function
-├── detectors/go-*.ts                # Go sub-modules (change analyzer, parser, types, version)
-├── jvm-change-detector.ts           # detectJVMChangesFromPR() function
 └── utils/                           # Shared utility functions (branch validator, title parser, file matcher)
 
 test/

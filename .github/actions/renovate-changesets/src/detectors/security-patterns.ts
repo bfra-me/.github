@@ -60,32 +60,6 @@ export const SECURITY_PATTERNS: SecurityPatterns = {
       'lodash',
     ],
   },
-  python: {
-    vulnerabilityKeywords: [
-      'code injection',
-      'command injection',
-      'pickle',
-      'eval',
-      'exec',
-      'deserialization',
-      'path traversal',
-      'sql injection',
-      'template injection',
-      'xxe',
-      'xml external entity',
-      'yaml load',
-      'unsafe deserialization',
-    ],
-    exploitKeywords: [
-      'arbitrary code execution',
-      'remote code execution',
-      'privilege escalation',
-      'sandbox escape',
-      'malicious payload',
-    ],
-    riskPackages: ['pickle', 'yaml', 'jinja2', 'django', 'flask', 'requests'],
-    trustedSources: ['python', 'django', 'flask', 'requests', 'numpy', 'pandas'],
-  },
   docker: {
     vulnerabilityKeywords: [
       'container escape',

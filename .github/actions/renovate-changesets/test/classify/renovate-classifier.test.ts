@@ -17,8 +17,9 @@ function createExtractedUpdate(
   currentVersion: string,
   newVersion: string,
   packageName = 'example',
+  isDigest = false,
 ): ExtractedUpdate {
-  return {packageName, currentVersion, newVersion, manager: 'npm'}
+  return {packageName, currentVersion, newVersion, manager: 'npm', isDigest}
 }
 
 function createExtractedUpdates(
@@ -208,5 +209,18 @@ describe('classifyRenovateUpdates', () => {
       classifyRenovateUpdates(createExtractedUpdates([createExtractedUpdate('latest', 'stable')]))
         .bumpType,
     ).toBe('major')
+  })
+
+  // A digest refresh repins the same reference. Without this, SHAs fall through to version parsing,
+  // fail to parse, and classify as major — so every SHA-pinned action bump would publish a major.
+  it('classifies a digest refresh as a patch', () => {
+    const update = createExtractedUpdate(
+      '3d3c42e5aac5ba805825da76410c181273ba90b1',
+      '08c6903cd8c0fde910a37f88322edcfb5dd907a8',
+      'actions/checkout',
+      true,
+    )
+
+    expect(classifyRenovateUpdates(createExtractedUpdates([update])).bumpType).toBe('patch')
   })
 })

@@ -9,6 +9,7 @@ import {
   markdownControlCharacterBody,
   npmBody,
   securityBody,
+  shaDigestBody,
 } from '../extract/fixtures'
 
 function formatUpdate(
@@ -74,5 +75,13 @@ describe('formatChangesetSummary', () => {
 
     expect(summary).toContain(String.raw`evil\`package\``)
     expect(summary).toContain('Update npm dependency')
+  })
+
+  // Two 40-character SHAs are noise in a changelog, so a digest refresh names the package and
+  // stops. This matches the suppression established by PR #1798.
+  it('omits version text for a digest refresh', () => {
+    expect(formatUpdate(shaDigestBody, 'renovate/actions-checkout')).toBe(
+      'Update GitHub Actions workflow dependency `actions/checkout`',
+    )
   })
 })

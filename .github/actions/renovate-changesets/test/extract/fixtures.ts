@@ -101,6 +101,17 @@ export const markdownControlCharacterBody = `This PR contains the following upda
 ---
 `
 
+// Actions in this repo are pinned to commit SHAs, so Renovate opens digest-refresh PRs whose
+// change cell holds two 40-character hexes rather than a version transition.
+export const shaDigestBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| actions/checkout | action | digest | \`3d3c42e5aac5ba805825da76410c181273ba90b1\` -> \`08c6903cd8c0fde910a37f88322edcfb5dd907a8\` |
+
+---
+`
+
 // Underscores are legal in npm package names and must survive extraction unescaped, since the
 // package name is matched against workspace package names downstream.
 export const underscorePackageBody = `This PR contains the following updates:

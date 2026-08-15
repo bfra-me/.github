@@ -50,6 +50,10 @@ export function classifyRenovateUpdates(extracted: ExtractedRenovateUpdates): Cl
 }
 
 function classifyVersionTransition(update: ExtractedUpdate): BumpType {
+  // A digest refresh repins the same reference and carries no semver signal, so it is a patch.
+  // Falling through to version parsing would classify it major, because a SHA is unparseable.
+  if (update.isDigest) return 'patch'
+
   const current = parseSemver(update.currentVersion)
   const next = parseSemver(update.newVersion)
 

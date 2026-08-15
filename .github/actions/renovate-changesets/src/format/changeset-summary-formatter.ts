@@ -35,7 +35,7 @@ export function formatChangesetSummary(
 
   const renderedUpdates = extracted.updates.map(update => ({
     packageName: `\`${escapeForMarkdown(update.packageName)}\``,
-    versions: ` from \`${escapeForMarkdown(update.currentVersion)}\` to \`${escapeForMarkdown(update.newVersion)}\``,
+    versions: formatVersions(update),
   }))
 
   if (classification.isSecurityUpdate) {
@@ -53,6 +53,13 @@ export function formatChangesetSummary(
   }
 
   return `${prefix}Group update for ${labels.plural}: ${renderedUpdates.map(update => update.packageName).join(', ')}`
+}
+
+// Digest refreshes carry no human-meaningful version text — printing two 40-character SHAs is
+// noise in a changelog — so the summary names the package and stops there.
+function formatVersions(update: ExtractedRenovateUpdates['updates'][number]): string {
+  if (update.isDigest) return ''
+  return ` from \`${escapeForMarkdown(update.currentVersion)}\` to \`${escapeForMarkdown(update.newVersion)}\``
 }
 
 function getEmojiPrefix(

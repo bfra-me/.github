@@ -1,5 +1,10 @@
 import type {RenovateManagerType} from '../parser/renovate-parser-types.js'
 
+// Commit SHAs must be matched before the version pattern. The version pattern is unanchored, so
+// against a 40-char hex SHA it happily matches stray digit runs — `3d3c42e5...` -> `08c6903c...`
+// extracted as `1` -> `08`, which then classified as a major bump. Every action in this repo is
+// SHA-pinned, so that mis-parse would hit on every Action digest refresh.
+const SHA_TRANSITION_PATTERN = /`?([0-9a-f]{7,40})`?\s*(?:→|->)\s*`?([0-9a-f]{7,40})`?/iu
 const VERSION_TRANSITION_PATTERN =
   /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?/iu
 const MARKDOWN_CONTROL_PATTERN = /([\\`*_[\]()>#!|])/gu
@@ -15,6 +20,8 @@ export interface ExtractedUpdate {
   currentVersion: string
   newVersion: string
   manager: ExtractedManager
+  /** True when both versions are commit SHAs, i.e. a digest pin refresh rather than a release. */
+  isDigest: boolean
 }
 
 export interface ExtractRenovateUpdatesOptions {
@@ -153,7 +160,8 @@ function parseUpdateRow(
   }
 
   const packageName = normalizePackageName(rawPackageName, prNumber, rowNumber)
-  const transition = rawChange.match(VERSION_TRANSITION_PATTERN)
+  const shaTransition = rawChange.match(SHA_TRANSITION_PATTERN)
+  const transition = shaTransition ?? rawChange.match(VERSION_TRANSITION_PATTERN)
 
   if (transition?.[1] == null || transition[2] == null) {
     throw new ExtractionError(`PR #${prNumber} row ${rowNumber} has no valid version transition`)
@@ -164,6 +172,7 @@ function parseUpdateRow(
     currentVersion: normalizeBodyValue(transition[1], prNumber, rowNumber),
     newVersion: normalizeBodyValue(transition[2], prNumber, rowNumber),
     manager,
+    isDigest: shaTransition != null,
   }
 }
 

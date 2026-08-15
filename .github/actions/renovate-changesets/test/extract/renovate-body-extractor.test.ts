@@ -16,6 +16,7 @@ import {
   npmBody,
   reorderedColumnBody,
   securityBody,
+  shaDigestBody,
   underscorePackageBody,
 } from './fixtures'
 
@@ -38,8 +39,27 @@ describe('extractRenovateUpdates', () => {
           currentVersion: '18.2.0',
           newVersion: '18.3.1',
           manager: 'npm',
+          isDigest: false,
         },
       ],
+    })
+  })
+
+  // Every action in this repo is SHA-pinned, so digest refreshes are routine. The version pattern
+  // is unanchored and matched stray digit runs inside a 40-char SHA, turning
+  // `3d3c42e5...` -> `08c6903c...` into `1` -> `08`. SHAs must be matched first.
+  it('extracts a commit SHA transition as a digest rather than a version', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1020,
+      body: shaDigestBody,
+      branchName: 'renovate/actions-checkout',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      packageName: 'actions/checkout',
+      currentVersion: '3d3c42e5aac5ba805825da76410c181273ba90b1',
+      newVersion: '08c6903cd8c0fde910a37f88322edcfb5dd907a8',
+      isDigest: true,
     })
   })
 

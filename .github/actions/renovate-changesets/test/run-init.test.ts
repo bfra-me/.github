@@ -35,9 +35,18 @@ describe('initializeRun live guards', () => {
     expect(mockedGitHubActions.core.getInput).not.toHaveBeenCalled()
   })
 
-  it('accepts the configured Renovate bot identity used by marcusrbrown/infra', () => {
+  // These logins are the identities that actually open Renovate PRs today: bfra-me[bot] in
+  // bfra-me/.github and bfra-me/works, mrbro-bot[bot] in marcusrbrown/infra. Both orgs self-host
+  // Renovate, so neither uses the hosted renovate[bot] identity. Dropping one silently stops
+  // changeset generation for that repo, so assert them explicitly.
+  it('accepts every Renovate identity in use across consumer repositories', () => {
+    expect(isAcceptedRenovateBotLogin('bfra-me[bot]')).toBe(true)
     expect(isAcceptedRenovateBotLogin('mrbro-bot[bot]')).toBe(true)
     expect(isAcceptedRenovateBotLogin('renovate[bot]')).toBe(true)
+  })
+
+  it('rejects unrelated bot identities', () => {
     expect(isAcceptedRenovateBotLogin('other-bot[bot]')).toBe(false)
+    expect(isAcceptedRenovateBotLogin('fro-bot[bot]')).toBe(false)
   })
 })

@@ -174,6 +174,11 @@ function normalizePackageName(value: string, prNumber: number, rowNumber: number
   return normalizeBodyValue(unwrapped, prNumber, rowNumber)
 }
 
+// Validates but deliberately does not escape. Package names are identifiers first — they are matched
+// against workspace package names downstream — so escaping here would corrupt `lint_staged` into
+// `lint\_staged` and break that match. Markdown escaping belongs at format time, against the rendered
+// string. What this rejects is anything that cannot appear in a legitimate identifier: control
+// characters, newlines, absolute paths, traversal sequences, and backslashes.
 function normalizeBodyValue(value: string, prNumber: number, rowNumber: number): string {
   const normalized = value.trim()
 
@@ -189,7 +194,13 @@ function normalizeBodyValue(value: string, prNumber: number, rowNumber: number):
     )
   }
 
-  return normalized.replaceAll(MARKDOWN_CONTROL_PATTERN, String.raw`\$1`)
+  return normalized
+}
+
+// Escapes a body-derived value for safe interpolation into changeset markdown. Applied at render
+// time by the formatter, never at extraction.
+export function escapeForMarkdown(value: string): string {
+  return value.replaceAll(MARKDOWN_CONTROL_PATTERN, String.raw`\$1`)
 }
 
 function hasUnsafeControlCharacters(value: string): boolean {

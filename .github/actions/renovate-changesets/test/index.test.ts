@@ -336,7 +336,7 @@ ${changeset.summary}
       expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
     })
 
-    it('should skip PR from an unrelated bfra-me bot identity', async () => {
+    it('should process PR from bfra-me[bot]', async () => {
       const eventData = {
         pull_request: {
           user: {login: 'bfra-me[bot]'},
@@ -359,7 +359,7 @@ ${changeset.summary}
 
       await import('../src/index')
 
-      expect(coreMocks.info).toHaveBeenCalledWith('Not a Renovate PR, skipping')
+      expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
     })
 
     it('should process PR from external bot account (e.g. mrbro-bot[bot])', async () => {

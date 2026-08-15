@@ -100,3 +100,14 @@ export const markdownControlCharacterBody = `This PR contains the following upda
 
 ---
 `
+
+// Underscores are legal in npm package names and must survive extraction unescaped, since the
+// package name is matched against workspace package names downstream.
+export const underscorePackageBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| lint_staged | npm | major | \`16.4.0\` -> \`17.3.0\` |
+
+---
+`

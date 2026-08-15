@@ -1,5 +1,9 @@
 import {describe, expect, it} from 'vitest'
-import {ExtractionError, extractRenovateUpdates} from '../../src/extract/renovate-body-extractor'
+import {
+  escapeForMarkdown,
+  ExtractionError,
+  extractRenovateUpdates,
+} from '../../src/extract/renovate-body-extractor'
 import {
   customColumnBody,
   dockerBody,
@@ -12,6 +16,7 @@ import {
   npmBody,
   reorderedColumnBody,
   securityBody,
+  underscorePackageBody,
 } from './fixtures'
 
 describe('extractRenovateUpdates', () => {
@@ -155,13 +160,31 @@ describe('extractRenovateUpdates', () => {
     )
   })
 
-  it('escapes markdown control characters at the extraction boundary', () => {
+  it('preserves package identifiers verbatim instead of escaping them', () => {
     const result = extractRenovateUpdates({
       prNumber: 1010,
       body: markdownControlCharacterBody,
       branchName: 'renovate/evil-package-1.x',
     })
 
-    expect(result.updates[0]?.packageName).toBe('evil\\`package\\`')
+    // Extraction validates but does not escape: the package name is an identifier that gets matched
+    // against workspace package names downstream. Escaping here would corrupt that match.
+    expect(result.updates[0]?.packageName).toBe('evil`package`')
+  })
+
+  it('leaves underscores in package identifiers intact', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1011,
+      body: underscorePackageBody,
+      branchName: 'renovate/lint-staged-17.x',
+    })
+
+    expect(result.updates[0]?.packageName).toBe('lint_staged')
+  })
+
+  it('escapes markdown control characters only at render time', () => {
+    expect(escapeForMarkdown('evil`package`')).toBe('evil\\`package\\`')
+    expect(escapeForMarkdown('lint_staged')).toBe(String.raw`lint\_staged`)
+    expect(escapeForMarkdown('@scope/pkg')).toBe('@scope/pkg')
   })
 })

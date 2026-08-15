@@ -21,7 +21,9 @@ interface GitHubEventWithPR {
   pull_request: PullRequestInfo
 }
 
-const ACCEPTED_RENOVATE_BOT_LOGINS = new Set(['renovate[bot]', 'mrbro-bot[bot]'])
+// bfra-me and mrbro-bot are self-hosted Renovate app identities; renovate[bot] is the hosted one.
+// Unknown identities skip rather than generate, so a missing entry fails visibly instead of silently.
+const ACCEPTED_RENOVATE_BOT_LOGINS = new Set(['bfra-me[bot]', 'mrbro-bot[bot]', 'renovate[bot]'])
 
 interface ChangedPRFile {
   filename: string

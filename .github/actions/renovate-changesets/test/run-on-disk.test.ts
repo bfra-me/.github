@@ -1,24 +1,51 @@
 import {describe, expect, it} from 'vitest'
-import {hasChangesetOnDisk} from '../src/run'
+import {hasChangesetFromThisPullRequest} from '../src/run'
 import {mockedFileSystem} from './setup'
 
-describe('hasChangesetOnDisk', () => {
-  it('checks the checkout instead of trusting the changed-file API list', async () => {
-    mockedFileSystem.readdir.mockResolvedValue([
-      {name: 'README.md', isFile: () => true},
-      {name: 'renovate-existing.md', isFile: () => true},
-    ])
+describe('hasChangesetFromThisPullRequest', () => {
+  // The repository normally holds every unreleased changeset in `.changeset/`, so the directory is
+  // never empty between releases. A check that skipped whenever any changeset existed would skip
+  // every run and the action would silently stop producing changesets.
+  it('ignores unrelated changesets that this pull request did not add', async () => {
+    const changedFiles = ['package.json', 'pnpm-lock.yaml']
 
-    await expect(hasChangesetOnDisk('/tmp/workspace')).resolves.toBe(true)
-    expect(mockedFileSystem.readdir).toHaveBeenCalledWith('/tmp/workspace/.changeset', {
-      withFileTypes: true,
-    })
+    await expect(hasChangesetFromThisPullRequest('/tmp/workspace', changedFiles)).resolves.toBe(
+      false,
+    )
+    expect(mockedFileSystem.stat).not.toHaveBeenCalled()
   })
 
-  it('treats a missing changeset directory as no existing changeset', async () => {
-    const missing = Object.assign(new Error('missing'), {code: 'ENOENT'})
-    mockedFileSystem.readdir.mockRejectedValue(missing)
+  it('reports an existing changeset that this pull request added and that survives on disk', async () => {
+    mockedFileSystem.stat.mockResolvedValue({isFile: () => true})
+    const changedFiles = ['.changeset/renovate-abc1234.md', 'package.json']
 
-    await expect(hasChangesetOnDisk('/tmp/workspace')).resolves.toBe(false)
+    await expect(hasChangesetFromThisPullRequest('/tmp/workspace', changedFiles)).resolves.toBe(
+      true,
+    )
+    expect(mockedFileSystem.stat).toHaveBeenCalledWith(
+      '/tmp/workspace/.changeset/renovate-abc1234.md',
+    )
+  })
+
+  // Renovate force-pushes to rebase, which erases a changeset committed by an earlier run while the
+  // changed-file list from the API still reports it. Trusting the list alone would skip
+  // regeneration and the pull request would merge with no changeset at all.
+  it('regenerates when a force-push erased the changeset the API still reports', async () => {
+    const missing = Object.assign(new Error('missing'), {code: 'ENOENT'})
+    mockedFileSystem.stat.mockRejectedValue(missing)
+    const changedFiles = ['.changeset/renovate-abc1234.md']
+
+    await expect(hasChangesetFromThisPullRequest('/tmp/workspace', changedFiles)).resolves.toBe(
+      false,
+    )
+  })
+
+  it('does not treat the changeset README as a changeset', async () => {
+    const changedFiles = ['.changeset/README.md']
+
+    await expect(hasChangesetFromThisPullRequest('/tmp/workspace', changedFiles)).resolves.toBe(
+      false,
+    )
+    expect(mockedFileSystem.stat).not.toHaveBeenCalled()
   })
 })

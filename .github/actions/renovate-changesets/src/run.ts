@@ -14,8 +14,13 @@ export async function run(): Promise<void> {
       return
     }
 
-    if (await hasChangesetOnDisk(initialization.workingDirectory)) {
-      core.info('Changeset files already exist on disk at HEAD, skipping changeset creation')
+    if (
+      await hasChangesetFromThisPullRequest(
+        initialization.workingDirectory,
+        initialization.changedFiles,
+      )
+    ) {
+      core.info('This pull request already carries a changeset, skipping changeset creation')
       setEmptyOutputs()
       return
     }
@@ -79,18 +84,43 @@ export async function run(): Promise<void> {
   }
 }
 
-export async function hasChangesetOnDisk(workingDirectory: string): Promise<boolean> {
-  const changesetDirectory = path.join(workingDirectory, '.changeset')
+/**
+ * Reports whether this pull request already carries a changeset that still exists on disk.
+ *
+ * Two failure modes have to be avoided at once, and they pull in opposite directions.
+ *
+ * Asking "does any changeset exist" is wrong: `.changeset/` normally holds every unreleased
+ * changeset in the repository, so on this repo it is never empty between releases. That check would
+ * skip every run and the action would silently stop producing changesets entirely.
+ *
+ * Asking the GitHub API's changed-file list alone is also wrong: Renovate force-pushes to rebase,
+ * which erases a changeset committed by an earlier run while the API list still reports it. That
+ * check would skip regeneration and the pull request would merge with no changeset.
+ *
+ * So both signals are required. The changed-file list identifies which changesets belong to this
+ * pull request, and disk confirms one of them survived.
+ */
+export async function hasChangesetFromThisPullRequest(
+  workingDirectory: string,
+  changedFiles: string[],
+): Promise<boolean> {
+  const changesetFiles = changedFiles.filter(
+    file => file.startsWith('.changeset/') && file.endsWith('.md') && !file.endsWith('README.md'),
+  )
+  if (changesetFiles.length === 0) return false
 
-  try {
-    const readdir = fs.readdir
-    if (typeof readdir !== 'function') return false
-    const entries = await readdir(changesetDirectory, {withFileTypes: true})
-    return entries.some(
-      entry => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'README.md',
-    )
-  } catch (error) {
-    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return false
-    throw error
+  const stat = fs.stat
+  if (typeof stat !== 'function') return false
+
+  for (const file of changesetFiles) {
+    try {
+      const entry = await stat(path.join(workingDirectory, file))
+      if (entry.isFile()) return true
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') continue
+      throw error
+    }
   }
+
+  return false
 }

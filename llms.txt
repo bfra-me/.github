@@ -54,19 +54,11 @@ Key features include automated dependency management via Renovate, repository se
 
 ## Infrastructure Planning
 
-- [Workflow Validation System](.ai/plan/feature-workflow-validation-system-1.md): Comprehensive validation system for workflow templates ensuring organizational standards compliance
-- [Organization Health Monitoring](.ai/plan/infrastructure-org-health-monitoring-1.md): Centralized monitoring and reporting system for repository health tracking across the organization
-- [Template Federation System](.ai/plan/architecture-template-federation-system-1.md): Multi-organization template sharing and versioning system with distributed governance
-- [Cross-Platform Bridge](.ai/plan/architecture-cross-platform-bridge-1.md): Universal workflow translation engine between GitHub Actions, GitLab CI, Azure DevOps, and Jenkins
-- [Production Readiness Validation](.ai/plan/infrastructure-production-readiness-validation-1.md): Comprehensive validation framework for production deployment readiness
-- [Monorepo Build Optimization](.ai/plan/infrastructure-monorepo-build-optimization-1.md): Advanced build optimization and caching strategies for large-scale monorepos
+- [Monorepo Build Optimization](docs/plans/monorepo-build-optimization.md): Advanced build optimization and caching strategies for large-scale monorepos
 
 ## Feature Implementation Plans
 
-- [Intelligent Workflow Generation](.ai/plan/feature-intelligent-workflow-generation-1.md): AI-driven workflow generation system with template automation and optimization
-- [Astro Starlight Documentation Platform](.ai/plan/feature-astro-starlight-docs-platform-1.md): Modern documentation platform with advanced search and interactive features
-- [Enhanced Renovate Changesets Action](.ai/plan/feature-enhanced-renovate-changesets-action-1.md): Advanced dependency update automation with intelligent changeset generation
-- [Release Testing Infrastructure](.ai/plan/feature-release-testing-infrastructure-1.md): Comprehensive testing framework for release validation and quality assurance
+- [Enhanced Renovate Changesets Action](docs/plans/enhanced-renovate-changesets-action.md): Advanced dependency update automation with intelligent changeset generation
 
 ## GitHub Actions Documentation
 
@@ -81,5 +73,4 @@ Key features include automated dependency management via Renovate, repository se
 - [License](LICENSE.md): MIT license terms and conditions
 - [Contributing Guidelines](CONTRIBUTING.md): Development contribution guidelines and organizational standards
 - [Organization Profile](profile/README.md): Organization profile and community information
-- [AI Implementation Notes](.ai/notes/implementation-plan-prompts.md): Development notes and AI-driven planning guidance
 - [VS Code Configuration](.vscode/settings.json): Development environment configuration and extensions

@@ -2,11 +2,13 @@
 goal: 'Enhance the renovate-changesets action to intelligently parse Renovate changes from both renovate/** branches and PR contexts using the latest Renovate API patterns and commit message formats'
 version: 1.0
 date_created: 2025-08-29
-last_updated: 2025-09-04
+last_updated: 2026-08-15
 owner: 'marcusrbrown'
-status: 'In Progress'
+status: 'Partially Implemented'
 tags: ['feature', 'automation', 'renovate', 'changesets', 'actions']
 ---
+
+> **Status note (2026-08-15):** Partially implemented. The action shipped and is live in `.github/actions/renovate-changesets/`, `.github/workflows/renovate-changeset.yaml`, `workflow-templates/renovate-changesets.yaml`, and `docs/workflows/renovate-changesets.md`. Remaining plan items around custom templates and configuration-driven behavior were not completed. Retained for historical context; the task tables below were never updated past September 2025.
 
 # Enhanced Renovate-Changesets Action Implementation Plan
 

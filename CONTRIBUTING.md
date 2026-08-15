@@ -317,7 +317,7 @@ The release process is automated:
 
 ### Project Context
 
-- [Implementation Plans](.ai/plan/): Detailed implementation specifications for future features
+- [Historical Implementation Plans](docs/plans/): Historical implementation plans for shipped and partially implemented initiatives
 
 ## Code of Conduct
 

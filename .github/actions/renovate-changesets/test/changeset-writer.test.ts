@@ -1,6 +1,6 @@
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 import {writeChangesetFiles, writeRenovateChangeset} from '../src/changeset-writer'
-import {mockedFileSystem, mockedGitHubActions} from './setup'
+import {mockedChangesets, mockedFileSystem, mockedGitHubActions} from './setup'
 
 describe('changeset writer', () => {
   it('writes one changeset with release frontmatter', async () => {
@@ -82,5 +82,61 @@ describe('changeset writer', () => {
 
     expect(file).toBe('existing')
     expect(mockedFileSystem.writeFile).not.toHaveBeenCalled()
+  })
+
+  it('dispatches to @changesets/write outside the Vitest environment', async () => {
+    vi.stubEnv('VITEST', '')
+    vi.stubEnv('NODE_ENV', 'production')
+    mockedFileSystem.access.mockRejectedValue(new Error('missing'))
+    mockedChangesets.write.mockResolvedValue('official-id')
+    mockedFileSystem.readFile.mockResolvedValue('---\npackage: patch\n---\n\nUpdate package\n')
+
+    try {
+      const files = await writeChangesetFiles(
+        [
+          {
+            id: 'official',
+            filename: 'official.md',
+            packages: ['package'],
+            summary: 'Update package',
+            releases: [{name: 'package', type: 'patch'}],
+            relationships: [],
+            metadata: {
+              isGrouped: false,
+              isSecurityUpdate: false,
+              hasBreakingChanges: false,
+              affectedDependencies: ['package'],
+              reasoning: [],
+            },
+          },
+        ],
+        {
+          workingDirectory: '/tmp/workspace',
+          useOfficialChangesets: true,
+          createSeparateChangesets: false,
+          respectPackageRelationships: true,
+          groupRelatedPackages: true,
+          packageNameTemplate: 'renovate-{sha}',
+          includeRelationshipInfo: true,
+          maxChangesetsPerPR: 10,
+          enableDeduplication: false,
+        },
+      )
+
+      expect(files).toEqual(['.changeset/official.md'])
+      expect(mockedChangesets.write).toHaveBeenCalledWith(
+        {summary: 'Update package', releases: [{name: 'package', type: 'patch'}]},
+        '/tmp/workspace',
+      )
+      expect(mockedFileSystem.readFile).toHaveBeenCalledWith(
+        '/tmp/workspace/.changeset/official-id.md',
+        'utf8',
+      )
+      expect(mockedFileSystem.unlink).toHaveBeenCalledWith(
+        '/tmp/workspace/.changeset/official-id.md',
+      )
+    } finally {
+      vi.unstubAllEnvs()
+    }
   })
 })

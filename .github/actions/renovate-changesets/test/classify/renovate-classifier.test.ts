@@ -5,10 +5,12 @@ import type {
 import {describe, expect, it} from 'vitest'
 import {classifyRenovateUpdates} from '../../src/classify/renovate-classifier'
 import {extractRenovateUpdates} from '../../src/extract/renovate-body-extractor'
+import {formatChangesetSummary} from '../../src/format/changeset-summary-formatter'
 import {
   githubActionsBody,
   groupedBody,
   npmBody,
+  realRenovatePR2528Body,
   securityBody,
   underscorePackageBody,
 } from '../extract/fixtures'
@@ -151,6 +153,17 @@ describe('classifyRenovateUpdates', () => {
     },
   )
 
+  it('classifies a whitespace-padded security label as security', () => {
+    const extracted = extractRenovateUpdates({
+      prNumber: 2008,
+      body: npmBody,
+      branchName: 'renovate/react-18.x',
+      labels: [' security '],
+    })
+
+    expect(classifyRenovateUpdates(extracted).isSecurityUpdate).toBe(true)
+  })
+
   it('does not treat the vulnerabilityAlerts config option name as a label', () => {
     const extracted = extractRenovateUpdates({
       prNumber: 2005,
@@ -222,5 +235,29 @@ describe('classifyRenovateUpdates', () => {
     )
 
     expect(classifyRenovateUpdates(createExtractedUpdates([update])).bumpType).toBe('patch')
+  })
+
+  it('runs the real PR #2528 body through extraction, classification, and formatting', () => {
+    const extracted = extractRenovateUpdates({
+      prNumber: 2528,
+      body: realRenovatePR2528Body,
+      branchName: 'renovate/lint-staged-17.x',
+    })
+    const classification = classifyRenovateUpdates(extracted)
+
+    expect(extracted).toMatchObject({manager: 'npm', updates: [{isDigest: false}]})
+    expect(extracted.updates[0]).toMatchObject({
+      packageName: 'lint-staged',
+      currentVersion: '16.4.0',
+      newVersion: '17.3.0',
+    })
+    expect(classification).toEqual({
+      bumpType: 'major',
+      updateCategory: 'major',
+      isSecurityUpdate: false,
+    })
+    expect(formatChangesetSummary(classification, extracted)).toBe(
+      'Update npm dependency `lint-staged` from `16.4.0` to `17.3.0`',
+    )
   })
 })

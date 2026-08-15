@@ -39,6 +39,8 @@ export async function writeRenovateChangeset(
       })),
     }
 
+    // The Vitest runner sets VITEST itself; prefer that deliberate runner variable over a generic
+    // CI flag that could be set accidentally. NODE_ENV remains as the existing compatibility fallback.
     // Try to use @changesets/write, but fallback to manual creation for test environments
     const isTestEnvironment = process.env.VITEST || process.env.NODE_ENV === 'test'
 
@@ -155,5 +157,6 @@ export async function getGitShortSha(): Promise<string> {
 }
 
 export function isTestEnvironment(): boolean {
+  // VITEST is deliberately the runner's own variable, not a generic CI/test flag.
   return Boolean(process.env.VITEST || process.env.NODE_ENV === 'test')
 }

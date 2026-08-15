@@ -10,24 +10,15 @@ export {
   generateCargoSummaryLogic,
   generateDockerSummaryLogic,
   generateHelmSummaryLogic,
-  generatePythonSummaryLogic,
   generateTerraformSummaryLogic,
 } from './infrastructure-summaries'
 
 export type {JsEcosystemSummaryContext} from './js-ecosystem-summaries'
-export {
-  generateGitHubActionsSummaryLogic,
-  generateGoSummaryLogic,
-  generateNpmSummaryLogic,
-} from './js-ecosystem-summaries'
-export type {JvmEcosystemSummaryContext} from './jvm-ecosystem-summaries'
-export {
-  generateComposerSummaryLogic,
-  generateJvmSummaryLogic,
-  generateNuGetSummaryLogic,
-} from './jvm-ecosystem-summaries'
-
+export {generateGitHubActionsSummaryLogic, generateNpmSummaryLogic} from './js-ecosystem-summaries'
 export {createManagerSummaries, type ManagerSummaryFn} from './manager-summaries'
+export type {OtherEcosystemSummaryContext} from './other-ecosystem-summaries'
+
+export {generateComposerSummaryLogic, generateNuGetSummaryLogic} from './other-ecosystem-summaries'
 export {
   addBreakingChangeWarning,
   generateGenericSummary,
@@ -41,9 +32,7 @@ export {
   determineRiskLevel,
   getEcosystemName,
   getEmojiForUpdate,
-  getJvmManagerDisplayName,
   getPackageManagerDisplayName,
-  getPythonManagerDisplayName,
 } from './summary-helpers'
 export {
   buildEnhancedTemplateContext,

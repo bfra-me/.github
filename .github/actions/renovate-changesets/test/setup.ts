@@ -299,7 +299,6 @@ export const mockedChangesets: MockedChangesets = {
  * Setup mocks for all external dependencies
  */
 vi.mock('@actions/core', () => mockedGitHubActions.core)
-vi.mock('@actions/github', () => mockedGitHubActions.github)
 vi.mock('@actions/exec', () => mockedGitHubActions.exec)
 vi.mock('@octokit/rest', () => ({
   Octokit: vi.fn(() => mockedOctokit),
@@ -310,9 +309,6 @@ vi.mock('node:fs', () => ({
 vi.mock('node:fs/promises', () => mockedFileSystem)
 vi.mock('@changesets/write', () => ({
   default: mockedChangesets.write,
-}))
-vi.mock('@changesets/parse', () => ({
-  parse: mockedChangesets.parse,
 }))
 
 /**

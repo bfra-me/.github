@@ -11,7 +11,7 @@ describe('NPMChangeDetector', () => {
     it('should return empty array when no npm files', async () => {
       const files = [
         {filename: 'src/index.ts', status: 'modified', additions: 1, deletions: 1},
-        {filename: 'go.mod', status: 'modified', additions: 1, deletions: 1},
+        {filename: 'README.md', status: 'modified', additions: 1, deletions: 1},
       ]
 
       const result = await detectNPMChangesFromPR(createMockOctokit(), 'owner', 'repo', 1, files)
@@ -137,7 +137,7 @@ describe('NPMChangeDetector', () => {
 
   describe('detectNPMChangesFromFiles', () => {
     it('should return empty array when no npm files in changed files list', async () => {
-      const result = await detectNPMChangesFromFiles('/workspace', ['src/index.ts', 'go.mod'])
+      const result = await detectNPMChangesFromFiles('/workspace', ['src/index.ts', 'README.md'])
 
       expect(result).toEqual([])
     })
@@ -172,7 +172,7 @@ describe('NPMChangeDetector', () => {
     })
 
     it('should filter out non-npm files', async () => {
-      await detectNPMChangesFromFiles('/workspace', ['Makefile', 'README.md', 'go.sum'])
+      await detectNPMChangesFromFiles('/workspace', ['Makefile', 'README.md', 'LICENSE'])
 
       expect(mockedFileSystem.readFile).not.toHaveBeenCalled()
     })

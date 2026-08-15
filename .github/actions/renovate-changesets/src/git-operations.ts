@@ -674,7 +674,7 @@ export function createGitOperations(
     owner,
     repo,
     branchName,
-    autoResolveConflicts: core.getBooleanInput('auto-resolve-conflicts') || true,
+    autoResolveConflicts: core.getBooleanInput('auto-resolve-conflicts'),
     maxRetries: Number.parseInt(core.getInput('max-retries') || '3', 10),
     retryDelay: Number.parseInt(core.getInput('retry-delay') || '1000', 10),
   }

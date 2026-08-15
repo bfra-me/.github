@@ -11,11 +11,6 @@ const SCOPE_TO_MANAGER: Record<string, RenovateManagerType> = {
   docker: 'docker',
   dockerfile: 'dockerfile',
   'docker-compose': 'docker-compose',
-  pip: 'pip',
-  pipenv: 'pipenv',
-  gradle: 'gradle',
-  maven: 'maven',
-  go: 'go',
   nuget: 'nuget',
   composer: 'composer',
   cargo: 'cargo',
@@ -36,11 +31,6 @@ const SUPPORTED_MANAGERS: RenovateManagerType[] = [
   'docker',
   'dockerfile',
   'docker-compose',
-  'pip',
-  'pipenv',
-  'gradle',
-  'maven',
-  'go',
   'nuget',
   'composer',
   'cargo',
@@ -69,11 +59,6 @@ export function detectManagerFromCommit(commitMessage: string): RenovateManagerT
   }
   if (messageLower.includes('dockerfile') || messageLower.includes('docker image')) return 'docker'
   if (messageLower.includes('docker-compose')) return 'docker-compose'
-  if (messageLower.includes('requirements.txt') || messageLower.includes('pip')) return 'pip'
-  if (messageLower.includes('pipfile') || messageLower.includes('pipenv')) return 'pipenv'
-  if (messageLower.includes('build.gradle') || messageLower.includes('gradle')) return 'gradle'
-  if (messageLower.includes('pom.xml') || messageLower.includes('maven')) return 'maven'
-  if (messageLower.includes('go.mod') || messageLower.includes('go module')) return 'go'
   if (messageLower.includes('.csproj') || messageLower.includes('nuget')) return 'nuget'
   if (messageLower.includes('composer.json') || messageLower.includes('composer')) return 'composer'
   if (messageLower.includes('cargo.toml') || messageLower.includes('cargo')) return 'cargo'
@@ -97,11 +82,6 @@ export function detectManagerFromFilename(filename: string): RenovateManagerType
   if (filenameLower.includes('.github/workflows/')) return 'github-actions'
   if (filenameLower.includes('dockerfile')) return 'dockerfile'
   if (filenameLower.includes('docker-compose')) return 'docker-compose'
-  if (filenameLower.includes('requirements.txt') || filenameLower.includes('.py')) return 'pip'
-  if (filenameLower.includes('pipfile')) return 'pipenv'
-  if (filenameLower.includes('build.gradle') || filenameLower.includes('.gradle')) return 'gradle'
-  if (filenameLower.includes('pom.xml')) return 'maven'
-  if (filenameLower.includes('go.mod') || filenameLower.includes('go.sum')) return 'go'
   if (filenameLower.includes('.csproj') || filenameLower.includes('.nuspec')) return 'nuget'
   if (filenameLower.includes('composer.json')) return 'composer'
   if (filenameLower.includes('cargo.toml') || filenameLower.includes('cargo.lock')) return 'cargo'

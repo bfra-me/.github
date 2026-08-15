@@ -1,6 +1,6 @@
 # Renovate Changesets Action
 
-This GitHub Action automatically generates changeset files for Renovate dependency updates. It supports multiple dependency types including GitHub Actions, NPM packages, Docker images, and more.
+This GitHub Action automatically generates changeset files for Renovate dependency updates. It supports GitHub Actions, NPM packages, and Docker images.
 
 ## Features
 

@@ -5,7 +5,7 @@ import type {
   CiSummaryContext,
   InfrastructureSummaryContext,
   JsEcosystemSummaryContext,
-  JvmEcosystemSummaryContext,
+  OtherEcosystemSummaryContext,
 } from './index'
 import {
   addBreakingChangeWarning,
@@ -13,15 +13,11 @@ import {
   generateSecurityUpdateSummary,
   generateSingleDependencySummary,
 } from './structural-summaries'
-import {
-  getEmojiForUpdate,
-  getJvmManagerDisplayName,
-  getPythonManagerDisplayName,
-} from './summary-helpers'
+import {getEmojiForUpdate} from './summary-helpers'
 
 export interface SummaryContexts {
   js: JsEcosystemSummaryContext
-  jvm: JvmEcosystemSummaryContext
+  other: OtherEcosystemSummaryContext
   infrastructure: InfrastructureSummaryContext
   ci: CiSummaryContext
 }
@@ -54,8 +50,8 @@ export function createSummaryContexts(config: SummaryGeneratorConfig): SummaryCo
       ...common,
       generateGroupedUpdateSummary: (m, d, i) => generateGroupedUpdateSummary(m, d, i, config),
     },
-    jvm: {...common, getJvmManagerDisplayName},
-    infrastructure: {...common, getPythonManagerDisplayName},
+    other: common,
+    infrastructure: common,
     ci: {
       config,
       generateSecurityUpdateSummary: common.generateSecurityUpdateSummary,

@@ -11,14 +11,11 @@ import {
   generateDockerSummaryLogic,
   generateGitHubActionsSummaryLogic,
   generateGitLabCISummaryLogic,
-  generateGoSummaryLogic,
   generateHelmSummaryLogic,
-  generateJvmSummaryLogic,
   generateLockfileSummary,
   generateNpmSummaryLogic,
   generateNuGetSummaryLogic,
   generatePreCommitSummaryLogic,
-  generatePythonSummaryLogic,
   generateTerraformSummaryLogic,
 } from './index'
 
@@ -32,7 +29,7 @@ export function createManagerSummaries(
   contexts: SummaryContexts,
   config: SummaryGeneratorConfig,
 ): Record<string, ManagerSummaryFn> {
-  const {ci, infrastructure, js, jvm} = contexts
+  const {ci, infrastructure, js, other} = contexts
 
   return {
     npm: (pr, impact, deps) => generateNpmSummaryLogic(js, pr, impact, deps),
@@ -43,13 +40,8 @@ export function createManagerSummaries(
     dockerfile: (pr, impact, deps) => generateDockerSummaryLogic(infrastructure, pr, impact, deps),
     'docker-compose': (pr, impact, deps) =>
       generateDockerSummaryLogic(infrastructure, pr, impact, deps),
-    pip: (pr, impact, deps) => generatePythonSummaryLogic(infrastructure, pr, impact, deps),
-    pipenv: (pr, impact, deps) => generatePythonSummaryLogic(infrastructure, pr, impact, deps),
-    gradle: (pr, impact, deps) => generateJvmSummaryLogic(jvm, pr, impact, deps),
-    maven: (pr, impact, deps) => generateJvmSummaryLogic(jvm, pr, impact, deps),
-    go: (pr, impact, deps) => generateGoSummaryLogic(js, pr, impact, deps),
-    nuget: (pr, impact, deps) => generateNuGetSummaryLogic(jvm, pr, impact, deps),
-    composer: (pr, impact, deps) => generateComposerSummaryLogic(jvm, pr, impact, deps),
+    nuget: (pr, impact, deps) => generateNuGetSummaryLogic(other, pr, impact, deps),
+    composer: (pr, impact, deps) => generateComposerSummaryLogic(other, pr, impact, deps),
     cargo: (pr, impact, deps) => generateCargoSummaryLogic(infrastructure, pr, impact, deps),
     helm: (pr, impact, deps) => generateHelmSummaryLogic(infrastructure, pr, impact, deps),
     terraform: (pr, impact, deps) =>

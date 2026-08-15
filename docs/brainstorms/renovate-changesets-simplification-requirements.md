@@ -138,11 +138,11 @@ Coverage sits at 62.52% statements and 56.89% branches against thresholds of 80%
 
 ### Deferred to Planning
 
-- [Affects R5, R10a][Technical] Which fields come from the pull request body versus the branch name or commit message, when both are available.
-- [Affects R9][Technical] How prerelease and non-semver version strings map to a bump level.
-- [Affects R13][Technical] Whether the existing integration tests can be adapted or should be rewritten against the new pipeline.
-- [Affects R10b][Technical] Whether `merge_group` is removed from the reusable workflow or handled as a body-less skip.
-- [Affects R6][Technical] Which Renovate body markers identify a security update, given that severity words and CVE identifiers are the only signals available today.
+- Affects R5, R10a — **Technical** — Which fields come from the pull request body versus the branch name or commit message, when both are available.
+- Affects R9 — **Technical** — How prerelease and non-semver version strings map to a bump level.
+- Affects R13 — **Technical** — Whether the existing integration tests can be adapted or should be rewritten against the new pipeline.
+- Affects R10b — **Technical** — Whether `merge_group` is removed from the reusable workflow or handled as a body-less skip.
+- Affects R6 — **Technical** — Which Renovate body markers identify a security update, given that severity words and CVE identifiers are the only signals available today.
 
 ---
 

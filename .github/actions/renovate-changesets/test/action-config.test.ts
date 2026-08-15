@@ -1,7 +1,9 @@
 import process from 'node:process'
-import {beforeEach, describe, expect, it} from 'vitest'
+import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {DEFAULT_CONFIG, getConfig} from '../src/action-config'
-import {mockedFileSystem, mockedGitHubActions} from './setup'
+import {createGitOperations} from '../src/git-operations'
+import {createGroupedPRManager} from '../src/grouped-pr-manager'
+import {mockedFileSystem, mockedGitHubActions, mockedOctokit} from './setup'
 
 describe('action-config', () => {
   describe('DEFAULT_CONFIG', () => {
@@ -26,18 +28,6 @@ describe('action-config', () => {
     it('should include docker update type', () => {
       expect(DEFAULT_CONFIG.updateTypes.docker).toBeDefined()
       expect(DEFAULT_CONFIG.updateTypes.docker.filePatterns).toContain('**/Dockerfile')
-    })
-
-    it('should include go/gomod/golang update types', () => {
-      expect(DEFAULT_CONFIG.updateTypes.go).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes.gomod).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes.golang).toBeDefined()
-    })
-
-    it('should include maven and gradle JVM update types', () => {
-      expect(DEFAULT_CONFIG.updateTypes.maven).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes.gradle).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes.maven.filePatterns).toContain('**/pom.xml')
     })
 
     it('should have defaultChangesetType of patch', () => {
@@ -329,6 +319,113 @@ describe('action-config', () => {
       const config = await getConfig()
 
       expect(config.targetPackage).toBe('@scope/from-inline')
+    })
+  })
+
+  describe('boolean input handling', () => {
+    const createOperations = () =>
+      createGitOperations('/tmp/test-workspace', 'owner', 'repo', 'renovate/test-branch')
+
+    const groupedPR = {
+      number: 1,
+      title: 'Update dependency test-package to v2.0.0',
+      head: 'renovate/test-branch',
+      isCurrent: true,
+      dependencies: ['test-package'],
+    }
+
+    const categorizationResult = {
+      primaryCategory: 'dependencies',
+      allCategories: ['dependencies'],
+      summary: {
+        securityUpdates: 0,
+        breakingChanges: 0,
+        highPriorityUpdates: 0,
+        averageRiskLevel: 0,
+      },
+      confidence: 'high',
+    }
+
+    const multiPackageResult = {
+      strategy: 'single',
+      reasoning: [],
+    }
+
+    it('should not attempt conflict resolution when auto-resolve-conflicts is false', async () => {
+      mockedGitHubActions.core.getBooleanInput.mockImplementation(name => name === 'commit-back')
+      mockedGitHubActions.exec.getExecOutput.mockResolvedValue({
+        exitCode: 0,
+        stdout: 'UU .changeset/conflict.md\n',
+        stderr: '',
+      })
+
+      const result = await createOperations().handleChangesetConflicts()
+
+      expect(result).toEqual({resolved: false, strategy: 'manual-resolution-required'})
+      expect(mockedGitHubActions.exec.getExecOutput).toHaveBeenCalledTimes(1)
+    })
+
+    it('should include the current PR when skip-current-pr-in-group is false', async () => {
+      mockedGitHubActions.core.getBooleanInput.mockImplementation(
+        name => name === 'update-grouped-prs' || name === 'update-pr-description',
+      )
+      const updatePRDescription = vi.fn().mockResolvedValue(undefined)
+
+      const result = await createGroupedPRManager(
+        mockedOctokit as unknown as Parameters<typeof createGroupedPRManager>[0],
+        'owner',
+        'repo',
+      ).updateGroupedPRs(
+        [groupedPR],
+        'changeset',
+        [],
+        ['test-package'],
+        categorizationResult,
+        multiPackageResult,
+        updatePRDescription,
+        vi.fn().mockResolvedValue(undefined),
+        '.changeset/test.md',
+      )
+
+      expect(result.updatedPRs).toBe(1)
+      expect(result.prResults).toHaveLength(1)
+      expect(updatePRDescription).toHaveBeenCalledOnce()
+    })
+
+    it('should honor the documented defaults when boolean inputs are unset', async () => {
+      mockedGitHubActions.core.getBooleanInput.mockImplementation(
+        name => name === 'auto-resolve-conflicts' || name === 'skip-current-pr-in-group',
+      )
+      mockedGitHubActions.exec.getExecOutput.mockResolvedValue({
+        exitCode: 0,
+        stdout: 'UU .changeset/conflict.md\n',
+        stderr: '',
+      })
+
+      const conflictResult = await createOperations().handleChangesetConflicts()
+
+      expect(conflictResult).toEqual({resolved: true, strategy: 'prefer-working-tree'})
+      expect(mockedGitHubActions.exec.getExecOutput).toHaveBeenCalledTimes(3)
+
+      const updatePRDescription = vi.fn().mockResolvedValue(undefined)
+      const groupedResult = await createGroupedPRManager(
+        mockedOctokit as unknown as Parameters<typeof createGroupedPRManager>[0],
+        'owner',
+        'repo',
+      ).updateGroupedPRs(
+        [groupedPR],
+        'changeset',
+        [],
+        ['test-package'],
+        categorizationResult,
+        multiPackageResult,
+        updatePRDescription,
+        vi.fn().mockResolvedValue(undefined),
+        '.changeset/test.md',
+      )
+
+      expect(groupedResult.updatedPRs).toBe(0)
+      expect(updatePRDescription).not.toHaveBeenCalled()
     })
   })
 })

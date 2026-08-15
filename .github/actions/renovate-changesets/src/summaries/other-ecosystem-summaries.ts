@@ -2,7 +2,7 @@ import type {RenovatePRContext} from '../renovate-parser'
 import type {ImpactAssessment} from '../semver-impact-assessor'
 import type {SummaryGeneratorConfig} from '../summary-generator-types'
 
-export interface JvmEcosystemSummaryContext {
+export interface OtherEcosystemSummaryContext {
   config: Pick<SummaryGeneratorConfig, 'maxDependenciesToList' | 'sortDependencies'>
   addBreakingChangeWarning: (summary: string, impactAssessment: ImpactAssessment) => string
   generateSecurityUpdateSummary: (
@@ -19,46 +19,10 @@ export interface JvmEcosystemSummaryContext {
     emoji: string,
   ) => string
   getEmojiForUpdate: (prContext: RenovatePRContext, impactAssessment: ImpactAssessment) => string
-  getJvmManagerDisplayName: (manager: string) => string
-}
-
-export function generateJvmSummaryLogic(
-  ctx: JvmEcosystemSummaryContext,
-  prContext: RenovatePRContext,
-  impactAssessment: ImpactAssessment,
-  dependencies: string[],
-): string {
-  const emoji = ctx.getEmojiForUpdate(prContext, impactAssessment)
-  const sortedDeps = ctx.config.sortDependencies ? [...dependencies].sort() : dependencies
-  const managerName = ctx.getJvmManagerDisplayName(prContext.manager)
-
-  if (prContext.isSecurityUpdate) {
-    return ctx.generateSecurityUpdateSummary(managerName, sortedDeps, prContext, impactAssessment)
-  }
-
-  if (sortedDeps.length === 1) {
-    return ctx.generateSingleDependencySummary(
-      managerName,
-      sortedDeps[0] || '',
-      prContext,
-      impactAssessment,
-      emoji,
-    )
-  }
-
-  if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
-    const depList = sortedDeps.map(dep => `\`${dep}\``).join(', ')
-    const summary = `${emoji}Update ${managerName} dependencies: ${depList}`
-
-    return ctx.addBreakingChangeWarning(summary, impactAssessment)
-  }
-
-  const summary = `${emoji}Update ${sortedDeps.length} ${managerName} dependencies`
-  return ctx.addBreakingChangeWarning(summary, impactAssessment)
 }
 
 export function generateNuGetSummaryLogic(
-  ctx: JvmEcosystemSummaryContext,
+  ctx: OtherEcosystemSummaryContext,
   prContext: RenovatePRContext,
   impactAssessment: ImpactAssessment,
   dependencies: string[],
@@ -95,7 +59,7 @@ export function generateNuGetSummaryLogic(
 }
 
 export function generateComposerSummaryLogic(
-  ctx: JvmEcosystemSummaryContext,
+  ctx: OtherEcosystemSummaryContext,
   prContext: RenovatePRContext,
   impactAssessment: ImpactAssessment,
   dependencies: string[],

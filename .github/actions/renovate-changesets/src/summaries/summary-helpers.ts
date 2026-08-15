@@ -24,14 +24,6 @@ export function getEmojiForUpdate(
     case 'dockerfile':
     case 'docker-compose':
       return '🐳 '
-    case 'pip':
-    case 'pipenv':
-      return '🐍 '
-    case 'gradle':
-    case 'maven':
-      return '☕ '
-    case 'go':
-      return '🐹 '
     case 'nuget':
       return '💎 '
     case 'composer':
@@ -62,15 +54,9 @@ export function getEcosystemName(manager: RenovateManagerType | string): string 
     yarn: 'node',
     'github-actions': 'github',
     docker: 'container',
-    pip: 'python',
-    poetry: 'python',
-    pipenv: 'python',
-    maven: 'jvm',
-    gradle: 'jvm',
     cargo: 'rust',
     nuget: 'dotnet',
     composer: 'php',
-    gomod: 'go',
   }
   return ecosystemMap[manager] || 'unknown'
 }
@@ -82,51 +68,11 @@ export function getPackageManagerDisplayName(manager: RenovateManagerType | stri
     yarn: 'Yarn',
     'github-actions': 'GitHub Actions',
     docker: 'Docker',
-    pip: 'pip',
-    poetry: 'Poetry',
-    pipenv: 'Pipenv',
-    maven: 'Maven',
-    gradle: 'Gradle',
     cargo: 'Cargo',
     nuget: 'NuGet',
     composer: 'Composer',
-    gomod: 'Go modules',
   }
   return displayNames[manager] || manager
-}
-
-export function getJvmManagerDisplayName(manager: string): string {
-  switch (manager) {
-    case 'gradle':
-      return 'Gradle'
-    case 'maven':
-      return 'Maven'
-    case 'sbt':
-      return 'SBT'
-    case 'gradle-wrapper':
-      return 'Gradle Wrapper'
-    default:
-      return 'JVM'
-  }
-}
-
-export function getPythonManagerDisplayName(manager: string): string {
-  switch (manager) {
-    case 'pip':
-      return 'pip'
-    case 'pipenv':
-      return 'Pipenv'
-    case 'poetry':
-      return 'Poetry'
-    case 'setuptools':
-      return 'setuptools'
-    case 'pip-compile':
-      return 'pip-compile'
-    case 'pip_setup':
-      return 'pip'
-    default:
-      return 'Python'
-  }
 }
 
 export function determineRiskLevel(impactAssessment: ImpactAssessment): RiskLevel {

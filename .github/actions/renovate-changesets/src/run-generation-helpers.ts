@@ -45,7 +45,7 @@ export function resolveDependencyNames(
   }
 
   const syntheticPattern =
-    /^(?:npm|pnpm|yarn|lockfile|github-actions|docker|dockerfile|docker-compose|pip|pipenv|gradle|maven|go|nuget|composer|cargo|helm|terraform|ansible|pre-commit|gitlabci|circleci|unknown)-dependencies$/i
+    /^(?:npm|pnpm|yarn|lockfile|github-actions|docker|dockerfile|docker-compose|nuget|composer|cargo|helm|terraform|ansible|pre-commit|gitlabci|circleci|unknown)-dependencies$/i
   dependencyNames = dependencyNames.filter(name => !syntheticPattern.test(name))
 
   if (dependencyNames.length === 0) {

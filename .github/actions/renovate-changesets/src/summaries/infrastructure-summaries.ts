@@ -24,7 +24,6 @@ export interface InfrastructureSummaryContext {
     emoji: string,
   ) => string
   getEmojiForUpdate: (prContext: RenovatePRContext, impactAssessment: ImpactAssessment) => string
-  getPythonManagerDisplayName: (manager: string) => string
 }
 
 function getVersionTextForDep(
@@ -65,46 +64,6 @@ export function generateDockerSummaryLogic(
   }
 
   return `${emoji}Update ${sortedDeps.length} Docker images`
-}
-
-export function generatePythonSummaryLogic(
-  ctx: InfrastructureSummaryContext,
-  prContext: RenovatePRContext,
-  impactAssessment: ImpactAssessment,
-  dependencies: string[],
-): string {
-  const emoji = ctx.getEmojiForUpdate(prContext, impactAssessment)
-  const sortedDeps = ctx.config.sortDependencies ? [...dependencies].sort() : dependencies
-  const managerName = ctx.getPythonManagerDisplayName(prContext.manager)
-
-  if (prContext.isSecurityUpdate) {
-    return ctx.generateSecurityUpdateSummary(managerName, sortedDeps, prContext, impactAssessment)
-  }
-
-  if (sortedDeps.length === 1) {
-    const firstDep = sortedDeps[0]
-    if (!firstDep) {
-      throw new Error('Invalid dependency in array')
-    }
-
-    return ctx.generateSingleDependencySummary(
-      managerName,
-      firstDep,
-      prContext,
-      impactAssessment,
-      emoji,
-    )
-  }
-
-  if (sortedDeps.length <= ctx.config.maxDependenciesToList) {
-    const summary = `${emoji}Update ${managerName} dependencies: ${sortedDeps.map(dep => `\`${dep}\``).join(', ')}`
-    return ctx.addBreakingChangeWarning(summary, impactAssessment)
-  }
-
-  return ctx.addBreakingChangeWarning(
-    `${emoji}Update ${sortedDeps.length} ${managerName} dependencies`,
-    impactAssessment,
-  )
 }
 
 export function generateCargoSummaryLogic(

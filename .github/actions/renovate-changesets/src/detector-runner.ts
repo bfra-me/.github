@@ -5,10 +5,7 @@ import * as core from '@actions/core'
 import {analyzeBreakingChanges} from './breaking-change-detector'
 import {detectDockerChangesFromPR} from './docker-change-detector'
 import {detectGHAChangesFromPR} from './github-actions-change-detector'
-import {detectGoChangesFromPR} from './go-change-detector'
-import {detectJVMChangesFromPR} from './jvm-change-detector'
 import {detectNPMChangesFromPR} from './npm-change-detector'
-import {detectPythonChangesFromPR} from './python-change-detector'
 import {analyzeSecurityVulnerabilities} from './security-vulnerability-detector'
 
 interface ChangedPRFile {
@@ -93,30 +90,6 @@ export async function runDetectors({
       versionField: 'currentTag',
       newVersionField: 'newTag',
       packageFileField: 'dockerFile',
-    },
-    {
-      label: 'Python',
-      managers: ['pip', 'pipenv', 'poetry', 'setuptools', 'pip-compile', 'pip_setup'],
-      detect: detectPythonChangesFromPR,
-      versionField: 'currentVersion',
-      newVersionField: 'newVersion',
-      packageFileField: 'packageFile',
-    },
-    {
-      label: 'JVM',
-      managers: ['gradle', 'maven', 'gradle-wrapper', 'sbt'],
-      detect: detectJVMChangesFromPR,
-      versionField: 'currentVersion',
-      newVersionField: 'newVersion',
-      packageFileField: 'buildFile',
-    },
-    {
-      label: 'Go',
-      managers: ['gomod', 'go', 'golang'],
-      detect: detectGoChangesFromPR,
-      versionField: 'currentVersion',
-      newVersionField: 'newVersion',
-      packageFileField: 'modFile',
     },
   ]
   for (const config of detectorConfigs) {

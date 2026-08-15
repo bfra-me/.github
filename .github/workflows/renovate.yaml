@@ -175,4 +175,3 @@ jobs:
           print-config: ${{ inputs.print-config }}
           renovate-app-id: ${{ secrets.APPLICATION_ID }}
           renovate-app-private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-    timeout-minutes: 30

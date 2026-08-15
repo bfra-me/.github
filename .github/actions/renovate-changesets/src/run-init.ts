@@ -21,6 +21,8 @@ interface GitHubEventWithPR {
   pull_request: PullRequestInfo
 }
 
+const ACCEPTED_RENOVATE_BOT_LOGINS = new Set(['renovate[bot]', 'mrbro-bot[bot]'])
+
 interface ChangedPRFile {
   filename: string
   status: string
@@ -59,7 +61,18 @@ function hasPullRequest(data: unknown): data is GitHubEventWithPR {
   return typeof pullRequest.user.login === 'string'
 }
 
+export function isAcceptedRenovateBotLogin(login: string): boolean {
+  return ACCEPTED_RENOVATE_BOT_LOGINS.has(login.toLowerCase())
+}
+
 export async function initializeRun(): Promise<RunInitialization | null> {
+  if (process.env.GITHUB_EVENT_NAME === 'merge_group') {
+    core.info(
+      'Merge group event detected; no pull request body available, skipping changeset creation',
+    )
+    return null
+  }
+
   const branchPatterns = createBranchPatterns()
   const repository = process.env.GITHUB_REPOSITORY
   const eventPath = process.env.GITHUB_EVENT_PATH
@@ -82,7 +95,7 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   }
 
   const pr = eventData.pull_request
-  const isRenovatePR = pr.user.login.endsWith('[bot]')
+  const isRenovatePR = isAcceptedRenovateBotLogin(pr.user.login)
   if (!isRenovatePR) {
     core.info('Not a Renovate PR, skipping')
     return null

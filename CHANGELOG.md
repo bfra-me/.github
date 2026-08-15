@@ -1,5 +1,60 @@
 # @bfra.me/.github
 
+## 4.16.47
+### Patch Changes
+
+
+- ⏸️ Hold TypeScript below v7 until typescript-eslint supports TypeScript 7. ([#2543](https://github.com/bfra-me/.github/pull/2543))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `actions/labeler` to v7 (v7.0.0) ([#2523](https://github.com/bfra-me/.github/pull/2523))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fossas/fossa-action` to v2 (v2.0.0) ([#2525](https://github.com/bfra-me/.github/pull/2525))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `actions/setup-node` to v7 (v7.0.0) ([#2524](https://github.com/bfra-me/.github/pull/2524))
+
+
+- 📦 Update npm dependency `eslint` from `10.8.0` to `10.8.1` ([#2552](https://github.com/bfra-me/.github/pull/2552))
+
+
+- 📦 Update npm dependency `flatted` from `3.4.3` to `3.4.4` ([#2548](https://github.com/bfra-me/.github/pull/2548))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `actions/dependency-review-action` to v5 (v5.0.0) ([#2522](https://github.com/bfra-me/.github/pull/2522))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `pnpm/action-setup` from `v6.0.9` to `v6.0.10` ([#2551](https://github.com/bfra-me/.github/pull/2551))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `dorny/paths-filter` from `v4.0.2` to `v4.0.3` ([#2549](https://github.com/bfra-me/.github/pull/2549))
+
+
+- 📦 Group update for dependencies dependencies: `Node.js`, `node` ([#2554](https://github.com/bfra-me/.github/pull/2554))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.4` to `4.37.7` ([#2550](https://github.com/bfra-me/.github/pull/2550))
+
+
+- 📋 Add requirements and implementation plan for the `renovate-changesets` simplification ([#2557](https://github.com/bfra-me/.github/pull/2557))
+
+
+- 📦 Update npm dependency `vite` from `8.1.5` to `8.2.1` ([#2556](https://github.com/bfra-me/.github/pull/2556))
+
+
+- ⚠️ Update npm dependency `lint-staged` to v17 (17.3.0) ([#2528](https://github.com/bfra-me/.github/pull/2528))
+  
+  ⚠️ **Breaking Changes**: This update includes breaking changes that may require code modifications.
+
+- 📦 Update npm dependency `tsx` from `4.23.1` to `4.23.12` ([#2553](https://github.com/bfra-me/.github/pull/2553))
+
+
+- 📦 Update npm dependency `pnpm` from `11.17.0` to `11.21.0` ([#2555](https://github.com/bfra-me/.github/pull/2555))
+
+
+- 🗑️ Retire stale implementation plans; migrate the two partially implemented ones to `docs/plans/` ([#2547](https://github.com/bfra-me/.github/pull/2547))
+
 ## 4.16.46
 ### Patch Changes
 

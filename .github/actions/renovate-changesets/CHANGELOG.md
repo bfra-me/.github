@@ -1,5 +1,15 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.33
+### Patch Changes
+
+
+- Remove the unused Go, JVM, and Python detection paths. No consumer repository used them; restore them on request. ([#2557](https://github.com/bfra-me/.github/pull/2557))
+  The `auto-resolve-conflicts` and `skip-current-pr-in-group` inputs now honour configured `false` values.
+
+- Derive updates from Renovate's PR body instead of re-deriving them from lockfiles and Dockerfiles. The new `emoji` input defaults to disabled, so summary lines no longer include an emoji by default; set `emoji: true` to restore the previous appearance. PR comment and description risk scores and confidence values are now derived from the bump level, while package names, versions, bump level, and security status remain exact. ([#2559](https://github.com/bfra-me/.github/pull/2559))
+  Digest detection now distinguishes SHA-pinned updates from numeric Docker CalVer tags, so CalVer version transitions are no longer suppressed as digest patches.
+
 ## 0.2.32
 ### Patch Changes
 

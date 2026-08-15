@@ -9,6 +9,7 @@ export interface PullRequestData {
   title: string
   body?: string | null
   user: {login: string}
+  labels?: {name?: string | null}[] | null
   head?: {ref?: string | null} | null
 }
 
@@ -89,6 +90,7 @@ export async function extractPRContext(
     prTitle: prData.title,
     prBody: prData.body ?? '',
     commitMessages,
+    labels: prData.labels?.flatMap(label => (label.name == null ? [] : [label.name])) ?? [],
     isGroupedUpdate,
     isSecurityUpdate,
     updateType: detectedUpdateType,

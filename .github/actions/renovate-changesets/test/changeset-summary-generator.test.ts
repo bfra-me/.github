@@ -7,11 +7,9 @@
 import type {CategorizationResult} from '../src/change-categorization-engine'
 import type {RenovatePRContext} from '../src/renovate-parser'
 import type {ImpactAssessment} from '../src/semver-impact-assessor'
-import process from 'node:process'
 import {beforeEach, describe, expect, it} from 'vitest'
 
 import {DEFAULT_SUMMARY_CONFIG, generateChangesetSummary} from '../src/changeset-summary-generator'
-import {ChangesetTemplateEngine} from '../src/changeset-template-engine'
 
 describe('ChangesetSummaryGenerator', () => {
   let mockPRContext: RenovatePRContext
@@ -826,10 +824,6 @@ describe('ChangesetSummaryGenerator', () => {
 
   describe('Template engine bypass regression (PR #1736)', () => {
     it('should not produce "unknown dependencies" when template engine is active and manager is github-actions', async () => {
-      const templateEngine = new ChangesetTemplateEngine({
-        workingDirectory: process.cwd(),
-        errorHandling: 'fallback',
-      })
       const config = {
         useEmojis: true,
         includeVersionDetails: true,
@@ -898,7 +892,7 @@ describe('ChangesetSummaryGenerator', () => {
         mockCategorizationResult,
         'github-actions',
         ['bfra-me/.github'],
-        {config, templateEngine},
+        {config},
       )
 
       expect(summary).not.toContain('unknown')
@@ -907,10 +901,6 @@ describe('ChangesetSummaryGenerator', () => {
     })
 
     it('should use generateContextAwareSummary when no organization templates are configured', async () => {
-      const templateEngine = new ChangesetTemplateEngine({
-        workingDirectory: process.cwd(),
-        errorHandling: 'fallback',
-      })
       const config = {
         useEmojis: true,
         includeVersionDetails: true,
@@ -931,7 +921,7 @@ describe('ChangesetSummaryGenerator', () => {
         mockCategorizationResult,
         'npm',
         ['test-package'],
-        {config, templateEngine},
+        {config},
       )
 
       expect(summary).not.toContain('unknown')
@@ -940,10 +930,6 @@ describe('ChangesetSummaryGenerator', () => {
     })
 
     it('should include version information for github-actions deps with template engine', async () => {
-      const templateEngine = new ChangesetTemplateEngine({
-        workingDirectory: process.cwd(),
-        errorHandling: 'fallback',
-      })
       const config = {
         useEmojis: true,
         includeVersionDetails: true,
@@ -1011,7 +997,7 @@ describe('ChangesetSummaryGenerator', () => {
         mockCategorizationResult,
         'github-actions',
         ['actions/checkout'],
-        {config, templateEngine},
+        {config},
       )
 
       expect(summary).toContain('actions/checkout')

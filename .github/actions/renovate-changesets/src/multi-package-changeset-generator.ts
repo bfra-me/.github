@@ -7,9 +7,9 @@ import type {RenovateDependency, RenovatePRContext} from './renovate-parser'
 import process from 'node:process'
 import * as core from '@actions/core'
 import {deduplicateChangesets} from './changeset-deduplicator'
+import {getGitShortSha, writeChangesetFiles} from './changeset-writer'
 import {createChangesetInfos, createSingleChangeset} from './multi-package-gen/changeset-creators'
 import {determineChangesetStrategy} from './multi-package-gen/changeset-strategy'
-import {getGitShortSha, writeChangesetFiles} from './multi-package-gen/changeset-writer'
 
 function buildConfig(config: Partial<MultiPackageChangesetConfig>): MultiPackageChangesetConfig {
   return {

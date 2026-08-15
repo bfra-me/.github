@@ -1,6 +1,24 @@
 import process from 'node:process'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
+const defaultPRBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| test-package | npm | major | \`1.0.0\` -> \`2.0.0\` |`
+const groupedPRBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| test | npm | major | \`0.9.0\` -> \`1.0.0\` |
+| lodash | npm | patch | \`4.17.20\` -> \`4.17.21\` |
+| axios | npm | minor | \`0.26.0\` -> \`0.27.0\` |`
+const actionPRBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| bfra-me/renovate-action | action | patch | \`8.87.5\` -> \`8.87.6\` |`
+
 const fsMocks = vi.hoisted(() => ({
   readFile: vi.fn(),
   writeFile: vi.fn(),
@@ -95,7 +113,7 @@ describe('Renovate Changesets Action', () => {
       isRenovateBot: true,
       branchName: 'renovate/some-branch',
       prTitle: 'test',
-      prBody: '',
+      prBody: defaultPRBody,
       commitMessages: ['chore: update dependencies'],
       isGroupedUpdate: false,
       isSecurityUpdate: false,
@@ -141,7 +159,11 @@ describe('Renovate Changesets Action', () => {
               user: {login: 'renovate[bot]'},
               number: 1,
               title: 'test',
-              body: '',
+              body: `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| test-package | npm | major | \`1.0.0\` -> \`2.0.0\` |`,
               head: {ref: 'renovate/some-branch'},
             },
           })
@@ -182,7 +204,11 @@ Sample changeset content
       isRenovateBot: true,
       branchName: 'renovate/some-branch',
       prTitle: 'test',
-      prBody: '',
+      prBody: `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| test-package | npm | major | \`1.0.0\` -> \`2.0.0\` |`,
       commitMessages: ['chore: update dependencies'],
       isGroupedUpdate: false,
       isSecurityUpdate: false,
@@ -272,7 +298,7 @@ ${changeset.summary}
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'test',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -316,7 +342,7 @@ ${changeset.summary}
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -342,7 +368,7 @@ ${changeset.summary}
           user: {login: 'bfra-me[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -368,7 +394,7 @@ ${changeset.summary}
           user: {login: 'mrbro-bot[bot]'},
           number: 1,
           title: 'chore(deps): update dependency typescript to v6',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/typescript-6.x'},
         },
       }
@@ -416,7 +442,7 @@ ${changeset.summary}
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'test',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -442,7 +468,7 @@ ${changeset.summary}
         isRenovateBot: true,
         branchName: 'renovate/some-branch',
         prTitle: 'test',
-        prBody: '',
+        prBody: defaultPRBody,
         commitMessages: ['chore: update dependencies'],
         isGroupedUpdate: false,
         isSecurityUpdate: false,
@@ -475,7 +501,7 @@ ${changeset.summary}
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update lodash to v4.17.21',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -524,7 +550,7 @@ Sample changeset content
         isRenovateBot: true,
         branchName: 'renovate/lodash-4.x',
         prTitle: 'chore(deps): update lodash to v4.17.21',
-        prBody: '',
+        prBody: defaultPRBody,
         commitMessages: ['chore(deps): update lodash to v4.17.21'],
         isGroupedUpdate: false,
         isSecurityUpdate: false,
@@ -555,7 +581,7 @@ Sample changeset content
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update actions/checkout to v4',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -579,7 +605,7 @@ Sample changeset content
         isRenovateBot: true,
         branchName: 'renovate/actions-checkout-4.x',
         prTitle: 'chore(deps): update actions/checkout to v4',
-        prBody: '',
+        prBody: defaultPRBody,
         commitMessages: ['chore(deps): update actions/checkout to v4'],
         isGroupedUpdate: false,
         isSecurityUpdate: false,
@@ -615,7 +641,7 @@ Sample changeset content
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update node to v18',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -639,7 +665,7 @@ Sample changeset content
         isRenovateBot: true,
         branchName: 'renovate/node-18.x',
         prTitle: 'chore(deps): update node to v18',
-        prBody: '',
+        prBody: defaultPRBody,
         commitMessages: ['chore(deps): update node to v18'],
         isGroupedUpdate: false,
         isSecurityUpdate: false,
@@ -673,7 +699,7 @@ Sample changeset content
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -701,7 +727,7 @@ Sample changeset content
         isRenovateBot: true,
         branchName: 'renovate/test-1.x',
         prTitle: 'chore(deps): update test to v1.0.0',
-        prBody: '',
+        prBody: defaultPRBody,
         commitMessages: ['chore(deps): update test to v1.0.0'],
         isGroupedUpdate: false,
         isSecurityUpdate: false,
@@ -747,7 +773,7 @@ Sample changeset content
         isRenovateBot: true,
         branchName: 'renovate/multiple-deps',
         prTitle: 'chore(deps): update test to v1.0.0',
-        prBody: 'Updates lodash and Updates axios',
+        prBody: groupedPRBody,
         commitMessages: ['chore(deps): update test, lodash, axios to v1.0.0'],
         isGroupedUpdate: true,
         isSecurityUpdate: false,
@@ -764,7 +790,7 @@ Sample changeset content
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update test to v1.0.0',
-          body: 'Updates lodash and Updates axios',
+          body: groupedPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -807,7 +833,7 @@ Sample changeset content
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency bfra-me/renovate-action to v8.87.6',
-          body: `This PR contains the following updates:\n\n- update dependency bfra-me/.github to v0.2.16\n- update dependency pnpm/action-setup to v4.4.0`,
+          body: actionPRBody,
           head: {ref: 'renovate/bfra-me-renovate-action-8.x'},
         },
       }
@@ -834,8 +860,7 @@ Sample changeset content
         isRenovateBot: true,
         branchName: 'renovate/bfra-me-renovate-action-8.x',
         prTitle: 'chore(deps): update dependency bfra-me/renovate-action to v8.87.6',
-        prBody:
-          'This PR contains the following updates:\n\n- update dependency bfra-me/.github to v0.2.16\n- update dependency pnpm/action-setup to v4.4.0',
+        prBody: actionPRBody,
         commitMessages: ['chore(deps): update dependency bfra-me/renovate-action to v8.87.6'],
         isGroupedUpdate: false,
         isSecurityUpdate: false,
@@ -961,7 +986,7 @@ Sample changeset content
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -980,7 +1005,7 @@ Sample changeset content
         isRenovateBot: true,
         branchName: 'renovate/test-1.x',
         prTitle: 'chore(deps): update test to v1.0.0',
-        prBody: '',
+        prBody: defaultPRBody,
         commitMessages: ['chore(deps): update npm test to v1.0.0'],
         isGroupedUpdate: false,
         isSecurityUpdate: false,
@@ -1027,7 +1052,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'test',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1066,7 +1091,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'test',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1118,7 +1143,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'test',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1146,7 +1171,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'test',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1161,8 +1186,8 @@ updateTypes:
       // Add a small delay to ensure async operations complete
       await new Promise(resolve => setTimeout(resolve, 10))
 
-      expect(coreMocks.setFailed).toHaveBeenCalledWith(
-        'Action failed: Failed to create changeset: Changeset error',
+      expect(coreMocks.warning).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to create changeset'),
       )
     })
 
@@ -1201,7 +1226,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1242,7 +1267,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1274,7 +1299,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1338,7 +1363,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'custom/some-branch'},
         },
       }
@@ -1373,7 +1398,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'envprefix/some-branch'},
         },
       }
@@ -1400,7 +1425,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'somebranch'},
         },
       }
@@ -1427,7 +1452,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'somebranch'},
         },
       }
@@ -1461,7 +1486,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }
@@ -1496,7 +1521,7 @@ updateTypes:
           user: {login: 'renovate[bot]'},
           number: 1,
           title: 'chore(deps): update dependency test to v1.0.0',
-          body: '',
+          body: defaultPRBody,
           head: {ref: 'renovate/some-branch'},
         },
       }

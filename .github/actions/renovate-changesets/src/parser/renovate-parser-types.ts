@@ -51,6 +51,7 @@ export interface RenovatePRContext {
   prTitle: string
   prBody: string
   commitMessages: string[]
+  labels?: string[]
   isGroupedUpdate: boolean
   isSecurityUpdate: boolean
   updateType: RenovateUpdateType

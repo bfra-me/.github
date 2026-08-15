@@ -6,14 +6,15 @@ import process from 'node:process'
 import * as core from '@actions/core'
 import {Octokit as OctokitClient} from '@octokit/rest'
 import {getConfig} from './action-config'
-import {runDetectors} from './detector-runner'
 import {createBranchPatterns, extractPRContext} from './renovate-parser'
 import {isValidBranch} from './utils'
 
 interface PullRequestInfo {
   number: number
   title: string
+  body?: string | null
   user: {login: string}
+  labels?: {name?: string | null}[] | null
   head?: {ref?: string}
 }
 
@@ -159,14 +160,7 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   core.info(`Using config: ${JSON.stringify(config, null, 2)}`)
 
   const prContext = await extractPRContext(octokit, owner, repo, pr.number, pr)
-  const {enhancedDependencies} = await runDetectors({
-    octokit,
-    owner,
-    repo,
-    prNumber: pr.number,
-    files,
-    prContext,
-  })
+  const enhancedDependencies = prContext.dependencies
 
   core.info(
     `Parsed PR context: ${JSON.stringify(

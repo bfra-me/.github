@@ -1,19 +1,18 @@
-import type {Config} from './action-config'
-import type {CategorizationResult} from './change-categorization-engine'
-import type {ReleaseEntry} from './changeset-info-formatter'
-import type {MultiPackageChangesetResult} from './multi-package-changeset-generator'
-import type {RenovateDependency, RenovatePRContext} from './renovate-parser'
-import type {ImpactAssessment} from './semver-impact-assessor'
-import process from 'node:process'
+import type {Config} from './action-config.js'
+import type {CategorizationInfo, ReleaseEntry} from './changeset-info-formatter.js'
+import type {MultiPackageChangesetResult} from './multi-package-changeset-generator.js'
+import type {RenovatePRContext} from './renovate-parser.js'
+
 import * as core from '@actions/core'
-import {generateChangesetSummary} from './changeset-summary-generator'
-import {ChangesetTemplateEngine} from './changeset-template-engine'
-import {writeRenovateChangeset} from './changeset-writer'
-import {analyzeMultiPackageUpdate} from './multi-package-analyzer'
-import {generateMultiPackageChangesets} from './multi-package-changeset-generator'
-import {getRootPackageName, resolveDependencyNames} from './run-generation-helpers'
-import {setRunGenerationOutputs} from './run-generation-outputs'
-import {sortChangesetReleases} from './utils'
+import {writeRenovateChangeset} from './changeset-writer.js'
+import {classifyRenovateUpdates} from './classify/renovate-classifier.js'
+import {adaptClassifiedUpdates} from './compatibility-adapter.js'
+import {extractRenovateUpdates} from './extract/renovate-body-extractor.js'
+import {formatChangesetSummary} from './format/changeset-summary-formatter.js'
+import {analyzeMultiPackageUpdate} from './multi-package-analyzer.js'
+import {generateMultiPackageChangesets} from './multi-package-changeset-generator.js'
+import {getRootPackageName} from './run-generation-helpers.js'
+import {setRunGenerationOutputs} from './run-generation-outputs.js'
 
 export interface RunGenerationResult {
   changesetContent: string
@@ -21,25 +20,60 @@ export interface RunGenerationResult {
   dependencyNames: string[]
   changesetPath: string
   multiPackageResult: MultiPackageChangesetResult
+  categorizationResult: CategorizationInfo
 }
 
 export async function generateChangesetsFromAnalysis(params: {
   config: Config
   owner: string
   repo: string
+  prNumber: number
   prContext: RenovatePRContext
+  prBody?: string
   prTitle: string
   workingDirectory: string
   changedFiles: string[]
-  enhancedDependencies: RenovateDependency[]
-  impactAssessment: ImpactAssessment
-  categorizationResult: CategorizationResult
+  enhancedDependencies: unknown[]
+  impactAssessment: unknown
+  categorizationResult: unknown
   updateType: string
   changesetType: 'patch' | 'minor' | 'major'
 }): Promise<RunGenerationResult> {
+  const commitMessage =
+    params.prContext.commitMessages.find(message => /\[security\]\s*$/iu.test(message)) ??
+    params.prContext.commitMessages.at(-1)
+  const prBody = params.prBody ?? params.prContext.prBody
+  const extracted = extractRenovateUpdates({
+    prNumber: params.prNumber,
+    body: prBody,
+    branchName: params.prContext.branchName,
+    commitMessage,
+    labels: params.prContext.labels,
+  })
+  const classification = classifyRenovateUpdates(extracted)
+  const parsed = adaptClassifiedUpdates(extracted, classification)
+  const classifiedPRContext: RenovatePRContext = {
+    ...params.prContext,
+    dependencies: parsed.dependencies,
+    manager: extracted.manager,
+    updateType: classification.bumpType,
+    isGroupedUpdate: extracted.updates.length > 1,
+    isSecurityUpdate: classification.isSecurityUpdate,
+  }
+  const changesetContent = formatChangesetSummary(classification, extracted, {
+    emoji: params.config.emoji,
+  })
+
+  core.info(
+    `Extracted ${extracted.updates.length} Renovate updates for ${extracted.manager}; ` +
+      `classified as ${classification.updateCategory} (${classification.bumpType})`,
+  )
+
+  // Workspace analysis still determines which local packages receive releases, but it no longer
+  // determines what Renovate changed. That source of truth is the PR body extraction above.
   core.info('Analyzing multi-package dependencies and relationships')
   const multiPackageAnalysis = await analyzeMultiPackageUpdate(
-    params.enhancedDependencies,
+    parsed.dependencies,
     params.changedFiles,
     {
       workspaceRoot: params.workingDirectory,
@@ -49,171 +83,90 @@ export async function generateChangesetsFromAnalysis(params: {
       maxPackagesToAnalyze: 50,
     },
   )
-
-  core.info(
-    `Multi-package analysis: ${JSON.stringify(
-      {
-        workspacePackages: multiPackageAnalysis.workspacePackages.length,
-        packageRelationships: multiPackageAnalysis.packageRelationships.length,
-        affectedPackages: multiPackageAnalysis.affectedPackages.length,
-        strategy: multiPackageAnalysis.impactAnalysis.changesetStrategy,
-        riskLevel: multiPackageAnalysis.impactAnalysis.riskLevel,
-        createSeparateChangesets: multiPackageAnalysis.recommendations.createSeparateChangesets,
-      },
-      null,
-      2,
-    )}`,
-  )
-  if (multiPackageAnalysis.recommendations.reasoningChain.length > 0) {
-    core.info(
-      `Multi-package reasoning: ${multiPackageAnalysis.recommendations.reasoningChain.join('; ')}`,
-    )
-  }
-  for (const depImpact of params.impactAssessment.dependencies) {
-    core.debug(
-      `Dependency ${depImpact.name}: ${depImpact.versionChange} change, ${depImpact.semverImpact} impact, confidence: ${depImpact.confidence}`,
-    )
-  }
-
-  for (const enhanced of params.enhancedDependencies) {
-    const existing = params.prContext.dependencies.find(d => d.name === enhanced.name)
-    if (existing != null) {
-      if (
-        enhanced.currentVersion != null &&
-        (existing.currentVersion == null || /^[0-9a-f]{40}$/i.test(existing.currentVersion))
-      ) {
-        existing.currentVersion = enhanced.currentVersion
-      }
-      if (
-        enhanced.newVersion != null &&
-        (existing.newVersion == null || /^[0-9a-f]{40}$/i.test(existing.newVersion))
-      ) {
-        existing.newVersion = enhanced.newVersion
-      }
-    }
-  }
-
-  const dependencyNames = resolveDependencyNames(
-    params.enhancedDependencies,
-    params.prContext.isGroupedUpdate,
-    params.prTitle,
-    params.updateType,
-  )
-
-  const templateEngine = new ChangesetTemplateEngine({
-    workingDirectory: process.cwd(),
-    errorHandling: 'fallback',
-    security: {
-      allowFileInclusion: true,
-      allowCodeExecution: false,
-      maxTemplateSize: 1024 * 1024,
-      maxRenderTime: 5000,
-    },
-  })
-  const changesetContent = await generateChangesetSummary(
-    params.prContext,
-    params.impactAssessment,
-    params.categorizationResult,
-    params.updateType,
-    dependencyNames,
-    {
-      config: {
-        useEmojis: true,
-        includeVersionDetails: true,
-        includeRiskAssessment: false,
-        includeBreakingChangeWarnings: true,
-        sortDependencies: params.config.sort || false,
-        maxDependenciesToList: 5,
-      },
-      templateEngine,
-      template: params.config.updateTypes[params.updateType]?.template,
-    },
-  )
-
-  const multiPackageResult = await generateMultiPackageChangesets(
-    params.enhancedDependencies,
-    params.prContext,
-    multiPackageAnalysis,
-    changesetContent,
-    params.changesetType,
-    {
-      workingDirectory: params.workingDirectory,
-      useOfficialChangesets: true,
-      createSeparateChangesets: multiPackageAnalysis.recommendations.createSeparateChangesets,
-      respectPackageRelationships: true,
-      groupRelatedPackages: true,
-      includeRelationshipInfo: true,
-      maxChangesetsPerPR: 10,
-    },
-  )
-
-  core.info(
-    `Multi-package changeset generation: ${JSON.stringify(
-      {
-        strategy: multiPackageResult.strategy,
-        changesetsCreated: multiPackageResult.changesets.length,
-        filesCreated: multiPackageResult.filesCreated.length,
-        totalPackagesAffected: multiPackageResult.totalPackagesAffected,
-        warnings: multiPackageResult.warnings.length,
-      },
-      null,
-      2,
-    )}`,
-  )
-  if (multiPackageResult.reasoning.length > 0) {
-    core.info(`Multi-package generation reasoning: ${multiPackageResult.reasoning.join('; ')}`)
-  }
-  for (const warning of multiPackageResult.warnings) {
-    core.warning(warning)
-  }
-
-  let changesetExists = multiPackageResult.filesCreated.length > 0
-  let changesetPath = 'multi-package'
-  let releases =
-    multiPackageResult.changesets.length > 0 && multiPackageResult.changesets[0] != null
-      ? multiPackageResult.changesets[0].releases
+  const releaseNames =
+    multiPackageAnalysis.affectedPackages.length > 0
+      ? multiPackageAnalysis.affectedPackages
       : [
-          {
-            name: getRootPackageName(
-              multiPackageAnalysis.workspacePackages,
-              params.repo,
-              params.config.targetPackage,
-            ),
-            type: params.changesetType,
-          },
+          getRootPackageName(
+            multiPackageAnalysis.workspacePackages,
+            params.repo,
+            params.config.targetPackage,
+          ),
         ]
+  const compatibility = adaptClassifiedUpdates(extracted, classification, releaseNames)
 
-  if (!changesetExists) {
-    core.info('Multi-package generation created no files, falling back to original changeset logic')
-    releases = [
-      {
-        name: getRootPackageName(
-          multiPackageAnalysis.workspacePackages,
-          params.repo,
-          params.config.targetPackage,
-        ),
-        type: params.changesetType,
-      },
-    ]
-    if (params.config.sort) releases = sortChangesetReleases(releases)
-    changesetPath = await writeRenovateChangeset(
-      {releases, summary: changesetContent},
+  const multiPackageConfig = {
+    workingDirectory: params.workingDirectory,
+    useOfficialChangesets: true,
+    createSeparateChangesets: multiPackageAnalysis.recommendations.createSeparateChangesets,
+    respectPackageRelationships: true,
+    groupRelatedPackages: true,
+    includeRelationshipInfo: true,
+    maxChangesetsPerPR: 10,
+  }
+
+  let multiPackageResult: MultiPackageChangesetResult
+  let changesetPath: string
+
+  if (multiPackageAnalysis.affectedPackages.length > 0) {
+    multiPackageResult = await generateMultiPackageChangesets(
+      parsed.dependencies,
+      classifiedPRContext,
+      multiPackageAnalysis,
+      changesetContent,
+      classification.bumpType,
+      multiPackageConfig,
+    )
+    changesetPath = multiPackageResult.filesCreated[0] ?? 'existing'
+  } else {
+    const writtenPath = await writeRenovateChangeset(
+      {releases: compatibility.releases, summary: changesetContent},
       params.workingDirectory,
     )
-    changesetExists = changesetPath !== 'existing'
-    if (!changesetExists) {
-      core.info(`Changeset already exists: ${changesetPath}`)
+    changesetPath = writtenPath
+    const filename = writtenPath === 'existing' ? 'renovate-existing.md' : writtenPath
+    const changeset = {
+      id: filename.replace(/\.md$/u, ''),
+      filename,
+      packages: releaseNames,
+      summary: changesetContent,
+      releases: compatibility.releases,
+      relationships: [],
+      metadata: {
+        isGrouped: extracted.updates.length > 1,
+        isSecurityUpdate: classification.isSecurityUpdate,
+        hasBreakingChanges: classification.bumpType === 'major',
+        affectedDependencies: compatibility.dependencyNames,
+        reasoning: ['Single changeset generated from extracted Renovate updates'],
+      },
+    }
+    multiPackageResult = {
+      changesets: [changeset],
+      strategy: 'single',
+      totalPackagesAffected: releaseNames.length,
+      filesCreated: writtenPath === 'existing' ? [] : [`.changeset/${writtenPath}`],
+      reasoning: ['No affected workspace package required the single-release fallback'],
+      warnings: [],
     }
   }
 
+  const releases = multiPackageResult.changesets[0]?.releases ?? compatibility.releases
+  core.info(`Multi-package changeset generation: ${JSON.stringify(multiPackageResult)}`)
   setRunGenerationOutputs({
     multiPackageResult,
     multiPackageAnalysis,
-    updateType: params.updateType,
-    dependencyNames,
+    updateType: extracted.manager,
+    dependencyNames: compatibility.dependencyNames,
     changesetContent,
-    categorizationResult: params.categorizationResult,
+    categorizationResult: compatibility.categorizationResult,
   })
 
-  return {changesetContent, releases, dependencyNames, changesetPath, multiPackageResult}
+  return {
+    changesetContent,
+    releases,
+    dependencyNames: compatibility.dependencyNames,
+    changesetPath,
+    multiPackageResult,
+    categorizationResult: compatibility.categorizationResult,
+  }
 }

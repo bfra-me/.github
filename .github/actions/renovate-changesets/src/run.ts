@@ -1,3 +1,5 @@
+import {promises as fs} from 'node:fs'
+import path from 'node:path'
 import * as core from '@actions/core'
 import {setEmptyOutputs, setErrorOutputs} from './action-outputs'
 import {analyzeRunContext} from './run-analysis'
@@ -12,8 +14,8 @@ export async function run(): Promise<void> {
       return
     }
 
-    if (initialization.changedFiles.some(file => file.startsWith('.changeset/'))) {
-      core.info('Changeset files already exist, skipping changeset creation')
+    if (await hasChangesetOnDisk(initialization.workingDirectory)) {
+      core.info('Changeset files already exist on disk at HEAD, skipping changeset creation')
       setEmptyOutputs()
       return
     }
@@ -34,7 +36,9 @@ export async function run(): Promise<void> {
       config: initialization.config,
       owner: initialization.owner,
       repo: initialization.repo,
+      prNumber: initialization.pr.number,
       prContext: initialization.prContext,
+      prBody: initialization.pr.body ?? initialization.prContext.prBody,
       prTitle: initialization.pr.title || '',
       workingDirectory: initialization.workingDirectory,
       changedFiles: initialization.changedFiles,
@@ -58,7 +62,7 @@ export async function run(): Promise<void> {
       releases: generation.releases,
       dependencyNames: generation.dependencyNames,
       changesetPath: generation.changesetPath,
-      categorizationResult: analysis.categorizationResult,
+      categorizationResult: generation.categorizationResult,
       multiPackageResult: generation.multiPackageResult,
     })
   } catch (error) {
@@ -72,5 +76,21 @@ export async function run(): Promise<void> {
 
     setErrorOutputs()
     core.setFailed(`Action failed: ${errorMessage}`)
+  }
+}
+
+export async function hasChangesetOnDisk(workingDirectory: string): Promise<boolean> {
+  const changesetDirectory = path.join(workingDirectory, '.changeset')
+
+  try {
+    const readdir = fs.readdir
+    if (typeof readdir !== 'function') return false
+    const entries = await readdir(changesetDirectory, {withFileTypes: true})
+    return entries.some(
+      entry => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'README.md',
+    )
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return false
+    throw error
   }
 }

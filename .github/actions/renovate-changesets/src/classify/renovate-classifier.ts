@@ -1,8 +1,15 @@
 import type {ExtractedRenovateUpdates, ExtractedUpdate} from '../extract/renovate-body-extractor.js'
 
-const SEMVER_PATTERN =
-  /^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u
+// Accepts one to three numeric components with optional leading zeros, because two of the four
+// supported ecosystems do not use strict semver: Docker tags look like `22.04` or `3.19`, and
+// GitHub Actions pins look like `4`. Requiring three components classified every one of those as
+// unparseable, and therefore as a major bump.
+const VERSION_PATTERN =
+  /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u
 const SECURITY_COMMIT_SUFFIX = /\[security\]\s*$/iu
+// Renovate's `vulnerabilityAlerts.labels` is user-configured, so the label text varies by repo.
+// Match the conventional values rather than the config option name.
+const SECURITY_LABELS = new Set(['security', 'vulnerability'])
 
 export type BumpType = 'patch' | 'minor' | 'major'
 export type UpdateCategory = BumpType | 'security'
@@ -56,16 +63,16 @@ function classifyVersionTransition(update: ExtractedUpdate): BumpType {
 }
 
 function parseSemver(value: string): ParsedVersion | undefined {
-  const match = value.trim().match(SEMVER_PATTERN)
+  const match = value.trim().match(VERSION_PATTERN)
   if (match == null) return undefined
 
   const [, major, minor, patch, prerelease] = match
-  if (major == null || minor == null || patch == null) return undefined
+  if (major == null) return undefined
 
   return {
     major: Number.parseInt(major, 10),
-    minor: Number.parseInt(minor, 10),
-    patch: Number.parseInt(patch, 10),
+    minor: minor == null ? 0 : Number.parseInt(minor, 10),
+    patch: patch == null ? 0 : Number.parseInt(patch, 10),
     prerelease,
   }
 }
@@ -111,5 +118,5 @@ function hasSecuritySignal(extracted: ExtractedRenovateUpdates): boolean {
   if (extracted.commitMessage != null && SECURITY_COMMIT_SUFFIX.test(extracted.commitMessage))
     return true
 
-  return extracted.labels.some(label => label.trim().toLowerCase() === 'vulnerabilityalerts')
+  return extracted.labels.some(label => SECURITY_LABELS.has(label.trim().toLowerCase()))
 }

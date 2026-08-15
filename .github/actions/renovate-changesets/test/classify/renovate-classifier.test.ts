@@ -134,15 +134,31 @@ describe('classifyRenovateUpdates', () => {
     expect(classifyRenovateUpdates(extracted).isSecurityUpdate).toBe(true)
   })
 
-  it('classifies the configured vulnerabilityAlerts label as security', () => {
+  // `vulnerabilityAlerts.labels` is user-configured, so the applied label text varies by repo.
+  // Match the conventional values rather than the name of the config option that sets them.
+  it.each(['security', 'Security', 'vulnerability'])(
+    'classifies the %s label as security',
+    label => {
+      const extracted = extractRenovateUpdates({
+        prNumber: 2005,
+        body: npmBody,
+        branchName: 'renovate/react-18.x',
+        labels: [label],
+      })
+
+      expect(classifyRenovateUpdates(extracted).isSecurityUpdate).toBe(true)
+    },
+  )
+
+  it('does not treat the vulnerabilityAlerts config option name as a label', () => {
     const extracted = extractRenovateUpdates({
       prNumber: 2005,
       body: npmBody,
       branchName: 'renovate/react-18.x',
-      labels: ['vulnerabilityAlerts'],
+      labels: ['dependencies'],
     })
 
-    expect(classifyRenovateUpdates(extracted).isSecurityUpdate).toBe(true)
+    expect(classifyRenovateUpdates(extracted).isSecurityUpdate).toBe(false)
   })
 
   it('does not classify a routine update from critical wording in body prose', () => {
@@ -163,5 +179,34 @@ describe('classifyRenovateUpdates', () => {
     })
 
     expect(classifyRenovateUpdates(extracted).bumpType).toBe('major')
+  })
+
+  // Docker tags and GitHub Actions pins are not strict semver. Treating them as unparseable made
+  // every Docker tag refresh and every Action pin bump a major release.
+  it.each([
+    ['22.04', '22.10', 'minor'],
+    ['22.04', '24.04', 'major'],
+    ['3.19', '3.20', 'minor'],
+    ['3.19', '3.19', 'patch'],
+  ] as const)('classifies two-component Docker tag %s -> %s as %s', (from, to, expected) => {
+    expect(
+      classifyRenovateUpdates(createExtractedUpdates([createExtractedUpdate(from, to)])).bumpType,
+    ).toBe(expected)
+  })
+
+  it.each([
+    ['4', '5', 'major'],
+    ['4', '4', 'patch'],
+  ] as const)('classifies single-component Action pin %s -> %s as %s', (from, to, expected) => {
+    expect(
+      classifyRenovateUpdates(createExtractedUpdates([createExtractedUpdate(from, to)])).bumpType,
+    ).toBe(expected)
+  })
+
+  it('still treats a genuinely unparseable version as major', () => {
+    expect(
+      classifyRenovateUpdates(createExtractedUpdates([createExtractedUpdate('latest', 'stable')]))
+        .bumpType,
+    ).toBe('major')
   })
 })

@@ -29,7 +29,8 @@ export interface ExtractedRenovateUpdates {
   prNumber: number
   branchName: string
   manager: ExtractedManager
-  isSecurityUpdate: boolean
+  commitMessage?: string
+  labels: string[]
   updates: ExtractedUpdate[]
 }
 
@@ -69,19 +70,17 @@ export function extractRenovateUpdates(
     parseUpdateRow(row, rowIndex + 1, packageIndex, changeIndex, manager, options.prNumber),
   )
 
-  const metadataText = [
-    options.branchName,
-    options.commitMessage ?? '',
-    ...(options.labels ?? []),
-  ].join(' ')
-
-  return {
+  const extracted: ExtractedRenovateUpdates = {
     prNumber: options.prNumber,
     branchName: options.branchName,
     manager,
-    isSecurityUpdate: /\[security\]|vulnerability/iu.test(metadataText),
+    labels: options.labels ?? [],
     updates,
   }
+
+  if (options.commitMessage != null) extracted.commitMessage = options.commitMessage
+
+  return extracted
 }
 
 function findDependencyTable(body: string, prNumber: number): ParsedTable {

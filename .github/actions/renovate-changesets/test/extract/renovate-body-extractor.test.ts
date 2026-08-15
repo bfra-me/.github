@@ -31,7 +31,7 @@ describe('extractRenovateUpdates', () => {
       prNumber: 1001,
       branchName: 'renovate/react-18.x',
       manager: 'npm',
-      isSecurityUpdate: false,
+      labels: [],
       updates: [
         {
           packageName: 'react',
@@ -101,7 +101,7 @@ describe('extractRenovateUpdates', () => {
     expect(result.updates.map(update => update.packageName)).toEqual(['eslint', 'prettier'])
   })
 
-  it('marks security metadata from the commit message without trusting body prose', () => {
+  it('passes raw security signals through without classifying them', () => {
     const result = extractRenovateUpdates({
       prNumber: 1006,
       body: securityBody,
@@ -109,7 +109,8 @@ describe('extractRenovateUpdates', () => {
       commitMessage: 'fix(deps): update dependency express to v4.19.2 [SECURITY]',
     })
 
-    expect(result.isSecurityUpdate).toBe(true)
+    expect(result.commitMessage).toBe('fix(deps): update dependency express to v4.19.2 [SECURITY]')
+    expect(result.labels).toEqual([])
   })
 
   it('fails closed when one row is malformed', () => {

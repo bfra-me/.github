@@ -1,5 +1,17 @@
 # @bfra.me/.github
 
+## 4.16.46
+### Patch Changes
+
+
+- Remove `timeout-minutes` from reusable Renovate workflow. ([#2537](https://github.com/bfra-me/.github/pull/2537))
+
+
+- ⚠️ Update GitHub Actions workflow dependency `fro-bot/agent` from `v0.96.0` to `v0.99.0` ([#2539](https://github.com/bfra-me/.github/pull/2539))
+
+
+- ⚙️ Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.1.0` to `10.20.1` ([#2538](https://github.com/bfra-me/.github/pull/2538))
+
 ## 4.16.45
 ### Patch Changes
 

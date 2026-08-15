@@ -110,3 +110,4 @@ pnpm run build:monitor            # Build performance analysis
 - `copilot-instructions.md` references AGENTS.md — keep both in sync
 - Reusable workflows resolve action code via self-checkout at `GITHUB_WORKFLOW_REF` — no hardcoded SHA pins needed for internal actions
 - `update-metadata.yaml` workflow uses local action path without self-checkout pattern (action only runs in this repo)
+- Releases tag each commit twice: `v{ver}` for the repo and `{action}@{ver}` for a released action. Renovate's built-in `github-actions` manager only resolves the `v{ver}` family, so an external repo that SHA-pins an action and comments `# {action}@{ver}` gets no updates and rots silently — `marcusrbrown/infra` sat 4 months behind this way. Such consumers need a regex `customManager` with `extractVersionTemplate: '^{action}@(?<version>.+)$'`; see `marcusrbrown/infra` `.github/renovate.json5`. Consumers calling the reusable workflow instead are unaffected

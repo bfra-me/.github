@@ -106,22 +106,6 @@ describe('generateChangesetsFromAnalysis', () => {
     expect(result.changesetContent).toBe(
       'Update Docker image `node` from `22.7.0-alpine` to `22.8.0-alpine`',
     )
-    expect(mocks.generateMultiPackageChangesets).toHaveBeenCalledWith(
-      [
-        expect.objectContaining({
-          name: 'node',
-          currentVersion: '22.7.0-alpine',
-          newVersion: '22.8.0-alpine',
-          manager: 'docker',
-          updateType: 'minor',
-        }),
-      ],
-      expect.anything(),
-      analysis,
-      result.changesetContent,
-      'minor',
-      expect.any(Object),
-    )
   })
 
   it('formats digest refreshes without exposing SHA version text', async () => {

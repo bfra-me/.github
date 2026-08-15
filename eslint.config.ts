@@ -5,7 +5,7 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
   ignores: [
     '.github/instructions/**',
     '.github/copilot-instructions.md',
-    '.ai/',
+    'docs/plans/',
     '**/AGENTS.md',
     '.sisyphus/',
   ],

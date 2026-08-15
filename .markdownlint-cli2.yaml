@@ -13,7 +13,7 @@ config:
 
 globs:
   - '!.cursorrules'
-  - '!.ai/**'
+  - '!docs/plans/**'
   - '!.github/copilot-instructions.md'
   - '!.specstory/**'
   - '!**/AGENTS.md'

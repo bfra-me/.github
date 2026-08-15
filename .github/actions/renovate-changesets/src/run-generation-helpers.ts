@@ -44,6 +44,7 @@ export function resolveDependencyNames(
     }
   }
 
+  // Keep this list in sync with RenovateManagerType in parser/renovate-parser-types.ts.
   const syntheticPattern =
     /^(?:npm|pnpm|yarn|lockfile|github-actions|docker|dockerfile|docker-compose|nuget|composer|cargo|helm|terraform|ansible|pre-commit|gitlabci|circleci|unknown)-dependencies$/i
   dependencyNames = dependencyNames.filter(name => !syntheticPattern.test(name))

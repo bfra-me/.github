@@ -1,32 +1,25 @@
+export interface BreakingChangeIndicator {
+  type:
+    'major_version' | 'api_deprecation' | 'config_change' | 'runtime_change' | 'ecosystem_specific'
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  description: string
+  evidence: string[]
+  confidence: 'low' | 'medium' | 'high'
+}
+
+export interface BreakingChangeAnalysis {
+  hasBreakingChanges: boolean
+  indicators: BreakingChangeIndicator[]
+  overallSeverity: 'low' | 'medium' | 'high' | 'critical'
+  confidence: 'low' | 'medium' | 'high'
+  reasoning: string[]
+  recommendedAction: 'proceed' | 'review_required' | 'manual_testing' | 'block'
+}
+
 export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical'
-export type SecurityImpact = 'confidentiality' | 'integrity' | 'availability' | 'combined'
-export type SecurityExploitability = 'low' | 'medium' | 'high'
 export type SecurityOverallSeverity = 'none' | SecuritySeverity
 export type SecurityConfidence = 'low' | 'medium' | 'high'
 export type SupplyChainRisk = 'low' | 'medium' | 'high'
-
-export interface CVEInfo {
-  id: string
-  cvssScore?: number
-  severity: SecuritySeverity
-  description?: string
-  publishedDate?: string
-  lastModified?: string
-  references: string[]
-}
-
-export interface GHSAInfo {
-  id: string
-  severity: SecuritySeverity
-  summary: string
-  description?: string
-  publishedAt: string
-  updatedAt: string
-  withdrawnAt?: string
-  identifiers: {type: 'CVE' | 'GHSA'; value: string}[]
-  references: {url: string}[]
-  affectedPackages: string[]
-}
 
 export interface SecurityVulnerability {
   id: string
@@ -50,8 +43,8 @@ export interface SecurityVulnerability {
   source: string
   affectedVersions: string[]
   cvssScore?: number
-  impact?: SecurityImpact
-  exploitability?: SecurityExploitability
+  impact?: 'confidentiality' | 'integrity' | 'availability' | 'combined'
+  exploitability?: 'low' | 'medium' | 'high'
   cveIds?: string[]
   ghsaIds?: string[]
   evidence?: string[]
@@ -78,13 +71,4 @@ export interface SecurityAnalysis {
   cveCount: number
   ghsaCount: number
   supplyChainRisk: SupplyChainRisk
-}
-
-export interface SecurityPatterns {
-  [ecosystem: string]: {
-    vulnerabilityKeywords: string[]
-    exploitKeywords: string[]
-    riskPackages: string[]
-    trustedSources: string[]
-  }
 }

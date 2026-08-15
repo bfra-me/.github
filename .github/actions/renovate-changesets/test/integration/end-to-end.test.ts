@@ -257,41 +257,6 @@ vi.mock('../../src/write-renovate-changeset', () => ({
   }),
 }))
 
-// Mock all the enhanced detectors
-vi.mock('../../src/npm-change-detector', () => ({
-  detectNPMChangesFromPR: vi.fn().mockResolvedValue([]),
-  detectNPMChangesFromFiles: vi.fn().mockResolvedValue([]),
-}))
-
-vi.mock('../../src/github-actions-change-detector', () => ({
-  detectGHAChangesFromPR: vi.fn().mockResolvedValue([]),
-  detectGHAChangesFromFiles: vi.fn().mockResolvedValue([]),
-}))
-
-vi.mock('../../src/docker-change-detector', () => ({
-  detectDockerChangesFromPR: vi.fn().mockResolvedValue([]),
-}))
-
-vi.mock('../../src/breaking-change-detector', () => ({
-  analyzeBreakingChanges: vi.fn().mockResolvedValue({
-    hasBreakingChanges: false,
-    overallSeverity: 'low',
-    indicators: [],
-  }),
-}))
-
-vi.mock('../../src/security-vulnerability-detector', () => ({
-  analyzeSecurityVulnerabilities: vi.fn().mockResolvedValue({
-    hasSecurityIssues: false,
-    overallSeverity: 'low',
-    vulnerabilities: [],
-    riskScore: 0,
-    cveCount: 0,
-    recommendedAction: 'proceed',
-    confidence: 'high',
-  }),
-}))
-
 vi.mock('../../src/git-operations', () => ({
   createGitOperations: vi.fn().mockReturnValue({
     commitChangesetFiles: vi.fn().mockResolvedValue({

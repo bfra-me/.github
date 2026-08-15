@@ -1,6 +1,5 @@
-import type {BreakingChangeAnalysis} from '../breaking-change-detector'
+import type {BreakingChangeAnalysis, SecurityAnalysis} from '../analysis-types.js'
 import type {RenovateSecurityType} from '../renovate-parser'
-import type {SecurityAnalysis} from '../security-vulnerability-detector'
 
 export interface SemverInfo {
   major: number

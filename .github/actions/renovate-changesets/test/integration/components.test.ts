@@ -11,7 +11,6 @@ import {generateChangesetSummary} from '../../src/changeset-summary-generator.js
 import {analyzeMultiPackageUpdate} from '../../src/multi-package-analyzer.js'
 import {generateMultiPackageChangesets} from '../../src/multi-package-changeset-generator.js'
 import {createBranchPatterns, extractPRContext} from '../../src/renovate-parser.js'
-import {analyzeSecurityVulnerabilities} from '../../src/security-vulnerability-detector.js'
 import {decideBumpType} from '../../src/semver-bump-decision-engine.js'
 import {assessImpact} from '../../src/semver-impact-assessor.js'
 
@@ -530,10 +529,6 @@ describe('Enhanced Renovate-Changesets Action - Real Components Integration', ()
       expect(['patch', 'minor', 'major']).toContain(bumpDecision.bumpType)
       expect(bumpDecision.confidence).toBeDefined()
       expect(bumpDecision.primaryReason).toBeDefined()
-    })
-
-    it('should create real security vulnerability detector', () => {
-      expect(typeof analyzeSecurityVulnerabilities).toBe('function')
     })
   })
 

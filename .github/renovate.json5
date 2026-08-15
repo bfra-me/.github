@@ -17,6 +17,12 @@
       matchManagers: ['mise'],
       enabled: false,
     },
+    {
+      description: 'Hold TypeScript below v7 because typescript-eslint lacks TS7 support; remove once support lands.',
+      matchDatasources: ['npm'],
+      matchPackageNames: ['typescript'],
+      allowedVersions: '<7',
+    },
   ],
   postUpgradeTasks: {
     commands: ['pnpm run bootstrap', 'pnpm run build', 'pnpm run fix'],

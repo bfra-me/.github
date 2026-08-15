@@ -5,6 +5,7 @@ import {
   extractRenovateUpdates,
 } from '../../src/extract/renovate-body-extractor'
 import {
+  calVerDockerBody,
   customColumnBody,
   dockerBody,
   githubActionsBody,
@@ -13,10 +14,12 @@ import {
   markdownControlCharacterBody,
   missingPackageHeadingBody,
   missingTableBody,
+  mixedHexBody,
   npmBody,
   reorderedColumnBody,
   securityBody,
   shaDigestBody,
+  shortShaBody,
   underscorePackageBody,
 } from './fixtures'
 
@@ -61,6 +64,44 @@ describe('extractRenovateUpdates', () => {
       newVersion: '08c6903cd8c0fde910a37f88322edcfb5dd907a8',
       isDigest: true,
     })
+  })
+
+  it('extracts a pure-digit CalVer transition as a version rather than a digest', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1021,
+      body: calVerDockerBody,
+      branchName: 'renovate/docker-myimage',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      currentVersion: '20240101',
+      newVersion: '20250101',
+      isDigest: false,
+    })
+  })
+
+  it('extracts a short hexadecimal SHA containing letters as a digest', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1022,
+      body: shortShaBody,
+      branchName: 'renovate/actions-checkout',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      currentVersion: 'abc1234',
+      newVersion: 'def5678',
+      isDigest: true,
+    })
+  })
+
+  it('does not classify a mixed pure-digit and lettered hex transition as a digest', () => {
+    expect(() =>
+      extractRenovateUpdates({
+        prNumber: 1023,
+        body: mixedHexBody,
+        branchName: 'renovate/actions-checkout',
+      }),
+    ).toThrow('PR #1023 row 1 has no valid version transition')
   })
 
   it('resolves an extra custom column by heading text', () => {

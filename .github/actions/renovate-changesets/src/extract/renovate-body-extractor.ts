@@ -3,10 +3,14 @@ import type {RenovateManagerType} from '../parser/renovate-parser-types.js'
 // Commit SHAs must be matched before the version pattern. The version pattern is unanchored, so
 // against a 40-char hex SHA it happily matches stray digit runs — `3d3c42e5...` -> `08c6903c...`
 // extracted as `1` -> `08`, which then classified as a major bump. Every action in this repo is
-// SHA-pinned, so that mis-parse would hit on every Action digest refresh.
-const SHA_TRANSITION_PATTERN = /`?([0-9a-f]{7,40})`?\s*(?:→|->)\s*`?([0-9a-f]{7,40})`?/iu
+// SHA-pinned, so that mis-parse would hit on every Action digest refresh. Pure-digit short values
+// are deliberately excluded because Docker CalVer tags such as `20240101` -> `20250101` are versions,
+// not digests; a short SHA must contain at least one a-f letter. A full 40-character hex value is
+// always treated as a SHA.
+const SHA_TRANSITION_PATTERN =
+  /`?([0-9a-f]{40}|(?=[0-9a-f]*[a-f])[0-9a-f]{7,39})`?\s*(?:→|->)\s*`?([0-9a-f]{40}|(?=[0-9a-f]*[a-f])[0-9a-f]{7,39})`?/iu
 const VERSION_TRANSITION_PATTERN =
-  /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?/iu
+  /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])/iu
 const MARKDOWN_CONTROL_PATTERN = /([\\`*_[\]()>#!|])/gu
 const TABLE_SEPARATOR_PATTERN = /^:?-{3,}:?$/u
 

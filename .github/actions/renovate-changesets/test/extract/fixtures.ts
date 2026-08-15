@@ -122,3 +122,54 @@ export const underscorePackageBody = `This PR contains the following updates:
 
 ---
 `
+
+export const calVerDockerBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| myimage | docker | major | \`20240101\` -> \`20250101\` |
+`
+
+export const shortShaBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| actions/checkout | action | digest | \`abc1234\` -> \`def5678\` |
+`
+
+export const mixedHexBody = `This PR contains the following updates:
+
+| Package | Type | Update | Change |
+|---|---|---|---|
+| actions/checkout | action | digest | \`1234567\` -> \`89abcde\` |
+`
+
+// Captured from bfra-me/.github PR #2528 on July 31, 2026. Release Notes are intentionally trimmed
+// after the first release entry; the real table, badge-heavy cells, warning callout, and surrounding
+// Renovate structure are preserved so this remains a representative production fixture.
+export const realRenovatePR2528Body = `This PR contains the following updates:
+
+| Package | Change | [Age](https://docs.renovatebot.com/merge-confidence/) | [Confidence](https://docs.renovatebot.com/merge-confidence/) | OpenSSF | Code Search |
+|---|---|---|---|---|---|
+| [lint-staged](https://redirect.github.com/lint-staged/lint-staged) | [\`16.4.0\` → \`17.3.0\`](https://renovatebot.com/diffs/npm/lint-staged/16.4.0/17.3.0) | ![age](https://developer.mend.io/api/mc/badges/age/npm/lint-staged/17.3.0?slim=true) | ![confidence](https://developer.mend.io/api/mc/badges/confidence/npm/lint-staged/16.4.0/17.3.0?slim=true) | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/lint-staged/lint-staged/badge)](https://securityscorecards.dev/viewer/?uri=github.com/lint-staged/lint-staged) | [![GitHub Code Search for "lint-staged"](https://img.shields.io/badge/code_search-lint--staged-2671E5.svg?logo=github)](https://redirect.github.com/search?q=repo:bfra-me%2F.github+lint-staged) |
+
+---
+
+> [!WARNING]
+> Some dependencies could not be looked up. Check the [Dependency Dashboard](../issues/7) for more information.
+
+---
+
+### Release Notes
+
+<details>
+<summary>lint-staged/lint-staged (lint-staged)</summary>
+
+### [\`v17.3.0\`](https://redirect.github.com/lint-staged/lint-staged/blob/HEAD/CHANGELOG.md#1730)
+
+##### Minor Changes
+
+- It is now possible to run multiple tasks in parallel for a single glob by configuring it with an array of tasks.
+
+</details>
+`

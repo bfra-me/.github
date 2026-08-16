@@ -9,7 +9,7 @@ tsconfig.tsbuildinfo
 .specstory/
 
 # Coverage reports
-.github/actions/*/coverage/
+coverage/
 
 .build-performance/
 

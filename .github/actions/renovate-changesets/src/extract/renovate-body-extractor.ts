@@ -32,6 +32,7 @@ export interface ExtractRenovateUpdatesOptions {
   prNumber: number
   body: string
   branchName: string
+  manager?: RenovateManagerType
   commitMessage?: string
   labels?: string[]
 }
@@ -60,7 +61,7 @@ interface ParsedTable {
 export function extractRenovateUpdates(
   options: ExtractRenovateUpdatesOptions,
 ): ExtractedRenovateUpdates {
-  const manager = inferManagerFromBranch(options.branchName, options.prNumber)
+  const manager = resolveManager(options.manager, options.branchName, options.prNumber)
   const table = findDependencyTable(options.body, options.prNumber)
   const packageIndex = findHeadingIndex(table.headers, PACKAGE_HEADINGS)
   const changeIndex = findHeadingIndex(table.headers, CHANGE_HEADINGS)
@@ -215,7 +216,7 @@ function isHexDigestTransition(transition: RegExpMatchArray): boolean {
 }
 
 function normalizePackageName(value: string, prNumber: number, rowNumber: number): string {
-  const linkMatch = value.trim().match(/^\[([^\]]+)\]\([^)]*\)$/u)
+  const linkMatch = value.trim().match(/^\[([^\]]+)\]\([^)]*\)/u)
   const unwrapped = linkMatch?.[1] ?? value
   return normalizeBodyValue(unwrapped, prNumber, rowNumber)
 }
@@ -254,6 +255,30 @@ function hasUnsafeControlCharacters(value: string): boolean {
     const code = character.charCodeAt(0)
     return code <= 0x1f || code === 0x7f
   })
+}
+
+function resolveManager(
+  manager: RenovateManagerType | undefined,
+  branchName: string,
+  prNumber: number,
+): ExtractedManager {
+  if (manager != null && manager !== 'unknown') {
+    switch (manager) {
+      case 'docker':
+      case 'dockerfile':
+      case 'docker-compose':
+        return 'docker'
+      case 'github-actions':
+        return 'github-actions'
+      case 'npm':
+      case 'pnpm':
+      case 'yarn':
+      case 'lockfile':
+        return 'npm'
+    }
+  }
+
+  return inferManagerFromBranch(branchName, prNumber)
 }
 
 function inferManagerFromBranch(branchName: string, prNumber: number): ExtractedManager {

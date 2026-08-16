@@ -267,6 +267,7 @@ describe('classifyRenovateUpdates', () => {
       prNumber: 1103,
       body: realInfraPR1103PostgresDigestBody,
       branchName: 'renovate/docker-postgres',
+      manager: 'docker-compose',
     })
     const classification = classifyRenovateUpdates(extracted)
 

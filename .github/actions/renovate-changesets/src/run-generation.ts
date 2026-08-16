@@ -47,6 +47,7 @@ export async function generateChangesetsFromAnalysis(params: {
     prNumber: params.prNumber,
     body: prBody,
     branchName: params.prContext.branchName,
+    manager: params.prContext.manager,
     commitMessage,
     labels: params.prContext.labels,
   })

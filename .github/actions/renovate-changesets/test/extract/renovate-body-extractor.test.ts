@@ -125,6 +125,39 @@ describe('extractRenovateUpdates', () => {
     })
   })
 
+  it.each([
+    ['[postgres](url) ([source](url), [changelog](url))', 'postgres'],
+    ['[lint-staged](url)', 'lint-staged'],
+    ['[@changesets/cli](url) ([source](url))', '@changesets/cli'],
+    ['postgres', 'postgres'],
+    ['[actions/checkout](url)', 'actions/checkout'],
+  ])('extracts the first link text from package cell %s', (packageCell, expectedPackage) => {
+    const result = extractRenovateUpdates({
+      prNumber: 1029,
+      body: `| Package | Change |\n|---|---|\n| ${packageCell} | \`1.0.0\` -> \`1.0.1\` |`,
+      branchName: 'renovate/package',
+    })
+
+    expect(result.updates[0]?.packageName).toBe(expectedPackage)
+  })
+
+  it.each([
+    ['docker-compose', 'docker'],
+    ['dockerfile', 'docker'],
+    ['pnpm', 'npm'],
+    ['lockfile', 'npm'],
+    ['github-actions', 'github-actions'],
+  ] as const)('maps supplied manager %s to %s', (manager, expectedManager) => {
+    const result = extractRenovateUpdates({
+      prNumber: 1030,
+      body: npmBody,
+      branchName: 'renovate/some-package',
+      manager,
+    })
+
+    expect(result.manager).toBe(expectedManager)
+  })
+
   it('lets the Update heading mark an all-digit transition as a digest', () => {
     const result = extractRenovateUpdates({
       prNumber: 1024,

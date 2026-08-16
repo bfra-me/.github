@@ -30,59 +30,17 @@ export async function writeRenovateChangeset(
       // File doesn't exist, proceed with creation
     }
 
-    // TASK-021: Use @changesets/write for changeset generation (with fallback for compatibility)
-    const changesetForWrite = {
-      summary: changeset.summary,
-      releases: changeset.releases.map(release => ({
-        name: release.name,
-        type: release.type as 'patch' | 'minor' | 'major',
-      })),
+    const created = await writeOneChangeset(
+      changeset,
+      expectedChangesetName,
+      expectedChangesetPath,
+      workingDirectory,
+      true,
+    )
+    if (!created) {
+      throw new Error(`Failed to create changeset ${expectedChangesetName}`)
     }
 
-    // The Vitest runner sets VITEST itself; prefer that deliberate runner variable over a generic
-    // CI flag that could be set accidentally. NODE_ENV remains as the existing compatibility fallback.
-    // Try to use @changesets/write, but fallback to manual creation for test environments
-    const isTestEnvironment = process.env.VITEST || process.env.NODE_ENV === 'test'
-
-    if (isTestEnvironment) {
-      core.info('Test environment detected, using manual changeset creation for compatibility')
-    } else {
-      try {
-        // Use @changesets/write to create a temporary changeset
-        const uniqueId = await write(changesetForWrite, workingDirectory)
-
-        // Read the generated content and move it to our expected location
-        const generatedPath = path.join(changesetDir, `${uniqueId}.md`)
-        const changesetContent = await fs.readFile(generatedPath, 'utf8')
-
-        // Write to our expected filename and clean up the temporary one
-        await fs.writeFile(expectedChangesetPath, changesetContent, 'utf8')
-        await fs.unlink(generatedPath)
-
-        core.info(`Created changeset using @changesets/write: ${expectedChangesetName}`)
-        return expectedChangesetName
-      } catch (writeError) {
-        core.warning(
-          `@changesets/write failed, falling back to manual creation: ${writeError instanceof Error ? writeError.message : String(writeError)}`,
-        )
-      }
-    }
-
-    // Fallback: Create changeset content manually (maintains backward compatibility)
-    const frontmatter = changeset.releases
-      .map(release => `'${release.name}': ${release.type}`)
-      .join('\n')
-
-    const content = `---
-${frontmatter}
----
-
-${changeset.summary}
-`
-
-    // Write the changeset file directly
-    await fs.writeFile(expectedChangesetPath, content, 'utf8')
-    core.info(`Created changeset manually: ${expectedChangesetName}`)
     return expectedChangesetName
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
@@ -111,35 +69,15 @@ export async function writeChangesetFiles(
       // File does not exist; proceed with creation.
     }
 
-    try {
-      if (config.useOfficialChangesets && !isTestEnvironment()) {
-        const uniqueId = await write(
-          {summary: changeset.summary, releases: changeset.releases},
-          config.workingDirectory,
-        )
-        const generatedPath = path.join(changesetDir, `${uniqueId}.md`)
-        const changesetContent = await fs.readFile(generatedPath, 'utf8')
-        await fs.writeFile(filePath, changesetContent, 'utf8')
-        await fs.unlink(generatedPath)
-        core.info(`Created changeset using @changesets/write: ${changeset.filename}`)
-      } else {
-        const frontmatter = changeset.releases
-          .map(release => `'${release.name}': ${release.type}`)
-          .join('\n')
-        const content = `---
-${frontmatter}
----
-
-${changeset.summary}
-`
-        await fs.writeFile(filePath, content, 'utf8')
-        core.info(`Created changeset manually: ${changeset.filename}`)
-      }
-
+    const created = await writeOneChangeset(
+      changeset,
+      changeset.filename,
+      filePath,
+      config.workingDirectory,
+      config.useOfficialChangesets,
+    )
+    if (created) {
       filesCreated.push(`.changeset/${changeset.filename}`)
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      core.warning(`Failed to create changeset ${changeset.filename}: ${errorMessage}`)
     }
   }
 
@@ -159,4 +97,55 @@ export async function getGitShortSha(): Promise<string> {
 export function isTestEnvironment(): boolean {
   // VITEST is deliberately the runner's own variable, not a generic CI/test flag.
   return Boolean(process.env.VITEST || process.env.NODE_ENV === 'test')
+}
+
+async function writeOneChangeset(
+  changeset: {releases: {name: string; type: string}[]; summary: string},
+  filename: string,
+  filePath: string,
+  workingDirectory: string,
+  useOfficialChangesets: boolean,
+): Promise<boolean> {
+  const changesetForWrite = {
+    summary: changeset.summary,
+    releases: changeset.releases.map(release => ({
+      name: release.name,
+      type: release.type as 'patch' | 'minor' | 'major',
+    })),
+  }
+
+  if (useOfficialChangesets && !isTestEnvironment()) {
+    try {
+      const uniqueId = await write(changesetForWrite, workingDirectory)
+      const generatedPath = path.join(path.dirname(filePath), `${uniqueId}.md`)
+      const changesetContent = await fs.readFile(generatedPath, 'utf8')
+      await fs.writeFile(filePath, changesetContent, 'utf8')
+      await fs.unlink(generatedPath)
+      core.info(`Created changeset using @changesets/write: ${filename}`)
+      return true
+    } catch (writeError) {
+      core.warning(
+        `@changesets/write failed, falling back to manual creation: ${writeError instanceof Error ? writeError.message : String(writeError)}`,
+      )
+    }
+  }
+
+  try {
+    const frontmatter = changeset.releases
+      .map(release => `'${release.name}': ${release.type}`)
+      .join('\n')
+    const content = `---
+${frontmatter}
+---
+
+${changeset.summary}
+`
+    await fs.writeFile(filePath, content, 'utf8')
+    core.info(`Created changeset manually: ${filename}`)
+    return true
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    core.warning(`Failed to create changeset ${filename}: ${errorMessage}`)
+    return false
+  }
 }

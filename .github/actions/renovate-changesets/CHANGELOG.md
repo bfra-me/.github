@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.35
+### Patch Changes
+
+
+- Grouped multi-package changesets were silently dropped when `@changesets/write` failed, such as when a consumer's Prettier config could not be resolved. They now fall back to manual creation like single-package changesets already did. ([#2564](https://github.com/bfra-me/.github/pull/2564))
+
 ## 0.2.34
 ### Patch Changes
 

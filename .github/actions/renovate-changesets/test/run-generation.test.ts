@@ -40,8 +40,6 @@ const analysis = {
   },
   recommendations: {
     createSeparateChangesets: false,
-    packageGroups: [],
-    reasoningChain: [],
   },
 }
 

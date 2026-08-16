@@ -65,11 +65,7 @@ export async function analyzeMultiPackageUpdate(
       changedFiles,
     )
 
-    const recommendations = await generateRecommendations(
-      workspacePackages,
-      packageRelationships,
-      impactAnalysis,
-    )
+    const recommendations = await generateRecommendations(workspacePackages, impactAnalysis)
 
     return {
       workspacePackages,

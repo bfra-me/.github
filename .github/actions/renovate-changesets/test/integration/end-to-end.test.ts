@@ -161,8 +161,6 @@ vi.mock('../../src/multi-package-analyzer', () => ({
     },
     recommendations: {
       createSeparateChangesets: false,
-      packageGroups: [],
-      reasoningChain: [],
     },
   }),
 }))

@@ -454,8 +454,6 @@ describe('MultiPackageAnalyzer', () => {
       expect(result.impactAnalysis.indirectlyAffected).toEqual(['@test/shared'])
       expect(result.impactAnalysis.changesetStrategy).toBe('grouped')
       expect(result.recommendations.createSeparateChangesets).toBe(true)
-      expect(result.recommendations.reasoningChain).toContain('1 packages directly affected')
-      expect(result.recommendations.reasoningChain).toContain('1 packages indirectly affected')
     })
 
     it('should classify a single-package non-manifest change as direct with low risk', async () => {

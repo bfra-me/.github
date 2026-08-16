@@ -78,8 +78,6 @@ const analysis: MultiPackageAnalysisResult = {
   },
   recommendations: {
     createSeparateChangesets: true,
-    packageGroups: [['@scope/a', '@scope/b']],
-    reasoningChain: ['internal dependency'],
   },
 }
 

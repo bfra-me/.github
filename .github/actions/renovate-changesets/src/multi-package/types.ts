@@ -52,8 +52,6 @@ export interface MultiPackageAnalysisResult {
   }
   recommendations: {
     createSeparateChangesets: boolean
-    packageGroups: string[][]
-    reasoningChain: string[]
   }
 }
 

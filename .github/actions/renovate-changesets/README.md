@@ -53,10 +53,12 @@ When Renovate opens a PR that touches files outside any workspace member (for ex
 Set `target-package` to override this resolution explicitly when the automatic selection isn't what you want — for example, in monorepos with multiple publishable packages where "first non-private member" isn't deterministic enough, or where you want a specific package (e.g. a CLI) to absorb orchestration bumps. Most consumers with a single publishable package or a private root plus one public member can leave it unset:
 
 ```yaml
-- uses: bfra-me/.github/.github/actions/renovate-changesets@v4
+- uses: bfra-me/.github/.github/actions/renovate-changesets@abb57164065c549e7e2867c21dd045e677c53bec # renovate-changesets@0.2.33
   with:
     target-package: "@my-scope/cli"
 ```
+
+Each release of this action is tagged `renovate-changesets@{ver}`. The repository tag `v{ver}` is cut only when the root package also has pending changesets, so a release may produce the action tag alone. Renovate's built-in `github-actions` manager resolves only the `v{ver}` family, so a SHA pin commented with the action version receives no updates unless the consuming repository adds a regex `customManager` using `extractVersionTemplate: '^renovate-changesets@(?<version>.+)$'`. Consumers of the reusable workflow below do not need one — it resolves the action by self-checkout.
 
 The same input is forwarded by the reusable `bfra-me/.github/.github/workflows/renovate-changeset.yaml` workflow, so consumers of the reusable workflow can pass it directly:
 

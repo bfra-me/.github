@@ -15,6 +15,8 @@ Read `AGENTS.md` at the repo root for project structure, conventions, commands, 
 - uses: actions/checkout@main
 ```
 
+Actions in this repo are released under `{action}@{ver}` tags, while the repo itself is tagged `v{ver}`. Renovate's built-in `github-actions` manager only resolves the `v{ver}` family, so an external repo pinning an action by SHA with an `# {action}@{ver}` comment receives no updates. Those consumers need a regex `customManager`.
+
 ### Changesets Are Manual
 
 Create `.changeset/{name}.md` by hand. Do NOT run `pnpm changeset` CLI — it produces inconsistent format. Target the **closest package** being changed:

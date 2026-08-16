@@ -232,7 +232,7 @@ describe('duplicate-strategies', () => {
 
       expect(result.unique).toHaveLength(1)
       expect(result.duplicates).toHaveLength(1)
-      expect(result.unique[0].id).toBe('cs1')
+      expect(result.unique[0]?.id).toBe('cs1')
     })
 
     it('should handle empty input', () => {

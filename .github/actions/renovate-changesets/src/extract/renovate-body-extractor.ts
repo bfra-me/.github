@@ -3,12 +3,11 @@ import type {RenovateManagerType} from '../parser/renovate-parser-types.js'
 // Commit SHAs must be matched before the version pattern. The version pattern is unanchored, so
 // against a 40-char hex SHA it happily matches stray digit runs — `3d3c42e5...` -> `08c6903c...`
 // extracted as `1` -> `08`, which then classified as a major bump. Every action in this repo is
-// SHA-pinned, so that mis-parse would hit on every Action digest refresh. Pure-digit short values
-// are deliberately excluded because Docker CalVer tags such as `20240101` -> `20250101` are versions,
-// not digests; a short SHA must contain at least one a-f letter. A full 40-character hex value is
-// always treated as a SHA.
-const SHA_TRANSITION_PATTERN =
-  /`?([0-9a-f]{40}|(?=[0-9a-f]*[a-f])[0-9a-f]{7,39})`?\s*(?:→|->)\s*`?([0-9a-f]{40}|(?=[0-9a-f]*[a-f])[0-9a-f]{7,39})`?/iu
+// SHA-pinned, so that mis-parse would hit on every Action digest refresh. The broad hex candidate is
+// narrowed by isHexDigestTransition when Renovate does not provide an Update column; that fallback
+// excludes pure-digit short values because Docker CalVer tags such as `20240101` -> `20250101` are
+// versions. A digest Update column overrides the heuristic, including for all-digit short SHAs.
+const HEX_TRANSITION_PATTERN = /`?([0-9a-f]{7,40})`?\s*(?:→|->)\s*`?([0-9a-f]{7,40})`?/iu
 const VERSION_TRANSITION_PATTERN =
   /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])/iu
 const MARKDOWN_CONTROL_PATTERN = /([\\`*_[\]()>#!|])/gu
@@ -16,6 +15,7 @@ const TABLE_SEPARATOR_PATTERN = /^:?-{3,}:?$/u
 
 const PACKAGE_HEADINGS = new Set(['package', 'package name', 'dependency', 'name'])
 const CHANGE_HEADINGS = new Set(['change', 'version', 'version change', 'from/to'])
+const UPDATE_HEADINGS = new Set(['update', 'update type'])
 
 export type ExtractedManager = Extract<RenovateManagerType, 'npm' | 'docker' | 'github-actions'>
 
@@ -64,6 +64,7 @@ export function extractRenovateUpdates(
   const table = findDependencyTable(options.body, options.prNumber)
   const packageIndex = findHeadingIndex(table.headers, PACKAGE_HEADINGS)
   const changeIndex = findHeadingIndex(table.headers, CHANGE_HEADINGS)
+  const updateIndex = findHeadingIndex(table.headers, UPDATE_HEADINGS)
 
   if (packageIndex == null || changeIndex == null) {
     throw new ExtractionError(
@@ -78,7 +79,15 @@ export function extractRenovateUpdates(
   }
 
   const updates = table.rows.map((row, rowIndex) =>
-    parseUpdateRow(row, rowIndex + 1, packageIndex, changeIndex, manager, options.prNumber),
+    parseUpdateRow(
+      row,
+      rowIndex + 1,
+      packageIndex,
+      changeIndex,
+      updateIndex,
+      manager,
+      options.prNumber,
+    ),
   )
 
   const extracted: ExtractedRenovateUpdates = {
@@ -151,11 +160,13 @@ function parseUpdateRow(
   rowNumber: number,
   packageIndex: number,
   changeIndex: number,
+  updateIndex: number | undefined,
   manager: ExtractedManager,
   prNumber: number,
 ): ExtractedUpdate {
   const rawPackageName = row[packageIndex]
   const rawChange = row[changeIndex]
+  const rawUpdateType = updateIndex == null ? undefined : row[updateIndex]
 
   if (rawPackageName == null || rawChange == null) {
     throw new ExtractionError(
@@ -164,8 +175,17 @@ function parseUpdateRow(
   }
 
   const packageName = normalizePackageName(rawPackageName, prNumber, rowNumber)
-  const shaTransition = rawChange.match(SHA_TRANSITION_PATTERN)
-  const transition = shaTransition ?? rawChange.match(VERSION_TRANSITION_PATTERN)
+  const hexTransition = rawChange.match(HEX_TRANSITION_PATTERN)
+  const updateType = rawUpdateType?.trim().toLowerCase()
+  const digestByUpdateType = updateType === 'digest'
+  const hasUsableUpdateType = updateType != null && updateType.length > 0
+  const digestByFallback =
+    !hasUsableUpdateType && hexTransition != null && isHexDigestTransition(hexTransition)
+  const transition = digestByUpdateType
+    ? hexTransition
+    : digestByFallback
+      ? hexTransition
+      : rawChange.match(VERSION_TRANSITION_PATTERN)
 
   if (transition?.[1] == null || transition[2] == null) {
     throw new ExtractionError(`PR #${prNumber} row ${rowNumber} has no valid version transition`)
@@ -176,8 +196,22 @@ function parseUpdateRow(
     currentVersion: normalizeBodyValue(transition[1], prNumber, rowNumber),
     newVersion: normalizeBodyValue(transition[2], prNumber, rowNumber),
     manager,
-    isDigest: shaTransition != null,
+    isDigest: digestByUpdateType || digestByFallback,
   }
+}
+
+function isHexDigestTransition(transition: RegExpMatchArray): boolean {
+  const currentVersion = transition[1]
+  const newVersion = transition[2]
+  if (currentVersion == null || newVersion == null) return false
+
+  // Without Renovate's Update column, pure-digit pairs are deliberately left as versions: they
+  // are indistinguishable from CalVer tags. A full 40-character pair is the exception because a
+  // 40-digit version is not credible; otherwise at least one side must contain an a-f letter.
+  return (
+    (currentVersion.length === 40 && newVersion.length === 40) ||
+    /[a-f]/iu.test(`${currentVersion}${newVersion}`)
+  )
 }
 
 function normalizePackageName(value: string, prNumber: number, rowNumber: number): string {

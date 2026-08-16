@@ -173,3 +173,19 @@ export const realRenovatePR2528Body = `This PR contains the following updates:
 
 </details>
 `
+
+// Captured from marcusrbrown/infra PR #1103 during the production digest-failure reproduction.
+// The linked package cell, short-SHA transition, and badge cell preserve the real table shape.
+export const realInfraPR1103PostgresDigestBody = `This PR contains the following updates:
+
+| Package | Update | Change | OpenSSF |
+|---|---|---|---|
+| [postgres](https://hub.docker.com/_/postgres) | digest | [\`cd17e2a\` → \`4006528\`](https://hub.docker.com/_/postgres) | ![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/docker-library/postgres/badge) |
+`
+
+export const pureDigitDigestColumnBody = `This PR contains the following updates:
+
+| Package | Update | Change | OpenSSF |
+|---|---|---|---|
+| [postgres](https://hub.docker.com/_/postgres) | digest | \`1234567\` → \`7654321\` | ![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/docker-library/postgres/badge) |
+`

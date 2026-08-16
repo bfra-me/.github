@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.34
+### Patch Changes
+
+
+- Fix Docker digest updates using short commit SHAs that could fail changeset generation. Digest rows are now detected from Renovate's `Update` column, with a corrected hex fallback for bodies without that column. Also fix Docker and GitHub Actions updates being labelled as npm and package names containing markdown links being written raw into changesets. ([#2562](https://github.com/bfra-me/.github/pull/2562))
+
 ## 0.2.33
 ### Patch Changes
 

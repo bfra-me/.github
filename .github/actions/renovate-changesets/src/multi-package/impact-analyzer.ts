@@ -47,6 +47,7 @@ export async function performImpactAnalysis(
   affectedPackages: string[],
   relationships: PackageRelationship[],
   workspacePackages: WorkspacePackage[],
+  changedFiles: string[],
 ): Promise<MultiPackageAnalysisResult['impactAnalysis']> {
   const directlyAffected = affectedPackages.filter(pkgName => {
     const pkg = workspacePackages.find(p => p.name === pkgName)
@@ -54,8 +55,18 @@ export async function performImpactAnalysis(
       return false
     }
 
-    const allDeps = {...pkg.dependencies, ...pkg.devDependencies}
-    return dependencies.some(dep => allDeps[dep.name] != null)
+    const directlyChanged = changedFiles.some(
+      file => findPackageForFile(file, workspacePackages)?.name === pkgName,
+    )
+    const allDeps = {
+      ...pkg.dependencies,
+      ...pkg.devDependencies,
+      ...pkg.peerDependencies,
+      ...pkg.optionalDependencies,
+    }
+    const directlyUpdated = dependencies.some(dep => allDeps[dep.name] != null)
+
+    return directlyChanged || directlyUpdated
   })
 
   const indirectlyAffected = affectedPackages.filter(pkgName => !directlyAffected.includes(pkgName))

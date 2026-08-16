@@ -16,6 +16,8 @@ import {
   missingTableBody,
   mixedHexBody,
   npmBody,
+  pureDigitDigestColumnBody,
+  realInfraPR1103PostgresDigestBody,
   reorderedColumnBody,
   securityBody,
   shaDigestBody,
@@ -94,14 +96,119 @@ describe('extractRenovateUpdates', () => {
     })
   })
 
-  it('does not classify a mixed pure-digit and lettered hex transition as a digest', () => {
+  it('classifies a mixed pure-digit and lettered hex transition as a digest', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1023,
+      body: mixedHexBody,
+      branchName: 'renovate/actions-checkout',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      currentVersion: '1234567',
+      newVersion: '89abcde',
+      isDigest: true,
+    })
+  })
+
+  it('extracts the live #1103 short-SHA Docker digest transition', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1103,
+      body: realInfraPR1103PostgresDigestBody,
+      branchName: 'renovate/docker-postgres',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      packageName: 'postgres',
+      currentVersion: 'cd17e2a',
+      newVersion: '4006528',
+      isDigest: true,
+    })
+  })
+
+  it.each([
+    ['[postgres](url) ([source](url), [changelog](url))', 'postgres'],
+    ['[lint-staged](url)', 'lint-staged'],
+    ['[@changesets/cli](url) ([source](url))', '@changesets/cli'],
+    ['postgres', 'postgres'],
+    ['[actions/checkout](url)', 'actions/checkout'],
+  ])('extracts the first link text from package cell %s', (packageCell, expectedPackage) => {
+    const result = extractRenovateUpdates({
+      prNumber: 1029,
+      body: `| Package | Change |\n|---|---|\n| ${packageCell} | \`1.0.0\` -> \`1.0.1\` |`,
+      branchName: 'renovate/package',
+    })
+
+    expect(result.updates[0]?.packageName).toBe(expectedPackage)
+  })
+
+  it.each([
+    ['docker-compose', 'docker'],
+    ['dockerfile', 'docker'],
+    ['pnpm', 'npm'],
+    ['lockfile', 'npm'],
+    ['github-actions', 'github-actions'],
+  ] as const)('maps supplied manager %s to %s', (manager, expectedManager) => {
+    const result = extractRenovateUpdates({
+      prNumber: 1030,
+      body: npmBody,
+      branchName: 'renovate/some-package',
+      manager,
+    })
+
+    expect(result.manager).toBe(expectedManager)
+  })
+
+  it('lets the Update heading mark an all-digit transition as a digest', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1024,
+      body: pureDigitDigestColumnBody,
+      branchName: 'renovate/docker-postgres',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      currentVersion: '1234567',
+      newVersion: '7654321',
+      isDigest: true,
+    })
+  })
+
+  it('does not apply the hex fallback when Update explicitly identifies a version update', () => {
     expect(() =>
       extractRenovateUpdates({
-        prNumber: 1023,
-        body: mixedHexBody,
-        branchName: 'renovate/actions-checkout',
+        prNumber: 1028,
+        body: `| Package | Update | Change |\n|---|---|---|\n| package | major | \`cd17e2a\` -> \`4006528\` |`,
+        branchName: 'renovate/package',
       }),
-    ).toThrow('PR #1023 row 1 has no valid version transition')
+    ).toThrow('PR #1028 row 1 has no valid version transition')
+  })
+
+  it.each([
+    ['cd17e2a', '4006528'],
+    ['4006528', 'cd17e2a'],
+    ['cd17e2a', 'bd06528'],
+    ['3d3c42e5aac5ba805825da76410c181273ba90b1', '08c6903cd8c0fde910a37f88322edcfb5dd907a8'],
+  ])('uses the hex fallback for %s -> %s', (currentVersion, newVersion) => {
+    const result = extractRenovateUpdates({
+      prNumber: 1025,
+      body: `| Package | Change |\n|---|---|\n| package | \`${currentVersion}\` -> \`${newVersion}\` |`,
+      branchName: 'renovate/docker-package',
+    })
+
+    expect(result.updates[0]?.isDigest).toBe(true)
+  })
+
+  it('keeps an all-digit transition as a version when no Update heading disambiguates it', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1026,
+      body: '| Package | Change |\n|---|---|\n| package | `1234567` -> `7654321` |',
+      branchName: 'renovate/docker-package',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      currentVersion: '1234567',
+      newVersion: '7654321',
+      isDigest: false,
+    })
   })
 
   it('resolves an extra custom column by heading text', () => {

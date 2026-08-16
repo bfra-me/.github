@@ -10,6 +10,7 @@ import {
   githubActionsBody,
   groupedBody,
   npmBody,
+  realInfraPR1103PostgresDigestBody,
   realRenovatePR2528Body,
   securityBody,
   underscorePackageBody,
@@ -260,4 +261,41 @@ describe('classifyRenovateUpdates', () => {
       'Update npm dependency `lint-staged` from `16.4.0` to `17.3.0`',
     )
   })
+
+  it('runs the live #1103 Docker digest body through extraction, classification, and formatting', () => {
+    const extracted = extractRenovateUpdates({
+      prNumber: 1103,
+      body: realInfraPR1103PostgresDigestBody,
+      branchName: 'renovate/docker-postgres',
+      manager: 'docker-compose',
+    })
+    const classification = classifyRenovateUpdates(extracted)
+
+    expect(classification).toEqual({
+      bumpType: 'patch',
+      updateCategory: 'patch',
+      isSecurityUpdate: false,
+    })
+    expect(formatChangesetSummary(classification, extracted)).toBe('Update Docker image `postgres`')
+  })
+
+  it.each([
+    ['20240101', '20250101', 'major'],
+    ['1234567', '7654321', 'major'],
+    ['22.04', '22.10', 'minor'],
+    ['4', '5', 'major'],
+    ['16.4.0', '17.3.0', 'major'],
+  ] as const)(
+    'classifies extracted version transition %s -> %s as %s',
+    (currentVersion, newVersion, expected) => {
+      const extracted = extractRenovateUpdates({
+        prNumber: 1027,
+        body: `| Package | Change |\n|---|---|\n| package | \`${currentVersion}\` -> \`${newVersion}\` |`,
+        branchName: currentVersion === '22.04' ? 'renovate/docker-package' : 'renovate/package',
+      })
+
+      expect(extracted.updates[0]?.isDigest).toBe(false)
+      expect(classifyRenovateUpdates(extracted).bumpType).toBe(expected)
+    },
+  )
 })

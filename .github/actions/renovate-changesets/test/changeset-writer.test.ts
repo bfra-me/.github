@@ -152,6 +152,10 @@ describe('changeset writer', () => {
           {
             ...changeset('infra-group.md', '@marcusrbrown/infra-umami'),
             packages: ['@marcusrbrown/infra-umami', '@marcusrbrown/infra-shared'],
+            metadata: {
+              ...changeset('infra-group.md', '@marcusrbrown/infra-umami').metadata,
+              affectedDependencies: ['@marcusrbrown/infra-umami', '@marcusrbrown/infra-shared'],
+            },
             releases: [
               {name: '@marcusrbrown/infra-umami', type: 'patch' as const},
               {name: '@marcusrbrown/infra-shared', type: 'patch' as const},

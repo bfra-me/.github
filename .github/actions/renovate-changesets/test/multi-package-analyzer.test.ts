@@ -391,6 +391,184 @@ describe('MultiPackageAnalyzer', () => {
       expect(result.recommendations.createSeparateChangesets).toBe(true)
     })
 
+    it('should classify a Docker-file update as direct for the owning package and indirect for its dependent', async () => {
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('package.json')) return undefined
+        throw new Error('Not found')
+      })
+
+      fsMocks.readFile.mockImplementation(async (path: string) => {
+        if (path.includes('/test/package.json')) {
+          return JSON.stringify({
+            name: 'monorepo',
+            version: '1.0.0',
+            private: true,
+            workspaces: ['apps/*'],
+          })
+        }
+        if (path.includes('/test/apps/umami/package.json')) {
+          return JSON.stringify({
+            name: '@test/umami',
+            version: '1.0.0',
+            dependencies: {
+              '@test/shared': 'workspace:*',
+            },
+          })
+        }
+        if (path.includes('/test/apps/shared/package.json')) {
+          return JSON.stringify({
+            name: '@test/shared',
+            version: '1.0.0',
+          })
+        }
+        throw new Error('File not found')
+      })
+
+      fsMocks.stat.mockImplementation(async (path: string) => ({
+        isDirectory: () => path.includes('/test/apps'),
+      }))
+
+      fsMocks.readdir.mockImplementation(async () => [
+        {name: 'umami', isDirectory: () => true},
+        {name: 'shared', isDirectory: () => true},
+      ])
+
+      const result = await analyzeMultiPackageUpdate(
+        [
+          {
+            name: 'docker.io/library/umami',
+            currentVersion: '1.0.0',
+            newVersion: '2.0.0',
+            manager: 'docker-compose',
+            updateType: 'major',
+            isSecurityUpdate: false,
+            isGrouped: false,
+          },
+        ],
+        ['apps/umami/docker-compose.yaml'],
+        analyzerConfig,
+      )
+
+      expect(result.affectedPackages).toEqual(['@test/umami', '@test/shared'])
+      expect(result.impactAnalysis.directlyAffected).toEqual(['@test/umami'])
+      expect(result.impactAnalysis.indirectlyAffected).toEqual(['@test/shared'])
+      expect(result.impactAnalysis.changesetStrategy).toBe('grouped')
+      expect(result.recommendations.createSeparateChangesets).toBe(true)
+      expect(result.recommendations.reasoningChain).toContain('1 packages directly affected')
+      expect(result.recommendations.reasoningChain).toContain('1 packages indirectly affected')
+    })
+
+    it('should classify a single-package non-manifest change as direct with low risk', async () => {
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('package.json')) return undefined
+        throw new Error('Not found')
+      })
+
+      fsMocks.readFile.mockImplementation(async (path: string) => {
+        if (path.includes('/test/package.json')) {
+          return JSON.stringify({
+            name: 'monorepo',
+            version: '1.0.0',
+            private: true,
+            workspaces: ['apps/*'],
+          })
+        }
+        if (path.includes('/test/apps/app/package.json')) {
+          return JSON.stringify({
+            name: '@test/app',
+            version: '1.0.0',
+          })
+        }
+        throw new Error('File not found')
+      })
+
+      fsMocks.stat.mockImplementation(async (path: string) => ({
+        isDirectory: () => path.includes('/test/apps'),
+      }))
+
+      fsMocks.readdir.mockImplementation(async () => [{name: 'app', isDirectory: () => true}])
+
+      const result = await analyzeMultiPackageUpdate([], ['apps/app/src/index.ts'], analyzerConfig)
+
+      expect(result.impactAnalysis.directlyAffected).toEqual(['@test/app'])
+      expect(result.impactAnalysis.indirectlyAffected).toEqual([])
+      expect(result.impactAnalysis.riskLevel).toBe('low')
+    })
+
+    it('should classify peer and optional dependency updates as direct for their owning packages', async () => {
+      fsMocks.access.mockImplementation(async (path: string) => {
+        if (path.includes('package.json')) return undefined
+        throw new Error('Not found')
+      })
+
+      fsMocks.readFile.mockImplementation(async (path: string) => {
+        if (path.includes('/test/package.json')) {
+          return JSON.stringify({
+            name: 'monorepo',
+            version: '1.0.0',
+            private: true,
+            workspaces: ['packages/*'],
+          })
+        }
+        if (path.includes('/test/packages/peer/package.json')) {
+          return JSON.stringify({
+            name: '@test/peer',
+            version: '1.0.0',
+            peerDependencies: {
+              'peer-lib': '^1.0.0',
+            },
+          })
+        }
+        if (path.includes('/test/packages/optional/package.json')) {
+          return JSON.stringify({
+            name: '@test/optional',
+            version: '1.0.0',
+            optionalDependencies: {
+              'optional-lib': '^1.0.0',
+            },
+          })
+        }
+        throw new Error('File not found')
+      })
+
+      fsMocks.stat.mockImplementation(async (path: string) => ({
+        isDirectory: () => path.includes('/test/packages'),
+      }))
+
+      fsMocks.readdir.mockImplementation(async () => [
+        {name: 'peer', isDirectory: () => true},
+        {name: 'optional', isDirectory: () => true},
+      ])
+
+      const result = await analyzeMultiPackageUpdate(
+        [
+          {
+            name: 'peer-lib',
+            currentVersion: '1.0.0',
+            newVersion: '2.0.0',
+            manager: 'npm',
+            updateType: 'major',
+            isSecurityUpdate: false,
+            isGrouped: false,
+          },
+          {
+            name: 'optional-lib',
+            currentVersion: '1.0.0',
+            newVersion: '2.0.0',
+            manager: 'npm',
+            updateType: 'major',
+            isSecurityUpdate: false,
+            isGrouped: false,
+          },
+        ],
+        [],
+        analyzerConfig,
+      )
+
+      expect(result.impactAnalysis.directlyAffected).toEqual(['@test/peer', '@test/optional'])
+      expect(result.impactAnalysis.indirectlyAffected).toEqual([])
+    })
+
     it('should calculate risk levels correctly', async () => {
       fsMocks.access.mockImplementation(async (path: string) => {
         if (path.includes('package.json')) return undefined

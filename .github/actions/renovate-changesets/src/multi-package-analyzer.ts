@@ -62,6 +62,7 @@ export async function analyzeMultiPackageUpdate(
       affectedPackages,
       packageRelationships,
       workspacePackages,
+      changedFiles,
     )
 
     const recommendations = await generateRecommendations(

@@ -58,7 +58,7 @@ Set `target-package` to override this resolution explicitly when the automatic s
     target-package: "@my-scope/cli"
 ```
 
-Releases tag each commit twice: `v{ver}` for the repository and `renovate-changesets@{ver}` for this action. Renovate's built-in `github-actions` manager only resolves the `v{ver}` family, so a SHA pin commented with the action version receives no updates unless the consuming repository adds a regex `customManager` using `extractVersionTemplate: '^renovate-changesets@(?<version>.+)$'`. Consumers of the reusable workflow below do not need one — it resolves the action by self-checkout.
+Each release of this action is tagged `renovate-changesets@{ver}`. The repository tag `v{ver}` is cut only when the root package also has pending changesets, so a release may produce the action tag alone. Renovate's built-in `github-actions` manager resolves only the `v{ver}` family, so a SHA pin commented with the action version receives no updates unless the consuming repository adds a regex `customManager` using `extractVersionTemplate: '^renovate-changesets@(?<version>.+)$'`. Consumers of the reusable workflow below do not need one — it resolves the action by self-checkout.
 
 The same input is forwarded by the reusable `bfra-me/.github/.github/workflows/renovate-changeset.yaml` workflow, so consumers of the reusable workflow can pass it directly:
 

@@ -23,7 +23,9 @@ tags:
   - custom-manager
 ---
 
-`bfra-me/.github` tags every release commit twice: `v{ver}` for the repository and `{action}@{ver}` for each released action. Renovate's built-in `github-actions` manager enumerates only the `v{ver}` family, so a consumer that SHA-pins an action and comments the action version gets no updates at all — and no indication that anything is wrong.
+`bfra-me/.github` publishes two tag families. A released action is tagged `{action}@{ver}`, and the repository is tagged `v{ver}` when the root package has pending changesets of its own. Both often land on the same commit, but not always — `renovate-changesets@0.2.34` shipped with no companion `v4.16.48` because that release contained only an action changeset.
+
+Renovate's built-in `github-actions` manager enumerates only the `v{ver}` family, so a consumer that SHA-pins an action and comments the action version gets no updates at all — and no indication that anything is wrong.
 
 `marcusrbrown/infra` sat on `renovate-changesets@0.2.31` for four months. `0.2.32` shipped 2026-04-15 and was never picked up.
 
@@ -46,16 +48,18 @@ grep -r 'actions/renovate-changesets@' .github/workflows/
 # what upstream has actually released
 gh api repos/bfra-me/.github/git/matching-refs/tags/renovate-changesets@ --jq '.[].ref'
 
-# both tag families land on the same commit
-gh api repos/bfra-me/.github/git/matching-refs/tags/v4.16.47 --jq '.[].object.sha'
-gh api repos/bfra-me/.github/git/matching-refs/tags/renovate-changesets@0.2.33 --jq '.[].object.sha'
+# which tags share a commit — an action release may have no repo tag at all
+git tag --points-at "$(git rev-list -n1 renovate-changesets@0.2.33)"   # v4.16.47 + action tag
+git tag --points-at "$(git rev-list -n1 renovate-changesets@0.2.34)"   # action tag only
 ```
 
 ## What Didn't Work
 
 **Bumping the SHA by hand.** Fixes today and rots again on the next release. This is what had been happening.
 
-**Re-pointing the pin at the repo tag.** Both tags resolve to the same commit, so pinning the action and commenting `# v4.16.47` makes the built-in manager track it immediately. It works, and it is wrong: it labels an action pin with an unrelated repository version, and it drags in churn from every org release that does not touch the action. Tried and reverted.
+**Re-pointing the pin at the repo tag.** When both tags share a commit, pinning the action and commenting `# v4.16.47` makes the built-in manager track it immediately. Tried and reverted, because it labels an action pin with an unrelated repository version and inherits churn from every org release that does not touch the action.
+
+It is also unreliable, which only became visible later: `renovate-changesets@0.2.34` was released with no companion repo tag, so a pin following the `v{ver}` family would have silently stalled on that release — reintroducing the exact failure being fixed.
 
 **The existing digest-disable rule.** `marcusrbrown/infra` already carried a rule from #157 disabling digest updates for `bfra-me/.github`. That rule suppresses bare-SHA churn, which is a different problem — it never addressed version resolution, and being scoped to `matchManagers: ['github-actions']` it does not affect a custom manager either way.
 

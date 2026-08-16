@@ -15,19 +15,19 @@ describe('action-config', () => {
 
     it('should include github-actions update type with correct file patterns', () => {
       expect(DEFAULT_CONFIG.updateTypes['github-actions']).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes['github-actions'].filePatterns).toContain(
+      expect(DEFAULT_CONFIG.updateTypes['github-actions']?.filePatterns).toContain(
         '.github/workflows/**/*.yaml',
       )
     })
 
     it('should include npm update type with package.json pattern', () => {
       expect(DEFAULT_CONFIG.updateTypes.npm).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes.npm.filePatterns).toContain('**/package.json')
+      expect(DEFAULT_CONFIG.updateTypes.npm?.filePatterns).toContain('**/package.json')
     })
 
     it('should include docker update type', () => {
       expect(DEFAULT_CONFIG.updateTypes.docker).toBeDefined()
-      expect(DEFAULT_CONFIG.updateTypes.docker.filePatterns).toContain('**/Dockerfile')
+      expect(DEFAULT_CONFIG.updateTypes.docker?.filePatterns).toContain('**/Dockerfile')
     })
 
     it('should have defaultChangesetType of patch', () => {

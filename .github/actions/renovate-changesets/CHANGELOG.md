@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.36
+### Patch Changes
+
+
+- Classify packages whose files changed, including peer and optional dependency consumers, as directly affected in multi-package impact summaries. ([#2566](https://github.com/bfra-me/.github/pull/2566))
+
 ## 0.2.35
 ### Patch Changes
 

@@ -19,6 +19,8 @@ export async function createChangesetInfos(params: {
   config: MultiPackageChangesetConfig
   getGitShortSha: () => Promise<string>
 }): Promise<ChangesetInfo[]> {
+  const shaReference = await params.getGitShortSha()
+
   switch (params.strategy) {
     case 'single':
       return [
@@ -28,9 +30,9 @@ export async function createChangesetInfos(params: {
           analysis: params.analysis,
           baseChangesetContent: params.baseChangesetContent,
           changesetType: params.changesetType,
+          shaReference,
           reasoning: params.reasoning,
           config: params.config,
-          getGitShortSha: params.getGitShortSha,
         }),
       ]
 
@@ -40,6 +42,7 @@ export async function createChangesetInfos(params: {
         params.analysis,
         params.baseChangesetContent,
         params.changesetType,
+        shaReference,
         params.reasoning,
         params.config,
       )
@@ -50,6 +53,7 @@ export async function createChangesetInfos(params: {
         params.analysis,
         params.baseChangesetContent,
         params.changesetType,
+        shaReference,
         params.reasoning,
         params.config,
       )
@@ -65,14 +69,13 @@ export async function createSingleChangeset(params: {
   analysis: MultiPackageAnalysisResult
   baseChangesetContent: string
   changesetType: 'patch' | 'minor' | 'major'
+  shaReference: string
   reasoning: string[]
   config: MultiPackageChangesetConfig
-  getGitShortSha: () => Promise<string>
 }): Promise<ChangesetInfo> {
   params.reasoning.push('Creating single changeset for all affected packages')
 
-  const shaReference = await params.getGitShortSha()
-  const changesetId = `renovate-${shaReference}`
+  const changesetId = `renovate-${params.shaReference}`
 
   const releases = params.analysis.affectedPackages.map(packageName => ({
     name: packageName,
@@ -107,6 +110,7 @@ export function createMultipleChangesets(
   analysis: MultiPackageAnalysisResult,
   baseChangesetContent: string,
   changesetType: 'patch' | 'minor' | 'major',
+  shaReference: string,
   reasoning: string[],
   config: MultiPackageChangesetConfig,
 ): Promise<ChangesetInfo[]> {
@@ -115,7 +119,7 @@ export function createMultipleChangesets(
   const changesets: ChangesetInfo[] = []
 
   for (const [index, packageName] of analysis.affectedPackages.entries()) {
-    const changesetId = `renovate-${packageName.replaceAll(/[^a-z0-9]/gi, '-')}-${index}`
+    const changesetId = `renovate-${shaReference}-${index}`
 
     const packageDependencies = findDependenciesForPackage(
       packageName,
@@ -159,6 +163,7 @@ export function createGroupedChangesets(
   analysis: MultiPackageAnalysisResult,
   baseChangesetContent: string,
   changesetType: 'patch' | 'minor' | 'major',
+  shaReference: string,
   reasoning: string[],
   config: MultiPackageChangesetConfig,
 ): Promise<ChangesetInfo[]> {
@@ -177,10 +182,7 @@ export function createGroupedChangesets(
       analysis.packageRelationships,
       analysis.affectedPackages,
     )
-    const changesetId = `renovate-group-${group
-      .map(p => p.replaceAll(/[^a-z0-9]/gi, '-'))
-      .join('-')
-      .slice(0, 50)}`
+    const changesetId = `renovate-${shaReference}-${changesets.length}`
 
     const groupDependencies = dependencies.filter(dep =>
       group.some(pkg => packageHasDependency(pkg, dep, analysis.workspacePackages)),

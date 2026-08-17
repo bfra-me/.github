@@ -5,7 +5,7 @@ import type {
 } from '../src/multi-package-analyzer'
 import type {MultiPackageChangesetConfig} from '../src/multi-package-gen/types'
 import type {RenovateDependency, RenovatePRContext} from '../src/renovate-parser'
-import {describe, expect, it} from 'vitest'
+import {describe, expect, it, vi} from 'vitest'
 import {
   createChangesetInfos,
   createGroupedChangesets,
@@ -195,7 +195,7 @@ describe('multi-package generator characterization', () => {
       changesetType: 'major',
       reasoning,
       config,
-      getGitShortSha: async () => 'abc1234',
+      shaReference: 'abc1234',
     })
 
     expect(result).toMatchObject({
@@ -223,17 +223,21 @@ describe('multi-package generator characterization', () => {
       analysis,
       'Update summary',
       'patch',
+      'abc1234',
       reasoning,
       config,
     )
 
     expect(results).toHaveLength(2)
     expect(results[0]).toMatchObject({
-      filename: 'renovate--scope-a-0.md',
+      filename: 'renovate-abc1234-0.md',
       packages: ['@scope/a'],
       metadata: {isSecurityUpdate: true, affectedDependencies: ['lodash', 'express']},
     })
-    expect(results[1]).toMatchObject({packages: ['@scope/b']})
+    expect(results[1]).toMatchObject({
+      filename: 'renovate-abc1234-1.md',
+      packages: ['@scope/b'],
+    })
     expect(reasoning).toContain('Creating separate changesets for each affected package')
   })
 
@@ -244,12 +248,15 @@ describe('multi-package generator characterization', () => {
       analysis,
       'Update summary',
       'major',
+      'abc1234',
       reasoning,
       config,
     )
 
     expect(results).toHaveLength(1)
     expect(results[0]).toMatchObject({
+      id: 'renovate-abc1234-0',
+      filename: 'renovate-abc1234-0.md',
       packages: ['@scope/a', '@scope/b'],
       releases: [
         {name: '@scope/a', type: 'major'},
@@ -258,6 +265,96 @@ describe('multi-package generator characterization', () => {
       metadata: {isGrouped: true, isSecurityUpdate: true, hasBreakingChanges: true},
     })
     expect(reasoning).toContain('Creating grouped changesets based on package relationships')
+  })
+
+  it('uses SHA-based indexed filenames for grouped changesets without package names', async () => {
+    const results = await createGroupedChangesets(
+      [dependency],
+      analysis,
+      'Update summary',
+      'patch',
+      'deadbee',
+      [],
+      config,
+    )
+
+    const [grouped] = results
+    if (grouped == null) {
+      throw new Error('Expected one grouped changeset')
+    }
+
+    expect(grouped).toMatchObject({
+      id: 'renovate-deadbee-0',
+      filename: 'renovate-deadbee-0.md',
+    })
+    expect(grouped.filename).not.toContain('scope')
+    expect(grouped.filename).toBe(`${grouped.id}.md`)
+  })
+
+  it('uses different filenames for grouped updates with different SHAs', async () => {
+    const firstRun = await createGroupedChangesets(
+      [dependency],
+      analysis,
+      'Update summary',
+      'patch',
+      'abc1234',
+      [],
+      config,
+    )
+    const secondRun = await createGroupedChangesets(
+      [securityDependency],
+      analysis,
+      'Update summary',
+      'patch',
+      'def5678',
+      [],
+      config,
+    )
+
+    const [firstChangeset] = firstRun
+    const [secondChangeset] = secondRun
+    if (firstChangeset == null || secondChangeset == null) {
+      throw new Error('Expected one grouped changeset per run')
+    }
+
+    expect(firstChangeset.packages).toEqual(secondChangeset.packages)
+    expect(firstChangeset.filename).not.toBe(secondChangeset.filename)
+  })
+
+  it('assigns distinct indexed filenames to multiple changesets in one run', async () => {
+    const results = await createMultipleChangesets(
+      [dependency],
+      analysis,
+      'Update summary',
+      'patch',
+      'abc1234',
+      [],
+      config,
+    )
+
+    expect(results.map(result => result.filename)).toEqual([
+      'renovate-abc1234-0.md',
+      'renovate-abc1234-1.md',
+    ])
+    expect(new Set(results.map(result => result.id)).size).toBe(results.length)
+  })
+
+  it('resolves the short SHA once before dispatching a changeset strategy', async () => {
+    const getGitShortSha = vi.fn(async () => 'abc1234')
+
+    await createChangesetInfos({
+      dependencies: [dependency],
+      prContext,
+      analysis,
+      baseChangesetContent: 'Update summary',
+      changesetType: 'patch',
+      strategy: 'grouped',
+      reasoning: [],
+      config,
+      getGitShortSha,
+    })
+
+    expect(getGitShortSha).toHaveBeenCalledOnce()
   })
 
   it('dispatches all supported creation strategies', async () => {

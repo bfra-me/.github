@@ -52,6 +52,7 @@ export async function generateMultiPackageChangesets(
     const warnings: string[] = []
 
     const strategy = determineChangesetStrategy(multiPackageAnalysis, resolvedConfig, reasoning)
+    const shaReferencePromise = getGitShortSha()
 
     const changesets = await createChangesetInfos({
       dependencies,
@@ -62,7 +63,7 @@ export async function generateMultiPackageChangesets(
       strategy,
       reasoning,
       config: resolvedConfig,
-      getGitShortSha,
+      getGitShortSha: () => shaReferencePromise,
     })
 
     if (changesets.length > resolvedConfig.maxChangesetsPerPR) {
@@ -73,9 +74,9 @@ export async function generateMultiPackageChangesets(
         analysis: multiPackageAnalysis,
         baseChangesetContent: changesetContent,
         changesetType,
+        shaReference: await shaReferencePromise,
         reasoning,
         config: resolvedConfig,
-        getGitShortSha,
       })
       return {
         changesets: [singleChangeset],

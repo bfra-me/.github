@@ -1,0 +1,7 @@
+{
+  "name": "@marcusrbrown/infra-cliproxy",
+  "private": true,
+  "dependencies": {
+    "@marcusrbrown/infra-shared": "workspace:*"
+  }
+}

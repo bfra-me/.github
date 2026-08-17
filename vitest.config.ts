@@ -9,6 +9,9 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.ts'],
     },
-    projects: ['.github/actions/*'],
+    projects: [
+      '.github/actions/*',
+      '.github/actions/renovate-changesets/vitest.contract.config.ts',
+    ],
   },
 })

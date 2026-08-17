@@ -94,6 +94,19 @@ const scenarios: Scenario[] = [
       {name: '@marcusrbrown/infra-shared', type: 'patch'},
     ],
   },
+  {
+    name: 'workspace-glob-libs',
+    title: 'chore(deps): update alpine Docker tag',
+    branch: 'renovate/alpine-3.x',
+    body: dockerBody('alpine', '3.22', '3.23', 'minor'),
+    files: [
+      {
+        filename: 'libs/edge/Dockerfile',
+        patch: '-FROM alpine:3.22\n+FROM alpine:3.23',
+      },
+    ],
+    expected: [{name: '@marcusrbrown/infra-edge', type: 'minor'}],
+  },
 ]
 
 const contractState = getContractState()

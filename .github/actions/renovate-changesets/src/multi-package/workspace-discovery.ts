@@ -1,6 +1,7 @@
 import type {MultiPackageAnalysisConfig, WorkspacePackage} from './types'
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
+import * as core from '@actions/core'
 import {load} from 'js-yaml'
 
 export async function discoverWorkspacePackages(
@@ -29,7 +30,16 @@ export async function discoverWorkspacePackages(
 
     await discoverOtherWorkspaceTypes(packages, config)
 
-    return packages.slice(0, config.maxPackagesToAnalyze)
+    const uniquePackages = [
+      ...new Map(packages.map(pkg => [path.resolve(pkg.packageJsonPath), pkg])).values(),
+    ]
+    if (uniquePackages.length > config.maxPackagesToAnalyze) {
+      core.warning(
+        `Discovered ${uniquePackages.length} workspace packages; analyzing the first ${config.maxPackagesToAnalyze}.`,
+      )
+    }
+
+    return uniquePackages.slice(0, config.maxPackagesToAnalyze)
   } catch (error) {
     console.warn(
       `Workspace discovery failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -43,11 +53,23 @@ export async function discoverWorkspaceChildren(
   config: MultiPackageAnalysisConfig,
 ): Promise<WorkspacePackage[]> {
   const packages: WorkspacePackage[] = []
+  const positivePatterns = workspacePatterns.filter(pattern => !pattern.startsWith('!'))
+  const negativePatterns = workspacePatterns.filter(pattern => pattern.startsWith('!'))
+  const excludedPaths = new Set(
+    (
+      await Promise.all(
+        negativePatterns.map(pattern =>
+          expandWorkspacePattern(pattern.slice(1), config.workspaceRoot),
+        ),
+      )
+    ).flat(),
+  )
 
-  for (const pattern of workspacePatterns) {
+  for (const pattern of positivePatterns) {
     const workspacePaths = await expandWorkspacePattern(pattern, config.workspaceRoot)
 
     for (const workspacePath of workspacePaths) {
+      if (excludedPaths.has(workspacePath)) continue
       const packageJsonPath = path.join(config.workspaceRoot, workspacePath, 'package.json')
 
       if (await fileExists(packageJsonPath)) {
@@ -116,11 +138,15 @@ export async function analyzePackageJson(
       peerDependencies?: Record<string, string>
       optionalDependencies?: Record<string, string>
       private?: boolean
-      workspaces?: string[]
+      workspaces?: string[] | {packages?: string[]}
     }
 
     const packagePath = path.dirname(packageJsonPath)
     const relativePath = path.relative(workspaceRoot, packagePath)
+
+    const workspaces = Array.isArray(packageJson.workspaces)
+      ? packageJson.workspaces
+      : packageJson.workspaces?.packages
 
     return {
       name: packageJson.name ?? path.basename(packagePath),
@@ -133,7 +159,7 @@ export async function analyzePackageJson(
       optionalDependencies: packageJson.optionalDependencies ?? {},
       private: Boolean(packageJson.private),
       workspaceMember,
-      workspaces: packageJson.workspaces,
+      workspaces,
     }
   } catch (error) {
     console.warn(
@@ -149,7 +175,12 @@ async function isDeclaredWorkspaceRoot(workspaceRoot: string): Promise<boolean> 
     const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as {
       workspaces?: unknown
     }
-    if (Array.isArray(packageJson.workspaces) && packageJson.workspaces.includes('.')) return true
+    const workspaces = Array.isArray(packageJson.workspaces)
+      ? packageJson.workspaces
+      : isWorkspaceObject(packageJson.workspaces)
+        ? packageJson.workspaces.packages
+        : undefined
+    if (workspaces?.includes('.')) return true
   } catch {
     // The root package was already parsed by the caller; discovery will report any parse issue there.
   }
@@ -167,35 +198,31 @@ export async function expandWorkspacePattern(
   pattern: string,
   workspaceRoot: string,
 ): Promise<string[]> {
-  const paths: string[] = []
-
-  if (pattern.includes('*')) {
-    if (pattern === 'packages/*') {
-      const packagesDir = path.join(workspaceRoot, 'packages')
-      if (await directoryExists(packagesDir)) {
-        const entries = await fs.readdir(packagesDir, {withFileTypes: true})
-        for (const entry of entries) {
-          if (entry.isDirectory()) {
-            paths.push(`packages/${entry.name}`)
-          }
-        }
-      }
-    } else if (pattern === 'apps/*') {
-      const appsDir = path.join(workspaceRoot, 'apps')
-      if (await directoryExists(appsDir)) {
-        const entries = await fs.readdir(appsDir, {withFileTypes: true})
-        for (const entry of entries) {
-          if (entry.isDirectory()) {
-            paths.push(`apps/${entry.name}`)
-          }
-        }
-      }
-    }
-  } else if (await directoryExists(path.join(workspaceRoot, pattern))) {
-    paths.push(pattern)
+  if (!pattern.includes('*')) {
+    return (await directoryExists(path.join(workspaceRoot, pattern))) ? [pattern] : []
   }
 
-  return paths
+  const paths: string[] = []
+  for await (const workspacePath of fs.glob(pattern, {
+    cwd: workspaceRoot,
+    exclude: entry => entry.split(/[\\/]/u).includes('node_modules'),
+  })) {
+    const relativePath = path.normalize(workspacePath)
+    if (
+      relativePath.split(path.sep).includes('node_modules') ||
+      !(await directoryExists(path.join(workspaceRoot, relativePath))) ||
+      !(await fileExists(path.join(workspaceRoot, relativePath, 'package.json')))
+    ) {
+      continue
+    }
+    paths.push(relativePath)
+  }
+
+  return paths.sort()
+}
+
+function isWorkspaceObject(value: unknown): value is {packages?: string[]} {
+  return typeof value === 'object' && value !== null && 'packages' in value
 }
 
 export async function fileExists(filePath: string): Promise<boolean> {

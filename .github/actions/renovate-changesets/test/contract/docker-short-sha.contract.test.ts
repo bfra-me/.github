@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {run} from '../../src/run.js'
 import {listGeneratedChangesets, runChangesetsOracle} from './changesets-oracle.js'
-import {getContractState, getExecMocks, getOctokitMocks} from './setup.js'
+import {getContractState, getOctokitMocks} from './setup.js'
 
 const fixtureRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -16,7 +16,6 @@ const fixtureRoot = path.resolve(
 
 let workspace = ''
 const contractState = getContractState()
-const execMocks = getExecMocks()
 const octokitMocks = getOctokitMocks()
 
 describe('renovate-changesets consumer contract', () => {
@@ -96,7 +95,6 @@ describe('renovate-changesets consumer contract', () => {
     octokitMocks.listCommits.mockResolvedValue({
       data: [{commit: {message: 'chore(deps): update eceasy/cli-proxy-api Docker tag'}}],
     })
-    execMocks.getExecOutput.mockResolvedValue({stdout: 'contract1\n', stderr: '', exitCode: 0})
   })
 
   afterEach(async () => {
@@ -106,7 +104,6 @@ describe('renovate-changesets consumer contract', () => {
 
   it('generates a Changesets-valid Docker changeset with a short SHA', async () => {
     await run()
-
     expect(contractState.failed).toEqual([])
     expect(contractState.warnings).toContainEqual(
       expect.stringContaining('@changesets/write failed'),

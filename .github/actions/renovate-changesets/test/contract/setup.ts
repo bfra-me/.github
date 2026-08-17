@@ -76,10 +76,6 @@ export function getOctokitMocks(): typeof octokitMocks {
   return octokitMocks
 }
 
-export function getExecMocks(): typeof execMocks {
-  return execMocks
-}
-
 beforeEach(() => {
   contractState.previousEnv = {...process.env}
   contractState.inputs = {}
@@ -93,7 +89,16 @@ beforeEach(() => {
 
   octokitMocks.listFiles.mockResolvedValue({data: []})
   octokitMocks.listCommits.mockResolvedValue({data: []})
-  execMocks.getExecOutput.mockResolvedValue({stdout: 'contract1\n', stderr: '', exitCode: 0})
+  // Contract invariant: every getExecOutput call reaching this mock must be the
+  // git rev-parse --short HEAD lookup. The feature gates above keep all other
+  // git-operations.ts calls out of this suite; if one is enabled, fail loudly.
+  execMocks.getExecOutput.mockImplementation(async (command: string, args: string[]) => {
+    if (command !== 'git' || args.length !== 3 || args.join(' ') !== 'rev-parse --short HEAD') {
+      throw new Error(`Unexpected contract getExecOutput command: ${command} ${args.join(' ')}`)
+    }
+
+    return {stdout: 'contract1\n', stderr: '', exitCode: 0}
+  })
 })
 
 afterEach(() => {

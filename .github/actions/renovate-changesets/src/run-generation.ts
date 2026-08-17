@@ -150,7 +150,6 @@ export async function generateChangesetsFromAnalysis(params: {
     affectedPackages: releasableAffectedPackages,
   }
   const compatibility = adaptClassifiedUpdates(extracted, classification, releaseNames)
-  const releaseEntries = releaseNames.map(name => ({name, type: params.changesetType}))
 
   const multiPackageConfig = {
     workingDirectory: params.workingDirectory,
@@ -167,7 +166,7 @@ export async function generateChangesetsFromAnalysis(params: {
 
   if (useFallback) {
     const writtenPath = await writeRenovateChangeset(
-      {releases: releaseEntries, summary: changesetContent},
+      {releases: compatibility.releases, summary: changesetContent},
       params.workingDirectory,
     )
     changesetPath = writtenPath
@@ -177,7 +176,7 @@ export async function generateChangesetsFromAnalysis(params: {
       filename,
       packages: releaseNames,
       summary: changesetContent,
-      releases: releaseEntries,
+      releases: compatibility.releases,
       relationships: [],
       metadata: {
         isGrouped: extracted.updates.length > 1,

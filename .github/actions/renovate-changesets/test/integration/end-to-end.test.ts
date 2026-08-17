@@ -1006,7 +1006,7 @@ describe('TASK-040: Enhanced End-to-End Tests with Real Renovate PRs', () => {
       if (changesetCall) {
         const content = changesetCall[1] as string
         expect(content).toContain('enhanced-test-repo')
-        expect(content).toContain('patch')
+        expect(content).toContain('major')
         expect(content).toMatch(/Update.*npm dependency.*react/i)
       }
 

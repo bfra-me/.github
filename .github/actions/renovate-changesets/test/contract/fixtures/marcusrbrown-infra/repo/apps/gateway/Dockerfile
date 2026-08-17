@@ -1,0 +1,1 @@
+FROM eceasy/cli-proxy-api:v7.2.134@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef

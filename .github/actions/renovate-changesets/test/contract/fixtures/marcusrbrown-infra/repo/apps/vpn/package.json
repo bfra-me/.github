@@ -1,0 +1,7 @@
+{
+  "name": "@marcusrbrown/infra-vpn",
+  "private": true,
+  "dependencies": {
+    "@marcusrbrown/infra-shared": "workspace:*"
+  }
+}

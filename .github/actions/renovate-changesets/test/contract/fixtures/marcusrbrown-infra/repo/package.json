@@ -1,0 +1,10 @@
+{
+  "name": "@marcusrbrown/infra-workspace",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "prettier": "@bfra.me/prettier-config/120-proof"
+}

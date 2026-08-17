@@ -91,6 +91,10 @@ pnpm test      # vitest run
 pnpm lint      # eslint
 ```
 
+## CONTRACT TEST PREREQUISITES
+
+`pnpm test --project renovate-changesets-contract` requires `git` on `PATH` and a completed workspace-level `pnpm install`; the test runs the real Changesets CLI from the repository root at `node_modules/@changesets/cli`.
+
 ## NOTES
 
 - `dist/index.js` is committed — GitHub Actions requires pre-built JS.

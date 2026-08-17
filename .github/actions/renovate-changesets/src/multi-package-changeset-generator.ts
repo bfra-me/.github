@@ -131,13 +131,15 @@ export async function generateMultiPackageChangesets(
       reasoning.push('Deduplication disabled in configuration')
     }
 
-    const filesCreated = await writeChangesetFiles(finalChangesets, resolvedConfig)
+    const writeResult = await writeChangesetFiles(finalChangesets, resolvedConfig)
 
     return {
       changesets: finalChangesets,
       strategy,
       totalPackagesAffected: multiPackageAnalysis.affectedPackages.length,
-      filesCreated,
+      filesCreated: writeResult.filesCreated,
+      filesSkippedExisting: writeResult.skippedExisting,
+      filesFailed: writeResult.failed,
       reasoning,
       warnings,
     }

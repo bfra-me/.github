@@ -220,6 +220,13 @@ export async function generateChangesetsFromAnalysis(params: {
     categorizationResult: compatibility.categorizationResult,
   })
 
+  const failedFiles = multiPackageResult.filesFailed ?? []
+  if (failedFiles.length > 0) {
+    const failureMessage = `Failed to write changesets: ${failedFiles.join(', ')}`
+    core.setFailed(failureMessage)
+    throw new Error(failureMessage)
+  }
+
   return {
     changesetContent,
     releases,

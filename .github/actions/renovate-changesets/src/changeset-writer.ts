@@ -6,6 +6,12 @@ import * as core from '@actions/core'
 import {getExecOutput} from '@actions/exec'
 import write from '@changesets/write'
 
+export interface ChangesetWriteResult {
+  filesCreated: string[]
+  skippedExisting: string[]
+  failed: string[]
+}
+
 export async function writeRenovateChangeset(
   changeset: {releases: {name: string; type: string}[]; summary: string},
   workingDirectory: string,
@@ -52,8 +58,10 @@ export async function writeRenovateChangeset(
 export async function writeChangesetFiles(
   changesets: ChangesetInfo[],
   config: MultiPackageChangesetConfig,
-): Promise<string[]> {
+): Promise<ChangesetWriteResult> {
   const filesCreated: string[] = []
+  const skippedExisting: string[] = []
+  const failed: string[] = []
   const changesetDir = path.join(config.workingDirectory, '.changeset')
 
   await fs.mkdir(changesetDir, {recursive: true})
@@ -64,6 +72,7 @@ export async function writeChangesetFiles(
     try {
       await fs.access(filePath)
       core.info(`Changeset already exists: ${changeset.filename}`)
+      skippedExisting.push(`.changeset/${changeset.filename}`)
       continue
     } catch {
       // File does not exist; proceed with creation.
@@ -78,10 +87,12 @@ export async function writeChangesetFiles(
     )
     if (created) {
       filesCreated.push(`.changeset/${changeset.filename}`)
+    } else {
+      failed.push(`.changeset/${changeset.filename}`)
     }
   }
 
-  return filesCreated
+  return {filesCreated, skippedExisting, failed}
 }
 
 export async function getGitShortSha(): Promise<string> {

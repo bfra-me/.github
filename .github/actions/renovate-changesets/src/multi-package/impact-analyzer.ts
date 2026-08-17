@@ -95,64 +95,12 @@ export async function performImpactAnalysis(
 
 export async function generateRecommendations(
   workspacePackages: WorkspacePackage[],
-  relationships: PackageRelationship[],
   impactAnalysis: MultiPackageAnalysisResult['impactAnalysis'],
 ): Promise<MultiPackageAnalysisResult['recommendations']> {
-  const reasoningChain: string[] = []
-
   const createSeparateChangesets =
     workspacePackages.length > 1 && impactAnalysis.changesetStrategy !== 'single'
 
-  reasoningChain.push(`Workspace contains ${workspacePackages.length} packages`)
-  reasoningChain.push(`${impactAnalysis.directlyAffected.length} packages directly affected`)
-  reasoningChain.push(`${impactAnalysis.indirectlyAffected.length} packages indirectly affected`)
-  reasoningChain.push(`Risk level: ${impactAnalysis.riskLevel}`)
-  reasoningChain.push(`Recommended strategy: ${impactAnalysis.changesetStrategy}`)
-
-  const packageGroups: string[][] = []
-
-  if (createSeparateChangesets) {
-    if (impactAnalysis.changesetStrategy === 'grouped') {
-      const processed = new Set<string>()
-
-      for (const pkgName of impactAnalysis.directlyAffected) {
-        if (processed.has(pkgName)) {
-          continue
-        }
-
-        const group = [pkgName]
-        const related = findRelatedPackages(pkgName, relationships)
-
-        for (const relatedPkg of related) {
-          if (impactAnalysis.directlyAffected.includes(relatedPkg) && !processed.has(relatedPkg)) {
-            group.push(relatedPkg)
-          }
-        }
-
-        for (const pkg of group) {
-          processed.add(pkg)
-        }
-
-        packageGroups.push(group)
-      }
-
-      reasoningChain.push(`Created ${packageGroups.length} package groups based on relationships`)
-    } else {
-      for (const pkgName of impactAnalysis.directlyAffected) {
-        packageGroups.push([pkgName])
-      }
-      reasoningChain.push('Creating separate changesets for each affected package')
-    }
-  } else {
-    packageGroups.push(impactAnalysis.directlyAffected)
-    reasoningChain.push('Creating single changeset for all affected packages')
-  }
-
-  return {
-    createSeparateChangesets,
-    packageGroups,
-    reasoningChain,
-  }
+  return {createSeparateChangesets}
 }
 
 export function findPackageForFile(

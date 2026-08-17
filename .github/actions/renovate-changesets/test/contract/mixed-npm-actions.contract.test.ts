@@ -132,10 +132,7 @@ describe('mixed npm and GitHub Actions manager contract', () => {
       oracle.releasePlan.releases
         .filter(({type}) => type !== 'none')
         .map(({name, type}) => ({name, type})),
-    ).toEqual([
-      {name: '@marcusrbrown/infra-gateway', type: 'minor'},
-      {name: '@marcusrbrown/infra-shared', type: 'minor'},
-    ])
+    ).toEqual([{name: '@marcusrbrown/infra-gateway', type: 'minor'}])
   })
 })
 

@@ -324,7 +324,7 @@ describe('MultiPackageAnalyzer', () => {
       expect(result.recommendations.createSeparateChangesets).toBe(false)
     })
 
-    it('should recommend grouped strategy for related packages', async () => {
+    it('should keep a changed package as the only affected package when its provider is unchanged', async () => {
       // Mock a monorepo with internal dependencies
       fsMocks.access.mockImplementation(async (path: string) => {
         if (path.includes('package.json')) return undefined
@@ -396,11 +396,14 @@ describe('MultiPackageAnalyzer', () => {
 
       expect(result.workspacePackages).toHaveLength(3)
       expect(result.packageRelationships.length).toBeGreaterThan(0)
-      expect(result.impactAnalysis.changesetStrategy).toBe('grouped')
-      expect(result.recommendations.createSeparateChangesets).toBe(true)
+      expect(result.affectedPackages).toEqual(['@test/ui'])
+      expect(result.impactAnalysis.directlyAffected).toEqual(['@test/ui'])
+      expect(result.impactAnalysis.indirectlyAffected).toEqual([])
+      expect(result.impactAnalysis.changesetStrategy).toBe('single')
+      expect(result.recommendations.createSeparateChangesets).toBe(false)
     })
 
-    it('should classify a Docker-file update as direct for the owning package and indirect for its dependent', async () => {
+    it('should classify a Docker-file update as direct for the owning package only', async () => {
       fsMocks.access.mockImplementation(async (path: string) => {
         if (path.includes('package.json')) return undefined
         throw new Error('Not found')
@@ -458,11 +461,11 @@ describe('MultiPackageAnalyzer', () => {
         analyzerConfig,
       )
 
-      expect(result.affectedPackages).toEqual(['@test/umami', '@test/shared'])
+      expect(result.affectedPackages).toEqual(['@test/umami'])
       expect(result.impactAnalysis.directlyAffected).toEqual(['@test/umami'])
-      expect(result.impactAnalysis.indirectlyAffected).toEqual(['@test/shared'])
-      expect(result.impactAnalysis.changesetStrategy).toBe('grouped')
-      expect(result.recommendations.createSeparateChangesets).toBe(true)
+      expect(result.impactAnalysis.indirectlyAffected).toEqual([])
+      expect(result.impactAnalysis.changesetStrategy).toBe('single')
+      expect(result.recommendations.createSeparateChangesets).toBe(false)
     })
 
     it('should classify a single-package non-manifest change as direct with low risk', async () => {

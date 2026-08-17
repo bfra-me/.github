@@ -5,7 +5,6 @@ export async function determineAffectedPackages(
   dependencies: RenovateDependency[],
   changedFiles: string[],
   workspacePackages: WorkspacePackage[],
-  relationships: PackageRelationship[],
 ): Promise<string[]> {
   const affectedPackages = new Set<string>()
 
@@ -28,14 +27,6 @@ export async function determineAffectedPackages(
       if (allDeps[dep.name] != null) {
         affectedPackages.add(pkg.name)
       }
-    }
-  }
-
-  const directlyAffected = Array.from(affectedPackages)
-  for (const packageName of directlyAffected) {
-    const relatedPackages = findRelatedPackages(packageName, relationships)
-    for (const related of relatedPackages) {
-      affectedPackages.add(related)
     }
   }
 
@@ -120,21 +111,4 @@ export function findPackageForFile(
   }
 
   return null
-}
-
-export function findRelatedPackages(
-  packageName: string,
-  relationships: PackageRelationship[],
-): string[] {
-  const related = new Set<string>()
-
-  for (const rel of relationships) {
-    if (rel.source === packageName) {
-      related.add(rel.target)
-    } else if (rel.target === packageName) {
-      related.add(rel.source)
-    }
-  }
-
-  return Array.from(related)
 }

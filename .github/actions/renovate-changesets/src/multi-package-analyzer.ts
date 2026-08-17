@@ -54,7 +54,6 @@ export async function analyzeMultiPackageUpdate(
       dependencies,
       changedFiles,
       workspacePackages,
-      packageRelationships,
     )
 
     const impactAnalysis = await performImpactAnalysis(

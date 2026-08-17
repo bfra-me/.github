@@ -6,7 +6,7 @@ import process from 'node:process'
 import {fileURLToPath} from 'node:url'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {run} from '../../src/run.js'
-import {listGeneratedChangesets, runChangesetsOracle} from './changesets-oracle.js'
+import {runChangesetsOracle} from './changesets-oracle.js'
 import {getContractState, getOctokitMocks} from './setup.js'
 
 const fixtureRoot = path.resolve(
@@ -18,13 +18,19 @@ let workspace = ''
 const contractState = getContractState()
 const octokitMocks = getOctokitMocks()
 
-describe('renovate-changesets consumer contract', () => {
+describe('release set excludes unchanged providers', () => {
   beforeEach(async () => {
-    workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'renovate-changesets-contract-'))
+    workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'renovate-changesets-propagation-'))
     await fs.cp(fixtureRoot, workspace, {recursive: true})
-
-    expect(await pathExists(path.join(workspace, 'node_modules'))).toBe(false)
     initializeGitRepository(workspace)
+
+    const gatewayPath = path.join(workspace, 'apps/gateway/package.json')
+    const gateway = JSON.parse(await fs.readFile(gatewayPath, 'utf8')) as Record<string, unknown>
+    gateway.dependencies = {
+      ...(gateway.dependencies as Record<string, string>),
+      '@aws-sdk/client-s3': '^3.500.0',
+    }
+    await fs.writeFile(gatewayPath, JSON.stringify(gateway), 'utf8')
 
     process.env.NODE_ENV = 'production'
     delete process.env.VITEST
@@ -42,12 +48,12 @@ describe('renovate-changesets consumer contract', () => {
       process.env.GITHUB_EVENT_PATH,
       JSON.stringify({
         pull_request: {
-          number: 1103,
-          title: 'chore(deps): update eceasy/cli-proxy-api Docker tag',
-          body: `This PR contains the following updates:\n\n| Package | Update | Change |\n|---|---|---|\n| eceasy/cli-proxy-api | digest | \`0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\` -> \`abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789\` |\n`,
+          number: 1119,
+          title: 'chore(deps): update dependency @aws-sdk/client-s3',
+          body: 'This PR contains the following updates:\n\n| Package | Type | Update | Change |\n|---|---|---|---|\n| @aws-sdk/client-s3 | dependencies | minor | `3.500.0` -> `3.501.0` |',
           user: {login: 'mrbro-bot[bot]'},
           labels: [{name: 'dependencies'}, {name: 'renovate'}],
-          head: {ref: 'renovate/eceasy-cli-proxy-api-7.x'},
+          head: {ref: 'renovate/aws-sdk-client-s3-3.x'},
         },
       }),
       'utf8',
@@ -82,18 +88,11 @@ describe('renovate-changesets consumer contract', () => {
 
     octokitMocks.listFiles.mockResolvedValue({
       data: [
-        {
-          filename: 'apps/gateway/Dockerfile',
-          status: 'modified',
-          additions: 1,
-          deletions: 1,
-          patch:
-            '-FROM eceasy/cli-proxy-api:v7.2.134@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef\n+FROM eceasy/cli-proxy-api:v7.2.134@sha256:abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
-        },
+        {filename: 'apps/gateway/package.json', status: 'modified', additions: 1, deletions: 1},
       ],
     })
     octokitMocks.listCommits.mockResolvedValue({
-      data: [{commit: {message: 'chore(deps): update eceasy/cli-proxy-api Docker tag'}}],
+      data: [{commit: {message: 'chore(deps): update dependency @aws-sdk/client-s3'}}],
     })
   })
 
@@ -102,48 +101,21 @@ describe('renovate-changesets consumer contract', () => {
     workspace = ''
   })
 
-  it('generates a Changesets-valid Docker changeset with a short SHA', async () => {
+  it('does not author a release for a provider when its consumer changed', async () => {
+    // This guards only against releasing an unchanged provider; it does not define consumer-specific
+    // release policy.
     await run()
-    expect(contractState.failed).toEqual([])
-    expect(contractState.warnings).toContainEqual(
-      expect.stringContaining('@changesets/write failed'),
-    )
-    const filenames = await listGeneratedChangesets(workspace)
-    expect(contractState.outputs.get('changesets-created')).toBe(String(filenames.length))
-    expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toEqual(filenames)
-    expect(filenames.length).toBeGreaterThan(0)
 
-    for (const filename of filenames) {
-      const stat = await fs.stat(path.join(workspace, filename))
-      expect(stat.isFile()).toBe(true)
-    }
-
-    const reportedFiles = JSON.parse(
-      contractState.outputs.get('changeset-files') ?? '[]',
-    ) as string[]
-    expect(filenames).toEqual(reportedFiles)
-
-    const oracle = await runChangesetsOracle('docker-short-sha', workspace, {
+    const oracle = await runChangesetsOracle('release-propagation-direction', workspace, {
       errors: contractState.errors,
       warnings: contractState.warnings,
       outputs: contractState.outputs,
     })
     expect(
-      oracle.releasePlan.releases
-        .filter(({type}) => type !== 'none')
-        .map(({name, type}) => ({name, type})),
-    ).toEqual([{name: '@marcusrbrown/infra-gateway', type: 'patch'}])
+      oracle.releasePlan.releases.filter(({type}) => type !== 'none').map(({name}) => name),
+    ).toEqual(['@marcusrbrown/infra-gateway'])
   })
 })
-
-async function pathExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath)
-    return true
-  } catch {
-    return false
-  }
-}
 
 function initializeGitRepository(directory: string): void {
   for (const args of [

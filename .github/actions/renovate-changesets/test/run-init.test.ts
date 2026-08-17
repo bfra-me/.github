@@ -25,14 +25,14 @@ describe('initializeRun live guards', () => {
         pull_request: {
           number: 1011,
           user: {login: 'other-bot[bot]'},
-          head: {ref: 'renovate/react-18.x'},
+          head: {ref: 'dependabot/npm/react-18.x'},
         },
       }),
     )
 
     await expect(initializeRun()).resolves.toBeNull()
     expect(mockedGitHubActions.core.info).toHaveBeenCalledWith('Not a Renovate PR, skipping')
-    expect(mockedGitHubActions.core.getInput).not.toHaveBeenCalled()
+    expect(mockedGitHubActions.core.getInput).toHaveBeenCalledWith('config-file')
   })
 
   // These logins are the identities that actually open Renovate PRs today: bfra-me[bot] in

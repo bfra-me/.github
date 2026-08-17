@@ -145,7 +145,15 @@ vi.mock('../../src/renovate-parser', () => ({
     commitMessages: ['chore(deps): update dependency react to v18.3.1'],
     files: [{filename: 'package.json', status: 'modified', additions: 1, deletions: 1}],
   }),
-  isRenovateBranch: vi.fn().mockReturnValue(true),
+  isRenovateBranch: vi.fn(
+    (branchName: string) =>
+      branchName.startsWith('renovate/') || branchName.startsWith('dependabot/'),
+  ),
+  getBranchType: vi.fn((branchName: string) => {
+    if (branchName.startsWith('dependabot/')) return 'dependabot'
+    if (branchName.startsWith('renovate/')) return 'renovate'
+    return 'unknown'
+  }),
 }))
 
 vi.mock('../../src/changesets-release-policy', () => ({

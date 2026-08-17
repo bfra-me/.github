@@ -84,12 +84,14 @@ vi.mock('@changesets/write', () => ({
 
 const renovateParserMocks = vi.hoisted(() => ({
   isRenovateBranch: vi.fn(),
+  getBranchType: vi.fn().mockReturnValue('renovate'),
   createBranchPatterns: vi.fn(),
   extractPRContext: vi.fn(),
 }))
 
 vi.mock('../src/renovate-parser.js', () => ({
   isRenovateBranch: renovateParserMocks.isRenovateBranch,
+  getBranchType: renovateParserMocks.getBranchType,
   createBranchPatterns: renovateParserMocks.createBranchPatterns,
   extractPRContext: renovateParserMocks.extractPRContext,
 }))

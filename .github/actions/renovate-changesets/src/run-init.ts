@@ -6,7 +6,7 @@ import process from 'node:process'
 import * as core from '@actions/core'
 import {Octokit as OctokitClient} from '@octokit/rest'
 import {getConfig} from './action-config'
-import {createBranchPatterns, extractPRContext} from './renovate-parser'
+import {createBranchPatterns, extractPRContext, getBranchType} from './renovate-parser'
 import {isValidBranch} from './utils'
 
 interface PullRequestInfo {
@@ -98,30 +98,40 @@ export async function initializeRun(): Promise<RunInitialization | null> {
   }
 
   const pr = eventData.pull_request
-  const isRenovatePR = isAcceptedRenovateBotLogin(pr.user.login)
-  if (!isRenovatePR) {
-    core.info('Not a Renovate PR, skipping')
-    return null
-  }
-
   const config = await getConfig()
+  const isRenovatePR = isAcceptedRenovateBotLogin(pr.user.login)
   const branchName = pr.head?.ref
   if (branchName == null || branchName.length === 0) {
-    core.info('Unable to determine branch name, skipping')
+    core.info(
+      isRenovatePR ? 'Unable to determine branch name, skipping' : 'Not a Renovate PR, skipping',
+    )
     return null
   }
 
-  if (
-    !isValidBranch(
-      branchName,
-      config.branchPrefix || 'renovate/',
-      config.skipBranchPrefixCheck || false,
-      branchPatterns,
-    )
-  ) {
-    core.info(
-      `Branch ${branchName} does not match expected prefix ${config.branchPrefix || 'renovate/'}, skipping`,
-    )
+  const branchPrefix = config.branchPrefix || 'renovate/'
+  const branchMatchesExpected = isValidBranch(
+    branchName,
+    branchPrefix,
+    config.skipBranchPrefixCheck || false,
+    branchPatterns,
+  )
+  const isDependabotBranch = getBranchType(branchName, branchPatterns) === 'dependabot'
+  const isRenovateShapedBranch =
+    branchMatchesExpected && (!isDependabotBranch || branchName.startsWith(branchPrefix))
+
+  if (!isRenovatePR) {
+    if (isRenovateShapedBranch) {
+      core.setFailed(
+        `PR #${pr.number} is from unrecognized Renovate bot identity ${pr.user.login}. Add this login to ACCEPTED_RENOVATE_BOT_LOGINS in run-init.ts.`,
+      )
+    } else {
+      core.info('Not a Renovate PR, skipping')
+    }
+    return null
+  }
+
+  if (!branchMatchesExpected) {
+    core.info(`Branch ${branchName} does not match expected prefix ${branchPrefix}, skipping`)
     return null
   }
 

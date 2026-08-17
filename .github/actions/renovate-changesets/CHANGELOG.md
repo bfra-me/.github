@@ -1,5 +1,14 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.38
+### Patch Changes
+
+
+- The action now fails when it cannot write a changeset instead of reporting success with nothing created. ([#2577](https://github.com/bfra-me/.github/pull/2577))
+
+
+- Renovate pull requests from an unrecognised bot identity now fail visibly instead of silently producing nothing. ([#2579](https://github.com/bfra-me/.github/pull/2579))
+
 ## 0.2.37
 ### Patch Changes
 

@@ -32,7 +32,7 @@ export function adaptClassifiedUpdates(
     name: update.packageName,
     currentVersion: update.currentVersion,
     newVersion: update.newVersion,
-    manager: extracted.manager,
+    manager: update.manager,
     updateType: update.isDigest ? 'digest' : classification.bumpType,
     isSecurityUpdate: classification.isSecurityUpdate,
     securitySeverity: null,

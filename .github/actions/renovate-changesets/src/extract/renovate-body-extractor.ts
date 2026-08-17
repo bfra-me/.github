@@ -1,4 +1,5 @@
 import type {RenovateManagerType} from '../parser/renovate-parser-types.js'
+import {detectManagerFromFilename} from '../parser/renovate-manager-detector.js'
 
 // Commit SHAs must be matched before the version pattern. The version pattern is unanchored, so
 // against a 40-char hex SHA it happily matches stray digit runs — `3d3c42e5...` -> `08c6903c...`
@@ -16,14 +17,20 @@ const TABLE_SEPARATOR_PATTERN = /^:?-{3,}:?$/u
 const PACKAGE_HEADINGS = new Set(['package', 'package name', 'dependency', 'name'])
 const CHANGE_HEADINGS = new Set(['change', 'version', 'version change', 'from/to'])
 const UPDATE_HEADINGS = new Set(['update', 'update type'])
+const TYPE_HEADINGS = new Set(['type', 'dependency type'])
 
-export type ExtractedManager = Extract<RenovateManagerType, 'npm' | 'docker' | 'github-actions'>
+export type SupportedExtractedManager = Extract<
+  RenovateManagerType,
+  'npm' | 'docker' | 'github-actions'
+>
+export type ExtractedRowManager = SupportedExtractedManager | 'unknown'
+export type ExtractedManager = SupportedExtractedManager | 'mixed' | 'unknown'
 
 export interface ExtractedUpdate {
   packageName: string
   currentVersion: string
   newVersion: string
-  manager: ExtractedManager
+  manager: ExtractedRowManager
   /** True when both versions are commit SHAs, i.e. a digest pin refresh rather than a release. */
   isDigest: boolean
 }
@@ -33,6 +40,7 @@ export interface ExtractRenovateUpdatesOptions {
   body: string
   branchName: string
   manager?: RenovateManagerType
+  changedFiles?: string[]
   commitMessage?: string
   labels?: string[]
 }
@@ -61,11 +69,12 @@ interface ParsedTable {
 export function extractRenovateUpdates(
   options: ExtractRenovateUpdatesOptions,
 ): ExtractedRenovateUpdates {
-  const manager = resolveManager(options.manager, options.branchName, options.prNumber)
+  const fallbackManager = resolveManager(options.manager, options.branchName, options.prNumber)
   const table = findDependencyTable(options.body, options.prNumber)
   const packageIndex = findHeadingIndex(table.headers, PACKAGE_HEADINGS)
   const changeIndex = findHeadingIndex(table.headers, CHANGE_HEADINGS)
   const updateIndex = findHeadingIndex(table.headers, UPDATE_HEADINGS)
+  const typeIndex = findHeadingIndex(table.headers, TYPE_HEADINGS)
 
   if (packageIndex == null || changeIndex == null) {
     throw new ExtractionError(
@@ -79,6 +88,12 @@ export function extractRenovateUpdates(
     )
   }
 
+  const rowManagers = resolveRowManagers(
+    table.rows,
+    typeIndex,
+    options.changedFiles,
+    fallbackManager,
+  )
   const updates = table.rows.map((row, rowIndex) =>
     parseUpdateRow(
       row,
@@ -86,7 +101,7 @@ export function extractRenovateUpdates(
       packageIndex,
       changeIndex,
       updateIndex,
-      manager,
+      rowManagers[rowIndex] ?? 'unknown',
       options.prNumber,
     ),
   )
@@ -94,7 +109,7 @@ export function extractRenovateUpdates(
   const extracted: ExtractedRenovateUpdates = {
     prNumber: options.prNumber,
     branchName: options.branchName,
-    manager,
+    manager: aggregateManagers(updates.map(update => update.manager)),
     labels: options.labels ?? [],
     updates,
   }
@@ -162,7 +177,7 @@ function parseUpdateRow(
   packageIndex: number,
   changeIndex: number,
   updateIndex: number | undefined,
-  manager: ExtractedManager,
+  manager: ExtractedRowManager,
   prNumber: number,
 ): ExtractedUpdate {
   const rawPackageName = row[packageIndex]
@@ -199,6 +214,79 @@ function parseUpdateRow(
     manager,
     isDigest: digestByUpdateType || digestByFallback,
   }
+}
+
+function resolveRowManagers(
+  rows: string[][],
+  typeIndex: number | undefined,
+  changedFiles: string[] | undefined,
+  fallbackManager: ExtractedRowManager,
+): ExtractedRowManager[] {
+  if (typeIndex != null) {
+    return rows.map(row => normalizeTypeManager(row[typeIndex]))
+  }
+
+  const fileManagers = (changedFiles ?? [])
+    .map(file => normalizeDetectedManager(detectManagerFromFilename(file)))
+    .filter((manager): manager is SupportedExtractedManager => manager != null)
+  const distinctFileManagers = [...new Set(fileManagers)]
+  if (distinctFileManagers.length === 1) return rows.map(() => distinctFileManagers[0] ?? 'unknown')
+  if (distinctFileManagers.length > 1) return rows.map(() => 'unknown')
+  return rows.map(() => fallbackManager)
+}
+
+function normalizeTypeManager(value: string | undefined): ExtractedRowManager {
+  const normalized = normalizeHeading(value ?? '')
+  if (['action', 'actions', 'github-action', 'github-actions'].includes(normalized)) {
+    return 'github-actions'
+  }
+  if (['docker', 'dockerfile', 'docker-compose', 'container'].includes(normalized)) return 'docker'
+  if (
+    [
+      'dependencies',
+      'dependency',
+      'devdependencies',
+      'devdependency',
+      'peerdependencies',
+      'peerdependency',
+      'optionaldependencies',
+      'optionaldependency',
+      'npm',
+      'pnpm',
+      'yarn',
+      'lockfile',
+    ].includes(normalized)
+  ) {
+    return 'npm'
+  }
+  return 'unknown'
+}
+
+function normalizeDetectedManager(
+  manager: RenovateManagerType,
+): SupportedExtractedManager | undefined {
+  switch (manager) {
+    case 'npm':
+    case 'pnpm':
+    case 'yarn':
+    case 'lockfile':
+      return 'npm'
+    case 'docker':
+    case 'dockerfile':
+    case 'docker-compose':
+      return 'docker'
+    case 'github-actions':
+      return 'github-actions'
+    default:
+      return undefined
+  }
+}
+
+function aggregateManagers(managers: ExtractedRowManager[]): ExtractedManager {
+  const distinct = [...new Set(managers)]
+  if (distinct.length === 1) return distinct[0] ?? 'unknown'
+  if (distinct.includes('unknown')) return distinct.length > 1 ? 'mixed' : 'unknown'
+  return 'mixed'
 }
 
 function isHexDigestTransition(transition: RegExpMatchArray): boolean {
@@ -261,7 +349,7 @@ function resolveManager(
   manager: RenovateManagerType | undefined,
   branchName: string,
   prNumber: number,
-): ExtractedManager {
+): ExtractedRowManager {
   if (manager != null && manager !== 'unknown') {
     switch (manager) {
       case 'docker':
@@ -281,7 +369,7 @@ function resolveManager(
   return inferManagerFromBranch(branchName, prNumber)
 }
 
-function inferManagerFromBranch(branchName: string, prNumber: number): ExtractedManager {
+function inferManagerFromBranch(branchName: string, prNumber: number): ExtractedRowManager {
   const normalizedBranch = branchName.trim().toLowerCase()
   if (!normalizedBranch.startsWith('renovate/')) {
     throw new ExtractionError(

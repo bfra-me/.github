@@ -108,7 +108,7 @@ outputs:
   changeset-files:
     description: List of created changeset files (JSON array)
   update-type:
-    description: Detected update type (npm, github-actions, docker, etc.)
+    description: Detected update type (npm, github-actions, docker, mixed, etc.)
   dependencies:
     description: List of detected dependencies (JSON array)
   changeset-summary:

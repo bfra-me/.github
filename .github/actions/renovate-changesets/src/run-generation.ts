@@ -165,6 +165,9 @@ export async function generateChangesetsFromAnalysis(params: {
   let changesetPath: string
 
   if (useFallback) {
+    // compatibility.releases carries the uncapped classification.bumpType, matching the
+    // multi-package path below. params.changesetType is capped by capChangesetType; whether
+    // either path should honour that cap is an open question, so both stay uncapped for now.
     const writtenPath = await writeRenovateChangeset(
       {releases: compatibility.releases, summary: changesetContent},
       params.workingDirectory,

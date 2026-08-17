@@ -1,7 +1,9 @@
+import type {PackageRelationship, WorkspacePackage} from '../src/multi-package/types'
 import type {RenovateDependency} from '../src/renovate-parser'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 
 import {analyzeMultiPackageUpdate} from '../src/multi-package-analyzer'
+import {performImpactAnalysis} from '../src/multi-package/impact-analyzer'
 
 const fsMocks = vi.hoisted(() => ({
   readFile: vi.fn(),
@@ -19,6 +21,26 @@ const fsMocks = vi.hoisted(() => ({
     }
   }),
 }))
+
+const strategyPackages: WorkspacePackage[] = ['a', 'b', 'c', 'd'].map(name => ({
+  name: `@test/${name}`,
+  path: `packages/${name}`,
+  packageJsonPath: `packages/${name}/package.json`,
+  version: '1.0.0',
+  dependencies: {},
+  devDependencies: {},
+  peerDependencies: {},
+  optionalDependencies: {},
+  private: false,
+}))
+
+function strategyRelationship(
+  source: string,
+  target: string,
+  type: PackageRelationship['type'],
+): PackageRelationship {
+  return {source, target, type, confidence: 1, impact: 'medium'}
+}
 
 vi.mock('node:fs', () => ({
   promises: {
@@ -300,6 +322,48 @@ describe('MultiPackageAnalyzer', () => {
   })
 
   describe('impact analysis', () => {
+    it('chooses grouped when two affected packages share an internal dependency edge', async () => {
+      const result = await performImpactAnalysis(
+        [],
+        ['@test/a', '@test/b'],
+        [strategyRelationship('@test/a', '@test/b', 'internal-dependency')],
+        strategyPackages,
+        [],
+      )
+
+      expect(result.changesetStrategy).toBe('grouped')
+    })
+
+    it('chooses multiple when unrelated affected packages coexist with another internal edge', async () => {
+      const result = await performImpactAnalysis(
+        [],
+        ['@test/a', '@test/b'],
+        [strategyRelationship('@test/c', '@test/d', 'internal-dependency')],
+        strategyPackages,
+        [],
+      )
+
+      expect(result.changesetStrategy).toBe('multiple')
+    })
+
+    it('chooses grouped when two affected packages share only a peer dependency edge', async () => {
+      const result = await performImpactAnalysis(
+        [],
+        ['@test/a', '@test/b'],
+        [strategyRelationship('@test/a', '@test/b', 'peer-dependency')],
+        strategyPackages,
+        [],
+      )
+
+      expect(result.changesetStrategy).toBe('grouped')
+    })
+
+    it('chooses single for one affected package', async () => {
+      const result = await performImpactAnalysis([], ['@test/a'], [], strategyPackages, [])
+
+      expect(result.changesetStrategy).toBe('single')
+    })
+
     it('should determine correct changeset strategy for single package', async () => {
       fsMocks.access.mockImplementation(async () => {
         throw new Error('Not found') // No workspace detected

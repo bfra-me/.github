@@ -71,7 +71,13 @@ export async function performImpactAnalysis(
 
   let changesetStrategy: 'single' | 'multiple' | 'grouped' = 'single'
   if (workspacePackages.length > 1 && affectedPackages.length > 1) {
-    changesetStrategy = relationships.some(r => r.type === 'internal-dependency')
+    const affectedSet = new Set(affectedPackages)
+    changesetStrategy = relationships.some(
+      relationship =>
+        (relationship.type === 'internal-dependency' || relationship.type === 'peer-dependency') &&
+        affectedSet.has(relationship.source) &&
+        affectedSet.has(relationship.target),
+    )
       ? 'grouped'
       : 'multiple'
   }

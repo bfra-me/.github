@@ -91,10 +91,11 @@ export async function discoverOtherWorkspaceTypes(
   const lernaPath = path.join(config.workspaceRoot, 'lerna.json')
   if (await fileExists(lernaPath)) {
     try {
-      const lernaConfig = JSON.parse(await fs.readFile(lernaPath, 'utf8')) as {packages?: string[]}
-      if (lernaConfig.packages != null) {
-        const lernaPackages = await discoverWorkspaceChildren(lernaConfig.packages, config)
-        packages.push(...lernaPackages)
+      const lernaConfig = JSON.parse(await fs.readFile(lernaPath, 'utf8')) as {packages?: unknown}
+      const lernaPackages = normalizeWorkspacePatterns(lernaConfig.packages)
+      if (lernaPackages != null) {
+        const discoveredLernaPackages = await discoverWorkspaceChildren(lernaPackages, config)
+        packages.push(...discoveredLernaPackages)
       }
     } catch (error) {
       console.warn(
@@ -144,9 +145,7 @@ export async function analyzePackageJson(
     const packagePath = path.dirname(packageJsonPath)
     const relativePath = path.relative(workspaceRoot, packagePath)
 
-    const workspaces = Array.isArray(packageJson.workspaces)
-      ? packageJson.workspaces
-      : packageJson.workspaces?.packages
+    const workspaces = normalizeWorkspacePatterns(packageJson.workspaces)
 
     return {
       name: packageJson.name ?? path.basename(packagePath),
@@ -175,11 +174,7 @@ async function isDeclaredWorkspaceRoot(workspaceRoot: string): Promise<boolean> 
     const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as {
       workspaces?: unknown
     }
-    const workspaces = Array.isArray(packageJson.workspaces)
-      ? packageJson.workspaces
-      : isWorkspaceObject(packageJson.workspaces)
-        ? packageJson.workspaces.packages
-        : undefined
+    const workspaces = normalizeWorkspacePatterns(packageJson.workspaces)
     if (workspaces?.includes('.')) return true
   } catch {
     // The root package was already parsed by the caller; discovery will report any parse issue there.
@@ -222,7 +217,16 @@ export async function expandWorkspacePattern(
 }
 
 function isWorkspaceObject(value: unknown): value is {packages?: string[]} {
-  return typeof value === 'object' && value !== null && 'packages' in value
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.prototype.hasOwnProperty.call(value, 'packages')
+  )
+}
+
+function normalizeWorkspacePatterns(value: unknown): string[] | undefined {
+  if (Array.isArray(value)) return value
+  return isWorkspaceObject(value) ? value.packages : undefined
 }
 
 export async function fileExists(filePath: string): Promise<boolean> {

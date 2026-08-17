@@ -1,9 +1,11 @@
+import type {WorkspacePackage} from '../../src/multi-package/types.js'
 import {promises as fs} from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {afterEach, describe, expect, it} from 'vitest'
 import {
   analyzePackageJson,
+  discoverOtherWorkspaceTypes,
   discoverWorkspaceChildren,
   discoverWorkspacePackages,
   expandWorkspacePattern,
@@ -86,20 +88,37 @@ describe('workspace discovery contracts', () => {
 
   it('deduplicates packages and warns when truncating', async () => {
     const files: Record<string, string> = {
-      'package.json': JSON.stringify({name: 'root', version: '1.0.0', workspaces: ['packages/*']}),
+      'package.json': JSON.stringify({
+        name: 'root',
+        version: '1.0.0',
+        workspaces: ['packages/pkg-1', 'packages/pkg-0'],
+      }),
       'pnpm-workspace.yaml': 'packages:\n  - packages/*\n',
     }
     for (let index = 0; index < 3; index += 1) {
       files[`packages/pkg-${index}/package.json`] = packageJson(`@scope/pkg-${index}`)
     }
     const root = await createWorkspace(files)
-    const {info, warning} = await import('@actions/core')
+    const {warning} = await import('@actions/core')
 
     const result = await discoverWorkspacePackages({...config(root), maxPackagesToAnalyze: 3})
     expect(new Set(result.map(pkg => pkg.packageJsonPath)).size).toBe(result.length)
     expect(result).toHaveLength(3)
+    expect(result.map(pkg => pkg.name)).toEqual(['root', '@scope/pkg-1', '@scope/pkg-0'])
+    expect(result[1]?.packageJsonPath).toBe(path.join(root, 'packages/pkg-1/package.json'))
     expect(warning).toHaveBeenCalledWith(expect.stringContaining('4 workspace packages'))
-    expect(info).not.toHaveBeenCalledWith(expect.stringContaining('duplicate'))
+  })
+
+  it('normalizes Lerna object-form packages', async () => {
+    const root = await createWorkspace({
+      'lerna.json': JSON.stringify({packages: {packages: ['libs/*']}}),
+      'libs/tool/package.json': packageJson('@scope/tool'),
+    })
+    const packages: WorkspacePackage[] = []
+
+    await discoverOtherWorkspaceTypes(packages, config(root))
+
+    expect(packages).toEqual([expect.objectContaining({name: '@scope/tool'})])
   })
 })
 

@@ -49,7 +49,7 @@ export interface MultiPackageChangesetResult {
   totalPackagesAffected: number
   filesCreated: string[]
   filesSkippedExisting?: string[]
-  filesFailed?: string[]
+  filesFailed?: {file: string; reason: string}[]
   reasoning: string[]
   warnings: string[]
 }

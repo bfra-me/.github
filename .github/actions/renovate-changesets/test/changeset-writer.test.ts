@@ -233,7 +233,7 @@ describe('changeset writer', () => {
       )
 
       expect(result.filesCreated).toEqual(['.changeset/ok.md'])
-      expect(result.failed).toEqual(['.changeset/failed.md'])
+      expect(result.failed).toEqual([{file: '.changeset/failed.md', reason: 'manual write failed'}])
       expect(mockedFileSystem.writeFile).toHaveBeenCalledTimes(2)
     } finally {
       vi.unstubAllEnvs()

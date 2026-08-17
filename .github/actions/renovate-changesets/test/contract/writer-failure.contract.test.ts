@@ -97,7 +97,9 @@ describe('renovate-changesets writer contracts', () => {
 
     await run()
 
-    expect(contractState.failed.join('\n')).toContain('renovate-contract1-0.md')
+    const failureMessage = contractState.failed.join('\n')
+    expect(failureMessage).toContain('renovate-contract1-0.md')
+    expect(failureMessage).toContain('contract changeset write blocked')
     expect(contractState.outputs.get('changesets-created')).toBe('0')
     expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toEqual([])
     expect(await listChangesetFiles()).toEqual([])

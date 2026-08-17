@@ -10,6 +10,14 @@ const fsMocks = vi.hoisted(() => ({
   access: vi.fn(),
   stat: vi.fn(),
   readdir: vi.fn(),
+  glob: vi.fn(async function* (pattern: string, options: {cwd: string}) {
+    if (!pattern.endsWith('/*')) return
+    const basePath = pattern.slice(0, -2)
+    const entries = (await fsMocks.readdir(`${options.cwd}/${basePath}`)) ?? []
+    for (const entry of entries) {
+      if (entry.isDirectory()) yield `${basePath}/${entry.name}`
+    }
+  }),
 }))
 
 vi.mock('node:fs', () => ({
@@ -20,6 +28,7 @@ vi.mock('node:fs', () => ({
     access: fsMocks.access,
     stat: fsMocks.stat,
     readdir: fsMocks.readdir,
+    glob: fsMocks.glob,
   },
 }))
 

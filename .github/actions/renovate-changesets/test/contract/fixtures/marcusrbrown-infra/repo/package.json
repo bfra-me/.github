@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "libs/*"
   ],
   "prettier": "@bfra.me/prettier-config/120-proof"
 }

@@ -2,9 +2,26 @@ import {describe, expect, it} from 'vitest'
 import {classifyRenovateUpdates} from '../src/classify/renovate-classifier'
 import {adaptClassifiedUpdates} from '../src/compatibility-adapter'
 import {extractRenovateUpdates} from '../src/extract/renovate-body-extractor'
-import {securityBody} from './extract/fixtures'
+import {mixedManagersBody, securityBody} from './extract/fixtures'
 
 describe('adaptClassifiedUpdates', () => {
+  it('retains each extracted row manager for compatibility dependencies', () => {
+    const extracted = extractRenovateUpdates({
+      prNumber: 4002,
+      body: mixedManagersBody,
+      branchName: 'renovate/all-non-major',
+    })
+    const classification = classifyRenovateUpdates(extracted)
+
+    const result = adaptClassifiedUpdates(extracted, classification, ['@consumer/root'])
+
+    expect(result.dependencies.map(dependency => dependency.manager)).toEqual([
+      'npm',
+      'npm',
+      'npm',
+      'github-actions',
+    ])
+  })
   it('preserves extracted package and version data while deriving compatibility analysis fields', () => {
     const extracted = extractRenovateUpdates({
       prNumber: 4001,

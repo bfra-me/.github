@@ -15,6 +15,7 @@ import {
   missingPackageHeadingBody,
   missingTableBody,
   mixedHexBody,
+  mixedManagersBody,
   npmBody,
   pureDigitDigestColumnBody,
   realInfraPR1103PostgresDigestBody,
@@ -26,6 +27,60 @@ import {
 } from './fixtures'
 
 describe('extractRenovateUpdates', () => {
+  it('uses the Type heading from a nine-column Renovate table for each row', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1119,
+      body: mixedManagersBody,
+      branchName: 'renovate/all-non-major',
+      manager: 'npm',
+    })
+
+    expect(result.updates.map(update => update.manager)).toEqual([
+      'npm',
+      'npm',
+      'npm',
+      'github-actions',
+    ])
+    expect(result.manager).toBe('mixed')
+  })
+
+  it('uses one supported manager from changed files when Type is absent', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1119,
+      body: dockerBody,
+      branchName: 'renovate/something',
+      manager: 'npm',
+      changedFiles: ['Dockerfile'],
+    })
+
+    expect(result.manager).toBe('docker')
+    expect(result.updates[0]?.manager).toBe('docker')
+  })
+
+  it('uses unknown rows when changed files span multiple ecosystems and Type is absent', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1119,
+      body: '| Package | Update | Change |\n|---|---|---|\n| package | minor | `1.0.0` -> `1.1.0` |',
+      branchName: 'renovate/something',
+      manager: 'npm',
+      changedFiles: ['package.json', '.github/workflows/ci.yaml'],
+    })
+
+    expect(result.manager).toBe('unknown')
+    expect(result.updates[0]?.manager).toBe('unknown')
+  })
+
+  it('does not use the fallback manager for an unknown Type cell', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 1119,
+      body: '| Package | Type | Change |\n|---|---|---|\n| package | mystery | `1.0.0` -> `1.0.1` |',
+      branchName: 'renovate/something',
+      manager: 'npm',
+    })
+
+    expect(result.manager).toBe('unknown')
+    expect(result.updates[0]?.manager).toBe('unknown')
+  })
   it('extracts an npm update with package, versions, and manager', () => {
     expect(
       extractRenovateUpdates({
@@ -150,7 +205,7 @@ describe('extractRenovateUpdates', () => {
   ] as const)('maps supplied manager %s to %s', (manager, expectedManager) => {
     const result = extractRenovateUpdates({
       prNumber: 1030,
-      body: npmBody,
+      body: '| Package | Update | Change |\n|---|---|---|\n| package | minor | `1.0.0` -> `1.1.0` |',
       branchName: 'renovate/some-package',
       manager,
     })

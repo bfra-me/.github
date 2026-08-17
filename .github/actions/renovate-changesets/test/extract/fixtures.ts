@@ -68,6 +68,18 @@ This update contains an important security fix.
 ---
 `
 
+export const mixedManagersBody = `This PR contains the following updates:
+
+| Package | Change | Age | Confidence | OpenSSF | Code Search | Type | Update | Pending |
+|---|---|---|---|---|---|---|---|---|
+| @aws-sdk/client-iam | \`3.500.0\` -> \`3.501.0\` | 1 year | high | passing | passing | dependencies | minor | |
+| @aws-sdk/client-lightsail | \`3.500.0\` -> \`3.501.0\` | 1 year | high | passing | passing | dependencies | minor | |
+| @aws-sdk/client-s3 | \`3.500.0\` -> \`3.501.0\` | 1 year | high | passing | passing | dependencies | minor | |
+| fro-bot/agent | \`v1.0.0\` -> \`v1.0.1\` | 1 year | high | passing | passing | action | patch | |
+
+---
+`
+
 export const malformedRowBody = `This PR contains the following updates:
 
 | Package | Type | Update | Change |

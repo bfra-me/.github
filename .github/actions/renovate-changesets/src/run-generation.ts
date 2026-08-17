@@ -49,6 +49,7 @@ export async function generateChangesetsFromAnalysis(params: {
     body: prBody,
     branchName: params.prContext.branchName,
     manager: params.prContext.manager,
+    changedFiles: params.changedFiles,
     commitMessage,
     labels: params.prContext.labels,
   })
@@ -57,7 +58,7 @@ export async function generateChangesetsFromAnalysis(params: {
   const classifiedPRContext: RenovatePRContext = {
     ...params.prContext,
     dependencies: parsed.dependencies,
-    manager: extracted.manager,
+    manager: extracted.manager === 'mixed' ? 'unknown' : extracted.manager,
     updateType: classification.bumpType,
     isGroupedUpdate: extracted.updates.length > 1,
     isSecurityUpdate: classification.isSecurityUpdate,

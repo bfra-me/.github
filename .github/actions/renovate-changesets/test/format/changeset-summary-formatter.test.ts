@@ -7,6 +7,7 @@ import {
   githubActionsBody,
   groupedBody,
   markdownControlCharacterBody,
+  mixedManagersBody,
   npmBody,
   securityBody,
   shaDigestBody,
@@ -29,6 +30,43 @@ function formatUpdate(
 }
 
 describe('formatChangesetSummary', () => {
+  it('formats mixed manager groups in first-seen order', () => {
+    expect(formatUpdate(mixedManagersBody, 'renovate/all-non-major')).toBe(
+      'Group update across managers: npm dependencies: `@aws-sdk/client-iam`, `@aws-sdk/client-lightsail`, `@aws-sdk/client-s3`; GitHub Actions workflow dependency: `fro-bot/agent`',
+    )
+  })
+
+  it('uses the row manager for a single action update', () => {
+    expect(formatUpdate(githubActionsBody, 'renovate/npm-context')).toBe(
+      'Update GitHub Actions workflow dependency `actions/checkout` from `4.1.6` to `4.1.7`',
+    )
+  })
+
+  it('uses generic wording for an unknown row', () => {
+    expect(
+      formatUpdate(
+        '| Package | Type | Change |\n|---|---|---|\n| package | mystery | `1.0.0` -> `1.0.1` |',
+        'renovate/npm-context',
+      ),
+    ).toBe('Update dependency `package` from `1.0.0` to `1.0.1`')
+  })
+
+  it('uses across-manager wording for mixed security updates', () => {
+    const securityMixedBody = mixedManagersBody.replace(
+      'dependencies | minor',
+      'dependencies | patch',
+    )
+    expect(
+      formatUpdate(
+        securityMixedBody,
+        'renovate/all-non-major',
+        {emoji: true},
+        'fix(deps): security update [SECURITY]',
+      ),
+    ).toBe(
+      '🔒 Security update across managers: npm dependencies: `@aws-sdk/client-iam`, `@aws-sdk/client-lightsail`, `@aws-sdk/client-s3`; GitHub Actions workflow dependency: `fro-bot/agent`',
+    )
+  })
   it('formats npm updates without emoji by default', () => {
     expect(formatUpdate(npmBody, 'renovate/react-18.x')).toBe(
       'Update npm dependency `react` from `18.2.0` to `18.3.1`',

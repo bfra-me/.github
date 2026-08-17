@@ -6,6 +6,17 @@ import * as core from '@actions/core'
 import {getExecOutput} from '@actions/exec'
 import write from '@changesets/write'
 
+export interface ChangesetWriteResult {
+  filesCreated: string[]
+  skippedExisting: string[]
+  failed: {file: string; reason: string}[]
+}
+
+interface ChangesetWriteAttempt {
+  created: boolean
+  reason?: string
+}
+
 export async function writeRenovateChangeset(
   changeset: {releases: {name: string; type: string}[]; summary: string},
   workingDirectory: string,
@@ -30,15 +41,15 @@ export async function writeRenovateChangeset(
       // File doesn't exist, proceed with creation
     }
 
-    const created = await writeOneChangeset(
+    const attempt = await writeOneChangeset(
       changeset,
       expectedChangesetName,
       expectedChangesetPath,
       workingDirectory,
       true,
     )
-    if (!created) {
-      throw new Error(`Failed to create changeset ${expectedChangesetName}`)
+    if (!attempt.created) {
+      throw new Error(`Failed to create changeset ${expectedChangesetName}: ${attempt.reason}`)
     }
 
     return expectedChangesetName
@@ -52,8 +63,10 @@ export async function writeRenovateChangeset(
 export async function writeChangesetFiles(
   changesets: ChangesetInfo[],
   config: MultiPackageChangesetConfig,
-): Promise<string[]> {
+): Promise<ChangesetWriteResult> {
   const filesCreated: string[] = []
+  const skippedExisting: string[] = []
+  const failed: {file: string; reason: string}[] = []
   const changesetDir = path.join(config.workingDirectory, '.changeset')
 
   await fs.mkdir(changesetDir, {recursive: true})
@@ -64,24 +77,30 @@ export async function writeChangesetFiles(
     try {
       await fs.access(filePath)
       core.info(`Changeset already exists: ${changeset.filename}`)
+      skippedExisting.push(`.changeset/${changeset.filename}`)
       continue
     } catch {
       // File does not exist; proceed with creation.
     }
 
-    const created = await writeOneChangeset(
+    const attempt = await writeOneChangeset(
       changeset,
       changeset.filename,
       filePath,
       config.workingDirectory,
       config.useOfficialChangesets,
     )
-    if (created) {
+    if (attempt.created) {
       filesCreated.push(`.changeset/${changeset.filename}`)
+    } else {
+      failed.push({
+        file: `.changeset/${changeset.filename}`,
+        reason: attempt.reason ?? 'unknown error',
+      })
     }
   }
 
-  return filesCreated
+  return {filesCreated, skippedExisting, failed}
 }
 
 export async function getGitShortSha(): Promise<string> {
@@ -105,7 +124,7 @@ async function writeOneChangeset(
   filePath: string,
   workingDirectory: string,
   useOfficialChangesets: boolean,
-): Promise<boolean> {
+): Promise<ChangesetWriteAttempt> {
   const changesetForWrite = {
     summary: changeset.summary,
     releases: changeset.releases.map(release => ({
@@ -122,7 +141,7 @@ async function writeOneChangeset(
       await fs.writeFile(filePath, changesetContent, 'utf8')
       await fs.unlink(generatedPath)
       core.info(`Created changeset using @changesets/write: ${filename}`)
-      return true
+      return {created: true}
     } catch (writeError) {
       core.warning(
         `@changesets/write failed, falling back to manual creation: ${writeError instanceof Error ? writeError.message : String(writeError)}`,
@@ -142,10 +161,10 @@ ${changeset.summary}
 `
     await fs.writeFile(filePath, content, 'utf8')
     core.info(`Created changeset manually: ${filename}`)
-    return true
+    return {created: true}
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     core.warning(`Failed to create changeset ${filename}: ${errorMessage}`)
-    return false
+    return {created: false, reason: errorMessage}
   }
 }

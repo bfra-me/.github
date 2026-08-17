@@ -48,6 +48,8 @@ export interface MultiPackageChangesetResult {
   strategy: 'single' | 'multiple' | 'grouped'
   totalPackagesAffected: number
   filesCreated: string[]
+  filesSkippedExisting?: string[]
+  filesFailed?: {file: string; reason: string}[]
   reasoning: string[]
   warnings: string[]
 }

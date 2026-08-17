@@ -58,7 +58,7 @@ describe('changeset writer', () => {
   it('writes one grouped changeset naming every release', async () => {
     mockedFileSystem.access.mockRejectedValue(new Error('missing'))
 
-    const files = await writeChangesetFiles(
+    const result = await writeChangesetFiles(
       [
         {
           id: 'renovate-group',
@@ -92,7 +92,7 @@ describe('changeset writer', () => {
       },
     )
 
-    expect(files).toEqual(['.changeset/renovate-group.md'])
+    expect(result.filesCreated).toEqual(['.changeset/renovate-group.md'])
     expect(mockedFileSystem.writeFile).toHaveBeenCalledWith(
       '/tmp/workspace/.changeset/renovate-group.md',
       expect.stringContaining("'eslint': major\n'prettier': major"),
@@ -109,14 +109,14 @@ describe('changeset writer', () => {
     )
 
     try {
-      const files = await writeChangesetFiles(
+      const result = await writeChangesetFiles(
         [
           changeset('umami.md', '@marcusrbrown/infra-umami'),
           changeset('shared.md', '@marcusrbrown/infra-shared'),
         ],
         groupedConfig,
       )
-      expect(files).toEqual(['.changeset/umami.md', '.changeset/shared.md'])
+      expect(result.filesCreated).toEqual(['.changeset/umami.md', '.changeset/shared.md'])
       expect(mockedFileSystem.writeFile).toHaveBeenCalledTimes(2)
       expect(mockedFileSystem.writeFile).toHaveBeenNthCalledWith(
         1,
@@ -147,7 +147,7 @@ describe('changeset writer', () => {
     )
 
     try {
-      const files = await writeChangesetFiles(
+      const result = await writeChangesetFiles(
         [
           {
             ...changeset('infra-group.md', '@marcusrbrown/infra-umami'),
@@ -165,7 +165,7 @@ describe('changeset writer', () => {
         groupedConfig,
       )
 
-      expect(files).toEqual(['.changeset/infra-group.md'])
+      expect(result.filesCreated).toEqual(['.changeset/infra-group.md'])
       expect(mockedFileSystem.writeFile).toHaveBeenCalledWith(
         '/tmp/workspace/.changeset/infra-group.md',
         expect.stringContaining(
@@ -193,7 +193,7 @@ describe('changeset writer', () => {
       .mockResolvedValueOnce('---\n@marcusrbrown/infra-shared: patch\n---\n')
 
     try {
-      const files = await writeChangesetFiles(
+      const result = await writeChangesetFiles(
         [
           changeset('umami.md', '@marcusrbrown/infra-umami'),
           changeset('shared.md', '@marcusrbrown/infra-shared'),
@@ -201,7 +201,7 @@ describe('changeset writer', () => {
         groupedConfig,
       )
 
-      expect(files).toEqual(['.changeset/umami.md', '.changeset/shared.md'])
+      expect(result.filesCreated).toEqual(['.changeset/umami.md', '.changeset/shared.md'])
       expect(mockedChangesets.write).toHaveBeenCalledTimes(2)
       expect(mockedFileSystem.unlink).toHaveBeenCalledWith(
         '/tmp/workspace/.changeset/umami-official.md',
@@ -224,7 +224,7 @@ describe('changeset writer', () => {
       .mockResolvedValueOnce(undefined)
 
     try {
-      const files = await writeChangesetFiles(
+      const result = await writeChangesetFiles(
         [
           changeset('failed.md', '@marcusrbrown/infra-umami'),
           changeset('ok.md', '@marcusrbrown/infra-shared'),
@@ -232,7 +232,8 @@ describe('changeset writer', () => {
         groupedConfig,
       )
 
-      expect(files).toEqual(['.changeset/ok.md'])
+      expect(result.filesCreated).toEqual(['.changeset/ok.md'])
+      expect(result.failed).toEqual([{file: '.changeset/failed.md', reason: 'manual write failed'}])
       expect(mockedFileSystem.writeFile).toHaveBeenCalledTimes(2)
     } finally {
       vi.unstubAllEnvs()
@@ -259,7 +260,7 @@ describe('changeset writer', () => {
     mockedFileSystem.readFile.mockResolvedValue('---\npackage: patch\n---\n\nUpdate package\n')
 
     try {
-      const files = await writeChangesetFiles(
+      const result = await writeChangesetFiles(
         [
           {
             id: 'official',
@@ -290,7 +291,7 @@ describe('changeset writer', () => {
         },
       )
 
-      expect(files).toEqual(['.changeset/official.md'])
+      expect(result.filesCreated).toEqual(['.changeset/official.md'])
       expect(mockedChangesets.write).toHaveBeenCalledWith(
         {summary: 'Update package', releases: [{name: 'package', type: 'patch'}]},
         '/tmp/workspace',

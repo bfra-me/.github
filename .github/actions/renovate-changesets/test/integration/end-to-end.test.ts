@@ -148,9 +148,30 @@ vi.mock('../../src/renovate-parser', () => ({
   isRenovateBranch: vi.fn().mockReturnValue(true),
 }))
 
+vi.mock('../../src/changesets-release-policy', () => ({
+  readChangesetsReleasePolicy: vi.fn().mockResolvedValue({
+    ignorePatterns: [],
+    allowPrivatePackages: true,
+  }),
+  isPackageReleasable: vi.fn().mockReturnValue(true),
+}))
+
 vi.mock('../../src/multi-package-analyzer', () => ({
   analyzeMultiPackageUpdate: vi.fn().mockResolvedValue({
-    workspacePackages: [],
+    workspacePackages: [
+      {
+        name: 'enhanced-test-repo',
+        path: '.',
+        packageJsonPath: '/tmp/enhanced-test-workspace/package.json',
+        version: '1.0.0',
+        dependencies: {},
+        devDependencies: {},
+        peerDependencies: {},
+        optionalDependencies: {},
+        private: false,
+        workspaceMember: true,
+      },
+    ],
     packageRelationships: [],
     affectedPackages: [],
     impactAnalysis: {

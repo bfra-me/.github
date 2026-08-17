@@ -5,6 +5,7 @@ import type {RenovatePRContext} from './renovate-parser.js'
 
 import * as core from '@actions/core'
 import {writeRenovateChangeset} from './changeset-writer.js'
+import {isPackageReleasable, readChangesetsReleasePolicy} from './changesets-release-policy.js'
 import {classifyRenovateUpdates} from './classify/renovate-classifier.js'
 import {adaptClassifiedUpdates} from './compatibility-adapter.js'
 import {extractRenovateUpdates} from './extract/renovate-body-extractor.js'
@@ -84,16 +85,70 @@ export async function generateChangesetsFromAnalysis(params: {
       maxPackagesToAnalyze: 50,
     },
   )
-  const releaseNames =
-    multiPackageAnalysis.affectedPackages.length > 0
-      ? multiPackageAnalysis.affectedPackages
-      : [
-          getRootPackageName(
-            multiPackageAnalysis.workspacePackages,
-            params.repo,
-            params.config.targetPackage,
-          ),
-        ]
+  const releasePolicy = await readChangesetsReleasePolicy(params.workingDirectory)
+  const releasableWorkspacePackages = multiPackageAnalysis.workspacePackages.filter(pkg =>
+    isPackageReleasable(pkg, releasePolicy),
+  )
+  const releasableNames = new Set(releasableWorkspacePackages.map(pkg => pkg.name))
+  const releasableAffectedPackages = multiPackageAnalysis.affectedPackages.filter(name =>
+    releasableNames.has(name),
+  )
+  const releasableDirectPackages = multiPackageAnalysis.impactAnalysis.directlyAffected.filter(
+    name => releasableNames.has(name),
+  )
+  const useFallback = releasableDirectPackages.length === 0
+  const excludedAffectedPackages = multiPackageAnalysis.affectedPackages.filter(
+    name => !releasableNames.has(name),
+  )
+
+  if (excludedAffectedPackages.length > 0) {
+    core.info(`Excluded unreleasable affected packages: ${excludedAffectedPackages.join(', ')}`)
+  }
+
+  const discoveredTarget =
+    params.config.targetPackage == null
+      ? undefined
+      : (multiPackageAnalysis.workspacePackages.find(
+          pkg => pkg.name === params.config.targetPackage && pkg.workspaceMember !== false,
+        ) ??
+        multiPackageAnalysis.workspacePackages.find(
+          pkg => pkg.name === params.config.targetPackage,
+        ))
+  if (discoveredTarget != null) {
+    const targetIsReleasable = isPackageReleasable(discoveredTarget, releasePolicy)
+    const targetIsWorkspaceMember = discoveredTarget.workspaceMember !== false
+    if (!targetIsReleasable || !targetIsWorkspaceMember) {
+      const reasons = [
+        ...(targetIsReleasable ? [] : ['it is not releasable under .changeset/config.json']),
+        ...(targetIsWorkspaceMember ? [] : ['it is not a declared workspace member']),
+      ]
+      throw new Error(
+        `Configured target-package "${params.config.targetPackage}" cannot be used as a Changesets release target: ${reasons.join('; ')}`,
+      )
+    }
+  }
+
+  const fallbackPackages = releasableWorkspacePackages.filter(pkg => pkg.workspaceMember !== false)
+  const fallbackName = getRootPackageName(
+    fallbackPackages,
+    params.repo,
+    params.config.targetPackage,
+  )
+  if (
+    useFallback &&
+    params.config.targetPackage == null &&
+    !fallbackPackages.some(pkg => pkg.name === fallbackName)
+  ) {
+    throw new Error(
+      'No releasable workspace member is available as the Changesets fallback release target',
+    )
+  }
+
+  const releaseNames = useFallback ? [fallbackName] : releasableAffectedPackages
+  const releaseAnalysis = {
+    ...multiPackageAnalysis,
+    affectedPackages: releasableAffectedPackages,
+  }
   const compatibility = adaptClassifiedUpdates(extracted, classification, releaseNames)
 
   const multiPackageConfig = {
@@ -109,17 +164,10 @@ export async function generateChangesetsFromAnalysis(params: {
   let multiPackageResult: MultiPackageChangesetResult
   let changesetPath: string
 
-  if (multiPackageAnalysis.affectedPackages.length > 0) {
-    multiPackageResult = await generateMultiPackageChangesets(
-      parsed.dependencies,
-      classifiedPRContext,
-      multiPackageAnalysis,
-      changesetContent,
-      classification.bumpType,
-      multiPackageConfig,
-    )
-    changesetPath = multiPackageResult.filesCreated[0] ?? 'existing'
-  } else {
+  if (useFallback) {
+    // compatibility.releases carries the uncapped classification.bumpType, matching the
+    // multi-package path below. params.changesetType is capped by capChangesetType; whether
+    // either path should honour that cap is an open question, so both stay uncapped for now.
     const writtenPath = await writeRenovateChangeset(
       {releases: compatibility.releases, summary: changesetContent},
       params.workingDirectory,
@@ -149,6 +197,16 @@ export async function generateChangesetsFromAnalysis(params: {
       reasoning: ['No affected workspace package required the single-release fallback'],
       warnings: [],
     }
+  } else {
+    multiPackageResult = await generateMultiPackageChangesets(
+      parsed.dependencies,
+      classifiedPRContext,
+      releaseAnalysis,
+      changesetContent,
+      classification.bumpType,
+      multiPackageConfig,
+    )
+    changesetPath = multiPackageResult.filesCreated[0] ?? 'existing'
   }
 
   const releases = multiPackageResult.changesets[0]?.releases ?? compatibility.releases

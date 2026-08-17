@@ -1,4 +1,5 @@
 import type {Config} from '../src/action-config'
+import type {WorkspacePackage} from '../src/multi-package/types'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {generateChangesetsFromAnalysis} from '../src/run-generation'
 import {dockerBody, shaDigestBody} from './extract/fixtures'
@@ -29,11 +30,24 @@ const config: Config = {
 }
 
 const analysis = {
-  workspacePackages: [],
+  workspacePackages: [
+    {
+      name: '@consumer/root',
+      path: 'packages/root',
+      packageJsonPath: '/tmp/workspace/packages/root/package.json',
+      version: '1.0.0',
+      dependencies: {},
+      devDependencies: {},
+      peerDependencies: {},
+      optionalDependencies: {},
+      private: false,
+      workspaceMember: true,
+    } satisfies WorkspacePackage,
+  ],
   packageRelationships: [],
   affectedPackages: ['@consumer/root'],
   impactAnalysis: {
-    directlyAffected: [],
+    directlyAffected: ['@consumer/root'],
     indirectlyAffected: [],
     riskLevel: 'low' as const,
     changesetStrategy: 'single' as const,

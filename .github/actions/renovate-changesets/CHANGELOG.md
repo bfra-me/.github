@@ -1,5 +1,17 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.37
+### Patch Changes
+
+
+- I removed unused internal recommendation output from Renovate changeset analysis without changing its behavior. ([#2573](https://github.com/bfra-me/.github/pull/2573))
+
+
+- Renovate changesets no longer name packages that Changesets cannot release, so release workflows stop failing on invalid release sets. ([#2575](https://github.com/bfra-me/.github/pull/2575))
+
+
+- Grouped and multiple changeset filenames now follow the same `renovate-<sha>` convention as single changesets, preventing collisions when different updates touch the same packages. ([#2572](https://github.com/bfra-me/.github/pull/2572))
+
 ## 0.2.36
 ### Patch Changes
 

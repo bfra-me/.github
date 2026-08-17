@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.39
+### Patch Changes
+
+
+- Workspace globs beyond `packages/*` and `apps/*` are now discovered, Yarn object-form workspaces work, and packages are no longer silently dropped. ([#2580](https://github.com/bfra-me/.github/pull/2580))
+
 ## 0.2.38
 ### Patch Changes
 

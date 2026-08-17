@@ -12,7 +12,11 @@ export async function discoverWorkspacePackages(
     const rootPackageJsonPath = path.join(config.workspaceRoot, 'package.json')
 
     if (await fileExists(rootPackageJsonPath)) {
-      const rootPackage = await analyzePackageJson(rootPackageJsonPath, config.workspaceRoot)
+      const rootPackage = await analyzePackageJson(
+        rootPackageJsonPath,
+        config.workspaceRoot,
+        await isDeclaredWorkspaceRoot(config.workspaceRoot),
+      )
       if (rootPackage != null) {
         packages.push(rootPackage)
 
@@ -101,6 +105,7 @@ export async function discoverOtherWorkspaceTypes(
 export async function analyzePackageJson(
   packageJsonPath: string,
   workspaceRoot: string,
+  workspaceMember = true,
 ): Promise<WorkspacePackage | null> {
   try {
     const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as {
@@ -121,12 +126,13 @@ export async function analyzePackageJson(
       name: packageJson.name ?? path.basename(packagePath),
       path: relativePath || '.',
       packageJsonPath,
-      version: packageJson.version ?? '0.0.0',
+      version: packageJson.version,
       dependencies: packageJson.dependencies ?? {},
       devDependencies: packageJson.devDependencies ?? {},
       peerDependencies: packageJson.peerDependencies ?? {},
       optionalDependencies: packageJson.optionalDependencies ?? {},
       private: Boolean(packageJson.private),
+      workspaceMember,
       workspaces: packageJson.workspaces,
     }
   } catch (error) {
@@ -134,6 +140,26 @@ export async function analyzePackageJson(
       `Failed to analyze package.json at ${packageJsonPath}: ${error instanceof Error ? error.message : String(error)}`,
     )
     return null
+  }
+}
+
+async function isDeclaredWorkspaceRoot(workspaceRoot: string): Promise<boolean> {
+  const packageJsonPath = path.join(workspaceRoot, 'package.json')
+  try {
+    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8')) as {
+      workspaces?: unknown
+    }
+    if (Array.isArray(packageJson.workspaces) && packageJson.workspaces.includes('.')) return true
+  } catch {
+    // The root package was already parsed by the caller; discovery will report any parse issue there.
+  }
+
+  const pnpmWorkspacePath = path.join(workspaceRoot, 'pnpm-workspace.yaml')
+  try {
+    const pnpmConfig = load(await fs.readFile(pnpmWorkspacePath, 'utf8')) as {packages?: unknown}
+    return Array.isArray(pnpmConfig?.packages) && pnpmConfig.packages.includes('.')
+  } catch {
+    return false
   }
 }
 

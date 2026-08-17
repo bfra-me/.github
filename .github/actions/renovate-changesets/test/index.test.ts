@@ -94,6 +94,44 @@ vi.mock('../src/renovate-parser.js', () => ({
   extractPRContext: renovateParserMocks.extractPRContext,
 }))
 
+vi.mock('../src/changesets-release-policy.js', () => ({
+  readChangesetsReleasePolicy: vi.fn().mockResolvedValue({
+    ignorePatterns: [],
+    allowPrivatePackages: true,
+  }),
+  isPackageReleasable: vi.fn().mockReturnValue(true),
+}))
+
+vi.mock('../src/multi-package-analyzer.js', () => ({
+  analyzeMultiPackageUpdate: vi.fn().mockResolvedValue({
+    workspacePackages: [
+      {
+        name: '@test/repo',
+        path: '.',
+        packageJsonPath: '/tmp/package.json',
+        version: '1.0.0',
+        dependencies: {},
+        devDependencies: {},
+        peerDependencies: {},
+        optionalDependencies: {},
+        private: false,
+        workspaceMember: true,
+      },
+    ],
+    packageRelationships: [],
+    affectedPackages: [],
+    impactAnalysis: {
+      directlyAffected: [],
+      indirectlyAffected: [],
+      changesetStrategy: 'single',
+      riskLevel: 'low',
+    },
+    recommendations: {
+      createSeparateChangesets: false,
+    },
+  }),
+}))
+
 describe('Renovate Changesets Action', () => {
   // Helper function to set up inputs for tests that need API access
   const setupApiInputs = () => {
@@ -254,6 +292,9 @@ ${changeset.summary}
       const content = changesetContentMap.get(path)
       if (content) {
         return content
+      }
+      if (path.includes('.changeset/config.json')) {
+        return JSON.stringify({ignore: [], privatePackages: {version: true}})
       }
       // Fall back to the original mock behavior
       return originalReadFile(path)

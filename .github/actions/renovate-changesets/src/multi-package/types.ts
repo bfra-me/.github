@@ -4,12 +4,13 @@ export interface WorkspacePackage {
   name: string
   path: string
   packageJsonPath: string
-  version: string
+  version?: string
   dependencies: Record<string, string>
   devDependencies: Record<string, string>
   peerDependencies: Record<string, string>
   optionalDependencies: Record<string, string>
   private: boolean
+  workspaceMember?: boolean
   workspaces?: string[]
 }
 

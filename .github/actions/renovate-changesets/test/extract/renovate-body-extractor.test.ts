@@ -70,7 +70,11 @@ describe('extractRenovateUpdates', () => {
       branchName: 'renovate/package',
     })
 
-    expect(result.updates[0]).toMatchObject({currentVersion: '1.2.3', newVersion: '1.2.2'})
+    expect(result.updates[0]).toMatchObject({
+      currentVersion: '1.2.3',
+      newVersion: '1.2.2',
+      isRollback: true,
+    })
   })
 
   it('marks pinDigest as a digest from the Update cell', () => {
@@ -92,7 +96,11 @@ describe('extractRenovateUpdates', () => {
       branchName: 'renovate/package',
     })
 
-    expect(result.updates[0]?.isDigest).toBe(true)
+    expect(result.updates[0]).toMatchObject({
+      currentVersion: 'abc1234',
+      newVersion: 'def5678',
+      isDigest: true,
+    })
   })
 
   it('extracts a bump range transition', () => {

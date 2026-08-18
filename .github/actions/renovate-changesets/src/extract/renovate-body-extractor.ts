@@ -9,6 +9,8 @@ import {detectManagerFromFilename} from '../parser/renovate-manager-detector.js'
 // excludes pure-digit short values because Docker CalVer tags such as `20240101` -> `20250101` are
 // versions. A digest Update column overrides the heuristic, including for all-digit short SHAs.
 const HEX_TRANSITION_PATTERN = /`?([0-9a-f]{7,40})`?\s*(?:→|->)\s*`?([0-9a-f]{7,40})`?/iu
+// Range operators are accepted here before extraction; the classifier repeats this normalization
+// intentionally so direct classifier inputs remain safe if extractor normalization changes.
 const VERSION_TRANSITION_PATTERN =
   /`?[<>=~^]*v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])\s*(?:→|->)\s*`?[<>=~^]*v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])/iu
 const MARKDOWN_CONTROL_PATTERN = /([\\`*_[\]()>#!|])/gu

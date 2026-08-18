@@ -72,6 +72,8 @@ function classifyVersionTransition(update: ExtractedUpdate): BumpType {
 }
 
 function parseSemver(value: string): ParsedVersion | undefined {
+  // This repeats extractor range stripping intentionally for direct classifier inputs; `v` is
+  // also accepted here because the classifier normalizes version tags independently.
   const match = value
     .trim()
     .replace(/^[<>=~^v]+/iu, '')

@@ -1,5 +1,13 @@
 # @bfra.me/.github
 
+## 4.17.1
+### Patch Changes
+
+
+- Refresh pnpm lockfile dependencies ([#2585](https://github.com/bfra-me/.github/pull/2585))
+  
+  **Multi-package update** for package `@bfra.me/.github`.
+
 ## 4.17.0
 ### Minor Changes
 

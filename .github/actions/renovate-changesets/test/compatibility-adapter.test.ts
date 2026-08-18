@@ -54,4 +54,20 @@ describe('adaptClassifiedUpdates', () => {
       confidence: 'medium',
     })
   })
+
+  it('keeps lockfile maintenance dependency names empty', () => {
+    const extracted = {
+      prNumber: 4003,
+      branchName: 'renovate/lock-file-maintenance',
+      manager: 'npm' as const,
+      labels: [],
+      updates: [],
+      operation: {kind: 'lockfile-maintenance' as const, packageManagers: ['pnpm' as const]},
+    }
+    const classification = classifyRenovateUpdates(extracted)
+
+    expect(
+      adaptClassifiedUpdates(extracted, classification, ['@consumer/root']).dependencyNames,
+    ).toEqual([])
+  })
 })

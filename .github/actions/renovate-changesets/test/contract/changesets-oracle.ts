@@ -19,9 +19,9 @@ export interface ReleaseEntry {
 }
 
 export interface AuthoredChangeset {
-  releases: ReleaseEntry[]
-  summary: string
   id: string
+  summary: string
+  releases: ReleaseEntry[]
 }
 
 export interface ChangesetsOracleResult {

@@ -9,6 +9,9 @@ import {run} from '../../src/run.js'
 import {authoredReleases, effectiveReleases, runChangesetsOracle} from './changesets-oracle.js'
 import {getContractState, getOctokitMocks} from './setup.js'
 
+// Package versions in this fixture are a deliberate snapshot of the repository as PR #2585 saw
+// it, not a mirror of current versions. Attribution matches on package name, so they never need
+// bumping after a release.
 const fixtureRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   'fixtures/bfra-github',

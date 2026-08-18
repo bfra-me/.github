@@ -145,7 +145,7 @@ describe('lockfile maintenance contract', () => {
     workspace = ''
   })
 
-  it('creates a patch changeset for pnpm lockfile maintenance', async () => {
+  it('attributes lockfile maintenance to every changed workspace package', async () => {
     await run()
 
     expect(contractState.failed).toEqual([])
@@ -156,6 +156,71 @@ describe('lockfile maintenance contract', () => {
     expect(JSON.parse(contractState.outputs.get('dependencies') ?? 'null')).toEqual([])
 
     const oracle = await runChangesetsOracle('lockfile-maintenance', workspace, {
+      errors: contractState.errors,
+      warnings: contractState.warnings,
+      outputs: contractState.outputs,
+    })
+    expect(authoredReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'renovate-changesets', type: 'patch'},
+      {name: 'update-metadata', type: 'patch'},
+      {name: 'update-repository-settings', type: 'patch'},
+    ])
+    expect(effectiveReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'renovate-changesets', type: 'patch'},
+      {name: 'update-metadata', type: 'patch'},
+      {name: 'update-repository-settings', type: 'patch'},
+    ])
+    const summaries = oracle.releasePlan.changesets.map(changeset => changeset.summary)
+    expect(summaries).toHaveLength(4)
+    expect(summaries.every(summary => summary.includes('Refresh pnpm lockfile dependencies'))).toBe(
+      true,
+    )
+  })
+
+  it('deduplicates a package with an existing pending changeset', async () => {
+    await fs.writeFile(
+      path.join(workspace, '.changeset/existing-renovate-changesets.md'),
+      `---\n'renovate-changesets': patch\n---\n\nExisting pending work.\n`,
+      'utf8',
+    )
+
+    await run()
+
+    expect(contractState.outputs.get('changesets-created')).toBe('3')
+    expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toHaveLength(3)
+
+    // Remove the seeded file before invoking the oracle: Changesets status reports every file in
+    // .changeset, while the action's changeset-files output identifies what this run authored.
+    await fs.rm(path.join(workspace, '.changeset/existing-renovate-changesets.md'))
+
+    const oracle = await runChangesetsOracle('lockfile-maintenance-existing', workspace, {
+      errors: contractState.errors,
+      warnings: contractState.warnings,
+      outputs: contractState.outputs,
+    })
+    expect(authoredReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'update-metadata', type: 'patch'},
+      {name: 'update-repository-settings', type: 'patch'},
+    ])
+    expect(effectiveReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'update-metadata', type: 'patch'},
+      {name: 'update-repository-settings', type: 'patch'},
+    ])
+    expect(oracle.releasePlan.changesets).toHaveLength(3)
+  })
+
+  it('uses the root fallback when only the lockfile changes', async () => {
+    octokitMocks.listFiles.mockResolvedValue({
+      data: [{filename: 'pnpm-lock.yaml', status: 'modified', additions: 1, deletions: 1}],
+    })
+
+    await run()
+
+    const oracle = await runChangesetsOracle('lockfile-maintenance-fallback', workspace, {
       errors: contractState.errors,
       warnings: contractState.warnings,
       outputs: contractState.outputs,

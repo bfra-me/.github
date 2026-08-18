@@ -22,7 +22,7 @@ export function calculateChangesetContentHash(changeset: ChangesetInfo): string 
     releases: changeset.releases
       .map(release => ({name: release.name, type: release.type}))
       .sort((left, right) => left.name.localeCompare(right.name)),
-    summary: changeset.summary.trim().replaceAll(/\s+/g, ' '),
+    summary: normalizeSummary(changeset.summary),
   })
 }
 

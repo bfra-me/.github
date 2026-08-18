@@ -1,5 +1,20 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.40
+### Patch Changes
+
+
+- Lockfile-maintenance pull requests now generate a changeset instead of failing to parse. ([#2588](https://github.com/bfra-me/.github/pull/2588))
+
+
+- Grouped updates spanning multiple managers now describe each dependency with its own manager instead of labeling them all with one. ([#2582](https://github.com/bfra-me/.github/pull/2582))
+
+
+- Changesets no longer name packages that neither changed nor consume an updated dependency; Changesets itself still bumps dependents. ([#2584](https://github.com/bfra-me/.github/pull/2584))
+
+
+- The grouped changeset strategy is now chosen from relationships between affected packages, rather than unrelated internal dependencies elsewhere in the workspace. ([#2586](https://github.com/bfra-me/.github/pull/2586))
+
 ## 0.2.39
 ### Patch Changes
 

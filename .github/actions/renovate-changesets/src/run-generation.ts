@@ -8,7 +8,8 @@ import {writeRenovateChangeset} from './changeset-writer.js'
 import {isPackageReleasable, readChangesetsReleasePolicy} from './changesets-release-policy.js'
 import {classifyRenovateUpdates} from './classify/renovate-classifier.js'
 import {adaptClassifiedUpdates} from './compatibility-adapter.js'
-import {extractRenovateUpdates} from './extract/renovate-body-extractor.js'
+import {classifyNoPackageOperation} from './extract/non-package-renovate-operation.js'
+import {extractRenovateUpdates, NoPackageTableError} from './extract/renovate-body-extractor.js'
 import {formatChangesetSummary} from './format/changeset-summary-formatter.js'
 import {analyzeMultiPackageUpdate} from './multi-package-analyzer.js'
 import {generateMultiPackageChangesets} from './multi-package-changeset-generator.js'
@@ -39,20 +40,41 @@ export async function generateChangesetsFromAnalysis(params: {
   categorizationResult: unknown
   updateType: string
   changesetType: 'patch' | 'minor' | 'major'
-}): Promise<RunGenerationResult> {
+}): Promise<RunGenerationResult | undefined> {
   const commitMessage =
     params.prContext.commitMessages.find(message => /\[security\]\s*$/iu.test(message)) ??
     params.prContext.commitMessages.at(-1)
   const prBody = params.prBody ?? params.prContext.prBody
-  const extracted = extractRenovateUpdates({
-    prNumber: params.prNumber,
-    body: prBody,
-    branchName: params.prContext.branchName,
-    manager: params.prContext.manager,
-    changedFiles: params.changedFiles,
-    commitMessage,
-    labels: params.prContext.labels,
-  })
+  let extracted
+  try {
+    extracted = extractRenovateUpdates({
+      prNumber: params.prNumber,
+      body: prBody,
+      branchName: params.prContext.branchName,
+      manager: params.prContext.manager,
+      changedFiles: params.changedFiles,
+      commitMessage,
+      labels: params.prContext.labels,
+    })
+  } catch (error) {
+    if (!(error instanceof NoPackageTableError)) throw error
+
+    const disposition = classifyNoPackageOperation(
+      prBody,
+      params.prContext.branchName,
+      params.config.branchPrefix,
+    )
+    if (disposition.kind === 'skip') {
+      core.info(
+        `Recognized ${disposition.reason} Renovate control-plane operation; skipping changeset generation`,
+      )
+      return undefined
+    }
+
+    throw new Error(
+      `Failed to parse Renovate PR #${params.prNumber}: body has no dependency table and was not recognized as a known control-plane operation`,
+    )
+  }
   const classification = classifyRenovateUpdates(extracted)
   const parsed = adaptClassifiedUpdates(extracted, classification)
   const classifiedPRContext: RenovatePRContext = {

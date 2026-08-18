@@ -405,6 +405,32 @@ ${changeset.summary}
       expect(coreMocks.info).toHaveBeenCalledWith('No relevant files changed, skipping')
     })
 
+    it('sets complete zero outputs when no relevant files changed', async () => {
+      const eventData = {
+        pull_request: {
+          user: {login: 'renovate[bot]'},
+          number: 2,
+          title: 'chore(deps): update dependency test to v1.0.0',
+          body: defaultPRBody,
+          head: {ref: 'renovate/some-branch'},
+        },
+      }
+      fsMocks.readFile.mockResolvedValue(JSON.stringify(eventData))
+      octokitMocks.rest.pulls.listFiles.mockResolvedValue({data: []})
+      coreMocks.getInput.mockImplementation((name: string) => {
+        if (name === 'token') return 'test-token'
+        if (name === 'working-directory') return '/tmp'
+        return ''
+      })
+      fsMocks.access.mockResolvedValue(undefined)
+
+      await import('../src/index')
+
+      expect(coreMocks.setFailed).not.toHaveBeenCalled()
+      expect(coreMocks.setOutput).toHaveBeenCalledWith('changesets-created', '0')
+      expect(coreMocks.setOutput).toHaveBeenCalledWith('changeset-files', '[]')
+    })
+
     it('should process PR from bfra-me[bot]', async () => {
       const eventData = {
         pull_request: {

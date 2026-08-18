@@ -115,7 +115,7 @@ describe('generateChangesetsFromAnalysis', () => {
       changesetType: 'patch',
     })
 
-    expect(result.changesetContent).toBe(
+    expect(result?.changesetContent).toBe(
       'Update Docker image `node` from `22.7.0-alpine` to `22.8.0-alpine`',
     )
   })
@@ -149,9 +149,9 @@ describe('generateChangesetsFromAnalysis', () => {
       changesetType: 'patch',
     })
 
-    expect(result.changesetContent).toBe(
+    expect(result?.changesetContent).toBe(
       'Update GitHub Actions workflow dependency `actions/checkout`',
     )
-    expect(result.changesetContent).not.toContain('3d3c42e5')
+    expect(result?.changesetContent).not.toContain('3d3c42e5')
   })
 })

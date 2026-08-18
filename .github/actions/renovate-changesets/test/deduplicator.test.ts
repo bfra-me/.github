@@ -338,7 +338,47 @@ describe('duplicate-strategies', () => {
           filePath: '/path/existing.md',
           content: '',
           releases: [{name: 'pkg-a', type: 'patch' as const}],
-          summary: '',
+          summary: 'Update dep',
+          createdAt: new Date(),
+          age: 0,
+        },
+      ]
+
+      const result = checkAgainstExistingChangesets(changesets, existing)
+
+      expect(result.unique).toHaveLength(0)
+      expect(result.duplicateFiles).toContain('existing.md')
+    })
+
+    it('should not detect when new changeset summary differs from existing', () => {
+      const changesets = [makeChangeset('cs1', ['pkg-a'], 'Update dep', 'patch')]
+      const existing = [
+        {
+          filename: 'existing.md',
+          filePath: '/path/existing.md',
+          content: '',
+          releases: [{name: 'pkg-a', type: 'patch' as const}],
+          summary: 'Unrelated earlier work',
+          createdAt: new Date(),
+          age: 0,
+        },
+      ]
+
+      const result = checkAgainstExistingChangesets(changesets, existing)
+
+      expect(result.unique).toHaveLength(1)
+      expect(result.duplicateFiles).toHaveLength(0)
+    })
+
+    it('should normalize summary whitespace when detecting duplicates', () => {
+      const changesets = [makeChangeset('cs1', ['pkg-a'], 'Update dep', 'patch')]
+      const existing = [
+        {
+          filename: 'existing.md',
+          filePath: '/path/existing.md',
+          content: '',
+          releases: [{name: 'pkg-a', type: 'patch' as const}],
+          summary: '  Update   dep  ',
           createdAt: new Date(),
           age: 0,
         },

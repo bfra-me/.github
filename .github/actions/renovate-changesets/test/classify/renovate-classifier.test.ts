@@ -43,6 +43,19 @@ function createExtractedUpdates(
 }
 
 describe('classifyRenovateUpdates', () => {
+  it('classifies lockfile maintenance as a non-security patch', () => {
+    const extracted = {
+      ...createExtractedUpdates([]),
+      operation: {kind: 'lockfile-maintenance' as const, packageManagers: ['pnpm' as const]},
+    }
+
+    expect(classifyRenovateUpdates(extracted)).toEqual({
+      bumpType: 'patch',
+      updateCategory: 'patch',
+      isSecurityUpdate: false,
+    })
+  })
+
   it('classifies a patch transition as a patch bump', () => {
     const extracted = extractRenovateUpdates({
       prNumber: 2001,

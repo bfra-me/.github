@@ -52,6 +52,12 @@ export interface ExtractedRenovateUpdates {
   commitMessage?: string
   labels: string[]
   updates: ExtractedUpdate[]
+  operation?: LockfileMaintenanceOperation
+}
+
+export interface LockfileMaintenanceOperation {
+  kind: 'lockfile-maintenance'
+  packageManagers: ('npm' | 'pnpm' | 'yarn' | 'bun')[]
 }
 
 export class ExtractionError extends Error {
@@ -60,6 +66,9 @@ export class ExtractionError extends Error {
     this.name = 'ExtractionError'
   }
 }
+
+export class NoPackageTableError extends ExtractionError {}
+export class MalformedDependencyTableError extends ExtractionError {}
 
 interface ParsedTable {
   headers: string[]
@@ -70,7 +79,26 @@ export function extractRenovateUpdates(
   options: ExtractRenovateUpdatesOptions,
 ): ExtractedRenovateUpdates {
   const fallbackManager = resolveManager(options.manager, options.branchName, options.prNumber)
-  const table = findDependencyTable(options.body, options.prNumber)
+  const tableResult = findDependencyTable(options.body, options.prNumber, options.changedFiles)
+  if (tableResult.operation != null) {
+    const extracted: ExtractedRenovateUpdates = {
+      prNumber: options.prNumber,
+      branchName: options.branchName,
+      manager: 'npm',
+      labels: options.labels ?? [],
+      updates: [],
+      operation: tableResult.operation,
+    }
+    if (options.commitMessage != null) extracted.commitMessage = options.commitMessage
+    return extracted
+  }
+
+  const table = tableResult.table
+  if (table == null) {
+    throw new NoPackageTableError(
+      `Failed to parse Renovate PR #${options.prNumber}: dependency table requires Package and Change headings`,
+    )
+  }
   const packageIndex = findHeadingIndex(table.headers, PACKAGE_HEADINGS)
   const changeIndex = findHeadingIndex(table.headers, CHANGE_HEADINGS)
   const updateIndex = findHeadingIndex(table.headers, UPDATE_HEADINGS)
@@ -119,8 +147,18 @@ export function extractRenovateUpdates(
   return extracted
 }
 
-function findDependencyTable(body: string, prNumber: number): ParsedTable {
+interface TableResult {
+  table?: ParsedTable
+  operation?: LockfileMaintenanceOperation
+}
+
+function findDependencyTable(
+  body: string,
+  prNumber: number,
+  changedFiles: string[] | undefined,
+): TableResult {
   const lines = body.replaceAll('\r\n', '\n').split('\n')
+  const tables: ParsedTable[] = []
 
   for (let index = 0; index < lines.length - 1; index++) {
     const headerLine = lines[index]
@@ -142,12 +180,70 @@ function findDependencyTable(body: string, prNumber: number): ParsedTable {
       if (!isSeparatorRow(row)) rows.push(row)
     }
 
-    return {headers, rows}
+    tables.push({headers, rows})
+    index += rows.length + 1
   }
 
-  throw new ExtractionError(
-    `Failed to parse Renovate PR #${prNumber}: no recognizable dependency table found`,
+  const packageTable = tables.find(
+    table => findHeadingIndex(table.headers, PACKAGE_HEADINGS) != null,
   )
+  if (packageTable != null) {
+    if (findHeadingIndex(packageTable.headers, CHANGE_HEADINGS) == null) {
+      throw new MalformedDependencyTableError(
+        `Failed to parse Renovate PR #${prNumber}: dependency table requires Package and Change headings`,
+      )
+    }
+    if (packageTable.rows.length === 0) {
+      throw new MalformedDependencyTableError(
+        `Failed to parse Renovate PR #${prNumber}: dependency table has no rows`,
+      )
+    }
+    return {table: packageTable}
+  }
+
+  const maintenanceTable = tables.find(table => {
+    const updateIndex = findHeadingIndex(table.headers, UPDATE_HEADINGS)
+    const changeIndex = findHeadingIndex(table.headers, CHANGE_HEADINGS)
+    return (
+      updateIndex != null &&
+      changeIndex != null &&
+      table.rows.some(row => normalizeHeading(row[updateIndex] ?? '') === 'lockfilemaintenance')
+    )
+  })
+  if (maintenanceTable != null) {
+    const packageManagers = detectLockfileManagers(changedFiles ?? [])
+    if (packageManagers.length === 0) {
+      throw new MalformedDependencyTableError(
+        `Failed to parse Renovate PR #${prNumber}: lockfile maintenance table has no matching lockfile`,
+      )
+    }
+    return {
+      operation: {kind: 'lockfile-maintenance', packageManagers},
+    }
+  }
+
+  throw new NoPackageTableError(
+    `Failed to parse Renovate PR #${prNumber}: dependency table requires Package and Change headings`,
+  )
+}
+
+function detectLockfileManagers(changedFiles: string[]): ('npm' | 'pnpm' | 'yarn' | 'bun')[] {
+  const managers: ('npm' | 'pnpm' | 'yarn' | 'bun')[] = []
+  for (const file of changedFiles) {
+    const basename = file.split('/').at(-1)?.toLowerCase()
+    const manager =
+      basename === 'pnpm-lock.yaml'
+        ? 'pnpm'
+        : basename === 'package-lock.json' || basename === 'npm-shrinkwrap.json'
+          ? 'npm'
+          : basename === 'yarn.lock'
+            ? 'yarn'
+            : basename === 'bun.lock' || basename === 'bun.lockb'
+              ? 'bun'
+              : undefined
+    if (manager != null && !managers.includes(manager)) managers.push(manager)
+  }
+  return managers
 }
 
 function splitTableRow(line: string): string[] | null {
@@ -185,7 +281,7 @@ function parseUpdateRow(
   const rawUpdateType = updateIndex == null ? undefined : row[updateIndex]
 
   if (rawPackageName == null || rawChange == null) {
-    throw new ExtractionError(
+    throw new MalformedDependencyTableError(
       `Failed to parse Renovate PR #${prNumber} row ${rowNumber}: required cell is missing`,
     )
   }
@@ -204,7 +300,9 @@ function parseUpdateRow(
       : rawChange.match(VERSION_TRANSITION_PATTERN)
 
   if (transition?.[1] == null || transition[2] == null) {
-    throw new ExtractionError(`PR #${prNumber} row ${rowNumber} has no valid version transition`)
+    throw new MalformedDependencyTableError(
+      `PR #${prNumber} row ${rowNumber} has no valid version transition`,
+    )
   }
 
   return {

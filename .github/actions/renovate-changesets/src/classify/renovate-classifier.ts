@@ -36,6 +36,10 @@ interface ParsedVersion {
  * changes, including prerelease-to-stable promotion.
  */
 export function classifyRenovateUpdates(extracted: ExtractedRenovateUpdates): ClassificationResult {
+  if (extracted.operation?.kind === 'lockfile-maintenance') {
+    return {bumpType: 'patch', updateCategory: 'patch', isSecurityUpdate: false}
+  }
+
   const bumpType = extracted.updates.reduce<BumpType>(
     (highest, update) => maxBump(highest, classifyVersionTransition(update)),
     'patch',

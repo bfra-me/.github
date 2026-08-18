@@ -215,7 +215,10 @@ export async function generateChangesetsFromAnalysis(params: {
   setRunGenerationOutputs({
     multiPackageResult,
     multiPackageAnalysis,
-    updateType: extracted.manager,
+    updateType:
+      extracted.operation?.kind === 'lockfile-maintenance'
+        ? extracted.operation.kind
+        : extracted.manager,
     dependencyNames: compatibility.dependencyNames,
     changesetContent,
     categorizationResult: compatibility.categorizationResult,

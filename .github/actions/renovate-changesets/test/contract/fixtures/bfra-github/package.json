@@ -1,0 +1,9 @@
+{
+  "name": "@bfra.me/.github",
+  "version": "4.16.56",
+  "private": true,
+  "workspaces": [
+    ".",
+    ".github/actions/*"
+  ]
+}

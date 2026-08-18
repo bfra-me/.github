@@ -42,6 +42,7 @@ export function authoredReleases(
 export function effectiveReleases(
   releasePlan: ChangesetsOracleResult['releasePlan'],
 ): ReleaseEntry[] {
+  // Changesets records considered-but-skipped packages as type "none"; they were not authored by this action.
   return releasePlan.releases.filter(release => release.type !== 'none')
 }
 

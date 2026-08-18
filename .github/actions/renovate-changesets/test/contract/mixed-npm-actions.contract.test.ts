@@ -27,12 +27,6 @@ describe('mixed npm and GitHub Actions manager contract', () => {
   beforeEach(async () => {
     workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'renovate-changesets-mixed-contract-'))
     await fs.cp(fixtureRoot, workspace, {recursive: true})
-    await fs.mkdir(path.join(workspace, 'apps/agent'), {recursive: true})
-    await fs.writeFile(
-      path.join(workspace, 'apps/agent/package.json'),
-      '{"name":"@marcusrbrown/infra-agent","private":true,"dependencies":{"@aws-sdk/client-iam":"^3.500.0","@aws-sdk/client-s3":"^3.500.0","@marcusrbrown/infra-shared":"workspace:*"}}',
-      'utf8',
-    )
     await updatePackageDependencies(path.join(workspace, 'apps/gateway/package.json'), {
       '@aws-sdk/client-s3': '^3.500.0',
     })

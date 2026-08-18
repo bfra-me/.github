@@ -70,6 +70,49 @@ describe('classifyRenovateUpdates', () => {
     })
   })
 
+  it('classifies replacement as a patch bump', () => {
+    const extracted = extractRenovateUpdates({
+      prNumber: 2592,
+      body: '| Package | Update | Change |\n|---|---|---|\n| [mocha](https://mochajs.org/) → [mochaNew](https://mochajs.org/) | replacement | [`6.2.3` → `6.2.4`](https://renovatebot.com/diffs/npm/mocha/6.2.3/6.2.4) |',
+      branchName: 'renovate/mocha',
+    })
+
+    expect(classifyRenovateUpdates(extracted).bumpType).toBe('patch')
+  })
+
+  it('classifies rollback as a patch bump', () => {
+    // Constructed: the Update cell is the load-bearing rollback signal.
+    const extracted = extractRenovateUpdates({
+      prNumber: 2593,
+      body: '| Package | Update | Change |\n|---|---|---|\n| package | rollback | `1.2.3` -> `1.2.2` |',
+      branchName: 'renovate/package',
+    })
+
+    expect(classifyRenovateUpdates(extracted).bumpType).toBe('patch')
+  })
+
+  it('classifies pinDigest as a patch bump', () => {
+    // Constructed: the Update cell is the load-bearing pinDigest signal.
+    const extracted = extractRenovateUpdates({
+      prNumber: 2594,
+      body: '| Package | Update | Change |\n|---|---|---|\n| package | pinDigest | `v4` -> `v4@sha256:abc123` |',
+      branchName: 'renovate/package',
+    })
+
+    expect(classifyRenovateUpdates(extracted).bumpType).toBe('patch')
+  })
+
+  it('classifies bump ranges by their underlying versions', () => {
+    // Constructed: the Update cell is the load-bearing bump signal.
+    const extracted = extractRenovateUpdates({
+      prNumber: 2596,
+      body: '| Package | Update | Change |\n|---|---|---|\n| package | bump | `^1.0.0` -> `^1.1.0` |',
+      branchName: 'renovate/package',
+    })
+
+    expect(classifyRenovateUpdates(extracted).bumpType).toBe('minor')
+  })
+
   it('classifies a major transition as a major bump', () => {
     const extracted = extractRenovateUpdates({
       prNumber: 2002,

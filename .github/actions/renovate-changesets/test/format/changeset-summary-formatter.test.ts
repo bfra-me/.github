@@ -30,6 +30,18 @@ function formatUpdate(
 }
 
 describe('formatChangesetSummary', () => {
+  it('renders replacement updates with both package names', () => {
+    const extracted = extractRenovateUpdates({
+      prNumber: 3101,
+      body: '| Package | Update | Change |\n|---|---|---|\n| [mocha](https://mochajs.org/) → [mochaNew](https://mochajs.org/) | replacement | [`6.2.3` → `6.2.4`](https://renovatebot.com/diffs/npm/mocha/6.2.3/6.2.4) |',
+      branchName: 'renovate/mocha',
+    })
+
+    expect(formatChangesetSummary(classifyRenovateUpdates(extracted), extracted)).toBe(
+      'Replace npm dependency `mocha` with `mochaNew`',
+    )
+  })
+
   it('formats lockfile maintenance by package manager', () => {
     const extracted = extractRenovateUpdates({
       prNumber: 3002,

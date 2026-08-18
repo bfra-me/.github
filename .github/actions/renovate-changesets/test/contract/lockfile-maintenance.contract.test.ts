@@ -182,7 +182,7 @@ describe('lockfile maintenance contract', () => {
     )
   })
 
-  it('deduplicates a package with an existing pending changeset', async () => {
+  it('does not suppress an unrelated pending changeset', async () => {
     await fs.writeFile(
       path.join(workspace, '.changeset/existing-renovate-changesets.md'),
       `---\n'renovate-changesets': patch\n---\n\nExisting pending work.\n`,
@@ -191,14 +191,48 @@ describe('lockfile maintenance contract', () => {
 
     await run()
 
-    expect(contractState.outputs.get('changesets-created')).toBe('3')
-    expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toHaveLength(3)
+    expect(contractState.outputs.get('changesets-created')).toBe('4')
+    expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toHaveLength(4)
 
     // Remove the seeded file before invoking the oracle: Changesets status reports every file in
     // .changeset, while the action's changeset-files output identifies what this run authored.
     await fs.rm(path.join(workspace, '.changeset/existing-renovate-changesets.md'))
 
     const oracle = await runChangesetsOracle('lockfile-maintenance-existing', workspace, {
+      errors: contractState.errors,
+      warnings: contractState.warnings,
+      outputs: contractState.outputs,
+    })
+    expect(authoredReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'renovate-changesets', type: 'patch'},
+      {name: 'update-metadata', type: 'patch'},
+      {name: 'update-repository-settings', type: 'patch'},
+    ])
+    expect(effectiveReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'renovate-changesets', type: 'patch'},
+      {name: 'update-metadata', type: 'patch'},
+      {name: 'update-repository-settings', type: 'patch'},
+    ])
+    expect(oracle.releasePlan.changesets).toHaveLength(4)
+  })
+
+  it('suppresses an identical pending changeset on rerun', async () => {
+    await fs.writeFile(
+      path.join(workspace, '.changeset/existing-renovate-changesets.md'),
+      `---\n'renovate-changesets': patch\n---\n\nRefresh pnpm lockfile dependencies\n\n**Multi-package update** for package \`renovate-changesets\`.\n`,
+      'utf8',
+    )
+
+    await run()
+
+    expect(contractState.outputs.get('changesets-created')).toBe('3')
+    expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toHaveLength(3)
+
+    await fs.rm(path.join(workspace, '.changeset/existing-renovate-changesets.md'))
+
+    const oracle = await runChangesetsOracle('lockfile-maintenance-identical', workspace, {
       errors: contractState.errors,
       warnings: contractState.warnings,
       outputs: contractState.outputs,

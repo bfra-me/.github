@@ -22,7 +22,7 @@ export function calculateChangesetContentHash(changeset: ChangesetInfo): string 
     releases: changeset.releases
       .map(release => ({name: release.name, type: release.type}))
       .sort((left, right) => left.name.localeCompare(right.name)),
-    summary: changeset.summary.trim().replaceAll(/\s+/g, ' '),
+    summary: normalizeSummary(changeset.summary),
   })
 }
 
@@ -73,7 +73,14 @@ export function isChangesetDuplicateOfExisting(
     return false
   }
 
-  return newReleases.every((release, index) => release === existingReleases[index])
+  return (
+    newReleases.every((release, index) => release === existingReleases[index]) &&
+    normalizeSummary(changeset.summary) === normalizeSummary(existing.summary)
+  )
+}
+
+function normalizeSummary(summary: string): string {
+  return summary.trim().replaceAll(/\s+/gu, ' ')
 }
 
 function calculateSetOverlap(left: Set<string>, right: Set<string>): number {

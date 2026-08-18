@@ -29,6 +29,103 @@ import {
 } from './fixtures'
 
 describe('extractRenovateUpdates', () => {
+  const rowBody = (packageCell: string, update: string, change: string): string =>
+    `| Package | Update | Change |\n|---|---|---|\n| ${packageCell} | ${update} | ${change} |`
+
+  it('extracts the canonical pin row unchanged', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 2591,
+      body: '| Package | Update | Change |\n|---|---|---|\n| [koa](https://github.com/koajs/koa) | pin | [`^1.7.0` → `1.7.0`](https://renovatebot.com/diffs/npm/koa/1.7.0/1.7.0) |',
+      branchName: 'renovate/koa',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      packageName: 'koa',
+      currentVersion: '1.7.0',
+      newVersion: '1.7.0',
+      isDigest: false,
+    })
+  })
+
+  it('extracts both sides of a replacement row', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 2592,
+      body: '| Package | Update | Change |\n|---|---|---|\n| [mocha](https://mochajs.org/) → [mochaNew](https://mochajs.org/) | replacement | [`6.2.3` → `6.2.4`](https://renovatebot.com/diffs/npm/mocha/6.2.3/6.2.4) |',
+      branchName: 'renovate/mocha',
+    })
+
+    expect(result.updates[0]).toMatchObject({
+      packageName: 'mochaNew',
+      replacedPackageName: 'mocha',
+      currentVersion: '6.2.3',
+      newVersion: '6.2.4',
+    })
+  })
+
+  it('extracts a rollback transition', () => {
+    // Constructed: Renovate's Update cell is the load-bearing signal; the Change shape is not public-verbatim here.
+    const result = extractRenovateUpdates({
+      prNumber: 2593,
+      body: rowBody('package', 'rollback', '`1.2.3` -> `1.2.2`'),
+      branchName: 'renovate/package',
+    })
+
+    expect(result.updates[0]).toMatchObject({currentVersion: '1.2.3', newVersion: '1.2.2'})
+  })
+
+  it('marks pinDigest as a digest from the Update cell', () => {
+    // Constructed: no public verbatim pinDigest row was available; Update is the load-bearing signal.
+    const result = extractRenovateUpdates({
+      prNumber: 2594,
+      body: rowBody('package', 'pinDigest', '`v4` -> `v4@sha256:abc123`'),
+      branchName: 'renovate/package',
+    })
+
+    expect(result.updates[0]).toMatchObject({currentVersion: '4', newVersion: '4'})
+  })
+
+  it('marks pinDigest as a digest for a bare-SHA Change cell', () => {
+    // Constructed: no public verbatim pinDigest row was available; this proves Change shape is irrelevant.
+    const result = extractRenovateUpdates({
+      prNumber: 2595,
+      body: rowBody('package', 'pinDigest', '`abc1234` -> `def5678`'),
+      branchName: 'renovate/package',
+    })
+
+    expect(result.updates[0]?.isDigest).toBe(true)
+  })
+
+  it('extracts a bump range transition', () => {
+    // Constructed: Renovate's Update cell is the load-bearing signal; the Change shape is not public-verbatim here.
+    const result = extractRenovateUpdates({
+      prNumber: 2596,
+      body: rowBody('package', 'bump', '`^1.0.0` -> `^1.1.0`'),
+      branchName: 'renovate/package',
+    })
+
+    expect(result.updates[0]).toMatchObject({currentVersion: '1.0.0', newVersion: '1.1.0'})
+  })
+
+  it('extracts the canonical digest row', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 2597,
+      body: '| Package | Type | Update | Change |\n|---|---|---|---|\n|[actions/setup-go](https://redirect.github.com/actions/setup-go) |action |digest |`0aaccfd` -> `d35c59a` |',
+      branchName: 'renovate/actions-setup-go',
+    })
+
+    expect(result.updates[0]?.isDigest).toBe(true)
+  })
+
+  it('falls through to version parsing for an unrecognized Update value', () => {
+    const result = extractRenovateUpdates({
+      prNumber: 2598,
+      body: rowBody('package', 'futureUpdateType', '`1.0.0` -> `1.1.0`'),
+      branchName: 'renovate/package',
+    })
+
+    expect(result.updates[0]).toMatchObject({currentVersion: '1.0.0', newVersion: '1.1.0'})
+  })
+
   const lockfileMaintenanceBody = `This PR contains the following updates:
 
 | Update | Change |

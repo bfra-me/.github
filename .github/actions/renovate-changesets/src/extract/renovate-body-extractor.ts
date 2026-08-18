@@ -10,7 +10,7 @@ import {detectManagerFromFilename} from '../parser/renovate-manager-detector.js'
 // versions. A digest Update column overrides the heuristic, including for all-digit short SHAs.
 const HEX_TRANSITION_PATTERN = /`?([0-9a-f]{7,40})`?\s*(?:→|->)\s*`?([0-9a-f]{7,40})`?/iu
 const VERSION_TRANSITION_PATTERN =
-  /`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])\s*(?:→|->)\s*`?v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])/iu
+  /`?[<>=~^]*v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])\s*(?:→|->)\s*`?[<>=~^]*v?(\d+(?:\.\d+){0,2}(?:-[\w.]+)?(?:\+[\w.]+)?)`?(?![\dA-Z.-])/iu
 const MARKDOWN_CONTROL_PATTERN = /([\\`*_[\]()>#!|])/gu
 const TABLE_SEPARATOR_PATTERN = /^:?-{3,}:?$/u
 
@@ -18,6 +18,18 @@ const PACKAGE_HEADINGS = new Set(['package', 'package name', 'dependency', 'name
 const CHANGE_HEADINGS = new Set(['change', 'version', 'version change', 'from/to'])
 const UPDATE_HEADINGS = new Set(['update', 'update type'])
 const TYPE_HEADINGS = new Set(['type', 'dependency type'])
+const CANONICAL_UPDATE_TYPES = new Set([
+  'major',
+  'minor',
+  'patch',
+  'pin',
+  'pindigest',
+  'digest',
+  'lockfilemaintenance',
+  'rollback',
+  'bump',
+  'replacement',
+])
 
 export type SupportedExtractedManager = Extract<
   RenovateManagerType,
@@ -33,6 +45,8 @@ export interface ExtractedUpdate {
   manager: ExtractedRowManager
   /** True when both versions are commit SHAs, i.e. a digest pin refresh rather than a release. */
   isDigest: boolean
+  replacedPackageName?: string
+  isRollback?: boolean
 }
 
 export interface ExtractRenovateUpdatesOptions {
@@ -286,15 +300,21 @@ function parseUpdateRow(
     )
   }
 
-  const packageName = normalizePackageName(rawPackageName, prNumber, rowNumber)
+  const normalizedUpdateType = normalizeUpdateType(rawUpdateType)
+  const replacementNames =
+    normalizedUpdateType === 'replacement'
+      ? parseReplacementPackageNames(rawPackageName, prNumber, rowNumber)
+      : undefined
+  const packageName =
+    replacementNames?.newName ?? normalizePackageName(rawPackageName, prNumber, rowNumber)
   const hexTransition = rawChange.match(HEX_TRANSITION_PATTERN)
-  const updateType = rawUpdateType?.trim().toLowerCase()
-  const digestByUpdateType = updateType === 'digest'
-  const hasUsableUpdateType = updateType != null && updateType.length > 0
+  const digestByUpdateType =
+    normalizedUpdateType === 'digest' || normalizedUpdateType === 'pindigest'
+  const hasUsableUpdateType = rawUpdateType != null && rawUpdateType.trim().length > 0
   const digestByFallback =
     !hasUsableUpdateType && hexTransition != null && isHexDigestTransition(hexTransition)
   const transition = digestByUpdateType
-    ? hexTransition
+    ? (hexTransition ?? rawChange.match(VERSION_TRANSITION_PATTERN))
     : digestByFallback
       ? hexTransition
       : rawChange.match(VERSION_TRANSITION_PATTERN)
@@ -311,6 +331,30 @@ function parseUpdateRow(
     newVersion: normalizeBodyValue(transition[2], prNumber, rowNumber),
     manager,
     isDigest: digestByUpdateType || digestByFallback,
+    ...(replacementNames?.oldName == null ? {} : {replacedPackageName: replacementNames.oldName}),
+    ...(normalizedUpdateType === 'rollback' ? {isRollback: true} : {}),
+  }
+}
+
+function normalizeUpdateType(value: string | undefined): string | undefined {
+  const normalized = normalizeHeading(value ?? '').replaceAll(' ', '')
+  return CANONICAL_UPDATE_TYPES.has(normalized) ? normalized : undefined
+}
+
+function parseReplacementPackageNames(
+  value: string,
+  prNumber: number,
+  rowNumber: number,
+): {oldName: string; newName: string} {
+  const parts = value.split(/\s+(?:→|->)\s+/u)
+  if (parts.length !== 2 || parts[0] == null || parts[1] == null) {
+    throw new MalformedDependencyTableError(
+      `Failed to parse Renovate PR #${prNumber} row ${rowNumber}: replacement package names are malformed`,
+    )
+  }
+  return {
+    oldName: normalizePackageName(parts[0], prNumber, rowNumber),
+    newName: normalizePackageName(parts[1], prNumber, rowNumber),
   }
 }
 

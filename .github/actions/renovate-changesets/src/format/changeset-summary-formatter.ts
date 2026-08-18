@@ -70,6 +70,10 @@ export function formatChangesetSummary(
   if (renderedUpdates.length === 1) {
     const update = renderedUpdates[0]
     const labels = labelsForManager(extracted.updates[0]?.manager ?? 'unknown')
+    const replacement = extracted.updates[0]?.replacedPackageName
+    if (replacement != null) {
+      return `${prefix}Replace ${labels.singular} \`${escapeForMarkdown(replacement)}\` with ${update?.packageName ?? ''}`
+    }
     return `${prefix}Update ${labels.singular} ${update?.packageName ?? ''}${update?.versions ?? ''}`
   }
 

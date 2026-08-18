@@ -54,6 +54,7 @@ export function classifyRenovateUpdates(extracted: ExtractedRenovateUpdates): Cl
 }
 
 function classifyVersionTransition(update: ExtractedUpdate): BumpType {
+  if (update.isRollback) return 'patch'
   // A digest refresh repins the same reference and carries no semver signal, so it is a patch.
   // Falling through to version parsing would classify it major, because a SHA is unparseable.
   if (update.isDigest) return 'patch'
@@ -71,7 +72,10 @@ function classifyVersionTransition(update: ExtractedUpdate): BumpType {
 }
 
 function parseSemver(value: string): ParsedVersion | undefined {
-  const match = value.trim().match(VERSION_PATTERN)
+  const match = value
+    .trim()
+    .replace(/^[<>=~^v]+/iu, '')
+    .match(VERSION_PATTERN)
   if (match == null) return undefined
 
   const [, major, minor, patch, prerelease] = match

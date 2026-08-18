@@ -6,7 +6,7 @@ import process from 'node:process'
 import {fileURLToPath} from 'node:url'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {run} from '../../src/run.js'
-import {runChangesetsOracle} from './changesets-oracle.js'
+import {authoredReleases, effectiveReleases, runChangesetsOracle} from './changesets-oracle.js'
 import {getContractState, getOctokitMocks} from './setup.js'
 
 const fixtureRoot = path.resolve(
@@ -198,11 +198,12 @@ describe('renovate-changesets releasable package contracts', () => {
         warnings: contractState.warnings,
         outputs: contractState.outputs,
       })
-      expect(
-        oracle.releasePlan.releases
-          .filter(({type}) => type !== 'none')
-          .map(({name, type}) => ({name, type})),
-      ).toEqual(scenario.expected)
+      expect(authoredReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual(
+        scenario.expected,
+      )
+      expect(effectiveReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual(
+        scenario.expected,
+      )
     })
   }
 })

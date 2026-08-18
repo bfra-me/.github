@@ -71,8 +71,8 @@ const analysis: MultiPackageAnalysisResult = {
   packageRelationships: relationships,
   affectedPackages: ['@scope/a', '@scope/b'],
   impactAnalysis: {
-    directlyAffected: ['@scope/a'],
-    indirectlyAffected: ['@scope/b'],
+    directlyAffected: ['@scope/b'],
+    indirectlyAffected: ['@scope/a'],
     riskLevel: 'medium',
     changesetStrategy: 'multiple',
   },

@@ -6,7 +6,12 @@ import process from 'node:process'
 import {fileURLToPath} from 'node:url'
 import {afterEach, beforeEach, describe, expect, it} from 'vitest'
 import {run} from '../../src/run.js'
-import {listGeneratedChangesets, runChangesetsOracle} from './changesets-oracle.js'
+import {
+  authoredReleases,
+  effectiveReleases,
+  listGeneratedChangesets,
+  runChangesetsOracle,
+} from './changesets-oracle.js'
 import {getContractState, getOctokitMocks} from './setup.js'
 
 const fixtureRoot = path.resolve(
@@ -25,9 +30,22 @@ describe('mixed npm and GitHub Actions manager contract', () => {
     await fs.mkdir(path.join(workspace, 'apps/agent'), {recursive: true})
     await fs.writeFile(
       path.join(workspace, 'apps/agent/package.json'),
-      '{"name":"@marcusrbrown/infra-agent","private":true,"dependencies":{"@marcusrbrown/infra-shared":"workspace:*"}}',
+      '{"name":"@marcusrbrown/infra-agent","private":true,"dependencies":{"@aws-sdk/client-iam":"^3.500.0","@aws-sdk/client-s3":"^3.500.0","@marcusrbrown/infra-shared":"workspace:*"}}',
       'utf8',
     )
+    await updatePackageDependencies(path.join(workspace, 'apps/gateway/package.json'), {
+      '@aws-sdk/client-s3': '^3.500.0',
+    })
+    await updatePackageDependencies(path.join(workspace, 'apps/vpn/package.json'), {
+      '@aws-sdk/client-lightsail': '^3.500.0',
+    })
+    const changesetConfigPath = path.join(workspace, '.changeset/config.json')
+    const changesetConfig = JSON.parse(await fs.readFile(changesetConfigPath, 'utf8')) as Record<
+      string,
+      unknown
+    >
+    changesetConfig.ignore = ['@marcusrbrown/infra-vpn']
+    await fs.writeFile(changesetConfigPath, JSON.stringify(changesetConfig), 'utf8')
     initializeGitRepository(workspace)
 
     process.env.NODE_ENV = 'production'
@@ -40,7 +58,7 @@ describe('mixed npm and GitHub Actions manager contract', () => {
     delete process.env.BRANCH_PREFIX
     delete process.env.SKIP_BRANCH_CHECK
     delete process.env.SORT_CHANGESETS
-    delete process.env.TARGET_PACKAGE
+    process.env.TARGET_PACKAGE = '@marcusrbrown/infra'
 
     await fs.writeFile(
       process.env.GITHUB_EVENT_PATH,
@@ -65,7 +83,7 @@ describe('mixed npm and GitHub Actions manager contract', () => {
       config: '',
       'default-changeset-type': 'patch',
       'exclude-patterns': '',
-      'target-package': '',
+      'target-package': '@marcusrbrown/infra',
       'commit-message-template': 'chore: add changeset for renovate updates',
       'max-retries': '0',
       'retry-delay': '100',
@@ -128,11 +146,12 @@ describe('mixed npm and GitHub Actions manager contract', () => {
       expectedSummary,
     )
 
-    expect(
-      oracle.releasePlan.releases
-        .filter(({type}) => type !== 'none')
-        .map(({name, type}) => ({name, type})),
-    ).toEqual([{name: '@marcusrbrown/infra-gateway', type: 'minor'}])
+    expect(authoredReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@marcusrbrown/infra-gateway', type: 'minor'},
+    ])
+    expect(effectiveReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
+      {name: '@marcusrbrown/infra-gateway', type: 'minor'},
+    ])
   })
 })
 
@@ -157,4 +176,15 @@ function initializeGitRepository(directory: string): void {
       )
     }
   }
+}
+
+async function updatePackageDependencies(
+  filePath: string,
+  dependencies: Record<string, string>,
+): Promise<void> {
+  const packageJson = JSON.parse(await fs.readFile(filePath, 'utf8')) as {
+    dependencies?: Record<string, string>
+  }
+  packageJson.dependencies = {...packageJson.dependencies, ...dependencies}
+  await fs.writeFile(filePath, JSON.stringify(packageJson), 'utf8')
 }

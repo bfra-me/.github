@@ -1,5 +1,9 @@
 {
   "name": "@marcusrbrown/infra-shared",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "yaml": "2.9.0",
+    "zod": "^4.3.6"
+  }
 }

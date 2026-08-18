@@ -18,19 +18,11 @@ let workspace = ''
 const contractState = getContractState()
 const octokitMocks = getOctokitMocks()
 
-describe('release set excludes unchanged providers', () => {
+describe('provider update release contract', () => {
   beforeEach(async () => {
-    workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'renovate-changesets-propagation-'))
+    workspace = await fs.mkdtemp(path.join(os.tmpdir(), 'renovate-changesets-provider-'))
     await fs.cp(fixtureRoot, workspace, {recursive: true})
     initializeGitRepository(workspace)
-
-    const gatewayPath = path.join(workspace, 'apps/gateway/package.json')
-    const gateway = JSON.parse(await fs.readFile(gatewayPath, 'utf8')) as Record<string, unknown>
-    gateway.dependencies = {
-      ...(gateway.dependencies as Record<string, string>),
-      '@aws-sdk/client-s3': '^3.500.0',
-    }
-    await fs.writeFile(gatewayPath, JSON.stringify(gateway), 'utf8')
 
     process.env.NODE_ENV = 'production'
     delete process.env.VITEST
@@ -48,12 +40,12 @@ describe('release set excludes unchanged providers', () => {
       process.env.GITHUB_EVENT_PATH,
       JSON.stringify({
         pull_request: {
-          number: 1119,
-          title: 'chore(deps): update dependency @aws-sdk/client-s3',
-          body: 'This PR contains the following updates:\n\n| Package | Type | Update | Change |\n|---|---|---|---|\n| @aws-sdk/client-s3 | dependencies | minor | `3.500.0` -> `3.501.0` |',
+          number: 1120,
+          title: 'chore(deps): update dependency yaml to v2.9.0',
+          body: 'This PR contains the following updates:\n\n| Package | Type | Update | Change |\n|---|---|---|---|\n| yaml | dependencies | minor | `2.8.0` -> `2.9.0` |',
           user: {login: 'mrbro-bot[bot]'},
           labels: [{name: 'dependencies'}, {name: 'renovate'}],
-          head: {ref: 'renovate/aws-sdk-client-s3-3.x'},
+          head: {ref: 'renovate/yaml-2.x'},
         },
       }),
       'utf8',
@@ -88,11 +80,11 @@ describe('release set excludes unchanged providers', () => {
 
     octokitMocks.listFiles.mockResolvedValue({
       data: [
-        {filename: 'apps/gateway/package.json', status: 'modified', additions: 1, deletions: 1},
+        {filename: 'packages/shared/package.json', status: 'modified', additions: 1, deletions: 1},
       ],
     })
     octokitMocks.listCommits.mockResolvedValue({
-      data: [{commit: {message: 'chore(deps): update dependency @aws-sdk/client-s3'}}],
+      data: [{commit: {message: 'chore(deps): update dependency yaml to v2.9.0'}}],
     })
   })
 
@@ -101,20 +93,19 @@ describe('release set excludes unchanged providers', () => {
     workspace = ''
   })
 
-  it('does not author a release for a provider when its consumer changed', async () => {
-    // This guards only against releasing an unchanged provider; it does not define consumer-specific
-    // release policy.
+  it('authors the provider and lets Changesets add its dependent', async () => {
     await run()
 
-    const oracle = await runChangesetsOracle('release-propagation-direction', workspace, {
+    const oracle = await runChangesetsOracle('provider-update', workspace, {
       errors: contractState.errors,
       warnings: contractState.warnings,
       outputs: contractState.outputs,
     })
     expect(authoredReleases(oracle.releasePlan).map(({name}) => name)).toEqual([
-      '@marcusrbrown/infra-gateway',
+      '@marcusrbrown/infra-shared',
     ])
     expect(effectiveReleases(oracle.releasePlan).map(({name}) => name)).toEqual([
+      '@marcusrbrown/infra-shared',
       '@marcusrbrown/infra-gateway',
     ])
   })

@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.43
+### Patch Changes
+
+
+- A changeset is no longer dropped because an unrelated pending changeset targets the same package at the same bump level. ([#2597](https://github.com/bfra-me/.github/pull/2597))
+
 ## 0.2.42
 ### Patch Changes
 

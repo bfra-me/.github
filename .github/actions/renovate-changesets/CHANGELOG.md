@@ -1,5 +1,12 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.41
+### Patch Changes
+
+
+- Renovate config-migration and onboarding pull requests are now recognized and skipped cleanly, while unrecognized pull requests without a dependency table still fail. ([#2590](https://github.com/bfra-me/.github/pull/2590))
+  Skipped runs now also publish the complete zero-valued output set.
+
 ## 0.2.40
 ### Patch Changes
 

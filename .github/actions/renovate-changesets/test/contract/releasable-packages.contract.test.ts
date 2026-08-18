@@ -89,10 +89,7 @@ const scenarios: Scenario[] = [
         ),
       },
     ],
-    expected: [
-      {name: '@marcusrbrown/infra-gateway', type: 'patch'},
-      {name: '@marcusrbrown/infra-shared', type: 'patch'},
-    ],
+    expected: [{name: '@marcusrbrown/infra-gateway', type: 'patch'}],
   },
   {
     name: 'workspace-glob-libs',

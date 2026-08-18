@@ -156,6 +156,10 @@ export function setGroupedPRErrorOutputs(): void {
 }
 
 export function setErrorOutputs(): void {
+  setBaseZeroOutputs()
+}
+
+function setBaseZeroOutputs(): void {
   setChangesetOutputs({
     changesetsCreated: 0,
     changesetFiles: [],
@@ -188,7 +192,7 @@ export function setErrorOutputs(): void {
 }
 
 export function setSkippedOutputs(): void {
-  setErrorOutputs()
+  setBaseZeroOutputs()
   setGroupedPROutputs({
     enabled: false,
     found: 0,

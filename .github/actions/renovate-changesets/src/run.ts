@@ -1,7 +1,7 @@
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
 import * as core from '@actions/core'
-import {setEmptyOutputs, setErrorOutputs, setSkippedOutputs} from './action-outputs'
+import {setErrorOutputs, setSkippedOutputs} from './action-outputs'
 import {analyzeRunContext} from './run-analysis'
 import {generateChangesetsFromAnalysis} from './run-generation'
 import {initializeRun} from './run-init'
@@ -21,7 +21,7 @@ export async function run(): Promise<void> {
       )
     ) {
       core.info('This pull request already carries a changeset, skipping changeset creation')
-      setEmptyOutputs()
+      setSkippedOutputs()
       return
     }
 
@@ -34,6 +34,7 @@ export async function run(): Promise<void> {
 
     if (analysis.filteredFiles.length === 0) {
       core.info('No relevant files changed, skipping')
+      setSkippedOutputs()
       return
     }
 

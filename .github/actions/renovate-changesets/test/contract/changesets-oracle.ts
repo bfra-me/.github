@@ -10,13 +10,40 @@ export interface OracleDiagnostics {
   outputs: Map<string, string>
 }
 
+export interface ReleaseEntry {
+  name: string
+  type: string
+  oldVersion?: string
+  changesets?: string[]
+  newVersion?: string
+}
+
+export interface AuthoredChangeset {
+  id: string
+  summary: string
+  releases: ReleaseEntry[]
+}
+
 export interface ChangesetsOracleResult {
   releasePlan: {
-    changesets: unknown[]
-    releases: {name: string; type: string}[]
+    changesets: AuthoredChangeset[]
+    releases: ReleaseEntry[]
     [key: string]: unknown
   }
   filenames: string[]
+}
+
+export function authoredReleases(
+  releasePlan: ChangesetsOracleResult['releasePlan'],
+): ReleaseEntry[] {
+  return releasePlan.changesets.flatMap(changeset => changeset.releases)
+}
+
+export function effectiveReleases(
+  releasePlan: ChangesetsOracleResult['releasePlan'],
+): ReleaseEntry[] {
+  // Changesets records considered-but-skipped packages as type "none"; they were not authored by this action.
+  return releasePlan.releases.filter(release => release.type !== 'none')
 }
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../../')

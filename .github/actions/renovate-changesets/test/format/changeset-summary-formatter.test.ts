@@ -30,6 +30,22 @@ function formatUpdate(
 }
 
 describe('formatChangesetSummary', () => {
+  it('formats lockfile maintenance by package manager', () => {
+    const extracted = extractRenovateUpdates({
+      prNumber: 3002,
+      body: '| Update | Change |\n|---|---|\n| lockFileMaintenance | lock files refreshed |',
+      branchName: 'renovate/lock-file-maintenance',
+      changedFiles: ['pnpm-lock.yaml'],
+    })
+
+    expect(formatChangesetSummary(classifyRenovateUpdates(extracted), extracted)).toBe(
+      'Refresh pnpm lockfile dependencies',
+    )
+    expect(
+      formatChangesetSummary(classifyRenovateUpdates(extracted), extracted, {emoji: true}),
+    ).toBe('📦 Refresh pnpm lockfile dependencies')
+  })
+
   it('formats mixed manager groups in first-seen order', () => {
     expect(formatUpdate(mixedManagersBody, 'renovate/all-non-major')).toBe(
       'Group update across managers: npm dependencies: `@aws-sdk/client-iam`, `@aws-sdk/client-lightsail`, `@aws-sdk/client-s3`; GitHub Actions workflow dependency: `fro-bot/agent`',

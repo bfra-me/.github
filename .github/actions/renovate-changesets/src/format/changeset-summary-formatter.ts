@@ -33,6 +33,15 @@ export function formatChangesetSummary(
 ): string {
   const prefix = getEmojiPrefix(classification, extracted, options.emoji ?? false)
 
+  if (extracted.operation?.kind === 'lockfile-maintenance') {
+    const managers = extracted.operation.packageManagers
+    const summary =
+      managers.length === 1
+        ? `Refresh ${managers[0]} lockfile dependencies`
+        : 'Refresh package-manager lockfiles'
+    return `${prefix}${summary}`
+  }
+
   if (extracted.updates.length === 0) {
     const labels = labelsForManager(extracted.manager)
     return `${prefix}${classification.isSecurityUpdate ? 'Security update for' : 'Update'} ${labels.plural}`

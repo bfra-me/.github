@@ -186,3 +186,16 @@ export function setErrorOutputs(): void {
   setGitOperationErrorOutputs()
   setPRManagementErrorOutputs()
 }
+
+export function setSkippedOutputs(): void {
+  setErrorOutputs()
+  setGroupedPROutputs({
+    enabled: false,
+    found: 0,
+    updated: 0,
+    failed: 0,
+    strategy: 'none',
+    identifier: '',
+    results: [],
+  })
+}

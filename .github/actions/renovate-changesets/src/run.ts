@@ -1,7 +1,7 @@
 import {promises as fs} from 'node:fs'
 import path from 'node:path'
 import * as core from '@actions/core'
-import {setEmptyOutputs, setErrorOutputs} from './action-outputs'
+import {setEmptyOutputs, setErrorOutputs, setSkippedOutputs} from './action-outputs'
 import {analyzeRunContext} from './run-analysis'
 import {generateChangesetsFromAnalysis} from './run-generation'
 import {initializeRun} from './run-init'
@@ -53,6 +53,11 @@ export async function run(): Promise<void> {
       updateType: analysis.updateType,
       changesetType: analysis.changesetType,
     })
+
+    if (generation == null) {
+      setSkippedOutputs()
+      return
+    }
 
     await runPostGenerationOperations({
       config: initialization.config,

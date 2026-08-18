@@ -132,6 +132,10 @@ describe('multi-package generator characterization', () => {
     expect(packageHasDependency('@scope/missing', dependency, [packageA])).toBe(false)
   })
 
+  it('does not pull a related but unaffected package into a group', () => {
+    expect(findPackageGroup('@scope/a', relationships, ['@scope/a'])).toEqual(['@scope/a'])
+  })
+
   it('selects a single, grouped, or recommended strategy from analysis and config', () => {
     const reasoning: string[] = []
     expect(

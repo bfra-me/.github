@@ -1,5 +1,13 @@
 # @bfra.me/.github
 
+## 4.18.0
+### Minor Changes
+
+
+- Update npm dependency `pnpm` from `11.21.0` to `11.22.0` ([#2593](https://github.com/bfra-me/.github/pull/2593))
+  
+  **Multi-package update** across 1 packages.
+
 ## 4.17.1
 ### Patch Changes
 

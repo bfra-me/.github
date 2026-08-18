@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.42
+### Patch Changes
+
+
+- Rollback and replacement updates are now described correctly, version-range bumps no longer fail to parse, and digest pinning is recognized from the update type. ([#2592](https://github.com/bfra-me/.github/pull/2592))
+
 ## 0.2.41
 ### Patch Changes
 

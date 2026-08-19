@@ -29,7 +29,7 @@ git checkout -b fix/renovate-changesets-<brief-description>
 # 2. Edit source in .github/actions/renovate-changesets/src/
 
 # 3. Verify
-pnpm run type-check && pnpm -w test --project renovate-changesets && pnpm run fix && pnpm run lint
+pnpm run type-check && pnpm -w test --project renovate-changesets && pnpm -w test --project renovate-changesets-contract && pnpm run fix && pnpm run lint
 
 # 4. Build dist
 pnpm build
@@ -116,6 +116,11 @@ pnpm run type-check
 # Tests (baseline: check current count before your changes)
 pnpm -w test --project renovate-changesets
 
+# Consumer contract tests — real run() against a consumer-shaped workspace,
+# validated by the real Changesets CLI. Unit tests cannot catch consumer-repo
+# assumption drift; this project is what does.
+pnpm -w test --project renovate-changesets-contract
+
 # Auto-fix lint issues BEFORE checking lint (lint-staged does this on commit too)
 pnpm run fix
 
@@ -128,6 +133,8 @@ Or the all-in-one:
 ```bash
 pnpm run quality-check    # type-check + lint + build + test
 ```
+
+Any change to extraction, grouping, or release selection needs a contract scenario, not another mocked unit test — see [Contract-first testing for actions that run in foreign repos](../best-practices/contract-testing-actions-that-run-in-foreign-repos-2026-08-19.md). Prove it RED against unmodified `src/` before shipping.
 
 ### 6. Build dist
 
@@ -236,3 +243,7 @@ After merging a fix, existing Renovate PRs still reference the old action SHA. T
 - [Root AGENTS.md](/AGENTS.md) — project-wide conventions, commands
 - [Changesets instructions](/.github/instructions/changesets.instructions.md) — changeset creation guidelines
 - [GitHub Actions instructions](/.github/instructions/github-actions.instructions.md) — workflow best practices
+- [Contract-first testing for actions that run in foreign repos](../best-practices/contract-testing-actions-that-run-in-foreign-repos-2026-08-19.md) — why local gates missed six production failures, and the harness that replaced them
+- [Test fixtures underspecified in the dimension the code ignores](../best-practices/test-fixtures-underspecified-in-ignored-dimension-2026-08-19.md) — the fixture pattern that let wrong expectations pass review
+- [Release propagation walked the dependency graph backwards](../logic-errors/release-propagation-walked-dependency-graph-backwards-2026-08-19.md)
+- [Changeset deduplication compared release sets but not summaries](../logic-errors/changeset-dedup-ignored-summaries-2026-08-19.md)

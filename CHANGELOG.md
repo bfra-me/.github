@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.19.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.100.0` to `0.101.0` ([#2600](https://github.com/bfra-me/.github/pull/2600))
+
 ## 4.18.0
 ### Minor Changes
 

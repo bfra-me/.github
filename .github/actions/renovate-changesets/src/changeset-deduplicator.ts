@@ -33,6 +33,7 @@ function buildConfig(config: Partial<ChangesetDeduplicationConfig>): ChangesetDe
 export async function deduplicateChangesets(
   changesets: ChangesetInfo[],
   config: Partial<ChangesetDeduplicationConfig> = {},
+  changedFiles: string[] = [],
 ): Promise<DeduplicationResult> {
   const resolvedConfig = buildConfig(config)
   const reasoning: string[] = []
@@ -43,7 +44,7 @@ export async function deduplicateChangesets(
   reasoning.push(`Configuration: ${JSON.stringify(resolvedConfig, null, 2)}`)
 
   const existingChangesets = resolvedConfig.analyzeExistingChangesets
-    ? await analyzeExistingChangesets(resolvedConfig)
+    ? await analyzeExistingChangesets(resolvedConfig, changedFiles)
     : []
 
   if (existingChangesets.length > 0) {

@@ -228,6 +228,7 @@ export async function generateChangesetsFromAnalysis(params: {
       changesetContent,
       classification.bumpType,
       multiPackageConfig,
+      params.changedFiles,
     )
     changesetPath = multiPackageResult.filesCreated[0] ?? 'existing'
   }

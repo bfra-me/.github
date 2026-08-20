@@ -13,6 +13,7 @@ type ParsedExistingChangeset = Pick<ExistingChangesetInfo, 'releases' | 'summary
 
 export async function analyzeExistingChangesets(
   config: ExistingAnalyzerConfig,
+  prChangedFiles: string[] = [],
 ): Promise<ExistingChangesetInfo[]> {
   const existingChangesets: ExistingChangesetInfo[] = []
   const changesetDirectory = path.join(config.workingDirectory, '.changeset')
@@ -22,10 +23,16 @@ export async function analyzeExistingChangesets(
       return existingChangesets
     }
 
-    const files = await fs.readdir(changesetDirectory)
-    const changesetFiles = files.filter(file => file.endsWith('.md') && !file.startsWith('README'))
+    // Renovate branches inherit main's pending changesets, so only inspect files added by this PR.
+    const prChangesetBasenames = prChangedFiles
+      .filter(f => f.startsWith('.changeset/') && f.endsWith('.md') && !f.endsWith('README.md'))
+      .map(f => path.basename(f))
 
-    for (const file of changesetFiles) {
+    if (prChangesetBasenames.length === 0) {
+      return existingChangesets
+    }
+
+    for (const file of prChangesetBasenames) {
       try {
         const filePath = path.join(changesetDirectory, file)
         const stat = await fs.stat(filePath)

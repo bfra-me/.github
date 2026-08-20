@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.44
+### Patch Changes
+
+
+- Scope existing changeset deduplication to files added by the current PR. ([#2602](https://github.com/bfra-me/.github/pull/2602))
+
 ## 0.2.43
 ### Patch Changes
 

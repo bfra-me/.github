@@ -271,6 +271,8 @@ describe('lockfile maintenance contract', () => {
 
     await run()
 
+    // Keep this strict so new skipped-output keys require a conscious test update.
+    // An incomplete skip-path output set was a real defect in this action's history.
     expect(Object.fromEntries(contractState.outputs)).toEqual({
       'changesets-created': '0',
       'changeset-files': '[]',

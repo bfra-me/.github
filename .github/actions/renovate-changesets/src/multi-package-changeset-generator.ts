@@ -44,6 +44,7 @@ export async function generateMultiPackageChangesets(
   changesetContent: string,
   changesetType: 'patch' | 'minor' | 'major',
   config: Partial<MultiPackageChangesetConfig> = {},
+  changedFiles: string[] = [],
 ): Promise<MultiPackageChangesetResult> {
   const resolvedConfig = buildConfig(config)
 
@@ -94,10 +95,14 @@ export async function generateMultiPackageChangesets(
     if (resolvedConfig.enableDeduplication && changesets.length > 1) {
       core.info('Applying changeset deduplication for grouped updates')
 
-      const deduplicationResult = await deduplicateChangesets(changesets, {
-        ...resolvedConfig.deduplicationConfig,
-        workingDirectory: resolvedConfig.workingDirectory,
-      })
+      const deduplicationResult = await deduplicateChangesets(
+        changesets,
+        {
+          ...resolvedConfig.deduplicationConfig,
+          workingDirectory: resolvedConfig.workingDirectory,
+        },
+        changedFiles,
+      )
 
       finalChangesets = deduplicationResult.deduplicatedChangesets
       deduplicationReasoning = deduplicationResult.reasoning

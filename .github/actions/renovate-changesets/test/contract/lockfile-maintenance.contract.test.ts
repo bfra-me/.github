@@ -218,7 +218,7 @@ describe('lockfile maintenance contract', () => {
     expect(oracle.releasePlan.changesets).toHaveLength(4)
   })
 
-  it('suppresses an identical pending changeset on rerun', async () => {
+  it('does not suppress a changeset inherited from main', async () => {
     await fs.writeFile(
       path.join(workspace, '.changeset/existing-renovate-changesets.md'),
       `---\n'renovate-changesets': patch\n---\n\nRefresh pnpm lockfile dependencies\n\n**Multi-package update** for package \`renovate-changesets\`.\n`,
@@ -227,8 +227,8 @@ describe('lockfile maintenance contract', () => {
 
     await run()
 
-    expect(contractState.outputs.get('changesets-created')).toBe('3')
-    expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toHaveLength(3)
+    expect(contractState.outputs.get('changesets-created')).toBe('4')
+    expect(JSON.parse(contractState.outputs.get('changeset-files') ?? 'null')).toHaveLength(4)
 
     await fs.rm(path.join(workspace, '.changeset/existing-renovate-changesets.md'))
 
@@ -239,15 +239,81 @@ describe('lockfile maintenance contract', () => {
     })
     expect(authoredReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
       {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'renovate-changesets', type: 'patch'},
       {name: 'update-metadata', type: 'patch'},
       {name: 'update-repository-settings', type: 'patch'},
     ])
     expect(effectiveReleases(oracle.releasePlan).map(({name, type}) => ({name, type}))).toEqual([
       {name: '@bfra.me/.github', type: 'patch'},
+      {name: 'renovate-changesets', type: 'patch'},
       {name: 'update-metadata', type: 'patch'},
       {name: 'update-repository-settings', type: 'patch'},
     ])
-    expect(oracle.releasePlan.changesets).toHaveLength(3)
+    expect(oracle.releasePlan.changesets).toHaveLength(4)
+  })
+
+  it('skips when the PR changeset is still present on disk', async () => {
+    await fs.writeFile(
+      path.join(workspace, '.changeset/existing-renovate-changesets.md'),
+      `---\n'renovate-changesets': patch\n---\n\nRefresh pnpm lockfile dependencies\n\n**Multi-package update** for package \`renovate-changesets\`.\n`,
+      'utf8',
+    )
+    octokitMocks.listFiles.mockResolvedValue({
+      data: [
+        {
+          filename: '.changeset/existing-renovate-changesets.md',
+          status: 'added',
+          additions: 1,
+          deletions: 0,
+        },
+      ],
+    })
+
+    await run()
+
+    // Keep this strict so new skipped-output keys require a conscious test update.
+    // An incomplete skip-path output set was a real defect in this action's history.
+    expect(Object.fromEntries(contractState.outputs)).toEqual({
+      'changesets-created': '0',
+      'changeset-files': '[]',
+      'update-type': '',
+      dependencies: '[]',
+      'changeset-summary': '',
+      'multi-package-strategy': 'single',
+      'workspace-packages-count': '0',
+      'package-relationships-count': '0',
+      'affected-packages': '[]',
+      'multi-package-reasoning': '[]',
+      'primary-category': '',
+      'all-categories': '[]',
+      'categorization-summary': '{}',
+      'security-updates': '0',
+      'breaking-changes': '0',
+      'high-priority-updates': '0',
+      'average-risk-level': '0',
+      'categorization-confidence': 'low',
+      'commit-success': 'false',
+      'commit-sha': '',
+      'committed-files': '[]',
+      'git-error': '',
+      'push-success': 'false',
+      'push-error': '',
+      'conflicts-resolved': 'false',
+      'conflict-resolution': '',
+      'branch-updated': 'false',
+      'retry-attempts': '0',
+      'pr-description-updated': 'false',
+      'pr-description-error': '',
+      'pr-comment-created': 'false',
+      'pr-comment-error': '',
+      'grouped-prs-enabled': 'false',
+      'grouped-prs-found': '0',
+      'grouped-prs-updated': '0',
+      'grouped-prs-failed': '0',
+      'grouped-pr-strategy': 'none',
+      'grouped-pr-identifier': '',
+      'grouped-pr-results': '[]',
+    })
   })
 
   it('uses the root fallback when only the lockfile changes', async () => {

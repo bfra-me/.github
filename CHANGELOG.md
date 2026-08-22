@@ -1,5 +1,28 @@
 # @bfra.me/.github
 
+## 4.20.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.102.0` to `0.103.0` ([#2608](https://github.com/bfra-me/.github/pull/2608))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.103.0` to `0.104.0` ([#2609](https://github.com/bfra-me/.github/pull/2609))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.101.0` to `0.102.0` ([#2607](https://github.com/bfra-me/.github/pull/2607))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.7` to `4.37.8` ([#2604](https://github.com/bfra-me/.github/pull/2604))
+
+
+- Group update for npm dependencies: `@vitest/coverage-v8`, `vitest` ([#2606](https://github.com/bfra-me/.github/pull/2606))
+  
+  **Multi-package update** across 1 packages.
+
 ## 4.19.0
 ### Minor Changes
 

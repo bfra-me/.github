@@ -69,7 +69,7 @@
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
     "@bfra.me/eslint-config": "0.51.2",
-    "@bfra.me/prettier-config": "0.16.9",
+    "@bfra.me/prettier-config": "0.16.10",
     "@bfra.me/tsconfig": "0.13.1",
     "@changesets/cli": "2.31.1",
     "@changesets/config": "3.1.4",

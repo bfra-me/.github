@@ -1,5 +1,34 @@
 # @bfra.me/.github
 
+## 4.22.0
+### Minor Changes
+
+
+- Update npm dependency `pnpm` from `11.22.0` to `11.23.0` ([#2638](https://github.com/bfra-me/.github/pull/2638))
+  
+  **Multi-package update** across 1 packages.
+
+- Update npm dependency `node` from `24.19.0` to `24.20.0` ([#2636](https://github.com/bfra-me/.github/pull/2636))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.22.1` to `10.23.0` ([#2634](https://github.com/bfra-me/.github/pull/2634))
+
+
+- Update dependency `bfra-me/.github` from `4.20.0` to `4.21.0` ([#2632](https://github.com/bfra-me/.github/pull/2632))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.23.1` to `10.23.2` ([#2639](https://github.com/bfra-me/.github/pull/2639))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.23.0` to `10.23.1` ([#2637](https://github.com/bfra-me/.github/pull/2637))
+
+
+- Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.8` to `4.37.9` ([#2635](https://github.com/bfra-me/.github/pull/2635))
+
 ## 4.21.0
 ### Minor Changes
 

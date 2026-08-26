@@ -1,5 +1,13 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.45
+### Patch Changes
+
+
+- Refresh pnpm lockfile dependencies ([#2620](https://github.com/bfra-me/.github/pull/2620))
+  
+  **Multi-package update** for package `renovate-changesets`.
+
 ## 0.2.44
 ### Patch Changes
 

@@ -1,5 +1,63 @@
 # @bfra.me/.github
 
+## 4.21.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.104.0` to `0.105.0` ([#2615](https://github.com/bfra-me/.github/pull/2615))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.21.4` to `10.22.0` ([#2628](https://github.com/bfra-me/.github/pull/2628))
+
+
+- Group update for npm dependencies: `@bfra.me/eslint-config`, `@bfra.me/tsconfig` ([#2617](https://github.com/bfra-me/.github/pull/2617))
+  
+  **Multi-package update** across 1 packages.
+
+- Update npm dependency `eslint` from `10.8.1` to `10.9.0` ([#2621](https://github.com/bfra-me/.github/pull/2621))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.20.4` to `10.21.0` ([#2623](https://github.com/bfra-me/.github/pull/2623))
+
+
+### Patch Changes
+
+
+- Use `.some()` instead of `.find()` when checking whether a workspace dependency resolves to another workspace package in `scripts/audit-typescript-references.ts`. The matched package was only used as an existence check, so the lookup now short-circuits instead of scanning for a value it discarded. ([#2630](https://github.com/bfra-me/.github/pull/2630))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.20.1` to `10.20.2` ([#2618](https://github.com/bfra-me/.github/pull/2618))
+
+
+- Update npm dependency `@bfra.me/prettier-config` from `0.16.10` to `0.16.11` ([#2614](https://github.com/bfra-me/.github/pull/2614))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.20.3` to `10.20.4` ([#2622](https://github.com/bfra-me/.github/pull/2622))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.21.3` to `10.21.4` ([#2627](https://github.com/bfra-me/.github/pull/2627))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.21.2` to `10.21.3` ([#2626](https://github.com/bfra-me/.github/pull/2626))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.22.0` to `10.22.1` ([#2629](https://github.com/bfra-me/.github/pull/2629))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.20.2` to `10.20.3` ([#2619](https://github.com/bfra-me/.github/pull/2619))
+
+
+- Refresh pnpm lockfile dependencies ([#2620](https://github.com/bfra-me/.github/pull/2620))
+  
+  **Multi-package update** for package `@bfra.me/.github`.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.21.0` to `10.21.1` ([#2624](https://github.com/bfra-me/.github/pull/2624))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.21.1` to `10.21.2` ([#2625](https://github.com/bfra-me/.github/pull/2625))
+
 ## 4.20.0
 ### Minor Changes
 

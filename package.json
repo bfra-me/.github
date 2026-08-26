@@ -68,9 +68,9 @@
   },
   "prettier": "@bfra.me/prettier-config",
   "devDependencies": {
-    "@bfra.me/eslint-config": "0.51.2",
+    "@bfra.me/eslint-config": "0.52.1",
     "@bfra.me/prettier-config": "0.16.11",
-    "@bfra.me/tsconfig": "0.13.1",
+    "@bfra.me/tsconfig": "0.13.2",
     "@changesets/cli": "2.31.1",
     "@changesets/config": "3.1.4",
     "@changesets/should-skip-package": "0.1.2",

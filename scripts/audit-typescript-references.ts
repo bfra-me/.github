@@ -383,9 +383,7 @@ class TypeScriptReferencesAuditor {
 
       // Find dependencies on other workspace packages
       for (const [depName] of Object.entries(deps)) {
-        const targetPackage = packageInfos.find(info => info.package.packageJson.name === depName)
-
-        if (targetPackage) {
+        if (packageInfos.some(info => info.package.packageJson.name === depName)) {
           const depType = pkg.packageJson.dependencies?.[depName]
             ? 'dependencies'
             : pkg.packageJson.devDependencies?.[depName]

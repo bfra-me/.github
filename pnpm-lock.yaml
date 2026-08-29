@@ -9,7 +9,7 @@ overrides:
   esbuild@>=0.17.0 <0.28.1: '>=0.28.1'
   fast-uri@>=3.0.0 <3.1.5: '>=3.1.5'
   flatted: 3.4.4
-  js-yaml@>=3.0.0 <3.15.1: 3.15.1
+  js-yaml@>=3.0.0 <3.15.1: 3.15.2
   undici@<6.27.0: '>=6.27.0'
   vite@>=8.0.0 <=8.0.4: '>=8.0.5'
 
@@ -1997,8 +1997,8 @@ packages:
   js-tokens@10.0.0:
     resolution: {integrity: sha512-lM/UBzQmfJRo9ABXbPWemivdCW8V2G8FHaHdypQaIy523snUjog0W71ayWXTjiR+ixeMyVHN2XcpnTd/liPg/Q==}
 
-  js-yaml@3.15.1:
-    resolution: {integrity: sha512-S99WuO3HlhO3XN41EtYUNl9zzXjoJx7QvmipxsJVxtCBT0YHEFy+iOJhjSvrmV12nYhWpZaM8lPHkJm0yUMbag==}
+  js-yaml@3.15.2:
+    resolution: {integrity: sha512-6EuL879VkRA+1Cz578mKMiKvjPNEuk6+r1JaFzoSWejZmtf7xWbIyw1e3KkxlkzTIt9Taw6JBhEppG7utc1P+w==}
     hasBin: true
 
   js-yaml@4.3.2:
@@ -4831,7 +4831,7 @@ snapshots:
 
   js-tokens@10.0.0: {}
 
-  js-yaml@3.15.1:
+  js-yaml@3.15.2:
     dependencies:
       argparse: 1.0.10
       esprima: 4.0.1
@@ -5531,7 +5531,7 @@ snapshots:
   read-yaml-file@1.1.0:
     dependencies:
       graceful-fs: 4.2.11
-      js-yaml: 3.15.1
+      js-yaml: 3.15.2
       pify: 4.0.1
       strip-bom: 3.0.0
 

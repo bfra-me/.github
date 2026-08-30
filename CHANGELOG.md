@@ -1,5 +1,71 @@
 # @bfra.me/.github
 
+## 4.23.0
+### Minor Changes
+
+
+- Update dependency `bfra-me/.github` from `4.21.0` to `4.22.0` ([#2641](https://github.com/bfra-me/.github/pull/2641))
+
+
+- Update npm dependency `pnpm` from `11.23.0` to `11.24.0` ([#2643](https://github.com/bfra-me/.github/pull/2643))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.105.1` to `0.106.0` ([#2654](https://github.com/bfra-me/.github/pull/2654))
+
+
+- Update npm dependency `lint-staged` from `17.3.0` to `17.4.1` ([#2657](https://github.com/bfra-me/.github/pull/2657))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.23.6` to `10.24.0` ([#2650](https://github.com/bfra-me/.github/pull/2650))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.25.1` to `10.26.0` ([#2658](https://github.com/bfra-me/.github/pull/2658))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.23.3` to `10.23.4` ([#2645](https://github.com/bfra-me/.github/pull/2645))
+
+
+- Update npm dependency `eslint` from `10.9.0` to `10.9.1` ([#2646](https://github.com/bfra-me/.github/pull/2646))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.23.4` to `10.23.5` ([#2647](https://github.com/bfra-me/.github/pull/2647))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.26.0` to `10.26.1` ([#2659](https://github.com/bfra-me/.github/pull/2659))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.105.0` to `0.105.1` ([#2649](https://github.com/bfra-me/.github/pull/2649))
+
+
+- Update npm dependency `js-yaml` from `4.3.1` to `4.3.2` ([#2652](https://github.com/bfra-me/.github/pull/2652))
+  
+  **Multi-package update** for package `@bfra.me/.github`.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.25.0` to `10.25.1` ([#2655](https://github.com/bfra-me/.github/pull/2655))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.23.2` to `10.23.3` ([#2644](https://github.com/bfra-me/.github/pull/2644))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.23.5` to `10.23.6` ([#2648](https://github.com/bfra-me/.github/pull/2648))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.106.0` to `0.106.1` ([#2656](https://github.com/bfra-me/.github/pull/2656))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.24.0` to `10.24.2` ([#2651](https://github.com/bfra-me/.github/pull/2651))
+
+
+- Update npm dependency `js-yaml@\>=3.0.0 <3.15.1` from `3.15.1` to `3.15.2` ([#2653](https://github.com/bfra-me/.github/pull/2653))
+  
+  **Multi-package update** across 1 packages.
+
 ## 4.22.0
 ### Minor Changes
 

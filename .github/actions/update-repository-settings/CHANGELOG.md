@@ -1,5 +1,17 @@
 # update-repository-settings
 
+## 0.1.10
+### Patch Changes
+
+
+- Update dependencies across 3 packages ([#2652](https://github.com/bfra-me/.github/pull/2652))
+  
+  **Dependencies updated**: `js-yaml`
+  
+  **Merged changeset** combining 3 related updates across affected packages.
+  
+  **Affected packages**: `renovate-changesets`, `update-metadata`, `update-repository-settings`
+
 ## 0.1.9
 ### Patch Changes
 

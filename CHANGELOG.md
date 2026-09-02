@@ -1,5 +1,53 @@
 # @bfra.me/.github
 
+## 4.24.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.28.1` to `10.29.0` ([#2673](https://github.com/bfra-me/.github/pull/2673))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.27.0` to `10.28.0` ([#2669](https://github.com/bfra-me/.github/pull/2669))
+
+
+- Update npm dependency `pnpm` from `11.24.0` to `11.25.0` ([#2670](https://github.com/bfra-me/.github/pull/2670))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.29.0` to `10.30.0` ([#2674](https://github.com/bfra-me/.github/pull/2674))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.106.2` to `0.107.0` ([#2664](https://github.com/bfra-me/.github/pull/2664))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.26.2` to `10.27.0` ([#2668](https://github.com/bfra-me/.github/pull/2668))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.30.0` to `10.31.0` ([#2676](https://github.com/bfra-me/.github/pull/2676))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.106.1` to `0.106.2` ([#2661](https://github.com/bfra-me/.github/pull/2661))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.26.1` to `10.26.2` ([#2665](https://github.com/bfra-me/.github/pull/2665))
+
+
+- Refresh pnpm lockfile dependencies ([#2666](https://github.com/bfra-me/.github/pull/2666))
+  
+  **Multi-package update** across 1 packages.
+
+- Update npm dependency `tsx` from `4.23.12` to `4.23.13` ([#2672](https://github.com/bfra-me/.github/pull/2672))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.28.0` to `10.28.1` ([#2671](https://github.com/bfra-me/.github/pull/2671))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.107.0` to `0.107.1` ([#2675](https://github.com/bfra-me/.github/pull/2675))
+
 ## 4.23.0
 ### Minor Changes
 

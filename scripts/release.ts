@@ -331,6 +331,7 @@ export async function updateInternalWorkflowPins(
   if (updatedFiles.length > 0) {
     const branch = 'chore/update-action-pins'
     // The stable branch makes pin PRs self-superseding; force-pushing gives stalled PRs a fresh head SHA.
+    // This script is the branch's sole writer — anything else pushed here is discarded on the next release.
     await exec('git', ['checkout', '-B', branch], {cwd})
     await exec('git', ['add', ...updatedFiles], {cwd})
     await exec('git', ['commit', '-m', 'chore: update internal action SHA pins'], {cwd})

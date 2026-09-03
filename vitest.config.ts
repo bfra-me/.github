@@ -12,6 +12,7 @@ export default defineConfig({
     projects: [
       '.github/actions/*',
       '.github/actions/renovate-changesets/vitest.contract.config.ts',
+      'scripts',
     ],
   },
 })

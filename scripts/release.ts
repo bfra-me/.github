@@ -2,7 +2,8 @@ import {Buffer} from 'node:buffer'
 import fs from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import path from 'node:path'
-import {fileURLToPath} from 'node:url'
+import process from 'node:process'
+import {fileURLToPath, pathToFileURL} from 'node:url'
 import {exec, getExecOutput} from '@actions/exec'
 import {read as readChangesetsConfig} from '@changesets/config'
 import {shouldSkipPackage} from '@changesets/should-skip-package'
@@ -295,7 +296,7 @@ const WORKFLOW_PIN_MAPPINGS: WorkflowPinMapping[] = [
   },
 ]
 
-async function updateInternalWorkflowPins(
+export async function updateInternalWorkflowPins(
   releasedPackages: {pkg: Package; tagName: string}[],
   releaseSha: string,
   cwd: string,
@@ -382,4 +383,6 @@ async function updateInternalWorkflowPins(
   }
 }
 
-main()
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main()
+}

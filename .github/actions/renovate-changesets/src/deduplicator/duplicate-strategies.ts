@@ -53,8 +53,6 @@ export function performSemanticDeduplication(
       continue
     }
 
-    let foundSimilar = false
-
     for (let otherIndex = index + 1; otherIndex < changesets.length; otherIndex++) {
       const otherChangeset = changesets[otherIndex]
 
@@ -69,16 +67,13 @@ export function performSemanticDeduplication(
       ) {
         duplicates.push(otherChangeset)
         processed.add(otherChangeset.id)
-        foundSimilar = true
         core.info(
           `Semantic duplicate detected: ${otherChangeset.id} (similarity: ${similarity.semanticSimilarity.toFixed(2)})`,
         )
       }
     }
 
-    if (!foundSimilar) {
-      unique.push(changeset)
-    }
+    unique.push(changeset)
 
     processed.add(changeset.id)
   }
@@ -92,6 +87,7 @@ export function checkAgainstExistingChangesets(
 ): ExistingChangesetCheckResult {
   const unique: ChangesetInfo[] = []
   const duplicateFiles: string[] = []
+  const suppressed: ChangesetInfo[] = []
 
   for (const changeset of changesets) {
     const duplicateFile = existingChangesets.find(existing =>
@@ -100,6 +96,7 @@ export function checkAgainstExistingChangesets(
 
     if (duplicateFile != null) {
       duplicateFiles.push(duplicateFile.filename)
+      suppressed.push(changeset)
       core.info(
         `Duplicate of existing changeset detected: ${changeset.id} matches ${duplicateFile.filename}`,
       )
@@ -109,5 +106,5 @@ export function checkAgainstExistingChangesets(
     unique.push(changeset)
   }
 
-  return {unique, duplicateFiles}
+  return {unique, duplicateFiles, suppressed}
 }

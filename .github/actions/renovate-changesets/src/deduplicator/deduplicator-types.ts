@@ -64,6 +64,7 @@ export interface DeduplicationPassResult {
 export interface ExistingChangesetCheckResult {
   unique: ChangesetInfo[]
   duplicateFiles: string[]
+  suppressed: ChangesetInfo[]
 }
 
 export interface MergeChangesetsResult {

@@ -83,13 +83,21 @@ export async function deduplicateChangesets(
   const existingResult =
     existingChangesets.length > 0
       ? checkAgainstExistingChangesets(deduplicatedChangesets, existingChangesets)
-      : {unique: deduplicatedChangesets, duplicateFiles: []}
+      : {unique: deduplicatedChangesets, duplicateFiles: [], suppressed: []}
 
   deduplicatedChangesets = existingResult.unique
   reasoning.push(
     `Existing changeset check: found ${existingResult.duplicateFiles.length} duplicates with existing files`,
   )
 
+  validateChangesetConservation(
+    changesets,
+    deduplicatedChangesets,
+    contentDuplicates.duplicates,
+    semanticDuplicates.duplicates,
+    mergeResult.mergeOperations,
+    existingResult.suppressed,
+  )
   validateDeduplicationResult(deduplicatedChangesets, changesets, warnings)
 
   const result: DeduplicationResult = {
@@ -113,4 +121,39 @@ export async function deduplicateChangesets(
     `Deduplication complete: ${result.stats.totalOriginal} → ${result.stats.totalFinal} changesets`,
   )
   return result
+}
+
+function validateChangesetConservation(
+  changesets: ChangesetInfo[],
+  deduplicatedChangesets: ChangesetInfo[],
+  contentDuplicates: ChangesetInfo[],
+  semanticDuplicates: ChangesetInfo[],
+  mergeOperations: {sources: ChangesetInfo[]}[],
+  suppressed: ChangesetInfo[],
+): void {
+  const accountedChangesetIds = new Map<string, number>()
+  const account = (accountedChangesets: ChangesetInfo[]): void => {
+    for (const changeset of accountedChangesets) {
+      accountedChangesetIds.set(changeset.id, (accountedChangesetIds.get(changeset.id) ?? 0) + 1)
+    }
+  }
+
+  account(deduplicatedChangesets)
+  account(contentDuplicates)
+  account(semanticDuplicates)
+  for (const mergeOperation of mergeOperations) {
+    account(mergeOperation.sources)
+  }
+  account(suppressed)
+
+  const lostChangesetIds = changesets
+    .filter(changeset => accountedChangesetIds.get(changeset.id) !== 1)
+    .map(changeset => changeset.id)
+
+  if (lostChangesetIds.length > 0) {
+    throw new Error(
+      `Changeset conservation failed: lost changeset ids [${lostChangesetIds.join(', ')}] ` +
+        `(input count: ${changesets.length}, final count: ${deduplicatedChangesets.length})`,
+    )
+  }
 }

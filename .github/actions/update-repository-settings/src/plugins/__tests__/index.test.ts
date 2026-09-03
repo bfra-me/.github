@@ -96,4 +96,72 @@ describe('Plugin Registry', () => {
 
     expect(mockError).not.toHaveBeenCalled()
   })
+
+  it('aggregate names all applied and failed keys when three succeed and one fails', async () => {
+    const originalRepository = PLUGIN_REGISTRY.repository
+    const originalLabels = PLUGIN_REGISTRY.labels
+    const originalTeams = PLUGIN_REGISTRY.teams
+    const originalMilestones = PLUGIN_REGISTRY.milestones
+
+    PLUGIN_REGISTRY.repository = vi.fn().mockResolvedValue(undefined)
+    PLUGIN_REGISTRY.labels = vi.fn().mockResolvedValue(undefined)
+    PLUGIN_REGISTRY.teams = vi.fn().mockResolvedValue(undefined)
+    PLUGIN_REGISTRY.milestones = vi.fn().mockRejectedValue(new Error('milestones failed'))
+
+    const config: SettingsConfig = {
+      repository: {name: 'test'},
+      labels: [{name: 'bug'}],
+      teams: [{name: 'core', permission: 'push'}],
+      milestones: [{title: 'v1'}],
+    }
+
+    let caught: Error | undefined
+    try {
+      await applySettings(createOctokit(), 'owner', 'repo', config)
+    } catch (error) {
+      caught = error as Error
+    }
+
+    expect(caught).toBeDefined()
+    expect(caught?.message).toContain('repository')
+    expect(caught?.message).toContain('labels')
+    expect(caught?.message).toContain('teams')
+    expect(caught?.message).toContain('milestones')
+    expect(caught?.message).toContain('milestones failed')
+
+    PLUGIN_REGISTRY.repository = originalRepository
+    PLUGIN_REGISTRY.labels = originalLabels
+    PLUGIN_REGISTRY.teams = originalTeams
+    PLUGIN_REGISTRY.milestones = originalMilestones
+  })
+
+  it('produces a non-empty aggregate containing the status for a mocked RequestError-shaped failure', async () => {
+    const originalRepository = PLUGIN_REGISTRY.repository
+
+    const requestErrorLike = {
+      status: 500,
+      message: '',
+      response: {
+        headers: {'x-github-request-id': 'AAAA:BBBB:CCCC'},
+        data: '',
+      },
+    }
+    PLUGIN_REGISTRY.repository = vi.fn().mockRejectedValue(requestErrorLike)
+
+    const config: SettingsConfig = {repository: {name: 'test'}}
+
+    let caught: Error | undefined
+    try {
+      await applySettings(createOctokit(), 'owner', 'repo', config)
+    } catch (error) {
+      caught = error as Error
+    }
+
+    expect(caught).toBeDefined()
+    expect(caught?.message.length).toBeGreaterThan(0)
+    expect(caught?.message).toContain('500')
+    expect(caught?.message).toContain('AAAA:BBBB:CCCC')
+
+    PLUGIN_REGISTRY.repository = originalRepository
+  })
 })

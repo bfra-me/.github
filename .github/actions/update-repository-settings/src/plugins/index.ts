@@ -4,6 +4,7 @@ import * as core from '@actions/core'
 import {branchesPlugin} from './branches.js'
 import {collaboratorsPlugin} from './collaborators.js'
 import {environmentsPlugin} from './environments.js'
+import {describeError} from './error-detail.js'
 import {labelsPlugin} from './labels.js'
 import {milestonesPlugin} from './milestones.js'
 import {repositoryPlugin} from './repository.js'
@@ -45,7 +46,8 @@ export async function applySettings(
   repo: string,
   config: SettingsConfig,
 ): Promise<void> {
-  const errors: Error[] = []
+  const applied: string[] = []
+  const failed: {key: string; detail: string}[] = []
 
   for (const [key, value] of Object.entries(config)) {
     const plugin = PLUGIN_REGISTRY[key]
@@ -58,14 +60,17 @@ export async function applySettings(
     try {
       await plugin(octokit, owner, repo, value)
       core.info(`${key} settings applied`)
+      applied.push(key)
     } catch (error) {
-      const err = error instanceof Error ? error : new Error(String(error))
-      core.error(`Failed to apply ${key} settings: ${err.message}`)
-      errors.push(err)
+      const detail = describeError(error)
+      core.error(`Failed to apply ${key} settings: ${detail}`)
+      failed.push({key, detail})
     }
   }
 
-  if (errors.length > 0) {
-    throw new Error(`Failed to apply settings:\n${errors.map(e => `  - ${e.message}`).join('\n')}`)
+  if (failed.length > 0) {
+    const appliedLine = applied.length > 0 ? `Applied: ${applied.join(', ')}\n` : ''
+    const failedLines = failed.map(({key, detail}) => `  - ${key}: ${detail}`).join('\n')
+    throw new Error(`Failed to apply settings:\n${appliedLine}Failed:\n${failedLines}`)
   }
 }

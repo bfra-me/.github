@@ -1,5 +1,6 @@
 import type {ChangesetInfo} from '../src/multi-package-gen/types'
 import {describe, expect, it} from 'vitest'
+import {deduplicateChangesets} from '../src/changeset-deduplicator'
 import {
   analyzeSimilarity,
   calculateChangesetContentHash,
@@ -11,6 +12,7 @@ import {
   performContentDeduplication,
   performSemanticDeduplication,
 } from '../src/deduplicator/duplicate-strategies'
+import {mockedFileSystem} from './setup'
 
 function makeChangeset(
   id: string,
@@ -279,11 +281,15 @@ describe('duplicate-strategies', () => {
     })
 
     it('should remove semantically similar changesets above threshold', () => {
-      const cs1 = makeChangeset('cs1', ['pkg-a'], 'Update dep')
-      const cs2 = makeChangeset('cs2', ['pkg-a'], 'Update dep') // Same packages = high similarity
+      const cs1 = makeChangeset('cs1', ['pkg-a'], 'Update lodash', 'patch', ['lodash'])
+      const cs2 = makeChangeset('cs2', ['pkg-a'], 'Upgrade lodash', 'patch', ['lodash'])
 
       const result = performSemanticDeduplication([cs1, cs2], config)
 
+      expect(result.duplicates).toHaveLength(1)
+      expect(result.duplicates[0]?.id).toBe('cs2')
+      expect(result.unique).toHaveLength(1)
+      expect(result.unique[0]?.id).toBe('cs1')
       expect(result.unique.length + result.duplicates.length).toBe(2)
     })
 
@@ -396,6 +402,49 @@ describe('duplicate-strategies', () => {
       expect(result.unique).toHaveLength(0)
       expect(result.duplicateFiles).toHaveLength(0)
     })
+  })
+})
+
+describe('deduplicateChangesets', () => {
+  it('should conserve changesets after semantic deduplication', async () => {
+    const changesets = [
+      makeChangeset('cs1', ['pkg-a'], 'Update lodash', 'patch', ['lodash']),
+      makeChangeset('cs2', ['pkg-a'], 'Upgrade lodash', 'patch', ['lodash']),
+    ]
+
+    const result = await deduplicateChangesets(changesets, {
+      enableContentDeduplication: false,
+      enableChangesetMerging: false,
+      analyzeExistingChangesets: false,
+    })
+
+    expect(result.deduplicatedChangesets).toHaveLength(1)
+    expect(result.deduplicatedChangesets[0]?.id).toBe('cs1')
+    expect(result.removedDuplicates.map(changeset => changeset.id)).toEqual(['cs2'])
+    expect(result.deduplicatedChangesets.length + result.removedDuplicates.length).toBe(2)
+  })
+
+  it('should allow changesets suppressed by an existing changeset', async () => {
+    mockedFileSystem.stat.mockImplementation(async filePath => ({
+      isDirectory: () => String(filePath).endsWith('.changeset'),
+      mtime: new Date(),
+    }))
+    mockedFileSystem.readFile.mockResolvedValue("---\n'pkg-a': patch\n---\nUpdate dep\n")
+
+    const result = await deduplicateChangesets(
+      [makeChangeset('cs1', ['pkg-a'], 'Update dep')],
+      {
+        enableContentDeduplication: false,
+        enableSemanticDeduplication: false,
+        enableChangesetMerging: false,
+        workingDirectory: '/tmp/workspace',
+        analyzeExistingChangesets: true,
+      },
+      ['.changeset/existing.md'],
+    )
+
+    expect(result.deduplicatedChangesets).toHaveLength(0)
+    expect(result.existingDuplicates).toEqual(['existing.md'])
   })
 })
 

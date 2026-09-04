@@ -2,7 +2,8 @@ import type {Octokit as OctokitType} from '@octokit/rest'
 import type {SettingsConfig} from '../../config.js'
 import {Octokit} from '@octokit/rest'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {branchesPlugin, cleanupMergedProtection, sanitizeBranchProtection} from '../branches.js'
+import {sanitizeBranchProtection} from '../branch-protection-shape.js'
+import {branchesPlugin, cleanupMergedProtection} from '../branches.js'
 import {applySettings, PLUGIN_REGISTRY} from '../index.js'
 
 const mockGetRepo = vi.hoisted(() => vi.fn())

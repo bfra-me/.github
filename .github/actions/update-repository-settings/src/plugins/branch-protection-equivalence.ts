@@ -1,4 +1,4 @@
-import {sanitizeBranchProtection} from './branches.js'
+import {sanitizeBranchProtection} from './branch-protection-shape.js'
 
 /**
  * Result of comparing a declared branch-protection config against a

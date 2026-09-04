@@ -1,5 +1,26 @@
 # @bfra.me/.github
 
+## 4.25.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.31.0` to `10.32.0` ([#2680](https://github.com/bfra-me/.github/pull/2680))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.32.0` to `10.33.0` ([#2681](https://github.com/bfra-me/.github/pull/2681))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.33.1` to `10.34.0` ([#2685](https://github.com/bfra-me/.github/pull/2685))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.33.0` to `10.33.1` ([#2683](https://github.com/bfra-me/.github/pull/2683))
+
+
+- Use a stable branch for internal action pin pull requests. ([#2678](https://github.com/bfra-me/.github/pull/2678))
+
 ## 4.24.0
 ### Minor Changes
 

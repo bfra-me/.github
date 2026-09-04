@@ -105,6 +105,10 @@ function comparableObservedValue(
  * - Everything else: compared with `Object.is`.
  */
 function subsetEqual(declared: unknown, observed: unknown): boolean {
+  // A declared `null` means "nothing set", which GitHub expresses by omitting the
+  // key entirely. Deliberately global rather than scoped to `restrictions`: any
+  // nullable field reads back the same way. Declared `false` is excluded because
+  // it is a real setting, not an absence.
   if (declared === null && observed === undefined) {
     return true
   }

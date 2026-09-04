@@ -296,7 +296,7 @@ describe('octokit client retry behavior (R9)', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
   })
 
-  it('logs each retry attempt with its attempt number and the triggering error (R10)', async () => {
+  it('logs each retry with its triggering error (R10)', async () => {
     const fetchMock = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse(500, {message: 'Internal Server Error'}))
@@ -308,8 +308,14 @@ describe('octokit client retry behavior (R9)', () => {
 
     expect(response.status).toBe(200)
     expect(fetchMock).toHaveBeenCalledTimes(3)
-    expect(mockInfo).toHaveBeenCalledWith(expect.stringMatching(/attempt 1 of 3 max.*status 500/))
-    expect(mockInfo).toHaveBeenCalledWith(expect.stringMatching(/attempt 2 of 3 max.*status 502/))
+    const retryLogs = mockInfo.mock.calls
+      .map(([message]) => message)
+      .filter(message => message.startsWith('Retrying GitHub API request'))
+
+    expect(retryLogs).toHaveLength(2)
+    expect(retryLogs[0]).toEqual(expect.stringMatching(/status 500/))
+    expect(retryLogs[1]).toEqual(expect.stringMatching(/status 502/))
+    expect(retryLogs.every(message => !message.includes('attempt'))).toBe(true)
   })
 
   it('logs no retry noise when the first attempt succeeds (R10)', async () => {

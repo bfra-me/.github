@@ -149,7 +149,7 @@ A settings-sync failure is not a self-contained CI failure. The repository's con
 ### Deferred to Implementation
 
 - The exact truncation bound for response bodies, and the specific key denylist for scrubbing. Both need a real 500 body to calibrate against, and the current sample is empty.
-- How per-attempt retry logging (R10) is captured. `@octokit/plugin-retry` logs internally through `octokit.log`; supplying a custom `log` to the constructor is the likely seam. This stays deferred because the package is not installed — confirmed absent from the workspace store — so the hook cannot be read from source until the dependency lands in Unit 2.
+- ~~How per-attempt retry logging (R10) is captured.~~ **Resolved during Unit 2, against the assumption.** `@octokit/plugin-retry@8.1.1` never calls `octokit.log` — verified across its whole `dist-src/`. The only seam it invokes on a retryable failure is `octokit.retry.retryRequest(error, retries, retryAfter)` (`dist-src/error-request.js:12`), so R10 wraps that function post-construction. The attempt number is not passed, and is recovered by inverting the library's own fixed formula `retryAfter = (retryCount + 1)^2` (`error-request.js:11`), which has no `retry-after` header branch, so the inversion is exact rather than approximate.
 - Whether the Step Summary table should aggregate across branches or emit one table per diverging branch. Depends on how noisy real divergence turns out to be.
 
 ## High-Level Technical Design

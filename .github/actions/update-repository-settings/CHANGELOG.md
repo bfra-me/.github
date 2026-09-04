@@ -1,5 +1,11 @@
 # update-repository-settings
 
+## 0.2.1
+### Patch Changes
+
+
+- Treat equivalent GitHub branch-protection read-back representations as matching declared settings. ([#2687](https://github.com/bfra-me/.github/pull/2687))
+
 ## 0.2.0
 ### Minor Changes
 

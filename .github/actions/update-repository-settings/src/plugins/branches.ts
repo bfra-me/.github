@@ -1,23 +1,14 @@
 import type {Octokit} from '@octokit/rest'
 import * as core from '@actions/core'
 import {deepMerge} from '../diff.js'
+import {compareBranchProtection} from './branch-protection-equivalence.js'
+import {sanitizeBranchProtection} from './branch-protection-shape.js'
+import {redact} from './error-detail.js'
 
 interface BranchConfig {
   name: string
   protection: Record<string, unknown>
 }
-
-// Fields where GET returns {url?, enabled: bool} but PUT expects a plain boolean
-const BOOLEAN_PROTECTION_FIELDS = [
-  'enforce_admins',
-  'required_linear_history',
-  'allow_force_pushes',
-  'allow_deletions',
-  'block_creations',
-  'required_conversation_resolution',
-  'lock_branch',
-  'allow_fork_syncing',
-] as const
 
 export async function branchesPlugin(
   octokit: Octokit,
@@ -60,6 +51,14 @@ export async function branchesPlugin(
     resolveStatusCheckConflict(merged, protection)
     const mergedProtection = cleanupMergedProtection(merged, isOrganization)
 
+    // Scrubbed once per branch, before the request — not per retry attempt (retry lives in the
+    // Octokit client, invisible here). The merged payload combines declared config with current
+    // state read from the API, so it can carry team slugs and app bypass entries the published
+    // config does not; `redact` strips those before this ever reaches log storage.
+    core.debug(
+      `Branch protection payload for ${branch}: ${JSON.stringify(redact(mergedProtection))}`,
+    )
+
     await octokit.rest.repos.updateBranchProtection({
       owner,
       repo,
@@ -68,38 +67,59 @@ export async function branchesPlugin(
     } as Parameters<(typeof octokit.rest.repos)['updateBranchProtection']>[0])
 
     core.info(`Branch protection updated for: ${branch}`)
+
+    await verifyBranchProtection(octokit, owner, repo, branch, protection)
   }
 }
 
 /**
- * Transform the GET /branches/{branch}/protection response into a shape
- * compatible with PUT /branches/{branch}/protection. The GET response
- * includes extra fields (url, contexts_url) and uses object wrappers
- * ({enabled: bool}) where the PUT expects plain booleans.
+ * Read back the branch protection that was just written and compare it
+ * against the declared config using {@link compareBranchProtection}.
+ *
+ * Only called after `updateBranchProtection` has already succeeded — a
+ * failed update runs no read-back at all, since a GET against state that
+ * was never written would produce a misleading comparison. `declaredProtection`
+ * is the branch's raw declared config from the settings file, not the merged
+ * payload the write path built; comparing against the merged payload would
+ * compare the action against itself.
+ *
+ * This entire operation is verification, not enforcement: a failed read-back
+ * GET, or a throw from the comparison, is caught here, logged as a warning,
+ * and never propagates. An observer that fails runs which actually applied
+ * their settings is worse than no observer.
  */
-export function sanitizeBranchProtection(data: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {}
+async function verifyBranchProtection(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  branch: string,
+  declaredProtection: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const response = await octokit.rest.repos.getBranchProtection({owner, repo, branch})
+    const observedRaw = response.data as unknown as Record<string, unknown>
+    const {equivalent, divergentFields} = compareBranchProtection(declaredProtection, observedRaw)
 
-  for (const field of BOOLEAN_PROTECTION_FIELDS) {
-    if (field in data) {
-      result[field] = extractEnabled(data[field])
+    if (!equivalent) {
+      core.warning(
+        `Branch protection for '${branch}' diverges from declared config: ${divergentFields.join(', ')}`,
+      )
+
+      await core.summary
+        .addTable([
+          [
+            {data: 'Branch', header: true},
+            {data: 'Divergent Fields', header: true},
+          ],
+          [branch, divergentFields.join(', ')],
+        ])
+        .write()
     }
+  } catch (error: unknown) {
+    core.warning(
+      `Failed to verify branch protection for '${branch}': ${error instanceof Error ? error.message : String(error)}`,
+    )
   }
-
-  if ('required_status_checks' in data) {
-    result.required_status_checks = sanitizeStatusChecks(data.required_status_checks)
-  }
-
-  if ('required_pull_request_reviews' in data) {
-    result.required_pull_request_reviews = stripUrlFields(data.required_pull_request_reviews)
-  }
-
-  if ('restrictions' in data) {
-    result.restrictions = stripUrlFields(data.restrictions)
-  }
-
-  // required_signatures is a separate endpoint — never include in PUT
-  return result
 }
 
 /**
@@ -183,48 +203,6 @@ function resolveStatusCheckConflict(
   } else if ('checks' in c && 'contexts' in m) {
     delete m.contexts
   }
-}
-
-function extractEnabled(value: unknown): boolean | unknown {
-  if (value !== null && typeof value === 'object' && 'enabled' in value) {
-    return (value as {enabled: boolean}).enabled
-  }
-  return value
-}
-
-function sanitizeStatusChecks(value: unknown): Record<string, unknown> | null {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    return null
-  }
-  const rsc = value as Record<string, unknown>
-  const sanitized: Record<string, unknown> = {}
-
-  if ('strict' in rsc) {
-    sanitized.strict = rsc.strict
-  }
-
-  // Prefer checks over contexts (contexts is deprecated)
-  if (Array.isArray(rsc.checks)) {
-    sanitized.checks = rsc.checks
-  } else if (Array.isArray(rsc.contexts)) {
-    sanitized.contexts = rsc.contexts
-  }
-
-  return sanitized
-}
-
-function stripUrlFields(value: unknown): Record<string, unknown> | null {
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    return value === null ? null : (value as Record<string, unknown>)
-  }
-  const obj = value as Record<string, unknown>
-  const result: Record<string, unknown> = {}
-  for (const [key, val] of Object.entries(obj)) {
-    if (key !== 'url' && !key.endsWith('_url')) {
-      result[key] = val
-    }
-  }
-  return result
 }
 
 /**

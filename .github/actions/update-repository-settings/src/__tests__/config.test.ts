@@ -14,7 +14,14 @@ vi.mock('@actions/core', () => ({
 }))
 
 vi.mock('@octokit/rest', () => ({
+  // `src/index.ts` composes the client through `Octokit.plugin(retry)`; give this mock a
+  // static passthrough so any future composition against this mock doesn't throw, even
+  // though `loadConfig` itself never calls `.plugin()`.
   Octokit: class {
+    static plugin(this: unknown): unknown {
+      return this
+    }
+
     rest = {
       repos: {
         getContent: mockGetContent,

@@ -62,7 +62,7 @@ function collectDivergentFields(
 
   for (const [key, declaredValue] of Object.entries(declared)) {
     const path = prefix === '' ? key : `${prefix}.${key}`
-    const observedValue = observed[key]
+    const observedValue = comparableObservedValue(prefix, key, declaredValue, observed)
 
     if (isPlainObject(declaredValue) && isPlainObject(observedValue)) {
       divergentFields.push(...collectDivergentFields(declaredValue, observedValue, path))
@@ -72,6 +72,25 @@ function collectDivergentFields(
   }
 
   return divergentFields
+}
+
+function comparableObservedValue(
+  prefix: string,
+  key: string,
+  declaredValue: unknown,
+  observed: Record<string, unknown>,
+): unknown {
+  if (
+    prefix === 'required_status_checks' &&
+    key === 'contexts' &&
+    Array.isArray(declaredValue) &&
+    !('contexts' in observed) &&
+    Array.isArray(observed.checks)
+  ) {
+    return observed.checks.map(check => (isPlainObject(check) ? check.context : undefined))
+  }
+
+  return observed[key]
 }
 
 /**
@@ -86,6 +105,14 @@ function collectDivergentFields(
  * - Everything else: compared with `Object.is`.
  */
 function subsetEqual(declared: unknown, observed: unknown): boolean {
+  // A declared `null` means "nothing set", which GitHub expresses by omitting the
+  // key entirely. Deliberately global rather than scoped to `restrictions`: any
+  // nullable field reads back the same way. Declared `false` is excluded because
+  // it is a real setting, not an absence.
+  if (declared === null && observed === undefined) {
+    return true
+  }
+
   if (Array.isArray(declared)) {
     return Array.isArray(observed) && arraysEquivalent(declared, observed)
   }

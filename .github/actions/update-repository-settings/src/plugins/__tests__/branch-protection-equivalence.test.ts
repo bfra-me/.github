@@ -199,4 +199,102 @@ describe('compareBranchProtection', () => {
     expect(result.equivalent).toBe(true)
     expect(result.divergentFields).toEqual([])
   })
+
+  it('treats declared contexts and omitted restrictions as equivalent to the live GitHub response shape', () => {
+    const declared = {
+      enforce_admins: true,
+      required_status_checks: {
+        strict: true,
+        contexts: [
+          'Prepare',
+          'Lint',
+          'Build',
+          'Actionlint',
+          'Hadolint',
+          'Zizmor',
+          'Renovate / Renovate',
+          'Fro Bot',
+        ],
+      },
+      restrictions: null,
+    }
+    const observed = {
+      enforce_admins: {
+        enabled: true,
+        url: 'https://api.github.com/repos/bfra-me/ha-addon-repository/branches/main/protection/enforce_admins',
+      },
+      required_status_checks: {
+        strict: true,
+        checks: [
+          {context: 'Fro Bot', app_id: null},
+          {context: 'Prepare', app_id: null},
+          {context: 'Renovate / Renovate', app_id: 15368},
+          {context: 'Zizmor', app_id: null},
+          {context: 'Hadolint', app_id: null},
+          {context: 'Actionlint', app_id: null},
+          {context: 'Build', app_id: null},
+          {context: 'Lint', app_id: null},
+        ],
+        contexts: [
+          'Prepare',
+          'Lint',
+          'Build',
+          'Actionlint',
+          'Hadolint',
+          'Zizmor',
+          'Renovate / Renovate',
+          'Fro Bot',
+        ],
+      },
+    }
+
+    const result = compareBranchProtection(declared, observed)
+
+    expect(result.divergentFields).toEqual([])
+    expect(result.equivalent).toBe(true)
+  })
+
+  it('reports divergence when a declared context is missing from observed checks', () => {
+    const declared = {
+      required_status_checks: {
+        contexts: ['Lint', 'Build'],
+      },
+    }
+    const observed = {
+      required_status_checks: {
+        checks: [{context: 'Lint', app_id: null}],
+      },
+    }
+
+    const result = compareBranchProtection(declared, observed)
+
+    expect(result.equivalent).toBe(false)
+    expect(result.divergentFields).toEqual(['required_status_checks.contexts'])
+  })
+
+  it('reports divergence when declared null restrictions are observed as an object', () => {
+    const declared = {restrictions: null}
+    const observed = {
+      restrictions: {
+        users: [],
+        teams: [],
+        apps: [],
+      },
+    }
+
+    const result = compareBranchProtection(declared, observed)
+
+    expect(result.equivalent).toBe(false)
+    expect(result.divergentFields).toEqual(['restrictions'])
+  })
+
+  it('reports divergence when a declared false value is omitted from observed protection', () => {
+    const declared = {enforce_admins: false}
+    const observed = {}
+
+    const result = compareBranchProtection(declared, observed)
+
+    expect(result.equivalent).toBe(false)
+    expect(result.divergentFields).toEqual(['enforce_admins'])
+  })
 })

@@ -1,6 +1,7 @@
 import type {Octokit} from '@octokit/rest'
 import * as core from '@actions/core'
 import {deepMerge} from '../diff.js'
+import {compareBranchProtection} from './branch-protection-equivalence.js'
 import {redact} from './error-detail.js'
 
 interface BranchConfig {
@@ -77,6 +78,58 @@ export async function branchesPlugin(
     } as Parameters<(typeof octokit.rest.repos)['updateBranchProtection']>[0])
 
     core.info(`Branch protection updated for: ${branch}`)
+
+    await verifyBranchProtection(octokit, owner, repo, branch, protection)
+  }
+}
+
+/**
+ * Read back the branch protection that was just written and compare it
+ * against the declared config using {@link compareBranchProtection}.
+ *
+ * Only called after `updateBranchProtection` has already succeeded — a
+ * failed update runs no read-back at all, since a GET against state that
+ * was never written would produce a misleading comparison. `declaredProtection`
+ * is the branch's raw declared config from the settings file, not the merged
+ * payload the write path built; comparing against the merged payload would
+ * compare the action against itself.
+ *
+ * This entire operation is verification, not enforcement: a failed read-back
+ * GET, or a throw from the comparison, is caught here, logged as a warning,
+ * and never propagates. An observer that fails runs which actually applied
+ * their settings is worse than no observer.
+ */
+async function verifyBranchProtection(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  branch: string,
+  declaredProtection: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const response = await octokit.rest.repos.getBranchProtection({owner, repo, branch})
+    const observedRaw = response.data as unknown as Record<string, unknown>
+    const {equivalent, divergentFields} = compareBranchProtection(declaredProtection, observedRaw)
+
+    if (!equivalent) {
+      core.warning(
+        `Branch protection for '${branch}' diverges from declared config: ${divergentFields.join(', ')}`,
+      )
+
+      await core.summary
+        .addTable([
+          [
+            {data: 'Branch', header: true},
+            {data: 'Divergent Fields', header: true},
+          ],
+          [branch, divergentFields.join(', ')],
+        ])
+        .write()
+    }
+  } catch (error: unknown) {
+    core.warning(
+      `Failed to verify branch protection for '${branch}': ${error instanceof Error ? error.message : String(error)}`,
+    )
   }
 }
 

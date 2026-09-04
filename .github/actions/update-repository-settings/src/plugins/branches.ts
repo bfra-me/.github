@@ -1,6 +1,7 @@
 import type {Octokit} from '@octokit/rest'
 import * as core from '@actions/core'
 import {deepMerge} from '../diff.js'
+import {redact} from './error-detail.js'
 
 interface BranchConfig {
   name: string
@@ -59,6 +60,14 @@ export async function branchesPlugin(
     const merged = deepMerge(currentProtection, protection)
     resolveStatusCheckConflict(merged, protection)
     const mergedProtection = cleanupMergedProtection(merged, isOrganization)
+
+    // Scrubbed once per branch, before the request — not per retry attempt (retry lives in the
+    // Octokit client, invisible here). The merged payload combines declared config with current
+    // state read from the API, so it can carry team slugs and app bypass entries the published
+    // config does not; `redact` strips those before this ever reaches log storage.
+    core.debug(
+      `Branch protection payload for ${branch}: ${JSON.stringify(redact(mergedProtection))}`,
+    )
 
     await octokit.rest.repos.updateBranchProtection({
       owner,

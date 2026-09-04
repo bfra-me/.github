@@ -62,8 +62,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * Walks both objects and arrays so a denylisted key nested inside an array
  * (e.g. `restrictions.teams[]`) is removed, not missed by a shallow walk.
  * Returns a new value; the input is never mutated.
+ *
+ * Exported so other modules that log request/response payloads (e.g.
+ * `branches.ts` logging the merged branch-protection payload before a PUT)
+ * reuse this single denylist instead of maintaining a second one that could
+ * drift out of sync.
  */
-function redact(value: unknown): unknown {
+export function redact(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(item => redact(item))
   }

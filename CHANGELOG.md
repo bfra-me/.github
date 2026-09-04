@@ -1,5 +1,11 @@
 # @bfra.me/.github
 
+## 4.25.1
+### Patch Changes
+
+
+- Update `bfra-me/renovate-action` to 10.34.1, which bundles Renovate 44.64.1 and promotes `tar` to a production dependency. ([#2689](https://github.com/bfra-me/.github/pull/2689))
+
 ## 4.25.0
 ### Minor Changes
 

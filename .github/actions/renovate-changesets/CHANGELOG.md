@@ -1,5 +1,11 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.47
+### Patch Changes
+
+
+- Keep the representative changeset when semantic deduplication removes a similar sibling. ([#2682](https://github.com/bfra-me/.github/pull/2682))
+
 ## 0.2.46
 ### Patch Changes
 

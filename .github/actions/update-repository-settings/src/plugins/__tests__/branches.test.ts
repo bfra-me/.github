@@ -4,7 +4,8 @@ import {Octokit} from '@octokit/rest'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {sanitizeBranchProtection} from '../branch-protection-shape.js'
 import {branchesPlugin, cleanupMergedProtection} from '../branches.js'
-import {applySettings, PLUGIN_REGISTRY} from '../index.js'
+import {applySettings} from '../index.js'
+import {withMockedPlugins} from './test-helpers.js'
 
 const mockGetRepo = vi.hoisted(() => vi.fn())
 const mockGetBranchProtection = vi.hoisted(() => vi.fn())
@@ -14,7 +15,9 @@ const mockWarning = vi.hoisted(() => vi.fn())
 const mockDebug = vi.hoisted(() => vi.fn())
 const mockError = vi.hoisted(() => vi.fn())
 const mockSummaryWrite = vi.hoisted(() => vi.fn().mockResolvedValue(undefined))
-const mockSummaryAddTable = vi.hoisted(() => vi.fn(() => ({write: mockSummaryWrite})))
+const mockSummaryAddTable = vi.hoisted(() =>
+  vi.fn((_rows: unknown[][]) => ({write: mockSummaryWrite})),
+)
 
 vi.mock('@octokit/rest', () => ({
   Octokit: class {
@@ -686,7 +689,7 @@ describe('branch protection verification (read-back and divergence reporting)', 
     expect(mockWarning).toHaveBeenCalledWith(expect.stringContaining('enforce_admins'))
 
     expect(mockSummaryAddTable).toHaveBeenCalledTimes(1)
-    const rows = mockSummaryAddTable.mock.calls[0]?.[0] as unknown[]
+    const rows = mockSummaryAddTable.mock.calls[0]?.[0] ?? []
     expect(rows[1]).toEqual(['main', 'enforce_admins'])
     expect(mockSummaryWrite).toHaveBeenCalledTimes(1)
   })
@@ -769,18 +772,14 @@ describe('branch protection verification — cross-plugin isolation (R8)', () =>
   })
 
   it('issues read-back requests only for branches when a config exercises labels and teams alongside branches', async () => {
-    const originalLabels = PLUGIN_REGISTRY.labels
-    const originalTeams = PLUGIN_REGISTRY.teams
     const mockLabelsPlugin = vi.fn().mockResolvedValue(undefined)
     const mockTeamsPlugin = vi.fn().mockResolvedValue(undefined)
-    PLUGIN_REGISTRY.labels = mockLabelsPlugin
-    PLUGIN_REGISTRY.teams = mockTeamsPlugin
 
-    mockGetBranchProtection
-      .mockResolvedValueOnce({data: {}})
-      .mockResolvedValueOnce({data: {enforce_admins: true}})
+    await withMockedPlugins({labels: mockLabelsPlugin, teams: mockTeamsPlugin}, async () => {
+      mockGetBranchProtection
+        .mockResolvedValueOnce({data: {}})
+        .mockResolvedValueOnce({data: {enforce_admins: true}})
 
-    try {
       const config: SettingsConfig = {
         labels: [{name: 'bug'}],
         teams: [{name: 'core', permission: 'push'}],
@@ -794,41 +793,36 @@ describe('branch protection verification — cross-plugin isolation (R8)', () =>
       expect(mockLabelsPlugin).toHaveBeenCalledTimes(1)
       expect(mockTeamsPlugin).toHaveBeenCalledTimes(1)
       expect(mockGetBranchProtection).toHaveBeenCalledTimes(2)
-    } finally {
-      PLUGIN_REGISTRY.labels = originalLabels
-      PLUGIN_REGISTRY.teams = originalTeams
-    }
+    })
   })
 
   it('keeps divergence warnings distinguishable from an unrelated plugin failure', async () => {
-    const originalLabels = PLUGIN_REGISTRY.labels
-    PLUGIN_REGISTRY.labels = vi.fn().mockRejectedValue(new Error('labels failed'))
+    await withMockedPlugins(
+      {labels: vi.fn().mockRejectedValue(new Error('labels failed'))},
+      async () => {
+        mockGetBranchProtection
+          .mockResolvedValueOnce({data: {}})
+          .mockResolvedValueOnce({data: {enforce_admins: false}})
 
-    mockGetBranchProtection
-      .mockResolvedValueOnce({data: {}})
-      .mockResolvedValueOnce({data: {enforce_admins: false}})
+        const config: SettingsConfig = {
+          labels: [{name: 'bug'}],
+          branches: [{name: 'main', protection: {enforce_admins: true}}],
+        }
 
-    try {
-      const config: SettingsConfig = {
-        labels: [{name: 'bug'}],
-        branches: [{name: 'main', protection: {enforce_admins: true}}],
-      }
+        let caught: Error | undefined
+        try {
+          await applySettings(createOctokit(), 'bfra-me', 'repo', config)
+        } catch (error) {
+          caught = error as Error
+        }
 
-      let caught: Error | undefined
-      try {
-        await applySettings(createOctokit(), 'bfra-me', 'repo', config)
-      } catch (error) {
-        caught = error as Error
-      }
+        expect(caught).toBeDefined()
+        expect(caught?.message).toContain('labels failed')
+        expect(caught?.message).not.toContain('enforce_admins')
 
-      expect(caught).toBeDefined()
-      expect(caught?.message).toContain('labels failed')
-      expect(caught?.message).not.toContain('enforce_admins')
-
-      expect(mockWarning).toHaveBeenCalledWith(expect.stringContaining('enforce_admins'))
-    } finally {
-      PLUGIN_REGISTRY.labels = originalLabels
-    }
+        expect(mockWarning).toHaveBeenCalledWith(expect.stringContaining('enforce_admins'))
+      },
+    )
   })
 })
 

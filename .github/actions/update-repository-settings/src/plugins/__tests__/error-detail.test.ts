@@ -36,6 +36,54 @@ describe('describeError', () => {
     expect(result).toContain('EEEE:0000:1111')
   })
 
+  it('includes a non-empty plain-string response body with status and request ID', () => {
+    const error = {
+      status: 502,
+      response: {
+        headers: {'x-github-request-id': 'PLAIN:0000:1111'},
+        data: '<html><body>gateway failure</body></html>',
+      },
+    }
+
+    const result = describeError(error)
+
+    expect(result).toContain('status 502')
+    expect(result).toContain('request ID PLAIN:0000:1111')
+    expect(result).toContain('<html><body>gateway failure</body></html>')
+  })
+
+  it('redacts denylisted keys in a JSON-shaped string response body', () => {
+    const error = {
+      status: 500,
+      response: {
+        headers: {'x-github-request-id': 'JSON:0000:1111'},
+        data: '{"restrictions":{"teams":[{"slug":"secret-team"}]}}',
+      },
+    }
+
+    const result = describeError(error)
+
+    expect(result).toContain('status 500')
+    expect(result).toContain('request ID JSON:0000:1111')
+    expect(result).not.toContain('secret-team')
+    expect(result).toContain('[REDACTED]')
+  })
+
+  it('truncates a long plain-string response body visibly', () => {
+    const error = {
+      status: 500,
+      response: {
+        headers: {},
+        data: 'x'.repeat(3000),
+      },
+    }
+
+    const result = describeError(error)
+
+    expect(result.length).toBeLessThan(3000)
+    expect(result).toContain('[truncated]')
+  })
+
   it('names status and request ID for a response with no data at all', () => {
     const error = {
       status: 502,

@@ -849,6 +849,14 @@ describe('sanitizeBranchProtection', () => {
     expect(result).not.toHaveProperty('required_signatures')
   })
 
+  it('preserves an enabled property when its value is not boolean', () => {
+    const malformed = {enabled: 'yes'}
+
+    const result = sanitizeBranchProtection({enforce_admins: malformed})
+
+    expect(result.enforce_admins).toBe(malformed)
+  })
+
   it('sanitizes required_status_checks — prefers checks over contexts', () => {
     const result = sanitizeBranchProtection({
       required_status_checks: {

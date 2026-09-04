@@ -43,7 +43,8 @@ export function sanitizeBranchProtection(data: Record<string, unknown>): Record<
 
 function extractEnabled(value: unknown): boolean | unknown {
   if (value !== null && typeof value === 'object' && 'enabled' in value) {
-    return (value as {enabled: boolean}).enabled
+    const enabled = (value as {enabled: unknown}).enabled
+    return typeof enabled === 'boolean' ? enabled : value
   }
   return value
 }

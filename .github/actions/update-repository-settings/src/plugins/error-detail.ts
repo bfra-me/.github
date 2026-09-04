@@ -10,9 +10,10 @@
  * thrown value — HTTP status, the GitHub request ID, and a redacted,
  * length-bounded response body — while guaranteeing that principal-identifying
  * fields (team/app slugs and IDs, user logins, bypass allowances, dismissal
- * restrictions) never reach the returned string. Redaction always runs before
- * truncation so a length bound can never expose a field the denylist would have
- * removed.
+ * restrictions) never reach the returned string. Structured bodies are redacted
+ * before truncation so a length bound can never expose a field the denylist
+ * would have removed. Genuinely non-JSON string bodies have no keys to redact,
+ * so they are truncated verbatim.
  */
 
 /**
@@ -101,11 +102,13 @@ function truncate(text: string): string {
 }
 
 /**
- * Format a response body for inclusion in a diagnostic string. Redaction runs
- * before truncation so a denylisted value beyond the length bound is still
- * removed rather than merely cut off. Returns `undefined` for a body that
- * carries no information (missing, blank, or an empty object) so the caller
- * never renders a hollow `body: ` segment.
+ * Format a response body for inclusion in a diagnostic string. JSON-shaped
+ * strings are parsed and redacted before truncation so a denylisted value
+ * beyond the length bound is still removed rather than merely cut off.
+ * Genuinely non-JSON strings have no keys to redact, so they are truncated
+ * verbatim. Returns `undefined` for a body that carries no information
+ * (missing, blank, or an empty object) so the caller never renders a hollow
+ * `body: ` segment.
  */
 function formatBody(data: unknown): string | undefined {
   if (data === undefined || data === null) {
@@ -113,7 +116,23 @@ function formatBody(data: unknown): string | undefined {
   }
 
   if (typeof data === 'string') {
-    return data.trim().length === 0 ? undefined : truncate(data)
+    if (data.trim().length === 0) {
+      return undefined
+    }
+
+    try {
+      const parsed: unknown = JSON.parse(data)
+      if (Array.isArray(parsed) || isRecord(parsed)) {
+        if (isRecord(parsed) && Object.keys(parsed).length === 0) {
+          return undefined
+        }
+        return truncate(safeStringify(redact(parsed)))
+      }
+    } catch {
+      // Genuinely non-JSON strings have no keys to redact.
+    }
+
+    return truncate(data)
   }
 
   if (isRecord(data) && Object.keys(data).length === 0) {

@@ -1,6 +1,6 @@
 {
   "name": "renovate-changesets",
-  "version": "0.2.47",
+  "version": "0.2.48",
   "private": true,
   "description": "GitHub Action to generate changeset files for Renovate dependency updates",
   "keywords": [

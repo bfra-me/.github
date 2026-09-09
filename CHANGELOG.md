@@ -1,5 +1,43 @@
 # @bfra.me/.github
 
+## 4.27.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.35.1` to `10.36.0` ([#2706](https://github.com/bfra-me/.github/pull/2706))
+
+
+- Update npm dependency `lint-staged` from `17.4.1` to `17.5.0` ([#2710](https://github.com/bfra-me/.github/pull/2710))
+  
+  **Multi-package update** across 1 packages.
+
+- Update npm dependency `eslint` from `10.9.1` to `10.10.0` ([#2707](https://github.com/bfra-me/.github/pull/2707))
+  
+  **Multi-package update** across 1 packages.
+
+- Update npm dependency `node` from `24.20.0` to `24.21.0` ([#2711](https://github.com/bfra-me/.github/pull/2711))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.36.0` to `10.37.0` ([#2708](https://github.com/bfra-me/.github/pull/2708))
+
+
+- Update GitHub Actions workflow dependency `github/codeql-action` from `4.37.9` to `4.38.0` ([#2712](https://github.com/bfra-me/.github/pull/2712))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.37.0` to `10.37.1` ([#2709](https://github.com/bfra-me/.github/pull/2709))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.35.0` to `10.35.1` ([#2703](https://github.com/bfra-me/.github/pull/2703))
+
+
+- Refresh pnpm lockfile dependencies ([#2704](https://github.com/bfra-me/.github/pull/2704))
+  
+  **Multi-package update** for package `@bfra.me/.github`.
+
 ## 4.26.0
 ### Minor Changes
 

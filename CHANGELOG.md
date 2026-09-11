@@ -1,5 +1,27 @@
 # @bfra.me/.github
 
+## 4.28.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.109.4` to `0.110.0` ([#2716](https://github.com/bfra-me/.github/pull/2716))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.110.1` to `0.111.0` ([#2720](https://github.com/bfra-me/.github/pull/2720))
+
+
+- Update npm dependency `pnpm` from `11.25.0` to `11.26.0` ([#2714](https://github.com/bfra-me/.github/pull/2714))
+  
+  **Multi-package update** across 1 packages.
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.37.1` to `10.37.2` ([#2719](https://github.com/bfra-me/.github/pull/2719))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.110.0` to `0.110.1` ([#2718](https://github.com/bfra-me/.github/pull/2718))
+
 ## 4.27.0
 ### Minor Changes
 

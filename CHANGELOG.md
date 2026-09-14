@@ -1,5 +1,27 @@
 # @bfra.me/.github
 
+## 4.29.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.38.0` to `10.39.0` ([#2729](https://github.com/bfra-me/.github/pull/2729))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.37.3` to `10.38.0` ([#2728](https://github.com/bfra-me/.github/pull/2728))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.111.0` to `0.112.0` ([#2724](https://github.com/bfra-me/.github/pull/2724))
+
+
+### Patch Changes
+
+
+- Update npm dependency `@bfra.me/eslint-config` from `0.52.1` to `0.52.2` ([#2727](https://github.com/bfra-me/.github/pull/2727))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.37.2` to `10.37.3` ([#2726](https://github.com/bfra-me/.github/pull/2726))
+
 ## 4.28.0
 ### Minor Changes
 

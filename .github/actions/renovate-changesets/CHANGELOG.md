@@ -1,5 +1,17 @@
 # @bfra.me-actions/renovate-changesets
 
+## 0.2.49
+### Patch Changes
+
+
+- Update dependencies across 4 packages ([#2735](https://github.com/bfra-me/.github/pull/2735))
+  
+  **Dependencies updated**: `@types/node`
+  
+  **Merged changeset** combining 4 related updates across affected packages.
+  
+  **Affected packages**: `@bfra.me/.github`, `renovate-changesets`, `update-metadata`, `update-repository-settings`
+
 ## 0.2.48
 ### Patch Changes
 

@@ -114,7 +114,7 @@ class TypeOnlyValidator {
       for (const pattern of importPatterns) {
         const match = line.match(pattern)
         if (match) {
-          let type: ImportDeclaration['type'] = 'regular'
+          let type: ImportDeclaration['type']
           let specifiers: string[] = []
 
           if (line.includes('import type')) {

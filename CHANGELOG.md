@@ -1,5 +1,55 @@
 # @bfra.me/.github
 
+## 4.32.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.53.0` to `10.54.0` ([#2774](https://github.com/bfra-me/.github/pull/2774))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.52.0` to `10.53.0` ([#2772](https://github.com/bfra-me/.github/pull/2772))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.50.1` to `10.51.0` ([#2766](https://github.com/bfra-me/.github/pull/2766))
+
+
+- Update dependency `bfra-me/.github` from `4.30.0` to `4.31.0` ([#2758](https://github.com/bfra-me/.github/pull/2758))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.113.2` to `0.114.0` ([#2763](https://github.com/bfra-me/.github/pull/2763))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.49.0` to `10.50.0` ([#2761](https://github.com/bfra-me/.github/pull/2761))
+
+
+- Update npm dependency `eslint` from `10.10.0` to `10.11.0` ([#2764](https://github.com/bfra-me/.github/pull/2764))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.51.0` to `10.52.0` ([#2768](https://github.com/bfra-me/.github/pull/2768))
+
+
+### Patch Changes
+
+
+- Update npm dependency `prettier` from `3.9.7` to `3.9.8` ([#2759](https://github.com/bfra-me/.github/pull/2759))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.114.0` to `0.114.1` ([#2769](https://github.com/bfra-me/.github/pull/2769))
+
+
+- Update npm dependency `tsx` from `4.23.13` to `4.23.15` ([#2773](https://github.com/bfra-me/.github/pull/2773))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.50.0` to `10.50.1` ([#2765](https://github.com/bfra-me/.github/pull/2765))
+
+
+- Refresh pnpm lockfile dependencies ([#2762](https://github.com/bfra-me/.github/pull/2762))
+  
+  **Multi-package update** for package `@bfra.me/.github`.
+
 ## 4.31.0
 ### Minor Changes
 

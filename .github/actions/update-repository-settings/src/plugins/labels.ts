@@ -108,8 +108,38 @@ export async function labelsPlugin(
     })
   }
 
-  for (const label of remove) {
-    core.info(`Deleting label: ${label.name}`)
-    await octokit.rest.issues.deleteLabel({owner, repo, name: label.name})
+  if (remove.length > 0) {
+    const remaining = currentLabels.length - remove.length + add.length
+
+    if (remove.length > remaining) {
+      const removedNames = remove.map(label => label.name)
+      core.warning(
+        `Skipping deletion of ${remove.length} label(s) (${removedNames.join(', ')}): ` +
+          `deletions would exceed the number of labels remaining (${remaining}). ` +
+          `Check the '_extends' base config or local 'labels:' config for missing entries.`,
+      )
+
+      await core.summary
+        .addHeading('Labels', 3)
+        .addRaw(
+          `Skipped deleting ${remove.length} label(s) because deletions exceed the labels ` +
+            `remaining (${remaining}): ${removedNames.join(', ')}`,
+          true,
+        )
+        .write()
+    } else {
+      for (const label of remove) {
+        core.warning(`Deleting label: ${label.name}`)
+        await octokit.rest.issues.deleteLabel({owner, repo, name: label.name})
+      }
+
+      await core.summary
+        .addHeading('Labels', 3)
+        .addRaw(
+          `Deleted ${remove.length} label(s): ${remove.map(label => label.name).join(', ')}`,
+          true,
+        )
+        .write()
+    }
   }
 }

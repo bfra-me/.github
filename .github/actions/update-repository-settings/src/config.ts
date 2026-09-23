@@ -25,6 +25,100 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
+interface NamedRecord {
+  name: string
+  [key: string]: unknown
+}
+
+function isNamedRecord(value: unknown): value is NamedRecord {
+  return isRecord(value) && typeof value.name === 'string'
+}
+
+/**
+ * Merge an array of `{name: string, ...}` entries by key. Base order is
+ * preserved; a child entry whose key matches a base entry is combined via
+ * `mergeEntry` at the base's position. Child-only entries are appended in
+ * child order. Entries that aren't objects with a string `name` pass
+ * through unchanged (and are never matched against anything).
+ */
+function mergeNamedArray(
+  base: unknown[],
+  override: unknown[],
+  keyFn: (name: string) => string,
+  mergeEntry: (baseEntry: NamedRecord, overrideEntry: NamedRecord) => NamedRecord,
+): unknown[] {
+  const overrideByKey = new Map<string, NamedRecord>()
+  for (const entry of override) {
+    if (isNamedRecord(entry)) {
+      overrideByKey.set(keyFn(entry.name), entry)
+    }
+  }
+
+  const usedKeys = new Set<string>()
+  const merged = base.map(entry => {
+    if (!isNamedRecord(entry)) {
+      return entry
+    }
+
+    const key = keyFn(entry.name)
+    const replacement = overrideByKey.get(key)
+    if (replacement === undefined) {
+      return entry
+    }
+
+    usedKeys.add(key)
+    return mergeEntry(entry, replacement)
+  })
+
+  for (const entry of override) {
+    if (!isNamedRecord(entry)) {
+      merged.push(entry)
+      continue
+    }
+
+    const key = keyFn(entry.name)
+    if (!usedKeys.has(key)) {
+      merged.push(entry)
+      usedKeys.add(key)
+    }
+  }
+
+  return merged
+}
+
+/**
+ * Merge `labels` arrays by `name` (case-insensitive, matching the
+ * case-insensitive comparison the labels plugin already does against live
+ * GitHub labels). A child entry with the same key replaces the base entry
+ * wholesale (no field-level merge).
+ */
+function mergeLabels(base: unknown[], override: unknown[]): unknown[] {
+  return mergeNamedArray(
+    base,
+    override,
+    name => name.toLowerCase(),
+    (_baseEntry, overrideEntry) => overrideEntry,
+  )
+}
+
+/**
+ * Merge `branches` arrays by `name` (exact match — branch names are
+ * case-sensitive). A child entry with the same key is deep-merged onto the
+ * base entry via `deepMerge`, so e.g. a child that only declares
+ * `protection.required_status_checks` still keeps the base's other
+ * `protection` fields (like `enforce_admins`); an explicit `null` in the
+ * child wins outright, and nested arrays (like `checks`) are replaced, not
+ * unioned.
+ */
+function mergeBranches(base: unknown[], override: unknown[]): unknown[] {
+  return mergeNamedArray(
+    base,
+    override,
+    name => name,
+    (baseEntry, overrideEntry) => deepMerge(baseEntry, overrideEntry) as NamedRecord,
+  )
+}
+
 function deepMerge(
   base: Record<string, unknown>,
   override: Record<string, unknown>,
@@ -33,6 +127,16 @@ function deepMerge(
   for (const key of Object.keys(override)) {
     const overrideVal = override[key]
     const baseVal = base[key]
+
+    if (key === 'labels' && Array.isArray(overrideVal) && Array.isArray(baseVal)) {
+      result[key] = mergeLabels(baseVal, overrideVal)
+      continue
+    }
+
+    if (key === 'branches' && Array.isArray(overrideVal) && Array.isArray(baseVal)) {
+      result[key] = mergeBranches(baseVal, overrideVal)
+      continue
+    }
 
     if (
       overrideVal !== null &&

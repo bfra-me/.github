@@ -137,6 +137,30 @@ function mergeLabels(base: unknown[], override: unknown[]): unknown[] {
   )
 }
 
+/** `checks` and `contexts` are alternatives: keep only the one the override declares. */
+function resolveMergedStatusCheckAlternative(
+  merged: NamedRecord,
+  overrideEntry: NamedRecord,
+): void {
+  const mergedProtection = merged.protection
+  const overrideProtection = overrideEntry.protection
+  if (!isRecord(mergedProtection) || !isRecord(overrideProtection)) {
+    return
+  }
+
+  const mergedRsc = mergedProtection.required_status_checks
+  const overrideRsc = overrideProtection.required_status_checks
+  if (!isRecord(mergedRsc) || !isRecord(overrideRsc)) {
+    return
+  }
+
+  if ('contexts' in overrideRsc && !('checks' in overrideRsc)) {
+    delete mergedRsc.checks
+  } else if ('checks' in overrideRsc && !('contexts' in overrideRsc)) {
+    delete mergedRsc.contexts
+  }
+}
+
 /**
  * Merge `branches` arrays by `name` (exact match — branch names are
  * case-sensitive). A child entry with the same key is deep-merged onto the
@@ -151,7 +175,11 @@ function mergeBranches(base: unknown[], override: unknown[]): unknown[] {
     base,
     override,
     name => name,
-    (baseEntry, overrideEntry) => deepMerge(baseEntry, overrideEntry) as NamedRecord,
+    (baseEntry, overrideEntry) => {
+      const merged = deepMerge(baseEntry, overrideEntry) as NamedRecord
+      resolveMergedStatusCheckAlternative(merged, overrideEntry)
+      return merged
+    },
     'branch',
   )
 }

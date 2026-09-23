@@ -49,6 +49,17 @@ function labelsDiffer(current: ComparableLabel, desired: ComparableLabel): boole
   return current.color !== desired.color || current.description !== desired.description
 }
 
+/** Summary output is report-only; a failed write must not fail a run whose mutations already applied. */
+async function writeLabelsSummary(message: string): Promise<void> {
+  try {
+    await core.summary.addHeading('Labels', 3).addRaw(message, true).write()
+  } catch (error) {
+    core.warning(
+      `Failed to write labels step summary: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+}
+
 export async function labelsPlugin(
   octokit: Octokit,
   owner: string,
@@ -119,27 +130,40 @@ export async function labelsPlugin(
           `Check the '_extends' base config or local 'labels:' config for missing entries.`,
       )
 
-      await core.summary
-        .addHeading('Labels', 3)
-        .addRaw(
-          `Skipped deleting ${remove.length} label(s) because deletions exceed the labels ` +
-            `remaining (${remaining}): ${removedNames.join(', ')}`,
-          true,
-        )
-        .write()
+      await writeLabelsSummary(
+        `Skipped deleting ${remove.length} label(s) because deletions exceed the labels ` +
+          `remaining (${remaining}): ${removedNames.join(', ')}`,
+      )
     } else {
+      const deletedNames: string[] = []
+      const failedNames: string[] = []
+
       for (const label of remove) {
         core.warning(`Deleting label: ${label.name}`)
-        await octokit.rest.issues.deleteLabel({owner, repo, name: label.name})
+        try {
+          await octokit.rest.issues.deleteLabel({owner, repo, name: label.name})
+          deletedNames.push(label.name)
+        } catch (error) {
+          failedNames.push(label.name)
+          core.warning(
+            `Failed to delete label "${label.name}": ${error instanceof Error ? error.message : String(error)}`,
+          )
+        }
       }
 
-      await core.summary
-        .addHeading('Labels', 3)
-        .addRaw(
-          `Deleted ${remove.length} label(s): ${remove.map(label => label.name).join(', ')}`,
-          true,
+      const summaryLines: string[] = []
+      if (deletedNames.length > 0) {
+        summaryLines.push(`Deleted ${deletedNames.length} label(s): ${deletedNames.join(', ')}`)
+      }
+      if (failedNames.length > 0) {
+        summaryLines.push(
+          `Failed to delete ${failedNames.length} label(s): ${failedNames.join(', ')}`,
         )
-        .write()
+      }
+
+      if (summaryLines.length > 0) {
+        await writeLabelsSummary(summaryLines.join('\n'))
+      }
     }
   }
 }

@@ -339,6 +339,95 @@ describe('loadConfig', () => {
     })
   })
 
+  it('warns once on case-variant duplicate label names within a single side, without changing resolution', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            labels: [
+              {name: 'Bug', color: '111111'},
+              {name: 'bug', color: '222222'},
+              {name: 'BUG', color: '333333'},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({labels: [{name: 'bug', color: '000000'}]}),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    // Local's last duplicate wins ("BUG"), matching Map.set() last-write-wins
+    // resolution — the warning only surfaces the ambiguity, it doesn't change it.
+    expect(config).toEqual({labels: [{name: 'BUG', color: '333333'}]})
+    expect(mockWarning).toHaveBeenCalledTimes(1)
+    expect(mockWarning).toHaveBeenCalledWith(
+      expect.stringContaining('Duplicate label name "bug" in the local config'),
+    )
+  })
+
+  it('warns once per duplicate branch name in the base (_extends) config', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [{name: 'main', protection: {enforce_admins: true}}],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {name: 'main', protection: {enforce_admins: false, required_signatures: true}},
+              {name: 'main', protection: {required_signatures: false}},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(mockWarning).toHaveBeenCalledTimes(1)
+    expect(mockWarning).toHaveBeenCalledWith(
+      expect.stringContaining('Duplicate branch name "main" in the base (_extends) config'),
+    )
+  })
+
+  it('replaces a nested labels key (not at the top level) wholesale instead of merging by name', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            repository: {labels: [{name: 'nested-local'}]},
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            repository: {labels: [{name: 'nested-base'}]},
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({repository: {labels: [{name: 'nested-local'}]}})
+  })
+
   it('replaces non-labels/branches arrays wholesale (e.g. teams) rather than merging by key', async () => {
     mockGetContent
       .mockResolvedValueOnce({

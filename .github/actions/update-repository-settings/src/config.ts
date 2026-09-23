@@ -34,6 +34,36 @@ function isNamedRecord(value: unknown): value is NamedRecord {
   return isRecord(value) && typeof value.name === 'string'
 }
 
+/** Warn once per duplicate key in a named-entry array. Resolution is unchanged. */
+function warnDuplicateNames(
+  entries: unknown[],
+  keyFn: (name: string) => string,
+  entityLabel: string,
+  side: string,
+): void {
+  const seen = new Set<string>()
+  const warned = new Set<string>()
+
+  for (const entry of entries) {
+    if (!isNamedRecord(entry)) {
+      continue
+    }
+
+    const key = keyFn(entry.name)
+    if (seen.has(key)) {
+      if (!warned.has(key)) {
+        core.warning(
+          `Duplicate ${entityLabel} name "${entry.name}" in ${side}: only one definition will be used.`,
+        )
+        warned.add(key)
+      }
+      continue
+    }
+
+    seen.add(key)
+  }
+}
+
 /**
  * Merge an array of `{name: string, ...}` entries by key. Base order is
  * preserved; a child entry whose key matches a base entry is combined via
@@ -46,7 +76,11 @@ function mergeNamedArray(
   override: unknown[],
   keyFn: (name: string) => string,
   mergeEntry: (baseEntry: NamedRecord, overrideEntry: NamedRecord) => NamedRecord,
+  entityLabel: string,
 ): unknown[] {
+  warnDuplicateNames(base, keyFn, entityLabel, 'the base (_extends) config')
+  warnDuplicateNames(override, keyFn, entityLabel, 'the local config')
+
   const overrideByKey = new Map<string, NamedRecord>()
   for (const entry of override) {
     if (isNamedRecord(entry)) {
@@ -98,6 +132,7 @@ function mergeLabels(base: unknown[], override: unknown[]): unknown[] {
     override,
     name => name.toLowerCase(),
     (_baseEntry, overrideEntry) => overrideEntry,
+    'label',
   )
 }
 
@@ -116,9 +151,11 @@ function mergeBranches(base: unknown[], override: unknown[]): unknown[] {
     override,
     name => name,
     (baseEntry, overrideEntry) => deepMerge(baseEntry, overrideEntry) as NamedRecord,
+    'branch',
   )
 }
 
+/** Recursive merge of plain objects; arrays and scalars are replaced by the override. */
 function deepMerge(
   base: Record<string, unknown>,
   override: Record<string, unknown>,
@@ -127,16 +164,6 @@ function deepMerge(
   for (const key of Object.keys(override)) {
     const overrideVal = override[key]
     const baseVal = base[key]
-
-    if (key === 'labels' && Array.isArray(overrideVal) && Array.isArray(baseVal)) {
-      result[key] = mergeLabels(baseVal, overrideVal)
-      continue
-    }
-
-    if (key === 'branches' && Array.isArray(overrideVal) && Array.isArray(baseVal)) {
-      result[key] = mergeBranches(baseVal, overrideVal)
-      continue
-    }
 
     if (
       overrideVal !== null &&
@@ -156,6 +183,24 @@ function deepMerge(
     result[key] = overrideVal
   }
   return result
+}
+
+/** Merge an `_extends` base with the local config. Only top-level `labels`/`branches` merge by name. */
+function mergeConfigs(
+  base: Record<string, unknown>,
+  override: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged = deepMerge(base, override)
+
+  if (Array.isArray(base.labels) && Array.isArray(override.labels)) {
+    merged.labels = mergeLabels(base.labels, override.labels)
+  }
+
+  if (Array.isArray(base.branches) && Array.isArray(override.branches)) {
+    merged.branches = mergeBranches(base.branches, override.branches)
+  }
+
+  return merged
 }
 
 function decodeContent(payload: unknown, path: string): string {
@@ -265,7 +310,7 @@ export async function loadConfig(
     const base = await loadRemoteConfig(octokit, target.owner, target.repo, target.path)
     const baseWithoutExtends = withoutExtends(base)
 
-    return deepMerge(baseWithoutExtends, localWithoutExtends) as SettingsConfig
+    return mergeConfigs(baseWithoutExtends, localWithoutExtends) as SettingsConfig
   } catch (error) {
     core.warning(`Failed to load _extends config: ${String(error)}`)
     return localWithoutExtends

@@ -149,6 +149,7 @@ describe('labelsPlugin', () => {
       expect.stringContaining('Skipped deleting 45 label(s)'),
       true,
     )
+    expect(mockSummaryWrite).toHaveBeenCalledTimes(1)
   })
 
   it('does not trip the mass-delete breaker for a new repo replacing all default labels', async () => {
@@ -167,6 +168,69 @@ describe('labelsPlugin', () => {
 
     expect(mockDeleteLabel).toHaveBeenCalledTimes(9)
     expect(mockCreateLabel).toHaveBeenCalledTimes(55)
+  })
+
+  it('continues deleting remaining labels and warns when one deleteLabel call fails, without throwing', async () => {
+    // 4 current labels, 2 desired (bug, keep-extra) => remove=2, remaining=4-2+0=2:
+    // remove(2) is not > remaining(2), so the mass-delete breaker does not trip here.
+    mockLabelPages([
+      {name: 'bug', color: 'd73a4a', description: 'Something is broken'},
+      {name: 'wontfix', color: 'ffffff', description: 'Will not be fixed'},
+      {name: 'duplicate', color: '000000', description: 'Duplicate issue'},
+      {name: 'keep-extra', color: '111111', description: 'Kept'},
+    ])
+    mockDeleteLabel
+      .mockRejectedValueOnce(new Error('API rate limit exceeded'))
+      .mockResolvedValueOnce({})
+
+    await expect(
+      labelsPlugin(createOctokit(), 'bfra-me', 'repo', [
+        {name: 'bug', color: 'd73a4a', description: 'Something is broken'},
+        {name: 'keep-extra', color: '111111', description: 'Kept'},
+      ]),
+    ).resolves.toBeUndefined()
+
+    expect(mockDeleteLabel).toHaveBeenCalledTimes(2)
+    expect(mockDeleteLabel).toHaveBeenNthCalledWith(1, {
+      owner: 'bfra-me',
+      repo: 'repo',
+      name: 'wontfix',
+    })
+    expect(mockDeleteLabel).toHaveBeenNthCalledWith(2, {
+      owner: 'bfra-me',
+      repo: 'repo',
+      name: 'duplicate',
+    })
+    expect(mockWarning).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to delete label "wontfix": API rate limit exceeded'),
+    )
+    expect(mockSummaryAddRaw).toHaveBeenCalledWith(
+      expect.stringContaining('Deleted 1 label(s): duplicate'),
+      true,
+    )
+    expect(mockSummaryAddRaw).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to delete 1 label(s): wontfix'),
+      true,
+    )
+  })
+
+  it('does not throw when the step summary write rejects after deletions', async () => {
+    mockLabelPages([
+      {name: 'bug', color: 'd73a4a', description: 'Something is broken'},
+      {name: 'wontfix', color: 'ffffff', description: 'Will not be fixed'},
+    ])
+    mockSummaryWrite.mockRejectedValueOnce(new Error('summary API unavailable'))
+
+    await expect(
+      labelsPlugin(createOctokit(), 'bfra-me', 'repo', [
+        {name: 'bug', color: 'd73a4a', description: 'Something is broken'},
+      ]),
+    ).resolves.toBeUndefined()
+
+    expect(mockDeleteLabel).toHaveBeenCalledTimes(1)
+    expect(mockWarning).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to write labels step summary: summary API unavailable'),
+    )
   })
 
   it('does not write a summary when there are no deletions', async () => {

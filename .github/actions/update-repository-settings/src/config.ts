@@ -2,6 +2,7 @@ import type {Octokit} from '@octokit/rest'
 import {Buffer} from 'node:buffer'
 import * as core from '@actions/core'
 import * as yaml from 'js-yaml'
+import {deepMerge} from './diff.js'
 
 export interface SettingsConfig {
   repository?: Record<string, unknown>
@@ -25,33 +26,180 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
-function deepMerge(
-  base: Record<string, unknown>,
-  override: Record<string, unknown>,
-): Record<string, unknown> {
-  const result: Record<string, unknown> = {...base}
-  for (const key of Object.keys(override)) {
-    const overrideVal = override[key]
-    const baseVal = base[key]
+interface NamedRecord {
+  name: string
+  [key: string]: unknown
+}
 
-    if (
-      overrideVal !== null &&
-      typeof overrideVal === 'object' &&
-      !Array.isArray(overrideVal) &&
-      baseVal !== null &&
-      typeof baseVal === 'object' &&
-      !Array.isArray(baseVal)
-    ) {
-      result[key] = deepMerge(
-        baseVal as Record<string, unknown>,
-        overrideVal as Record<string, unknown>,
-      )
+function isNamedRecord(value: unknown): value is NamedRecord {
+  return isRecord(value) && typeof value.name === 'string'
+}
+
+/** Warn once per duplicate key in a named-entry array. Resolution is unchanged. */
+function warnDuplicateNames(
+  entries: unknown[],
+  keyFn: (name: string) => string,
+  entityLabel: string,
+  side: string,
+): void {
+  const seen = new Set<string>()
+  const warned = new Set<string>()
+
+  for (const entry of entries) {
+    if (!isNamedRecord(entry)) {
       continue
     }
 
-    result[key] = overrideVal
+    const key = keyFn(entry.name)
+    if (seen.has(key)) {
+      if (!warned.has(key)) {
+        core.warning(
+          `Duplicate ${entityLabel} name "${entry.name}" in ${side}: only one definition will be used.`,
+        )
+        warned.add(key)
+      }
+      continue
+    }
+
+    seen.add(key)
   }
-  return result
+}
+
+/**
+ * Merge an array of `{name: string, ...}` entries by key. Base order is
+ * preserved; a child entry whose key matches a base entry is combined via
+ * `mergeEntry` at the base's position. Child-only entries are appended in
+ * child order. Entries that aren't objects with a string `name` pass
+ * through unchanged (and are never matched against anything).
+ */
+function mergeNamedArray(
+  base: unknown[],
+  override: unknown[],
+  keyFn: (name: string) => string,
+  mergeEntry: (baseEntry: NamedRecord, overrideEntry: NamedRecord) => NamedRecord,
+  entityLabel: string,
+): unknown[] {
+  warnDuplicateNames(base, keyFn, entityLabel, 'the base (_extends) config')
+  warnDuplicateNames(override, keyFn, entityLabel, 'the local config')
+
+  const overrideByKey = new Map<string, NamedRecord>()
+  for (const entry of override) {
+    if (isNamedRecord(entry)) {
+      overrideByKey.set(keyFn(entry.name), entry)
+    }
+  }
+
+  const usedKeys = new Set<string>()
+  const merged = base.map(entry => {
+    if (!isNamedRecord(entry)) {
+      return entry
+    }
+
+    const key = keyFn(entry.name)
+    const replacement = overrideByKey.get(key)
+    if (replacement === undefined) {
+      return entry
+    }
+
+    usedKeys.add(key)
+    return mergeEntry(entry, replacement)
+  })
+
+  for (const entry of override) {
+    if (!isNamedRecord(entry)) {
+      merged.push(entry)
+      continue
+    }
+
+    const key = keyFn(entry.name)
+    if (!usedKeys.has(key)) {
+      merged.push(entry)
+      usedKeys.add(key)
+    }
+  }
+
+  return merged
+}
+
+/**
+ * Merge `labels` arrays by `name` (case-insensitive, matching the
+ * case-insensitive comparison the labels plugin already does against live
+ * GitHub labels). A child entry with the same key replaces the base entry
+ * wholesale (no field-level merge).
+ */
+function mergeLabels(base: unknown[], override: unknown[]): unknown[] {
+  return mergeNamedArray(
+    base,
+    override,
+    name => name.toLowerCase(),
+    (_baseEntry, overrideEntry) => overrideEntry,
+    'label',
+  )
+}
+
+/** `checks` and `contexts` are alternatives: keep only the one the override declares. */
+function resolveMergedStatusCheckAlternative(
+  merged: NamedRecord,
+  overrideEntry: NamedRecord,
+): void {
+  const mergedProtection = merged.protection
+  const overrideProtection = overrideEntry.protection
+  if (!isRecord(mergedProtection) || !isRecord(overrideProtection)) {
+    return
+  }
+
+  const mergedRsc = mergedProtection.required_status_checks
+  const overrideRsc = overrideProtection.required_status_checks
+  if (!isRecord(mergedRsc) || !isRecord(overrideRsc)) {
+    return
+  }
+
+  if ('contexts' in overrideRsc && !('checks' in overrideRsc)) {
+    delete mergedRsc.checks
+  } else if ('checks' in overrideRsc && !('contexts' in overrideRsc)) {
+    delete mergedRsc.contexts
+  }
+}
+
+/**
+ * Merge `branches` arrays by `name` (exact match — branch names are
+ * case-sensitive). A child entry with the same key is deep-merged onto the
+ * base entry via `deepMerge`, so e.g. a child that only declares
+ * `protection.required_status_checks` still keeps the base's other
+ * `protection` fields (like `enforce_admins`); an explicit `null` in the
+ * child wins outright, and nested arrays (like `checks`) are replaced, not
+ * unioned.
+ */
+function mergeBranches(base: unknown[], override: unknown[]): unknown[] {
+  return mergeNamedArray(
+    base,
+    override,
+    name => name,
+    (baseEntry, overrideEntry) => {
+      const merged = deepMerge(baseEntry, overrideEntry) as NamedRecord
+      resolveMergedStatusCheckAlternative(merged, overrideEntry)
+      return merged
+    },
+    'branch',
+  )
+}
+
+/** Merge an `_extends` base with the local config. Only top-level `labels`/`branches` merge by name. */
+function mergeConfigs(
+  base: Record<string, unknown>,
+  override: Record<string, unknown>,
+): Record<string, unknown> {
+  const merged = deepMerge(base, override)
+
+  if (Array.isArray(base.labels) && Array.isArray(override.labels)) {
+    merged.labels = mergeLabels(base.labels, override.labels)
+  }
+
+  if (Array.isArray(base.branches) && Array.isArray(override.branches)) {
+    merged.branches = mergeBranches(base.branches, override.branches)
+  }
+
+  return merged
 }
 
 function decodeContent(payload: unknown, path: string): string {
@@ -161,7 +309,7 @@ export async function loadConfig(
     const base = await loadRemoteConfig(octokit, target.owner, target.repo, target.path)
     const baseWithoutExtends = withoutExtends(base)
 
-    return deepMerge(baseWithoutExtends, localWithoutExtends) as SettingsConfig
+    return mergeConfigs(baseWithoutExtends, localWithoutExtends) as SettingsConfig
   } catch (error) {
     core.warning(`Failed to load _extends config: ${String(error)}`)
     return localWithoutExtends

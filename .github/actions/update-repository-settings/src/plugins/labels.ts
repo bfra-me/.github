@@ -49,6 +49,17 @@ function labelsDiffer(current: ComparableLabel, desired: ComparableLabel): boole
   return current.color !== desired.color || current.description !== desired.description
 }
 
+/** Summary output is report-only; a failed write must not fail a run whose mutations already applied. */
+async function writeLabelsSummary(message: string): Promise<void> {
+  try {
+    await core.summary.addHeading('Labels', 3).addRaw(message, true).write()
+  } catch (error) {
+    core.warning(
+      `Failed to write labels step summary: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+}
+
 export async function labelsPlugin(
   octokit: Octokit,
   owner: string,
@@ -108,8 +119,51 @@ export async function labelsPlugin(
     })
   }
 
-  for (const label of remove) {
-    core.info(`Deleting label: ${label.name}`)
-    await octokit.rest.issues.deleteLabel({owner, repo, name: label.name})
+  if (remove.length > 0) {
+    const remaining = currentLabels.length - remove.length + add.length
+
+    if (remove.length > remaining) {
+      const removedNames = remove.map(label => label.name)
+      core.warning(
+        `Skipping deletion of ${remove.length} label(s) (${removedNames.join(', ')}): ` +
+          `deletions would exceed the number of labels remaining (${remaining}). ` +
+          `Check the '_extends' base config or local 'labels:' config for missing entries.`,
+      )
+
+      await writeLabelsSummary(
+        `Skipped deleting ${remove.length} label(s) because deletions exceed the labels ` +
+          `remaining (${remaining}): ${removedNames.join(', ')}`,
+      )
+    } else {
+      const deletedNames: string[] = []
+      const failedNames: string[] = []
+
+      for (const label of remove) {
+        core.warning(`Deleting label: ${label.name}`)
+        try {
+          await octokit.rest.issues.deleteLabel({owner, repo, name: label.name})
+          deletedNames.push(label.name)
+        } catch (error) {
+          failedNames.push(label.name)
+          core.warning(
+            `Failed to delete label "${label.name}": ${error instanceof Error ? error.message : String(error)}`,
+          )
+        }
+      }
+
+      const summaryLines: string[] = []
+      if (deletedNames.length > 0) {
+        summaryLines.push(`Deleted ${deletedNames.length} label(s): ${deletedNames.join(', ')}`)
+      }
+      if (failedNames.length > 0) {
+        summaryLines.push(
+          `Failed to delete ${failedNames.length} label(s): ${failedNames.join(', ')}`,
+        )
+      }
+
+      if (summaryLines.length > 0) {
+        await writeLabelsSummary(summaryLines.join('\n'))
+      }
+    }
   }
 }

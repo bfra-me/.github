@@ -5,6 +5,7 @@ import {Octokit} from '@octokit/rest'
 import * as yaml from 'js-yaml'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {loadConfig} from '../config.js'
+import {compareBranchProtection} from '../plugins/branch-protection-equivalence.js'
 
 const mockGetContent = vi.hoisted(() => vi.fn())
 const mockWarning = vi.hoisted(() => vi.fn())
@@ -210,9 +211,469 @@ describe('loadConfig', () => {
           dependabot_security_updates: {status: 'enabled'},
         },
       },
-      labels: [{name: 'local-only'}],
+      labels: [{name: 'base-only'}, {name: 'local-only'}],
     })
     expect(config).not.toHaveProperty('_extends')
+  })
+
+  it('merges labels by name case-insensitively, with child entries replacing base entries wholesale', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            labels: [
+              {name: 'Bug', color: 'ff0000', description: 'local override'},
+              {name: 'child-only'},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            labels: [
+              {name: 'bug', color: '000000', description: 'base description'},
+              {name: 'base-only'},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({
+      labels: [
+        {name: 'Bug', color: 'ff0000', description: 'local override'},
+        {name: 'base-only'},
+        {name: 'child-only'},
+      ],
+    })
+  })
+
+  it('deep merges branches by exact name, keeping base protection fields not overridden by the child', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [
+              {
+                name: 'main',
+                protection: {
+                  required_status_checks: {strict: true, checks: [{context: 'child-check'}]},
+                },
+              },
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {
+                name: 'main',
+                protection: {
+                  enforce_admins: true,
+                  required_status_checks: {strict: false, checks: [{context: 'base-check'}]},
+                },
+              },
+              {name: 'develop', protection: {enforce_admins: false}},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({
+      branches: [
+        {
+          name: 'main',
+          protection: {
+            enforce_admins: true,
+            required_status_checks: {strict: true, checks: [{context: 'child-check'}]},
+          },
+        },
+        {name: 'develop', protection: {enforce_admins: false}},
+      ],
+    })
+  })
+
+  it('lets an explicit null in a child branch entry win outright over the base value', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [{name: 'main', protection: {required_status_checks: null}}],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {
+                name: 'main',
+                protection: {
+                  enforce_admins: true,
+                  required_status_checks: {strict: true, checks: [{context: 'base-check'}]},
+                },
+              },
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({
+      branches: [{name: 'main', protection: {enforce_admins: true, required_status_checks: null}}],
+    })
+  })
+
+  it('drops the base checks[] when the local branch entry declares contexts, keeping strict', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [
+              {
+                name: 'main',
+                protection: {required_status_checks: {strict: true, contexts: ['A', 'B']}},
+              },
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {name: 'main', protection: {required_status_checks: {strict: true, checks: []}}},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({
+      branches: [
+        {name: 'main', protection: {required_status_checks: {strict: true, contexts: ['A', 'B']}}},
+      ],
+    })
+  })
+
+  it('drops the base contexts when the local branch entry declares checks', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [
+              {
+                name: 'main',
+                protection: {
+                  required_status_checks: {strict: true, checks: [{context: 'ci/build'}]},
+                },
+              },
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {
+                name: 'main',
+                protection: {required_status_checks: {strict: true, contexts: ['legacy']}},
+              },
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({
+      branches: [
+        {
+          name: 'main',
+          protection: {
+            required_status_checks: {strict: true, checks: [{context: 'ci/build'}]},
+          },
+        },
+      ],
+    })
+  })
+
+  it('keeps the base checks/contexts as-is when the local branch entry declares neither', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [{name: 'main', protection: {enforce_admins: true}}],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {
+                name: 'main',
+                protection: {
+                  enforce_admins: false,
+                  required_status_checks: {strict: true, contexts: ['legacy']},
+                },
+              },
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({
+      branches: [
+        {
+          name: 'main',
+          protection: {
+            enforce_admins: true,
+            required_status_checks: {strict: true, contexts: ['legacy']},
+          },
+        },
+      ],
+    })
+  })
+
+  it('produces a merged branch declaration that compareBranchProtection finds equivalent to a GitHub read-back with both checks and its contexts mirror (fro-bot/.github regression)', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [
+              {
+                name: 'main',
+                protection: {required_status_checks: {strict: true, contexts: ['A', 'B']}},
+              },
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {name: 'main', protection: {required_status_checks: {strict: true, checks: []}}},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+    const mergedBranch = (config.branches?.[0] as {protection: Record<string, unknown>}).protection
+
+    const observedWithChecks = {
+      required_status_checks: {
+        strict: true,
+        checks: [
+          {context: 'A', app_id: null},
+          {context: 'B', app_id: null},
+        ],
+        contexts: ['A', 'B'],
+      },
+    }
+
+    const {equivalent} = compareBranchProtection(mergedBranch, observedWithChecks)
+    expect(equivalent).toBe(true)
+  })
+
+  it('lets a local `labels: null` override the base labels array outright, leaving labels unmanaged', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            labels: null,
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            labels: [{name: 'base-only'}],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({labels: null})
+  })
+
+  it('keeps the base labels when the local config declares an empty `labels: []` under `_extends`', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            labels: [],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            labels: [{name: 'base-only'}],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({labels: [{name: 'base-only'}]})
+  })
+
+  it('warns once on case-variant duplicate label names within a single side, without changing resolution', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            labels: [
+              {name: 'Bug', color: '111111'},
+              {name: 'bug', color: '222222'},
+              {name: 'BUG', color: '333333'},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({labels: [{name: 'bug', color: '000000'}]}),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    // Local's last duplicate wins ("BUG"), matching Map.set() last-write-wins
+    // resolution — the warning only surfaces the ambiguity, it doesn't change it.
+    expect(config).toEqual({labels: [{name: 'BUG', color: '333333'}]})
+    expect(mockWarning).toHaveBeenCalledTimes(1)
+    expect(mockWarning).toHaveBeenCalledWith(
+      expect.stringContaining('Duplicate label name "bug" in the local config'),
+    )
+  })
+
+  it('warns once per duplicate branch name in the base (_extends) config', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            branches: [{name: 'main', protection: {enforce_admins: true}}],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            branches: [
+              {name: 'main', protection: {enforce_admins: false, required_signatures: true}},
+              {name: 'main', protection: {required_signatures: false}},
+            ],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(mockWarning).toHaveBeenCalledTimes(1)
+    expect(mockWarning).toHaveBeenCalledWith(
+      expect.stringContaining('Duplicate branch name "main" in the base (_extends) config'),
+    )
+  })
+
+  it('replaces a nested labels key (not at the top level) wholesale instead of merging by name', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            repository: {labels: [{name: 'nested-local'}]},
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            repository: {labels: [{name: 'nested-base'}]},
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({repository: {labels: [{name: 'nested-local'}]}})
+  })
+
+  it('replaces non-labels/branches arrays wholesale (e.g. teams) rather than merging by key', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            teams: [{name: 'local-team', permission: 'push'}],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            teams: [{name: 'base-team', permission: 'admin'}],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({
+      teams: [{name: 'local-team', permission: 'push'}],
+    })
   })
 
   it('returns local config unchanged when _extends is absent', async () => {

@@ -2,6 +2,7 @@ import type {Octokit} from '@octokit/rest'
 import {Buffer} from 'node:buffer'
 import * as core from '@actions/core'
 import * as yaml from 'js-yaml'
+import {deepMerge} from './diff.js'
 
 export interface SettingsConfig {
   repository?: Record<string, unknown>
@@ -153,36 +154,6 @@ function mergeBranches(base: unknown[], override: unknown[]): unknown[] {
     (baseEntry, overrideEntry) => deepMerge(baseEntry, overrideEntry) as NamedRecord,
     'branch',
   )
-}
-
-/** Recursive merge of plain objects; arrays and scalars are replaced by the override. */
-function deepMerge(
-  base: Record<string, unknown>,
-  override: Record<string, unknown>,
-): Record<string, unknown> {
-  const result: Record<string, unknown> = {...base}
-  for (const key of Object.keys(override)) {
-    const overrideVal = override[key]
-    const baseVal = base[key]
-
-    if (
-      overrideVal !== null &&
-      typeof overrideVal === 'object' &&
-      !Array.isArray(overrideVal) &&
-      baseVal !== null &&
-      typeof baseVal === 'object' &&
-      !Array.isArray(baseVal)
-    ) {
-      result[key] = deepMerge(
-        baseVal as Record<string, unknown>,
-        overrideVal as Record<string, unknown>,
-      )
-      continue
-    }
-
-    result[key] = overrideVal
-  }
-  return result
 }
 
 /** Merge an `_extends` base with the local config. Only top-level `labels`/`branches` merge by name. */

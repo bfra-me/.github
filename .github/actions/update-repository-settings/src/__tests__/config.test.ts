@@ -339,6 +339,56 @@ describe('loadConfig', () => {
     })
   })
 
+  it('lets a local `labels: null` override the base labels array outright, leaving labels unmanaged', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            labels: null,
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            labels: [{name: 'base-only'}],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({labels: null})
+  })
+
+  it('keeps the base labels when the local config declares an empty `labels: []` under `_extends`', async () => {
+    mockGetContent
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            _extends: '.github:common-settings.yaml',
+            labels: [],
+          }),
+          encoding: 'base64',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          content: toBase64Yaml({
+            labels: [{name: 'base-only'}],
+          }),
+          encoding: 'base64',
+        },
+      })
+
+    const config = await loadConfig(createOctokit(), 'bfra-me', 'repo-a', '.github/settings.yml')
+
+    expect(config).toEqual({labels: [{name: 'base-only'}]})
+  })
+
   it('warns once on case-variant duplicate label names within a single side, without changing resolution', async () => {
     mockGetContent
       .mockResolvedValueOnce({

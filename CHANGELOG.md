@@ -1,5 +1,45 @@
 # @bfra.me/.github
 
+## 4.31.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.42.1` to `10.43.0` ([#2744](https://github.com/bfra-me/.github/pull/2744))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.43.0` to `10.44.0` ([#2746](https://github.com/bfra-me/.github/pull/2746))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.46.0` to `10.47.0` ([#2750](https://github.com/bfra-me/.github/pull/2750))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.44.0` to `10.45.0` ([#2747](https://github.com/bfra-me/.github/pull/2747))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.47.1` to `10.48.0` ([#2752](https://github.com/bfra-me/.github/pull/2752))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.45.0` to `10.46.0` ([#2748](https://github.com/bfra-me/.github/pull/2748))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.48.1` to `10.49.0` ([#2756](https://github.com/bfra-me/.github/pull/2756))
+
+
+### Patch Changes
+
+
+- Update npm dependency `prettier` from `3.9.6` to `3.9.7` ([#2753](https://github.com/bfra-me/.github/pull/2753))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.48.0` to `10.48.1` ([#2754](https://github.com/bfra-me/.github/pull/2754))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.47.0` to `10.47.1` ([#2751](https://github.com/bfra-me/.github/pull/2751))
+
+
+- Update GitHub Actions workflow dependency `github/codeql-action` from `4.38.0` to `4.38.1` ([#2749](https://github.com/bfra-me/.github/pull/2749))
+
 ## 4.30.0
 ### Minor Changes
 

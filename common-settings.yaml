@@ -142,6 +142,14 @@ labels:
     color: '#7057ff'
     description: Accessibility improvements
 
+  - name: action
+    color: '#2088ff'
+    description: GitHub Actions dependency updates
+
+  - name: 'agent: working'
+    color: '#fcf2e1'
+    description: Agent is currently working on this
+
   - name: architecture
     color: '#1d76db'
     description: Architecture and design changes
@@ -193,6 +201,10 @@ labels:
   - name: deployment
     color: '#d93f0b'
     description: Deployment related changes
+
+  - name: devDependencies
+    color: '#f9d0c4'
+    description: Development dependency updates
 
   - name: documentation
     color: '#0075ca'
@@ -250,9 +262,17 @@ labels:
     color: '#e4e669'
     description: This doesn't seem right
 
+  - name: javascript
+    color: '#f1e05a'
+    description: JavaScript package updates
+
   - name: lighthouse
     color: '#f44b21'
     description: Lighthouse performance and quality
+
+  - name: lockFileMaintenance
+    color: '#ededed'
+    description: Lock file maintenance updates
 
   - name: maintainability
     color: '#bfdadc'
@@ -301,6 +321,10 @@ labels:
   - name: renovate
     color: '#dd42f5'
     description: Renovate bot updates
+
+  - name: scheduled
+    color: '#128a0c'
+    description: Scheduled maintenance updates
 
   - name: scripts
     color: '#5319e7'

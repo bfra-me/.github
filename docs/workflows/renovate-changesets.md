@@ -50,6 +50,8 @@ The reusable workflow (`renovate-changeset.yaml`) accepts secrets via `workflow_
 | `APPLICATION_ID`          | Yes      | GitHub App ID for generating tokens          |
 | `APPLICATION_PRIVATE_KEY` | Yes      | GitHub App private key for generating tokens |
 
+When the caller has an `APPLICATION_CLIENT_ID` variable, the token is minted with it instead of `APPLICATION_ID`.
+
 ## What It Does
 
 1. Generates a `bfra-me[bot]` App token for elevated permissions

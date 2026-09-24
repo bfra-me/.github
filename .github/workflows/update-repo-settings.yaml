@@ -48,8 +48,16 @@ jobs:
               - '.github/workflows/update-repo-settings.yaml'
 
       - id: get-workflow-access-token
-        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
+        if: (github.event_name != 'push' || steps.filter.outputs.changes == 'true') && vars.APPLICATION_CLIENT_ID != ''
         name: Get Workflow Access Token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.APPLICATION_CLIENT_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - id: get-workflow-access-token-legacy
+        if: (github.event_name != 'push' || steps.filter.outputs.changes == 'true') && vars.APPLICATION_CLIENT_ID == ''
+        name: Get Workflow Access Token (legacy app-id)
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ secrets.APPLICATION_ID }}
@@ -66,14 +74,14 @@ jobs:
         with:
           repository: bfra-me/.github
           ref: ${{ steps.workflow-ref.outputs.ref }}
-          token: ${{ steps.get-workflow-access-token.outputs.token }}
+          token: ${{ steps.get-workflow-access-token.outputs.token || steps.get-workflow-access-token-legacy.outputs.token }}
           path: .bfra-me-github
           sparse-checkout: .github/actions/update-repository-settings
 
       - env:
-          GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token || steps.get-workflow-access-token-legacy.outputs.token }}
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         name: Update Repository Settings (${{ github.repository }})
         uses: ./.bfra-me-github/.github/actions/update-repository-settings
         with:
-          token: ${{ steps.get-workflow-access-token.outputs.token }}
+          token: ${{ steps.get-workflow-access-token.outputs.token || steps.get-workflow-access-token-legacy.outputs.token }}

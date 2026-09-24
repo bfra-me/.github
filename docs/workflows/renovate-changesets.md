@@ -47,10 +47,10 @@ The reusable workflow (`renovate-changeset.yaml`) accepts secrets via `workflow_
 
 | Secret                    | Required | Description                                  |
 | ------------------------- | -------- | -------------------------------------------- |
-| `APPLICATION_ID`          | No       | GitHub App ID for generating tokens          |
+| `APPLICATION_ID`          | Yes      | GitHub App ID for generating tokens          |
 | `APPLICATION_PRIVATE_KEY` | Yes      | GitHub App private key for generating tokens |
 
-When the caller has an `APPLICATION_CLIENT_ID` variable, the token is minted with it and `APPLICATION_ID` is ignored.
+When the caller has an `APPLICATION_CLIENT_ID` variable, the token is minted with it instead of `APPLICATION_ID`.
 
 ## What It Does
 

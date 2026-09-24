@@ -18,10 +18,8 @@ on:
         type: string
     secrets:
       APPLICATION_ID:
-        description: >-
-          GitHub App ID for generating tokens. Only used when the caller has
-          no APPLICATION_CLIENT_ID variable.
-        required: false
+        description: GitHub App ID for generating tokens
+        required: true
       APPLICATION_PRIVATE_KEY:
         description: GitHub App private key for generating tokens
         required: true

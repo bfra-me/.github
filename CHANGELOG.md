@@ -1,5 +1,25 @@
 # @bfra.me/.github
 
+## 4.33.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.114.1` to `0.115.0` ([#2778](https://github.com/bfra-me/.github/pull/2778))
+
+
+### Patch Changes
+
+
+- Reusable workflows mint GitHub App tokens with the caller's `APPLICATION_CLIENT_ID` variable when it is set, falling back to the `APPLICATION_ID` secret otherwise. ([#2781](https://github.com/bfra-me/.github/pull/2781))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.54.0` to `10.54.1` ([#2780](https://github.com/bfra-me/.github/pull/2780))
+
+
+- Update npm dependency `pnpm` from `11.27.0` to `11.27.1` ([#2777](https://github.com/bfra-me/.github/pull/2777))
+  
+  **Multi-package update** across 1 packages.
+
 ## 4.32.0
 ### Minor Changes
 

@@ -18,8 +18,10 @@ on:
         type: string
     secrets:
       APPLICATION_ID:
-        description: GitHub App ID for generating tokens
-        required: true
+        description: >-
+          GitHub App ID for generating tokens. Only used when the caller has
+          no APPLICATION_CLIENT_ID variable.
+        required: false
       APPLICATION_PRIVATE_KEY:
         description: GitHub App private key for generating tokens
         required: true
@@ -36,7 +38,16 @@ jobs:
       !startsWith(github.head_ref, 'chore/update-action-pins')
     steps:
       - id: get-workflow-access-token
+        if: vars.APPLICATION_CLIENT_ID != ''
         name: Get Workflow Access Token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.APPLICATION_CLIENT_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - id: get-workflow-access-token-legacy
+        if: vars.APPLICATION_CLIENT_ID == ''
+        name: Get Workflow Access Token (legacy app-id)
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ secrets.APPLICATION_ID }}
@@ -52,7 +63,7 @@ jobs:
         with:
           fetch-depth: 2
           ref: ${{ github.head_ref }}
-          token: ${{ steps.get-workflow-access-token.outputs.token }}
+          token: ${{ steps.get-workflow-access-token.outputs.token || steps.get-workflow-access-token-legacy.outputs.token }}
 
       - id: workflow-ref
         name: Resolve workflow ref
@@ -63,7 +74,7 @@ jobs:
         with:
           repository: bfra-me/.github
           ref: ${{ steps.workflow-ref.outputs.ref }}
-          token: ${{ steps.get-workflow-access-token.outputs.token }}
+          token: ${{ steps.get-workflow-access-token.outputs.token || steps.get-workflow-access-token-legacy.outputs.token }}
           path: .bfra-me-github
           sparse-checkout: .github/actions/renovate-changesets
 
@@ -71,7 +82,7 @@ jobs:
         name: 🖌️ Generate Renovate changesets
         uses: ./.bfra-me-github/.github/actions/renovate-changesets
         with:
-          token: ${{ steps.get-workflow-access-token.outputs.token }}
+          token: ${{ steps.get-workflow-access-token.outputs.token || steps.get-workflow-access-token-legacy.outputs.token }}
           commit-back: 'true'
           max-retries: '3'
           target-package: ${{ inputs.target-package }}

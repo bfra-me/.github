@@ -128,8 +128,17 @@ jobs:
           echo "autodiscover=$AUTODISCOVER" >> $GITHUB_OUTPUT
 
       - id: get-workflow-access-token
-        if: fromJSON(steps.prepare.outputs.repo_list)[0] != null
+        if: fromJSON(steps.prepare.outputs.repo_list)[0] != null && vars.APPLICATION_CLIENT_ID != ''
         name: Get Workflow Access Token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.APPLICATION_CLIENT_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - id: get-workflow-access-token-legacy
+        if: fromJSON(steps.prepare.outputs.repo_list)[0] != null && vars.APPLICATION_CLIENT_ID == ''
+        name: Get Workflow Access Token (legacy app-id)
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ secrets.APPLICATION_ID }}
@@ -139,7 +148,7 @@ jobs:
       - if: fromJSON(steps.prepare.outputs.repo_list)[0] != null
         name: Dispatch Repository Updates
         env:
-          GH_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
+          GH_TOKEN: ${{ steps.get-workflow-access-token.outputs.token || steps.get-workflow-access-token-legacy.outputs.token }}
           ORG: ${{ github.repository_owner }}
           REPO_LIST: ${{ steps.prepare.outputs.repo_list }}
         run: |

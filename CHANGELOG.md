@@ -1,5 +1,40 @@
 # @bfra.me/.github
 
+## 4.34.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.54.1` to `10.55.0` ([#2783](https://github.com/bfra-me/.github/pull/2783))
+
+
+- Group update for npm dependencies: `@bfra.me/eslint-config`, `@bfra.me/prettier-config` ([#2793](https://github.com/bfra-me/.github/pull/2793))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.55.0` to `10.56.0` ([#2786](https://github.com/bfra-me/.github/pull/2786))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.56.0` to `10.57.0` ([#2789](https://github.com/bfra-me/.github/pull/2789))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `github/codeql-action` from `4.38.1` to `4.38.2` ([#2785](https://github.com/bfra-me/.github/pull/2785))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.57.0` to `10.57.1` ([#2790](https://github.com/bfra-me/.github/pull/2790))
+
+
+- Update npm dependency `prettier` from `3.9.8` to `3.9.9` ([#2792](https://github.com/bfra-me/.github/pull/2792))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.57.1` to `10.57.2` ([#2791](https://github.com/bfra-me/.github/pull/2791))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.115.0` to `0.115.1` ([#2787](https://github.com/bfra-me/.github/pull/2787))
+
 ## 4.33.0
 ### Minor Changes
 

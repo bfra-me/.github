@@ -1,5 +1,49 @@
 # @bfra.me/.github
 
+## 4.36.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.60.1` to `10.61.0` ([#2814](https://github.com/bfra-me/.github/pull/2814))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.61.1` to `10.62.0` ([#2817](https://github.com/bfra-me/.github/pull/2817))
+
+
+- Update dependencies across 4 packages ([#2812](https://github.com/bfra-me/.github/pull/2812))
+  
+  **Dependencies updated**: `@types/node`
+  
+  **Merged changeset** combining 4 related updates across affected packages.
+  
+  **Affected packages**: `@bfra.me/.github`, `renovate-changesets`, `update-metadata`, `update-repository-settings`
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.117.0` to `0.117.1` ([#2809](https://github.com/bfra-me/.github/pull/2809))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.60.0` to `10.60.1` ([#2813](https://github.com/bfra-me/.github/pull/2813))
+
+
+- Update npm dependency `pnpm` from `11.28.0` to `11.28.1` ([#2811](https://github.com/bfra-me/.github/pull/2811))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.61.0` to `10.61.1` ([#2816](https://github.com/bfra-me/.github/pull/2816))
+
+
+- Update npm dependency `pnpm` from `11.28.1` to `11.28.2` ([#2815](https://github.com/bfra-me/.github/pull/2815))
+  
+  **Multi-package update** across 1 packages.
+
+- Update npm dependency `pnpm` from `11.28.2` to `11.28.3` ([#2818](https://github.com/bfra-me/.github/pull/2818))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.62.0` to `10.62.1` ([#2819](https://github.com/bfra-me/.github/pull/2819))
+
 ## 4.35.0
 ### Minor Changes
 

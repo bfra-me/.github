@@ -1,5 +1,17 @@
 # update-repository-settings
 
+## 0.4.0
+### Minor Changes
+
+
+- Update dependencies across 4 packages ([#2812](https://github.com/bfra-me/.github/pull/2812))
+  
+  **Dependencies updated**: `@types/node`
+  
+  **Merged changeset** combining 4 related updates across affected packages.
+  
+  **Affected packages**: `@bfra.me/.github`, `renovate-changesets`, `update-metadata`, `update-repository-settings`
+
 ## 0.3.0
 ### Minor Changes
 

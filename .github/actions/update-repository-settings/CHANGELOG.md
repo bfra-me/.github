@@ -1,5 +1,13 @@
 # update-repository-settings
 
+## 0.4.1
+### Patch Changes
+
+
+- Refresh pnpm lockfile dependencies ([#2828](https://github.com/bfra-me/.github/pull/2828))
+  
+  **Multi-package update** for package `update-repository-settings`.
+
 ## 0.4.0
 ### Minor Changes
 

@@ -1,5 +1,13 @@
 # @bfra.me-actions/update-metadata
 
+## 0.2.1
+### Patch Changes
+
+
+- Refresh pnpm lockfile dependencies ([#2828](https://github.com/bfra-me/.github/pull/2828))
+  
+  **Multi-package update** for package `update-metadata`.
+
 ## 0.2.0
 ### Minor Changes
 

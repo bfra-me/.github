@@ -1,5 +1,68 @@
 # @bfra.me/.github
 
+## 4.37.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.63.2` to `10.64.0` ([#2833](https://github.com/bfra-me/.github/pull/2833))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.64.0` to `10.65.0` ([#2835](https://github.com/bfra-me/.github/pull/2835))
+
+
+- Update dependency `bfra-me/.github` from `4.35.0` to `4.36.0` ([#2824](https://github.com/bfra-me/.github/pull/2824))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.66.0` to `10.68.0` ([#2842](https://github.com/bfra-me/.github/pull/2842))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.117.5` to `0.118.0` ([#2834](https://github.com/bfra-me/.github/pull/2834))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.65.1` to `10.66.0` ([#2840](https://github.com/bfra-me/.github/pull/2840))
+
+
+- Update npm dependency `eslint` from `10.11.0` to `10.12.0` ([#2831](https://github.com/bfra-me/.github/pull/2831))
+  
+  **Multi-package update** across 1 packages.
+
+### Patch Changes
+
+
+- Update npm dependency `pnpm` from `11.28.3` to `11.28.4` ([#2837](https://github.com/bfra-me/.github/pull/2837))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.63.0` to `10.63.1` ([#2827](https://github.com/bfra-me/.github/pull/2827))
+
+
+- Update GitHub Actions workflow dependency `actions/upload-artifact` from `7.0.1` to `7.0.2` ([#2841](https://github.com/bfra-me/.github/pull/2841))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.117.1` to `0.117.2` ([#2826](https://github.com/bfra-me/.github/pull/2826))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.63.1` to `10.63.2` ([#2829](https://github.com/bfra-me/.github/pull/2829))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.118.1` to `0.118.2` ([#2839](https://github.com/bfra-me/.github/pull/2839))
+
+
+- Refresh pnpm lockfile dependencies ([#2828](https://github.com/bfra-me/.github/pull/2828))
+  
+  **Multi-package update** for package `@bfra.me/.github`.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.65.0` to `10.65.1` ([#2838](https://github.com/bfra-me/.github/pull/2838))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.117.4` to `0.117.5` ([#2832](https://github.com/bfra-me/.github/pull/2832))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.118.0` to `0.118.1` ([#2836](https://github.com/bfra-me/.github/pull/2836))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.117.2` to `0.117.4` ([#2830](https://github.com/bfra-me/.github/pull/2830))
+
 ## 4.36.0
 ### Minor Changes
 

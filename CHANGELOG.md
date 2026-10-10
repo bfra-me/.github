@@ -1,5 +1,52 @@
 # @bfra.me/.github
 
+## 4.38.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.70.1` to `10.71.0` ([#2855](https://github.com/bfra-me/.github/pull/2855))
+
+
+- Update GitHub Actions workflow dependency `actions/setup-node` from `7.0.0` to `7.1.0` ([#2844](https://github.com/bfra-me/.github/pull/2844))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.118.3` to `0.119.0` ([#2854](https://github.com/bfra-me/.github/pull/2854))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.68.0` to `10.69.0` ([#2846](https://github.com/bfra-me/.github/pull/2846))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.69.1` to `10.70.0` ([#2852](https://github.com/bfra-me/.github/pull/2852))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.69.0` to `10.69.1` ([#2851](https://github.com/bfra-me/.github/pull/2851))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.71.0` to `10.71.1` ([#2857](https://github.com/bfra-me/.github/pull/2857))
+
+
+- Update GitHub Actions workflow dependency `github/codeql-action` from `4.38.2` to `4.38.3` ([#2847](https://github.com/bfra-me/.github/pull/2847))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.118.2` to `0.118.3` ([#2848](https://github.com/bfra-me/.github/pull/2848))
+
+
+- Update npm dependency `pnpm` from `11.28.4` to `11.28.5` ([#2849](https://github.com/bfra-me/.github/pull/2849))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.70.0` to `10.70.1` ([#2853](https://github.com/bfra-me/.github/pull/2853))
+
+
+- Update npm dependency `vite` from `8.3.2` to `8.3.3` ([#2850](https://github.com/bfra-me/.github/pull/2850))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.119.0` to `0.119.1` ([#2856](https://github.com/bfra-me/.github/pull/2856))
+
 ## 4.37.0
 ### Minor Changes
 

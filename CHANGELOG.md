@@ -1,5 +1,58 @@
 # @bfra.me/.github
 
+## 4.39.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.121.0` to `0.122.0` ([#2870](https://github.com/bfra-me/.github/pull/2870))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.119.3` to `0.120.0` ([#2866](https://github.com/bfra-me/.github/pull/2866))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.74.1` to `10.75.0` ([#2876](https://github.com/bfra-me/.github/pull/2876))
+
+
+- Update dependency `bfra-me/.github` from `4.37.0` to `4.38.0` ([#2864](https://github.com/bfra-me/.github/pull/2864))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.73.1` to `10.74.0` ([#2873](https://github.com/bfra-me/.github/pull/2873))
+
+
+- Update GitHub Actions workflow dependency `ossf/scorecard-action` from `2.4.4` to `2.5.0` ([#2868](https://github.com/bfra-me/.github/pull/2868))
+
+
+- Update GitHub Actions workflow dependency `actions/create-github-app-token` from `3.2.0` to `3.3.0` ([#2871](https://github.com/bfra-me/.github/pull/2871))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.120.0` to `0.121.0` ([#2869](https://github.com/bfra-me/.github/pull/2869))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.72.1` to `10.73.1` ([#2865](https://github.com/bfra-me/.github/pull/2865))
+
+
+- Update npm dependency `node` from `24.21.0` to `24.22.0` ([#2878](https://github.com/bfra-me/.github/pull/2878))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.75.0` to `10.76.0` ([#2877](https://github.com/bfra-me/.github/pull/2877))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.122.0` to `0.122.1` ([#2875](https://github.com/bfra-me/.github/pull/2875))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.74.0` to `10.74.1` ([#2874](https://github.com/bfra-me/.github/pull/2874))
+
+
+- Update npm dependency `prettier` from `3.9.9` to `3.9.10` ([#2872](https://github.com/bfra-me/.github/pull/2872))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.76.0` to `10.76.1` ([#2879](https://github.com/bfra-me/.github/pull/2879))
+
 ## 4.38.0
 ### Minor Changes
 

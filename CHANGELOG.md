@@ -1,5 +1,45 @@
 # @bfra.me/.github
 
+## 4.40.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.78.0` to `10.79.0` ([#2889](https://github.com/bfra-me/.github/pull/2889))
+
+
+- Update GitHub Actions workflow dependency `github/codeql-action` from `4.38.3` to `4.39.0` ([#2886](https://github.com/bfra-me/.github/pull/2886))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.77.0` to `10.78.0` ([#2887](https://github.com/bfra-me/.github/pull/2887))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.76.1` to `10.77.0` ([#2884](https://github.com/bfra-me/.github/pull/2884))
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.79.0` to `10.80.0` ([#2890](https://github.com/bfra-me/.github/pull/2890))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.122.1` to `0.122.2` ([#2881](https://github.com/bfra-me/.github/pull/2881))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.122.2` to `0.122.3` ([#2883](https://github.com/bfra-me/.github/pull/2883))
+
+
+- Update npm dependency `eslint-plugin-prettier` from `5.5.6` to `5.5.7` ([#2888](https://github.com/bfra-me/.github/pull/2888))
+  
+  **Multi-package update** across 1 packages.
+
+- Update dependencies across 4 packages ([#2885](https://github.com/bfra-me/.github/pull/2885))
+  
+  **Dependencies updated**: `@types/node`
+  
+  **Merged changeset** combining 4 related updates across affected packages.
+  
+  **Affected packages**: `@bfra.me/.github`, `renovate-changesets`, `update-metadata`, `update-repository-settings`
+
 ## 4.39.0
 ### Minor Changes
 

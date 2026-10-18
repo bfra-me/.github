@@ -1,5 +1,17 @@
 # update-repository-settings
 
+## 0.4.2
+### Patch Changes
+
+
+- Update dependencies across 4 packages ([#2885](https://github.com/bfra-me/.github/pull/2885))
+  
+  **Dependencies updated**: `@types/node`
+  
+  **Merged changeset** combining 4 related updates across affected packages.
+  
+  **Affected packages**: `@bfra.me/.github`, `renovate-changesets`, `update-metadata`, `update-repository-settings`
+
 ## 0.4.1
 ### Patch Changes
 

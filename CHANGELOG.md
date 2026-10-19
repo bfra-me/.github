@@ -1,5 +1,24 @@
 # @bfra.me/.github
 
+## 4.41.0
+### Minor Changes
+
+
+- Update npm dependency `eslint` from `10.12.0` to `10.13.0` ([#2902](https://github.com/bfra-me/.github/pull/2902))
+  
+  **Multi-package update** across 1 packages.
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.81.2` to `10.82.0` ([#2901](https://github.com/bfra-me/.github/pull/2901))
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.123.1` to `0.124.0` ([#2899](https://github.com/bfra-me/.github/pull/2899))
+
+
+### Patch Changes
+
+
+- Serialize Renovate runs that write to a repository, so concurrent runs no longer open duplicate pull requests for the same branch ([#2903](https://github.com/bfra-me/.github/pull/2903))
+
 ## 4.40.0
 ### Minor Changes
 

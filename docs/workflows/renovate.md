@@ -63,6 +63,10 @@ The workflow requires the following permissions:
 - `contents: read` - For reading repository content
 - Additional permissions are needed for Renovate to create PRs (handled internally)
 
+## Concurrency
+
+Runs that write to a repository share the job-level concurrency group `<repository>-<workflow>-write`, with `cancel-in-progress: false`. At most one runs at a time and one waits. A newer waiting run replaces an older one, and a running job is never cancelled. Every run processes the whole repository and Dependency Dashboard, so the replacement loses no work. Dry runs on pushes to non-default branches use a unique group and run in parallel. A calling workflow must not define its own concurrency group with that name.
+
 ## Capabilities
 
 1. **Dependency Management**

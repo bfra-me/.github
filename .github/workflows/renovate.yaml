@@ -58,18 +58,18 @@ on:
     types: [completed]
     workflows: [Main]
 
-concurrency:
-  # Runs that write share one group per repository so they never race to create the same branch or PR.
-  # Dry runs (pushes to non-default branches) stay ungrouped.
-  group: ${{ github.repository }}-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref != 'refs/heads/main') && github.run_id || 'write' }}
-  cancel-in-progress: false
-
 permissions:
   contents: read
 
 jobs:
   renovate:
     name: Renovate
+    # Job-level, so runs whose job is skipped never take a slot in the group.
+    # Runs that write share one group per repository so they never race to create the same branch or PR.
+    # Dry runs (pushes to non-default branches) stay ungrouped.
+    concurrency:
+      group: ${{ github.repository }}-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref != 'refs/heads/main') && github.run_id || 'write' }}
+      cancel-in-progress: false
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request') ||
       (github.event_name != 'issues' && contains(github.event.*.labels.*.name, 'renovate')) ||

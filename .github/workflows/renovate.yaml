@@ -59,7 +59,9 @@ on:
     workflows: [Main]
 
 concurrency:
-  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.run_number || github.ref }}
+  # Runs that write share one group per repository so they never race to create the same branch or PR.
+  # Dry runs (pushes to non-default branches) stay ungrouped.
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref != 'refs/heads/main') && github.run_id || 'write' }}
   cancel-in-progress: false
 
 permissions:

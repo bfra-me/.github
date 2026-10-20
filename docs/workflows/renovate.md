@@ -65,7 +65,7 @@ The workflow requires the following permissions:
 
 ## Concurrency
 
-Runs that write to a repository share the job-level concurrency group `<repository>-<workflow>-write`, with `cancel-in-progress: false`. At most one runs at a time and one waits. A newer waiting run replaces an older one, and a running job is never cancelled. Every run processes the whole repository and Dependency Dashboard, so the replacement loses no work. Dry runs on pushes to non-default branches use a unique group and run in parallel. A calling workflow must not define its own concurrency group with that name.
+Runs that write to a repository share the job-level concurrency group `<repository>-<workflow>-write`, with `cancel-in-progress: false` and `queue: max`. One runs at a time and the rest wait in order, so a running job is never cancelled and no waiting run is replaced. Without `queue: max`, a newer waiting run would replace the older one and leave a cancelled `Renovate` check on the pull request that triggered it. Dry runs on pushes to non-default branches use a unique group and run in parallel. A calling workflow must not define its own concurrency group with that name.
 
 ## Capabilities
 

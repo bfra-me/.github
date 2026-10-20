@@ -1,5 +1,20 @@
 # @bfra.me/.github
 
+## 4.42.0
+### Minor Changes
+
+
+- Update GitHub Actions workflow dependency `bfra-me/renovate-action` from `10.82.0` to `10.83.0` ([#2906](https://github.com/bfra-me/.github/pull/2906))
+
+
+### Patch Changes
+
+
+- Update GitHub Actions workflow dependency `fro-bot/agent` from `0.124.0` to `0.124.1` ([#2905](https://github.com/bfra-me/.github/pull/2905))
+
+
+- Queue every waiting Renovate run instead of replacing it, so a burst of pull request updates no longer leaves cancelled Renovate checks on the earlier pull requests ([#2908](https://github.com/bfra-me/.github/pull/2908))
+
 ## 4.41.0
 ### Minor Changes
 

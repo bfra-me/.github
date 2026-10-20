@@ -70,6 +70,10 @@ jobs:
     concurrency:
       group: ${{ github.repository }}-${{ github.workflow }}-${{ (github.event_name == 'push' && github.ref != 'refs/heads/main') && github.run_id || 'write' }}
       cancel-in-progress: false
+      # Keep every waiting run. With the default single slot, a newer run replaces
+      # the waiting one, which leaves a cancelled check on the pull request that
+      # triggered it.
+      queue: max
     if: >-
       (github.event_name != 'issues' && github.event_name != 'pull_request') ||
       (github.event_name != 'issues' && contains(github.event.*.labels.*.name, 'renovate')) ||
